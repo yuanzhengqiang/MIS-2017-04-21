@@ -1,0 +1,334 @@
+package weixin.controller;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import weixin.tools.SignUtil;
+
+import com.framework.system.db.query.PageList;
+import com.framework.system.util.JsonUtil;
+
+import fsk.entity.older.OlderEntity;
+import fsk.entity.site.SiteEntity;
+import fsk.entity.siteServiceArea.SiteServiceAreaEntity;
+import fsk.init.SystemInit;
+import fsk.service.older.OlderService;
+import fsk.service.site.SiteService;
+import fsk.service.siteServiceArea.SiteServiceAreaService;
+import fsk.thread.GetAccessTokenThread;
+
+@RequestMapping("/wechatReservationService")
+@Controller
+public class WeixinReservationServiceController {
+	private static Logger logger = Logger
+			.getLogger(WeixinReservationServiceController.class);
+	
+	/**
+	 * 服务类
+	 */
+	private OlderService olderService = OlderService.getInstance();
+	private SiteServiceAreaService siteServiceAreaService = SiteServiceAreaService.getInstance();
+	private SiteService siteService = SiteService.getInstance();
+	
+	/**
+	 * 服务类别页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/weixin/weixinReservationService/weixinChooseService");
+		//true则代表正式环境，可以开启获取token线程，获取微信服务器数据
+		if("formal".equals(SystemInit.weixinmsgpush)){
+			SignUtil.getAccess_tokenByThread();
+		}
+		String openid = "";
+		if(request.getSession().getAttribute("weixinopenid") != null && !"".equals(request.getSession().getAttribute("weixinopenid"))){//内部跳转
+			openid = (String)request.getSession().getAttribute("weixinopenid");
+		}else {
+			openid = SignUtil.getopenid(request.getParameter("code"));
+			request.getSession().setAttribute("weixinopenid", openid);
+		}
+		return mav;
+	}
+	
+	/**
+	 * 服务列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "mainList")
+	public ModelAndView mainList(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/weixin/weixinReservationService/weixinChooseServiceDetail");
+		String typeId = (String) request.getParameter("typeId");
+		mav.addObject("typeId", typeId);
+		return mav;
+	}
+	
+	/**
+	 * 服务详情页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "mainXQ")
+	public ModelAndView centerXQ(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/weixin/weixinReservationService/weixinServiceIntroduce");
+		String id = (String) request.getParameter("id");
+		mav.addObject("id", id);
+		return mav;
+	}
+	
+	/**
+	 * 服务下单选择页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "mainOrder")
+	public ModelAndView centerOrder(HttpServletRequest request) {
+		logger.debug("微信进入下单页  ");
+		ModelAndView mav = new ModelAndView("/weixin/weixinReservationService/weixinOrderSelection");
+		String id = "";
+		if((String) request.getParameter("id") != null && !"".equals((String) request.getParameter("id"))){
+			id = (String) request.getParameter("id");
+		}
+		String openid = "";
+		if((String)request.getSession().getAttribute("weixinopenid") != null && !"".equals((String)request.getSession().getAttribute("weixinopenid"))){
+			openid = (String)request.getSession().getAttribute("weixinopenid");
+		}
+		Integer wechatId = null;
+		if(openid != null && !openid.equals("")){
+			String reqmsg = "{\"action\":\"QUERY_WECHAT_LIST_REQUEST\",\"page\":{\"pageno\":\"1\",\"pagesize\":\"1\"},\"content\":{\"openid\":\"" + openid + "\"}}";
+			String ifFinish = SignUtil.doHttpPost(SignUtil.handlerurl + "/wechat.do?handlerWechat",reqmsg);
+			Map reqParams = JsonUtil.getMap4Json(ifFinish);
+			if(reqParams != null ){
+				JSONObject content = (JSONObject) reqParams.get("content");
+				JSONArray wechatList = null;
+				if(content != null ){
+					Object object = content.get("wechatList");
+					if (object != null) {
+						wechatList = (JSONArray)object;
+					}
+					if(wechatList!=null){    
+						 JSONObject objtemp = wechatList.getJSONObject(0);
+						 wechatId = (Integer) objtemp.get("id");//登录用户信息表主键
+					}
+				}
+			}
+		}
+		mav.addObject("wechatId", wechatId);
+		mav.addObject("id", id);
+		
+		if((String) request.getParameter("flag") != null && !"".equals((String) request.getParameter("flag"))){
+			String flag = (String) request.getParameter("flag");
+			String serviceId = (String) request.getParameter("serviceId");
+			String olderId = (String) request.getParameter("olderId");
+			String lianxiren_input = changeISOToUTF((String) request.getParameter("lianxiren_input"));
+			String dianhua_input = changeISOToUTF((String) request.getParameter("dianhua_input"));
+			String address_input = changeISOToUTF((String) request.getParameter("address_input"));
+			String yjfwsc_input = changeISOToUTF((String) request.getParameter("yjfwsc_input"));
+			String fwzx_input = changeISOToUTF((String) request.getParameter("fwzx_input"));
+			String olderFWZDId = changeISOToUTF((String) request.getParameter("olderFWZDId"));
+			
+			
+			mav.addObject("flag", flag);
+			mav.addObject("serviceId", serviceId);
+			mav.addObject("olderId", olderId);
+			mav.addObject("lianxiren_input", lianxiren_input);
+			mav.addObject("dianhua_input", dianhua_input);
+			mav.addObject("address_input", address_input);
+			mav.addObject("yjfwsc_input", yjfwsc_input);
+			mav.addObject("fwzx_input", fwzx_input);
+			mav.addObject("olderFWZDId", olderFWZDId);
+		}
+		
+		String flag2 = "";
+		if((String) request.getParameter("flag2") != null && !"".equals((String) request.getParameter("flag2"))){
+			flag2 = (String) request.getParameter("flag2");
+		}
+		mav.addObject("flag2", flag2);
+		return mav;
+	}
+	
+	/**
+	 * 服务下单确认页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "mainOrderConfirmation")
+	public ModelAndView centerOrderConfirmation(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/weixin/weixinReservationService/weixinOrderConfirmation");
+		String serviceId = (String) request.getParameter("serviceId");
+		String olderId = (String) request.getParameter("olderId");
+		String lianxiren_input = changeISOToUTF((String) request.getParameter("lianxiren_input"));
+		String dianhua_input = changeISOToUTF((String) request.getParameter("dianhua_input"));
+		String address_input = changeISOToUTF((String) request.getParameter("address_input"));
+		String yjfwsc_input = changeISOToUTF((String) request.getParameter("yjfwsc_input"));
+		String fwzx_input = changeISOToUTF((String) request.getParameter("fwzx_input"));
+		String olderFWZD_hideId = changeISOToUTF((String) request.getParameter("olderFWZD_hideId"));
+		String olderFWZD_hideValue = changeISOToUTF((String) request.getParameter("olderFWZD_hideValue"));
+		
+		String openid = "";
+		if((String)request.getSession().getAttribute("weixinopenid") != null && !"".equals((String)request.getSession().getAttribute("weixinopenid"))){
+			openid = (String)request.getSession().getAttribute("weixinopenid");
+		}
+		String wechatId = "";
+		String wechatNickname = "";
+		if(openid != null && !openid.equals("")){
+			String reqmsg = "{\"action\":\"QUERY_WECHAT_LIST_REQUEST\",\"page\":{\"pageno\":\"1\",\"pagesize\":\"1\"},\"content\":{\"openid\":\"" + openid + "\"}}";
+			String ifFinish = SignUtil.doHttpPost(SignUtil.handlerurl + "/wechat.do?handlerWechat",reqmsg);
+			Map reqParams = JsonUtil.getMap4Json(ifFinish);
+			if(reqParams != null ){
+				JSONObject content = (JSONObject) reqParams.get("content");
+				JSONArray wechatList = null;
+				if(content != null ){
+					Object object = content.get("wechatList");
+					if (object != null) {
+						wechatList = (JSONArray)object;
+					}
+					if(wechatList!=null){    
+						 JSONObject objtemp = wechatList.getJSONObject(0);
+						 wechatId = ((Integer) objtemp.get("id")) + "";//登录用户信息表主键
+						 wechatNickname = (String) objtemp.get("nickname");
+					}
+				}
+			}
+		}
+		
+		mav.addObject("wechatId", wechatId);
+		mav.addObject("wechatNickname", wechatNickname);
+		
+		mav.addObject("serviceId", serviceId);
+		mav.addObject("olderId", olderId);
+		mav.addObject("lianxiren_input", lianxiren_input);
+		mav.addObject("dianhua_input", dianhua_input);
+		mav.addObject("address_input", address_input);
+		mav.addObject("yjfwsc_input", yjfwsc_input);
+		mav.addObject("fwzx_input", fwzx_input);
+		mav.addObject("olderFWZD_hideId", olderFWZD_hideId);
+		mav.addObject("olderFWZD_hideValue", olderFWZD_hideValue);
+		return mav;
+	}
+	
+	/**
+	 * 服务下单成功页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "mainSuccessOrder")
+	public ModelAndView centerSuccessOrder(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/weixin/weixinReservationService/weixinSuccessOrder");
+		return mav;
+	}
+	
+	/**
+	 * 服务下单失败页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "mainFailureOrder")
+	public ModelAndView centerFailureOrder(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/weixin/weixinReservationService/weixinFailureOrder");
+		return mav;
+	}
+	
+	/*
+	 * 页面传递值转码
+	 */
+	public String changeISOToUTF(String str){
+		try {
+			str = new String(str.getBytes(
+					"ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			str = "转码失败";
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return str;
+	}
+	
+	/*
+	 * 获取老人所属站点
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "getOlderSite")
+	@ResponseBody
+	public String getOlderSite(Integer olderId){
+		Integer streetId = null;
+		Integer olderSiteId = null;
+		String olderSiteName = null;
+		try {
+			Map<String, Object> queryOlder = new HashMap<String, Object>();
+			queryOlder.put("id", olderId);
+			List<OlderEntity> olderQuery = olderService.getListByCondition(queryOlder);
+			if(olderQuery != null && olderQuery.size() > 0){
+				streetId = olderQuery.get(0).getServiceStreetId();
+			}
+			
+			if (streetId != null) {
+				Map<String, Object> queryMapsite = new HashMap<String, Object>();
+				queryMapsite.put("serviceStreetId", streetId);
+				List<SiteServiceAreaEntity> sitelist = siteServiceAreaService
+						.getListByCondition(queryMapsite);
+				if (sitelist != null && sitelist.size() > 0) {
+					for(int i=0;i<sitelist.size();i++){
+						SiteServiceAreaEntity entitytemp = sitelist
+								.get(i);
+						Integer idt = entitytemp.getSiteId();
+						SiteEntity entitySite = siteService
+								.getById(idt);
+						if (entitySite != null) {
+							olderSiteId = entitySite.getId();
+							olderSiteName = entitySite.getName();
+							break;
+						}
+					}
+						
+				}
+			}
+		} catch (Exception e) {
+			
+		}
+		
+		JSONObject jsonResult = new JSONObject();
+		if (olderSiteId != null) {
+			jsonResult.put("siteId", olderSiteId);
+			jsonResult.put("siteName", olderSiteName);
+			jsonResult.put("des", "success");
+		} else {
+			jsonResult.put("des", "failure");
+		}
+
+		String json2return = jsonResult.toString();
+		try {
+			json2return = new String(json2return.getBytes("utf-8"),
+					"iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+
+		}
+		return json2return;
+	}
+	
+	
+}

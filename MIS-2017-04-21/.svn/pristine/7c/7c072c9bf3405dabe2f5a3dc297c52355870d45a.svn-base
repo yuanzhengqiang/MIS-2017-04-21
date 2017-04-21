@@ -1,0 +1,2079 @@
+package fsk.service.healthAssessment;
+
+import java.io.File;
+import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import javax.imageio.stream.FileImageOutputStream;
+
+import org.apache.log4j.Logger;
+
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.older.OlderEntity;
+import fsk.entity.healthReport.HealthReportEntity;
+import fsk.entity.healthReportPhoto.HealthReportPhotoEntity;
+import fsk.entity.recovery.RecoveryEntity;
+import fsk.entity.adl.AdlEntity;
+import fsk.entity.nursingPlan.NursingPlanEntity;
+import fsk.entity.nutrition.NutritionEntity;
+import fsk.entity.fall.FallEntity;
+import fsk.entity.skinLesions.SkinLesionsEntity;
+import fsk.entity.sore.SoreEntity;
+import fsk.entity.mmse.MmseEntity;
+import fsk.entity.mas.MasEntity;
+import fsk.entity.barthel.BarthelEntity;
+import fsk.entity.fca.FcaEntity;
+
+import fsk.entity.healthAssessment.HealthAssessmentEntity;
+import fsk.handler.healthAssessment.HealthAssessmentHandler;
+import fsk.init.SystemInit;
+import fsk.util.Base64Utils;
+import fsk.util.FileUtil;
+
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+/**
+ * @Title: Service
+ * @Description: 健康评估服务类
+ * @author feng.gu
+ * @date 2016-08-11 17:31:29
+ * @version V1.0
+ * 
+ */
+public class HealthAssessmentService {
+	private static Logger logger = Logger
+			.getLogger(HealthAssessmentService.class);
+	private DBManager dbManager = DBManager.getInstance();
+
+	private static HealthAssessmentService healthAssessmentService;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static HealthAssessmentService getInstance() {
+		if (healthAssessmentService == null) {
+			healthAssessmentService = new HealthAssessmentService();
+		}
+		return healthAssessmentService;
+	}
+
+	/**
+	 * 保存记录
+	 * 
+	 * @param obj
+	 */
+	public boolean save(HealthAssessmentEntity healthAssessment) {
+		boolean result = false;
+		if (healthAssessment != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 关联信息保存
+				EmployeeEntity employee = healthAssessment.getEmployee();
+				if (employee != null) {
+					dbManager.saveNoTransaction(employee);
+					healthAssessment.setEmployeeId(employee.getId());
+				}
+				// 关联信息保存
+				OlderEntity older = healthAssessment.getOlder();
+				if (older != null) {
+					dbManager.saveNoTransaction(older);
+					healthAssessment.setOlderId(older.getId());
+				}
+				// 关联信息保存
+				HealthReportEntity healthReport = healthAssessment
+						.getHealthReport();
+				if (healthReport != null) {
+					dbManager.saveNoTransaction(healthReport);
+					healthAssessment.setHealthReportId(healthReport.getId());
+				}
+				// 关联信息保存
+				/* pei */
+				if (healthReport != null) {
+					dbManager.saveNoTransaction(healthReport);
+					healthAssessment.setHealthReportId(healthReport.getId());
+					ArrayList jsona = (ArrayList) healthReport
+							.getHealthReportPhotoList();
+					ArrayList number = new ArrayList();
+					number.add(0, 1);
+					number.add(1, 2);
+					number.add(2, 3);
+					number.add(3, 4);
+					number.add(4, 5);
+					number.add(5, 6);
+					number.add(6, 7);
+					int n = 0;
+					if (jsona != null && jsona.size() > 0) {
+
+						List<HealthReportPhotoEntity> entityList = new ArrayList<HealthReportPhotoEntity>();
+						for (int i = 0; i < jsona.size(); i++) {
+							HealthReportPhotoEntity Entity = (HealthReportPhotoEntity) jsona
+									.get(i);
+							String photourl = (String) Entity.getPhotoUrl();
+							if (photourl.startsWith("http")) {
+								int index = -1;
+								String str = photourl.substring(
+										photourl.length() - 5,
+										photourl.length() - 4);
+								int numberindex = Integer.parseInt(str);
+								index = number.indexOf(numberindex);
+								if (index != -1) {
+									number.remove(index);
+								}
+							}
+						}
+						for (int i = 0; i < jsona.size(); i++) {
+							HealthReportPhotoEntity Entity = (HealthReportPhotoEntity) jsona
+									.get(i);
+							String photourl = (String) Entity.getPhotoUrl();
+							Integer showIndex = (Integer) Entity.getShowIndex();
+							String title =Entity.getTitle();
+							if (!photourl.startsWith("http")) {
+								String fileName = "healthReport_"
+										+ healthReport.getId() + "_"
+										+ number.get(n) + ".jpg";
+								photourl = savePhoto(photourl, fileName);
+								n++;
+							}
+							Entity.setHealthReportId(healthReport.getId());
+							Entity.setPhotoUrl(photourl);
+							Entity.setShowIndex(showIndex);
+							Entity.setTitle(title);
+							dbManager.saveNoTransaction(Entity);
+						}
+					}
+				}
+				// 关联信息保存
+				RecoveryEntity recovery = healthAssessment.getRecovery();
+				if (recovery != null) {
+					dbManager.saveNoTransaction(recovery);
+					healthAssessment.setRecoveryId(recovery.getId());
+					//关联信息保存pei
+					ArrayList jsona = (ArrayList) recovery.getSkinLesionsList();
+					if (jsona != null && jsona.size() > 0) {
+						List<SkinLesionsEntity> entityList = new ArrayList<SkinLesionsEntity>();
+						for (int i = 0; i < jsona.size(); i++) {
+							SkinLesionsEntity entity = (SkinLesionsEntity) jsona
+									.get(i);
+							entity.setRecoveryId(recovery.getId());
+							entityList.add(entity);
+							dbManager.saveNoTransaction(entity);
+						}
+
+					}
+				}
+				// 关联信息保存
+				AdlEntity adl = healthAssessment.getAdl();
+				if (adl != null) {
+					dbManager.saveNoTransaction(adl);
+					healthAssessment.setAdlId(adl.getId());
+				}
+				// 关联信息保存
+				NutritionEntity nutrition = healthAssessment.getNutrition();
+				if (nutrition != null) {
+					dbManager.saveNoTransaction(nutrition);
+					healthAssessment.setNutritionId(nutrition.getId());
+				}
+				// 关联信息保存
+				FallEntity fall = healthAssessment.getFall();
+				if (fall != null) {
+					dbManager.saveNoTransaction(fall);
+					healthAssessment.setFallId(fall.getId());
+				}
+				// 关联信息保存
+				SoreEntity sore = healthAssessment.getSore();
+				if (sore != null) {
+					dbManager.saveNoTransaction(sore);
+					healthAssessment.setSoreId(sore.getId());
+				}
+				// 关联信息保存
+				MmseEntity mmse = healthAssessment.getMmse();
+				if (mmse != null) {
+					dbManager.saveNoTransaction(mmse);
+					healthAssessment.setMmseId(mmse.getId());
+				}
+				// 关联信息保存
+				MasEntity mas = healthAssessment.getMas();
+				if (mas != null) {
+					dbManager.saveNoTransaction(mas);
+					healthAssessment.setMasId(mas.getId());
+				}
+				// 关联信息保存
+				BarthelEntity barthel = healthAssessment.getBarthel();
+				if (barthel != null) {
+					dbManager.saveNoTransaction(barthel);
+					healthAssessment.setBarthelId(barthel.getId());
+				}
+				// 关联信息保存
+				FcaEntity fca = healthAssessment.getFca();
+				if (fca != null) {
+					dbManager.saveNoTransaction(fca);
+					healthAssessment.setFcaId(fca.getId());
+				}
+				result = dbManager.saveNoTransaction(healthAssessment);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量保存记录
+	 * 
+	 * @param list
+	 */
+	public boolean saveList(List<HealthAssessmentEntity> healthAssessmentList) {
+		boolean result = false;
+		if (healthAssessmentList != null && healthAssessmentList.size() > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				for (HealthAssessmentEntity healthAssessment : healthAssessmentList) {
+					if (healthAssessment != null) {
+						// 关联信息保存
+						EmployeeEntity employee = healthAssessment
+								.getEmployee();
+						if (employee != null) {
+							dbManager.saveNoTransaction(employee);
+							healthAssessment.setEmployeeId(employee.getId());
+						}
+						// 关联信息保存
+						OlderEntity older = healthAssessment.getOlder();
+						if (older != null) {
+							dbManager.saveNoTransaction(older);
+							healthAssessment.setOlderId(older.getId());
+						}
+						// 关联信息保存
+						HealthReportEntity healthReport = healthAssessment
+								.getHealthReport();
+						if (healthReport != null) {
+							dbManager.saveNoTransaction(healthReport);
+							healthAssessment.setHealthReportId(healthReport
+									.getId());
+						}
+						// 关联信息保存
+						RecoveryEntity recovery = healthAssessment
+								.getRecovery();
+						if (recovery != null) {
+							dbManager.saveNoTransaction(recovery);
+							healthAssessment.setRecoveryId(recovery.getId());
+						}
+						// 关联信息保存
+						AdlEntity adl = healthAssessment.getAdl();
+						if (adl != null) {
+							dbManager.saveNoTransaction(adl);
+							healthAssessment.setAdlId(adl.getId());
+						}
+						// 关联信息保存
+						NutritionEntity nutrition = healthAssessment
+								.getNutrition();
+						if (nutrition != null) {
+							dbManager.saveNoTransaction(nutrition);
+							healthAssessment.setNutritionId(nutrition.getId());
+						}
+						// 关联信息保存
+						FallEntity fall = healthAssessment.getFall();
+						if (fall != null) {
+							dbManager.saveNoTransaction(fall);
+							healthAssessment.setFallId(fall.getId());
+						}
+						// 关联信息保存
+						SoreEntity sore = healthAssessment.getSore();
+						if (sore != null) {
+							dbManager.saveNoTransaction(sore);
+							healthAssessment.setSoreId(sore.getId());
+						}
+						// 关联信息保存
+						MmseEntity mmse = healthAssessment.getMmse();
+						if (mmse != null) {
+							dbManager.saveNoTransaction(mmse);
+							healthAssessment.setMmseId(mmse.getId());
+						}
+						// 关联信息保存
+						MasEntity mas = healthAssessment.getMas();
+						if (mas != null) {
+							dbManager.saveNoTransaction(mas);
+							healthAssessment.setMasId(mas.getId());
+						}
+						// 关联信息保存
+						BarthelEntity barthel = healthAssessment.getBarthel();
+						if (barthel != null) {
+							dbManager.saveNoTransaction(barthel);
+							healthAssessment.setBarthelId(barthel.getId());
+						}
+						// 关联信息保存
+						FcaEntity fca = healthAssessment.getFca();
+						if (fca != null) {
+							dbManager.saveNoTransaction(fca);
+							healthAssessment.setFcaId(fca.getId());
+						}
+						result = dbManager.saveNoTransaction(healthAssessment);
+					}
+				}
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public HealthAssessmentEntity getById(Integer id) {
+		HealthAssessmentEntity obj = null;
+		if (id != null) {
+			obj = (HealthAssessmentEntity) dbManager.getById(id,
+					HealthAssessmentEntity.class);
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param employeeShow
+	 *            是否查询关联信息
+	 * @param olderShow
+	 *            是否查询关联信息
+	 * @param healthReportShow
+	 *            是否查询关联信息
+	 * @param recoveryShow
+	 *            是否查询关联信息
+	 * @param adlShow
+	 *            是否查询关联信息
+	 * @param nutritionShow
+	 *            是否查询关联信息
+	 * @param fallShow
+	 *            是否查询关联信息
+	 * @param soreShow
+	 *            是否查询关联信息
+	 * @param mmseShow
+	 *            是否查询关联信息
+	 * @param masShow
+	 *            是否查询关联信息
+	 * @param barthelShow
+	 *            是否查询关联信息
+	 * @param fcaShow
+	 *            是否查询关联信息
+	 * @param obj
+	 */
+	public HealthAssessmentEntity getById(Integer id, Boolean employeeShow,
+			Boolean olderShow, Boolean healthReportShow, Boolean recoveryShow,
+			Boolean adlShow, Boolean nutritionShow, Boolean fallShow,
+			Boolean soreShow, Boolean mmseShow, Boolean masShow,
+			Boolean barthelShow, Boolean fcaShow) {
+		HealthAssessmentEntity obj = null;
+		if (id != null) {
+			obj = (HealthAssessmentEntity) dbManager.getById(id,
+					HealthAssessmentEntity.class);
+			// 查询关联内容
+			if (employeeShow != null && employeeShow.booleanValue()
+					&& obj != null && obj.getEmployeeId() != null
+					&& obj.getEmployeeId() > 0) {
+				EmployeeEntity employee = (EmployeeEntity) dbManager.getById(
+						obj.getEmployeeId(), EmployeeEntity.class);
+				obj.setEmployee(employee);
+			}
+			// 查询关联内容
+			if (olderShow != null && olderShow.booleanValue() && obj != null
+					&& obj.getOlderId() != null && obj.getOlderId() > 0) {
+				OlderEntity older = (OlderEntity) dbManager.getById(
+						obj.getOlderId(), OlderEntity.class);
+				obj.setOlder(older);
+			}
+			// 查询关联内容
+			if (healthReportShow != null && healthReportShow.booleanValue()
+					&& obj != null && obj.getHealthReportId() != null
+					&& obj.getHealthReportId() > 0) {
+				HealthReportEntity healthReport = (HealthReportEntity) dbManager
+						.getById(obj.getHealthReportId(),
+								HealthReportEntity.class);
+				obj.setHealthReport(healthReport);
+			}
+			// 查询关联内容
+			if (recoveryShow != null && recoveryShow.booleanValue()
+					&& obj != null && obj.getRecoveryId() != null
+					&& obj.getRecoveryId() > 0) {
+				RecoveryEntity recovery = (RecoveryEntity) dbManager.getById(
+						obj.getRecoveryId(), RecoveryEntity.class);
+				obj.setRecovery(recovery);
+			}
+			// 查询关联内容
+			if (adlShow != null && adlShow.booleanValue() && obj != null
+					&& obj.getAdlId() != null && obj.getAdlId() > 0) {
+				AdlEntity adl = (AdlEntity) dbManager.getById(obj.getAdlId(),
+						AdlEntity.class);
+				obj.setAdl(adl);
+			}
+			// 查询关联内容
+			if (nutritionShow != null && nutritionShow.booleanValue()
+					&& obj != null && obj.getNutritionId() != null
+					&& obj.getNutritionId() > 0) {
+				NutritionEntity nutrition = (NutritionEntity) dbManager
+						.getById(obj.getNutritionId(), NutritionEntity.class);
+				obj.setNutrition(nutrition);
+			}
+			// 查询关联内容
+			if (fallShow != null && fallShow.booleanValue() && obj != null
+					&& obj.getFallId() != null && obj.getFallId() > 0) {
+				FallEntity fall = (FallEntity) dbManager.getById(
+						obj.getFallId(), FallEntity.class);
+				obj.setFall(fall);
+			}
+			// 查询关联内容
+			if (soreShow != null && soreShow.booleanValue() && obj != null
+					&& obj.getSoreId() != null && obj.getSoreId() > 0) {
+				SoreEntity sore = (SoreEntity) dbManager.getById(
+						obj.getSoreId(), SoreEntity.class);
+				obj.setSore(sore);
+			}
+			// 查询关联内容
+			if (mmseShow != null && mmseShow.booleanValue() && obj != null
+					&& obj.getMmseId() != null && obj.getMmseId() > 0) {
+				MmseEntity mmse = (MmseEntity) dbManager.getById(
+						obj.getMmseId(), MmseEntity.class);
+				obj.setMmse(mmse);
+			}
+			// 查询关联内容
+			if (masShow != null && masShow.booleanValue() && obj != null
+					&& obj.getMasId() != null && obj.getMasId() > 0) {
+				MasEntity mas = (MasEntity) dbManager.getById(obj.getMasId(),
+						MasEntity.class);
+				obj.setMas(mas);
+			}
+			// 查询关联内容
+			if (barthelShow != null && barthelShow.booleanValue()
+					&& obj != null && obj.getBarthelId() != null
+					&& obj.getBarthelId() > 0) {
+				BarthelEntity barthel = (BarthelEntity) dbManager.getById(
+						obj.getBarthelId(), BarthelEntity.class);
+				obj.setBarthel(barthel);
+			}
+			// 查询关联内容
+			if (fcaShow != null && fcaShow.booleanValue() && obj != null
+					&& obj.getFcaId() != null && obj.getFcaId() > 0) {
+				FcaEntity fca = (FcaEntity) dbManager.getById(obj.getFcaId(),
+						FcaEntity.class);
+				obj.setFca(fca);
+			}
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @return
+	 */
+	public List<HealthAssessmentEntity> getListByCondition(
+			Map<String, Object> queryMap) {
+		List<HealthAssessmentEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		list = dbManager.queryByCondition(HealthAssessmentEntity.class, qc);
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<HealthAssessmentEntity>();
+			for (Object obj : list) {
+				returnlist.add((HealthAssessmentEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param employeeShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param olderShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param healthReportShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param recoveryShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param adlShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param nutritionShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param fallShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param soreShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param mmseShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param masShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param barthelShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param fcaShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public List<HealthAssessmentEntity> getListByCondition(
+			Map<String, Object> queryMap, List<OrderVO> orderList,
+			Boolean employeeShow, Boolean olderShow, Boolean healthReportShow,
+			Boolean recoveryShow, Boolean adlShow, Boolean nutritionShow,
+			Boolean fallShow, Boolean soreShow, Boolean mmseShow,
+			Boolean masShow, Boolean barthelShow, Boolean fcaShow) {
+		List<HealthAssessmentEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order
+							.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt,
+								orderType));
+					}
+				}
+
+			}
+		}
+		list = dbManager
+				.queryByConditions(HealthAssessmentEntity.class, qc, oc);
+		int a = 0;
+		if (employeeShow != null && employeeShow.booleanValue()) {
+			a++;
+		}
+		if (olderShow != null && olderShow.booleanValue()) {
+			a++;
+		}
+		if (healthReportShow != null && healthReportShow.booleanValue()) {
+			a++;
+		}
+		if (recoveryShow != null && recoveryShow.booleanValue()) {
+			a++;
+		}
+		if (adlShow != null && adlShow.booleanValue()) {
+			a++;
+		}
+		if (nutritionShow != null && nutritionShow.booleanValue()) {
+			a++;
+		}
+		if (fallShow != null && fallShow.booleanValue()) {
+			a++;
+		}
+		if (soreShow != null && soreShow.booleanValue()) {
+			a++;
+		}
+		if (mmseShow != null && mmseShow.booleanValue()) {
+			a++;
+		}
+		if (masShow != null && masShow.booleanValue()) {
+			a++;
+		}
+		if (barthelShow != null && barthelShow.booleanValue()) {
+			a++;
+		}
+		if (fcaShow != null && fcaShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && list != null && list.size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < list.size(); i++) {
+				HealthAssessmentEntity obj = (HealthAssessmentEntity) list
+						.get(i);
+				// 查询关联内容
+				if (employeeShow != null && employeeShow.booleanValue()
+						&& obj != null && obj.getEmployeeId() != null
+						&& obj.getEmployeeId() > 0) {
+					EmployeeEntity employee = (EmployeeEntity) dbManager
+							.getById(obj.getEmployeeId(), EmployeeEntity.class);
+					obj.setEmployee(employee);
+				}
+				// 查询关联内容
+				if (olderShow != null && olderShow.booleanValue()
+						&& obj != null && obj.getOlderId() != null
+						&& obj.getOlderId() > 0) {
+					OlderEntity older = (OlderEntity) dbManager.getById(
+							obj.getOlderId(), OlderEntity.class);
+					obj.setOlder(older);
+				}
+				// 查询关联内容
+				if (healthReportShow != null && healthReportShow.booleanValue()
+						&& obj != null && obj.getHealthReportId() != null
+						&& obj.getHealthReportId() > 0) {
+					HealthReportEntity healthReport = (HealthReportEntity) dbManager
+							.getById(obj.getHealthReportId(),
+									HealthReportEntity.class);
+					obj.setHealthReport(healthReport);
+				}
+				// 查询关联内容
+				if (recoveryShow != null && recoveryShow.booleanValue()
+						&& obj != null && obj.getRecoveryId() != null
+						&& obj.getRecoveryId() > 0) {
+					RecoveryEntity recovery = (RecoveryEntity) dbManager
+							.getById(obj.getRecoveryId(), RecoveryEntity.class);
+					obj.setRecovery(recovery);
+				}
+				// 查询关联内容
+				if (adlShow != null && adlShow.booleanValue() && obj != null
+						&& obj.getAdlId() != null && obj.getAdlId() > 0) {
+					AdlEntity adl = (AdlEntity) dbManager.getById(
+							obj.getAdlId(), AdlEntity.class);
+					obj.setAdl(adl);
+				}
+				// 查询关联内容
+				if (nutritionShow != null && nutritionShow.booleanValue()
+						&& obj != null && obj.getNutritionId() != null
+						&& obj.getNutritionId() > 0) {
+					NutritionEntity nutrition = (NutritionEntity) dbManager
+							.getById(obj.getNutritionId(),
+									NutritionEntity.class);
+					obj.setNutrition(nutrition);
+				}
+				// 查询关联内容
+				if (fallShow != null && fallShow.booleanValue() && obj != null
+						&& obj.getFallId() != null && obj.getFallId() > 0) {
+					FallEntity fall = (FallEntity) dbManager.getById(
+							obj.getFallId(), FallEntity.class);
+					obj.setFall(fall);
+				}
+				// 查询关联内容
+				if (soreShow != null && soreShow.booleanValue() && obj != null
+						&& obj.getSoreId() != null && obj.getSoreId() > 0) {
+					SoreEntity sore = (SoreEntity) dbManager.getById(
+							obj.getSoreId(), SoreEntity.class);
+					obj.setSore(sore);
+				}
+				// 查询关联内容
+				if (mmseShow != null && mmseShow.booleanValue() && obj != null
+						&& obj.getMmseId() != null && obj.getMmseId() > 0) {
+					MmseEntity mmse = (MmseEntity) dbManager.getById(
+							obj.getMmseId(), MmseEntity.class);
+					obj.setMmse(mmse);
+				}
+				// 查询关联内容
+				if (masShow != null && masShow.booleanValue() && obj != null
+						&& obj.getMasId() != null && obj.getMasId() > 0) {
+					MasEntity mas = (MasEntity) dbManager.getById(
+							obj.getMasId(), MasEntity.class);
+					obj.setMas(mas);
+				}
+				// 查询关联内容
+				if (barthelShow != null && barthelShow.booleanValue()
+						&& obj != null && obj.getBarthelId() != null
+						&& obj.getBarthelId() > 0) {
+					BarthelEntity barthel = (BarthelEntity) dbManager.getById(
+							obj.getBarthelId(), BarthelEntity.class);
+					obj.setBarthel(barthel);
+				}
+				// 查询关联内容
+				if (fcaShow != null && fcaShow.booleanValue() && obj != null
+						&& obj.getFcaId() != null && obj.getFcaId() > 0) {
+					FcaEntity fca = (FcaEntity) dbManager.getById(
+							obj.getFcaId(), FcaEntity.class);
+					obj.setFca(fca);
+				}
+				result.add(obj);
+			}
+			list = result;
+		}
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<HealthAssessmentEntity>();
+			for (Object obj : list) {
+				returnlist.add((HealthAssessmentEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap,
+			int pageno, int pagesize) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+
+		pagelist = dbManager.queryByCondition(HealthAssessmentEntity.class, qc,
+				pageno, pagesize);
+		return pagelist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @param employeeShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param olderShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param healthReportShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param recoveryShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param adlShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param nutritionShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param fallShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param soreShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param mmseShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param masShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param barthelShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param fcaShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap,
+			List<OrderVO> orderList, int pageno, int pagesize,
+			Boolean employeeShow, Boolean olderShow, Boolean healthReportShow,
+			Boolean recoveryShow, Boolean adlShow, Boolean nutritionShow,
+			Boolean fallShow, Boolean soreShow, Boolean mmseShow,
+			Boolean masShow, Boolean barthelShow, Boolean fcaShow) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order
+							.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt,
+								orderType));
+					}
+				}
+
+			}
+		}
+		
+		// 数据权限
+		List<QueryCondition> dataRuleQclist = null;
+		List<Map<String, Object>> dataRuleMapList = (List<Map<String, Object>>) queryMap
+				.get("dataRuleMapList");
+		if (dataRuleMapList != null && dataRuleMapList.size() > 0) {
+			dataRuleQclist = new ArrayList<QueryCondition>();
+			for (Map<String, Object> dataRuleMap : dataRuleMapList) {
+				QueryCondition dataRuleQc = changeMapToQc(dataRuleMap);
+				dataRuleQclist.add(dataRuleQc);
+			}
+		}
+		
+		pagelist = dbManager.queryByConditions(HealthAssessmentEntity.class,
+				qc,dataRuleQclist, oc, pageno, pagesize);
+		int a = 0;
+		if (employeeShow != null && employeeShow.booleanValue()) {
+			a++;
+		}
+		if (olderShow != null && olderShow.booleanValue()) {
+			a++;
+		}
+		if (healthReportShow != null && healthReportShow.booleanValue()) {
+			a++;
+		}
+		if (recoveryShow != null && recoveryShow.booleanValue()) {
+			a++;
+		}
+		if (adlShow != null && adlShow.booleanValue()) {
+			a++;
+		}
+		if (nutritionShow != null && nutritionShow.booleanValue()) {
+			a++;
+		}
+		if (fallShow != null && fallShow.booleanValue()) {
+			a++;
+		}
+		if (soreShow != null && soreShow.booleanValue()) {
+			a++;
+		}
+		if (mmseShow != null && mmseShow.booleanValue()) {
+			a++;
+		}
+		if (masShow != null && masShow.booleanValue()) {
+			a++;
+		}
+		if (barthelShow != null && barthelShow.booleanValue()) {
+			a++;
+		}
+		if (fcaShow != null && fcaShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && pagelist != null && pagelist.getResultList() != null
+				&& pagelist.getResultList().size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < pagelist.getResultList().size(); i++) {
+				HealthAssessmentEntity obj = (HealthAssessmentEntity) pagelist
+						.getResultList().get(i);
+				// 查询关联内容
+				if (employeeShow != null && employeeShow.booleanValue()
+						&& obj != null && obj.getEmployeeId() != null
+						&& obj.getEmployeeId() > 0) {
+					EmployeeEntity employee = (EmployeeEntity) dbManager
+							.getById(obj.getEmployeeId(), EmployeeEntity.class);
+					obj.setEmployee(employee);
+				}
+				// 查询关联内容
+				if (olderShow != null && olderShow.booleanValue()
+						&& obj != null && obj.getOlderId() != null
+						&& obj.getOlderId() > 0) {
+					OlderEntity older = (OlderEntity) dbManager.getById(
+							obj.getOlderId(), OlderEntity.class);
+					obj.setOlder(older);
+				}
+				// 查询关联内容
+				if (healthReportShow != null && healthReportShow.booleanValue()
+						&& obj != null && obj.getHealthReportId() != null
+						&& obj.getHealthReportId() > 0) {
+					HealthReportEntity healthReport = (HealthReportEntity) dbManager
+							.getById(obj.getHealthReportId(),
+									HealthReportEntity.class);
+					obj.setHealthReport(healthReport);
+				}
+				// 查询关联内容
+				if (recoveryShow != null && recoveryShow.booleanValue()
+						&& obj != null && obj.getRecoveryId() != null
+						&& obj.getRecoveryId() > 0) {
+					RecoveryEntity recovery = (RecoveryEntity) dbManager
+							.getById(obj.getRecoveryId(), RecoveryEntity.class);
+					obj.setRecovery(recovery);
+				}
+				// 查询关联内容
+				if (adlShow != null && adlShow.booleanValue() && obj != null
+						&& obj.getAdlId() != null && obj.getAdlId() > 0) {
+					AdlEntity adl = (AdlEntity) dbManager.getById(
+							obj.getAdlId(), AdlEntity.class);
+					obj.setAdl(adl);
+				}
+				// 查询关联内容
+				if (nutritionShow != null && nutritionShow.booleanValue()
+						&& obj != null && obj.getNutritionId() != null
+						&& obj.getNutritionId() > 0) {
+					NutritionEntity nutrition = (NutritionEntity) dbManager
+							.getById(obj.getNutritionId(),
+									NutritionEntity.class);
+					obj.setNutrition(nutrition);
+				}
+				// 查询关联内容
+				if (fallShow != null && fallShow.booleanValue() && obj != null
+						&& obj.getFallId() != null && obj.getFallId() > 0) {
+					FallEntity fall = (FallEntity) dbManager.getById(
+							obj.getFallId(), FallEntity.class);
+					obj.setFall(fall);
+				}
+				// 查询关联内容
+				if (soreShow != null && soreShow.booleanValue() && obj != null
+						&& obj.getSoreId() != null && obj.getSoreId() > 0) {
+					SoreEntity sore = (SoreEntity) dbManager.getById(
+							obj.getSoreId(), SoreEntity.class);
+					obj.setSore(sore);
+				}
+				// 查询关联内容
+				if (mmseShow != null && mmseShow.booleanValue() && obj != null
+						&& obj.getMmseId() != null && obj.getMmseId() > 0) {
+					MmseEntity mmse = (MmseEntity) dbManager.getById(
+							obj.getMmseId(), MmseEntity.class);
+					obj.setMmse(mmse);
+				}
+				// 查询关联内容
+				if (masShow != null && masShow.booleanValue() && obj != null
+						&& obj.getMasId() != null && obj.getMasId() > 0) {
+					MasEntity mas = (MasEntity) dbManager.getById(
+							obj.getMasId(), MasEntity.class);
+					obj.setMas(mas);
+				}
+				// 查询关联内容
+				if (barthelShow != null && barthelShow.booleanValue()
+						&& obj != null && obj.getBarthelId() != null
+						&& obj.getBarthelId() > 0) {
+					BarthelEntity barthel = (BarthelEntity) dbManager.getById(
+							obj.getBarthelId(), BarthelEntity.class);
+					obj.setBarthel(barthel);
+				}
+				// 查询关联内容
+				if (fcaShow != null && fcaShow.booleanValue() && obj != null
+						&& obj.getFcaId() != null && obj.getFcaId() > 0) {
+					FcaEntity fca = (FcaEntity) dbManager.getById(
+							obj.getFcaId(), FcaEntity.class);
+					obj.setFca(fca);
+				}
+				result.add(obj);
+			}
+			pagelist.setResultList(result);
+		}
+		return pagelist;
+	}
+
+	/**
+	 * 删除记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public boolean del(Integer id, Boolean delEmployee, Boolean delOlder,
+			Boolean delHealthReport, Boolean delRecovery, Boolean delAdl,
+			Boolean delNutrition, Boolean delFall, Boolean delSore,
+			Boolean delMmse, Boolean delMas, Boolean delBarthel, Boolean delFca) {
+		boolean result = false;
+		if (id != null && id > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delEmployee != null && delEmployee.booleanValue()) {
+					HealthAssessmentEntity healthAssessment = (HealthAssessmentEntity) dbManager
+							.getById(id, HealthAssessmentEntity.class);
+					if (healthAssessment != null
+							&& healthAssessment.getEmployeeId() != null) {
+						dbManager.delNoTransaction(
+								healthAssessment.getEmployeeId(),
+								EmployeeEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delOlder != null && delOlder.booleanValue()) {
+					HealthAssessmentEntity healthAssessment = (HealthAssessmentEntity) dbManager
+							.getById(id, HealthAssessmentEntity.class);
+					if (healthAssessment != null
+							&& healthAssessment.getOlderId() != null) {
+						dbManager.delNoTransaction(
+								healthAssessment.getOlderId(),
+								OlderEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delHealthReport != null && delHealthReport.booleanValue()) {
+					HealthAssessmentEntity healthAssessment = (HealthAssessmentEntity) dbManager
+							.getById(id, HealthAssessmentEntity.class);
+					if (healthAssessment != null
+							&& healthAssessment.getHealthReportId() != null) {
+						dbManager.delNoTransaction(
+								healthAssessment.getHealthReportId(),
+								HealthReportEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delRecovery != null && delRecovery.booleanValue()) {
+					HealthAssessmentEntity healthAssessment = (HealthAssessmentEntity) dbManager
+							.getById(id, HealthAssessmentEntity.class);
+					if (healthAssessment != null
+							&& healthAssessment.getRecoveryId() != null) {
+						dbManager.delNoTransaction(
+								healthAssessment.getRecoveryId(),
+								RecoveryEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delAdl != null && delAdl.booleanValue()) {
+					HealthAssessmentEntity healthAssessment = (HealthAssessmentEntity) dbManager
+							.getById(id, HealthAssessmentEntity.class);
+					if (healthAssessment != null
+							&& healthAssessment.getAdlId() != null) {
+						dbManager.delNoTransaction(healthAssessment.getAdlId(),
+								AdlEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delNutrition != null && delNutrition.booleanValue()) {
+					HealthAssessmentEntity healthAssessment = (HealthAssessmentEntity) dbManager
+							.getById(id, HealthAssessmentEntity.class);
+					if (healthAssessment != null
+							&& healthAssessment.getNutritionId() != null) {
+						dbManager.delNoTransaction(
+								healthAssessment.getNutritionId(),
+								NutritionEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delFall != null && delFall.booleanValue()) {
+					HealthAssessmentEntity healthAssessment = (HealthAssessmentEntity) dbManager
+							.getById(id, HealthAssessmentEntity.class);
+					if (healthAssessment != null
+							&& healthAssessment.getFallId() != null) {
+						dbManager.delNoTransaction(
+								healthAssessment.getFallId(), FallEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delSore != null && delSore.booleanValue()) {
+					HealthAssessmentEntity healthAssessment = (HealthAssessmentEntity) dbManager
+							.getById(id, HealthAssessmentEntity.class);
+					if (healthAssessment != null
+							&& healthAssessment.getSoreId() != null) {
+						dbManager.delNoTransaction(
+								healthAssessment.getSoreId(), SoreEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delMmse != null && delMmse.booleanValue()) {
+					HealthAssessmentEntity healthAssessment = (HealthAssessmentEntity) dbManager
+							.getById(id, HealthAssessmentEntity.class);
+					if (healthAssessment != null
+							&& healthAssessment.getMmseId() != null) {
+						dbManager.delNoTransaction(
+								healthAssessment.getMmseId(), MmseEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delMas != null && delMas.booleanValue()) {
+					HealthAssessmentEntity healthAssessment = (HealthAssessmentEntity) dbManager
+							.getById(id, HealthAssessmentEntity.class);
+					if (healthAssessment != null
+							&& healthAssessment.getMasId() != null) {
+						dbManager.delNoTransaction(healthAssessment.getMasId(),
+								MasEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delBarthel != null && delBarthel.booleanValue()) {
+					HealthAssessmentEntity healthAssessment = (HealthAssessmentEntity) dbManager
+							.getById(id, HealthAssessmentEntity.class);
+					if (healthAssessment != null
+							&& healthAssessment.getBarthelId() != null) {
+						dbManager.delNoTransaction(
+								healthAssessment.getBarthelId(),
+								BarthelEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delFca != null && delFca.booleanValue()) {
+					HealthAssessmentEntity healthAssessment = (HealthAssessmentEntity) dbManager
+							.getById(id, HealthAssessmentEntity.class);
+					if (healthAssessment != null
+							&& healthAssessment.getFcaId() != null) {
+						dbManager.delNoTransaction(healthAssessment.getFcaId(),
+								FcaEntity.class);
+					}
+				}
+				result = dbManager.delNoTransaction(id,
+						HealthAssessmentEntity.class);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量删除记录
+	 * 
+	 * @param ids
+	 *            主键 英文逗号间隔
+	 * @param obj
+	 */
+	public boolean del(String ids) {
+		boolean result = false;
+		if (ids != null && !"".equals(ids.trim())) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				QueryCondition qc = new QueryCondition(
+						HealthAssessmentEntity.ID, QueryCondition.in, ids);
+				result = dbManager.delByConditionsNoTransaction(
+						HealthAssessmentEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量条件删除记录
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 */
+	public boolean delList(Map<String, Object> queryMap, Boolean delEmployee,
+			Boolean delOlder, Boolean delHealthReport, Boolean delRecovery,
+			Boolean delAdl, Boolean delNutrition, Boolean delFall,
+			Boolean delSore, Boolean delMmse, Boolean delMas,
+			Boolean delBarthel, Boolean delFca) {
+		boolean result = false;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+
+		if (qc.getQueryNextCondition() != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delEmployee != null && delEmployee.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HealthAssessmentEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HealthAssessmentEntity entity = (HealthAssessmentEntity) obj;
+							strIds += entity.getEmployeeId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								EmployeeEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								EmployeeEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delOlder != null && delOlder.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HealthAssessmentEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HealthAssessmentEntity entity = (HealthAssessmentEntity) obj;
+							strIds += entity.getOlderId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(OlderEntity.ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								OlderEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delHealthReport != null && delHealthReport.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HealthAssessmentEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HealthAssessmentEntity entity = (HealthAssessmentEntity) obj;
+							strIds += entity.getHealthReportId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								HealthReportEntity.ID, QueryCondition.in,
+								strIds);
+						dbManager.delByConditionsNoTransaction(
+								HealthReportEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delRecovery != null && delRecovery.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HealthAssessmentEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HealthAssessmentEntity entity = (HealthAssessmentEntity) obj;
+							strIds += entity.getRecoveryId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								RecoveryEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								RecoveryEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delAdl != null && delAdl.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HealthAssessmentEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HealthAssessmentEntity entity = (HealthAssessmentEntity) obj;
+							strIds += entity.getAdlId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(AdlEntity.ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(AdlEntity.class,
+								qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delNutrition != null && delNutrition.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HealthAssessmentEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HealthAssessmentEntity entity = (HealthAssessmentEntity) obj;
+							strIds += entity.getNutritionId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								NutritionEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								NutritionEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delFall != null && delFall.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HealthAssessmentEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HealthAssessmentEntity entity = (HealthAssessmentEntity) obj;
+							strIds += entity.getFallId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(FallEntity.ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								FallEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delSore != null && delSore.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HealthAssessmentEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HealthAssessmentEntity entity = (HealthAssessmentEntity) obj;
+							strIds += entity.getSoreId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(SoreEntity.ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								SoreEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delMmse != null && delMmse.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HealthAssessmentEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HealthAssessmentEntity entity = (HealthAssessmentEntity) obj;
+							strIds += entity.getMmseId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(MmseEntity.ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								MmseEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delMas != null && delMas.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HealthAssessmentEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HealthAssessmentEntity entity = (HealthAssessmentEntity) obj;
+							strIds += entity.getMasId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(MasEntity.ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(MasEntity.class,
+								qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delBarthel != null && delBarthel.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HealthAssessmentEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HealthAssessmentEntity entity = (HealthAssessmentEntity) obj;
+							strIds += entity.getBarthelId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								BarthelEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								BarthelEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delFca != null && delFca.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HealthAssessmentEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HealthAssessmentEntity entity = (HealthAssessmentEntity) obj;
+							strIds += entity.getFcaId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(FcaEntity.ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(FcaEntity.class,
+								qc1);
+					}
+
+				}
+				result = dbManager.delByConditionsNoTransaction(
+						HealthAssessmentEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+	/* pei */
+	public static String savePhoto(String photo, String fileName) {
+		String returnPath = null;
+		try {
+			photo = photo.replaceAll("\n", "");
+			byte[] photobyte = Base64Utils.decode(photo);
+
+			String path = HealthAssessmentHandler.class.getResource(
+					"HealthAssessmentHandler.class").toString();
+			String separator = FileUtil.getFileSeparator();
+			if ("file".equals(path.substring(0, 4))) {
+				if ("\\".equals(separator))
+					path = path.substring(6);
+				else {
+					path = path.substring(5);
+				}
+			}
+			String localPath = path.substring(0, path.indexOf("WEB-INF"))
+					+ "photos" + separator + "kfhlPhotos" + separator
+					+ fileName;
+			localPath = URLDecoder.decode(localPath);
+			localPath = localPath.replace("/", separator);
+			localPath = localPath.replace("\\", separator);
+
+			returnPath = SystemInit.photourl + "/photos/" + "kfhlPhotos/"
+					+ fileName;
+
+			byte2image(photobyte, localPath);
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+		return returnPath;
+	}
+
+	public static void byte2image(byte[] data, String path) {
+		if ((data.length < 3) || (path.equals("")))
+			return;
+		try {
+			FileImageOutputStream imageOutput = new FileImageOutputStream(
+					new File(path));
+			imageOutput.write(data, 0, data.length);
+			imageOutput.close();
+			System.out.println("Make Picture success,Please find image in "
+					+ path);
+		} catch (Exception ex) {
+			System.out.println("Exception: " + ex);
+			ex.printStackTrace();
+		}
+	}
+	
+	private QueryCondition changeMapToQc(Map<String, Object> queryMap) {
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object assessmentTime_gt = queryMap.get("assessmentTime_gt");
+		Object assessmentTime_ge = queryMap.get("assessmentTime_ge");
+		Object assessmentTime_lt = queryMap.get("assessmentTime_lt");
+		Object assessmentTime_le = queryMap.get("assessmentTime_le");
+		Object olderId = queryMap.get("olderId");
+		Object olderId_gt = queryMap.get("olderId_gt");
+		Object olderId_ge = queryMap.get("olderId_ge");
+		Object olderId_lt = queryMap.get("olderId_lt");
+		Object olderId_le = queryMap.get("olderId_le");
+		Object olderId_in = queryMap.get("olderId_in");
+		Object employeeId = queryMap.get("employeeId");
+		Object employeeId_gt = queryMap.get("employeeId_gt");
+		Object employeeId_ge = queryMap.get("employeeId_ge");
+		Object employeeId_lt = queryMap.get("employeeId_lt");
+		Object employeeId_le = queryMap.get("employeeId_le");
+		Object employeeId_in = queryMap.get("employeeId_in");
+		Object type = queryMap.get("type");
+		Object type_gt = queryMap.get("type_gt");
+		Object type_ge = queryMap.get("type_ge");
+		Object type_lt = queryMap.get("type_lt");
+		Object type_le = queryMap.get("type_le");
+		Object type_in = queryMap.get("type_in");
+		Object status = queryMap.get("status");
+		Object status_gt = queryMap.get("status_gt");
+		Object status_ge = queryMap.get("status_ge");
+		Object status_lt = queryMap.get("status_lt");
+		Object status_le = queryMap.get("status_le");
+		Object status_in = queryMap.get("status_in");
+		Object healthReportId = queryMap.get("healthReportId");
+		Object healthReportId_gt = queryMap.get("healthReportId_gt");
+		Object healthReportId_ge = queryMap.get("healthReportId_ge");
+		Object healthReportId_lt = queryMap.get("healthReportId_lt");
+		Object healthReportId_le = queryMap.get("healthReportId_le");
+		Object healthReportId_in = queryMap.get("healthReportId_in");
+		Object recoveryId = queryMap.get("recoveryId");
+		Object recoveryId_gt = queryMap.get("recoveryId_gt");
+		Object recoveryId_ge = queryMap.get("recoveryId_ge");
+		Object recoveryId_lt = queryMap.get("recoveryId_lt");
+		Object recoveryId_le = queryMap.get("recoveryId_le");
+		Object recoveryId_in = queryMap.get("recoveryId_in");
+		Object adlId = queryMap.get("adlId");
+		Object adlId_gt = queryMap.get("adlId_gt");
+		Object adlId_ge = queryMap.get("adlId_ge");
+		Object adlId_lt = queryMap.get("adlId_lt");
+		Object adlId_le = queryMap.get("adlId_le");
+		Object adlId_in = queryMap.get("adlId_in");
+		Object nutritionId = queryMap.get("nutritionId");
+		Object nutritionId_gt = queryMap.get("nutritionId_gt");
+		Object nutritionId_ge = queryMap.get("nutritionId_ge");
+		Object nutritionId_lt = queryMap.get("nutritionId_lt");
+		Object nutritionId_le = queryMap.get("nutritionId_le");
+		Object nutritionId_in = queryMap.get("nutritionId_in");
+		Object fallId = queryMap.get("fallId");
+		Object fallId_gt = queryMap.get("fallId_gt");
+		Object fallId_ge = queryMap.get("fallId_ge");
+		Object fallId_lt = queryMap.get("fallId_lt");
+		Object fallId_le = queryMap.get("fallId_le");
+		Object fallId_in = queryMap.get("fallId_in");
+		Object soreId = queryMap.get("soreId");
+		Object soreId_gt = queryMap.get("soreId_gt");
+		Object soreId_ge = queryMap.get("soreId_ge");
+		Object soreId_lt = queryMap.get("soreId_lt");
+		Object soreId_le = queryMap.get("soreId_le");
+		Object soreId_in = queryMap.get("soreId_in");
+		Object mmseId = queryMap.get("mmseId");
+		Object mmseId_gt = queryMap.get("mmseId_gt");
+		Object mmseId_ge = queryMap.get("mmseId_ge");
+		Object mmseId_lt = queryMap.get("mmseId_lt");
+		Object mmseId_le = queryMap.get("mmseId_le");
+		Object mmseId_in = queryMap.get("mmseId_in");
+		Object taskStatus = queryMap.get("taskStatus");
+		Object taskStatus_gt = queryMap.get("taskStatus_gt");
+		Object taskStatus_ge = queryMap.get("taskStatus_ge");
+		Object taskStatus_lt = queryMap.get("taskStatus_lt");
+		Object taskStatus_le = queryMap.get("taskStatus_le");
+		Object taskStatus_in = queryMap.get("taskStatus_in");
+		Object masId = queryMap.get("masId");
+		Object masId_gt = queryMap.get("masId_gt");
+		Object masId_ge = queryMap.get("masId_ge");
+		Object masId_lt = queryMap.get("masId_lt");
+		Object masId_le = queryMap.get("masId_le");
+		Object masId_in = queryMap.get("masId_in");
+		Object barthelId = queryMap.get("barthelId");
+		Object barthelId_gt = queryMap.get("barthelId_gt");
+		Object barthelId_ge = queryMap.get("barthelId_ge");
+		Object barthelId_lt = queryMap.get("barthelId_lt");
+		Object barthelId_le = queryMap.get("barthelId_le");
+		Object barthelId_in = queryMap.get("barthelId_in");
+		Object fcaId = queryMap.get("fcaId");
+		Object fcaId_gt = queryMap.get("fcaId_gt");
+		Object fcaId_ge = queryMap.get("fcaId_ge");
+		Object fcaId_lt = queryMap.get("fcaId_lt");
+		Object fcaId_le = queryMap.get("fcaId_le");
+		Object fcaId_in = queryMap.get("fcaId_in");
+
+		QueryCondition qc = new QueryCondition(HealthAssessmentEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (assessmentTime_gt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.ASSESSMENT_TIME, QueryCondition.gt,
+					assessmentTime_gt));
+		}
+		if (assessmentTime_ge != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.ASSESSMENT_TIME, QueryCondition.ge,
+					assessmentTime_ge));
+		}
+		if (assessmentTime_lt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.ASSESSMENT_TIME, QueryCondition.lt,
+					assessmentTime_lt));
+		}
+		if (assessmentTime_le != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.ASSESSMENT_TIME, QueryCondition.le,
+					assessmentTime_le));
+		}
+		if (olderId != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.OLDER_ID,
+					QueryCondition.eq, olderId));
+		}
+		if (olderId_gt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.OLDER_ID,
+					QueryCondition.gt, olderId_gt));
+		}
+		if (olderId_ge != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.OLDER_ID,
+					QueryCondition.ge, olderId_ge));
+		}
+		if (olderId_lt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.OLDER_ID,
+					QueryCondition.lt, olderId_lt));
+		}
+		if (olderId_le != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.OLDER_ID,
+					QueryCondition.le, olderId_le));
+		}
+		if (olderId_in != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.OLDER_ID,
+					QueryCondition.in, olderId_in));
+		}
+		if (employeeId != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.EMPLOYEE_ID, QueryCondition.eq,
+					employeeId));
+		}
+		if (employeeId_gt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.EMPLOYEE_ID, QueryCondition.gt,
+					employeeId_gt));
+		}
+		if (employeeId_ge != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.EMPLOYEE_ID, QueryCondition.ge,
+					employeeId_ge));
+		}
+		if (employeeId_lt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.EMPLOYEE_ID, QueryCondition.lt,
+					employeeId_lt));
+		}
+		if (employeeId_le != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.EMPLOYEE_ID, QueryCondition.le,
+					employeeId_le));
+		}
+		if (employeeId_in != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.EMPLOYEE_ID, QueryCondition.in,
+					employeeId_in));
+		}
+		if (type != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.TYPE,
+					QueryCondition.eq, type));
+		}
+		if (type_gt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.TYPE,
+					QueryCondition.gt, type_gt));
+		}
+		if (type_ge != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.TYPE,
+					QueryCondition.ge, type_ge));
+		}
+		if (type_lt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.TYPE,
+					QueryCondition.lt, type_lt));
+		}
+		if (type_le != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.TYPE,
+					QueryCondition.le, type_le));
+		}
+		if (type_in != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.TYPE,
+					QueryCondition.in, type_in));
+		}
+		if (status != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.STATUS,
+					QueryCondition.eq, status));
+		}
+		if (status_gt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.STATUS,
+					QueryCondition.gt, status_gt));
+		}
+		if (status_ge != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.STATUS,
+					QueryCondition.ge, status_ge));
+		}
+		if (status_lt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.STATUS,
+					QueryCondition.lt, status_lt));
+		}
+		if (status_le != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.STATUS,
+					QueryCondition.le, status_le));
+		}
+		if (status_in != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.STATUS,
+					QueryCondition.in, status_in));
+		}
+		if (healthReportId != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.HEALTH_REPORT_ID, QueryCondition.eq,
+					healthReportId));
+		}
+		if (healthReportId_gt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.HEALTH_REPORT_ID, QueryCondition.gt,
+					healthReportId_gt));
+		}
+		if (healthReportId_ge != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.HEALTH_REPORT_ID, QueryCondition.ge,
+					healthReportId_ge));
+		}
+		if (healthReportId_lt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.HEALTH_REPORT_ID, QueryCondition.lt,
+					healthReportId_lt));
+		}
+		if (healthReportId_le != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.HEALTH_REPORT_ID, QueryCondition.le,
+					healthReportId_le));
+		}
+		if (healthReportId_in != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.HEALTH_REPORT_ID, QueryCondition.in,
+					healthReportId_in));
+		}
+		if (recoveryId != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.RECOVERY_ID, QueryCondition.eq,
+					recoveryId));
+		}
+		if (recoveryId_gt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.RECOVERY_ID, QueryCondition.gt,
+					recoveryId_gt));
+		}
+		if (recoveryId_ge != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.RECOVERY_ID, QueryCondition.ge,
+					recoveryId_ge));
+		}
+		if (recoveryId_lt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.RECOVERY_ID, QueryCondition.lt,
+					recoveryId_lt));
+		}
+		if (recoveryId_le != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.RECOVERY_ID, QueryCondition.le,
+					recoveryId_le));
+		}
+		if (recoveryId_in != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.RECOVERY_ID, QueryCondition.in,
+					recoveryId_in));
+		}
+		if (adlId != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.ADL_ID,
+					QueryCondition.eq, adlId));
+		}
+		if (adlId_gt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.ADL_ID,
+					QueryCondition.gt, adlId_gt));
+		}
+		if (adlId_ge != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.ADL_ID,
+					QueryCondition.ge, adlId_ge));
+		}
+		if (adlId_lt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.ADL_ID,
+					QueryCondition.lt, adlId_lt));
+		}
+		if (adlId_le != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.ADL_ID,
+					QueryCondition.le, adlId_le));
+		}
+		if (adlId_in != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.ADL_ID,
+					QueryCondition.in, adlId_in));
+		}
+		if (nutritionId != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.NUTRITION_ID, QueryCondition.eq,
+					nutritionId));
+		}
+		if (nutritionId_gt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.NUTRITION_ID, QueryCondition.gt,
+					nutritionId_gt));
+		}
+		if (nutritionId_ge != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.NUTRITION_ID, QueryCondition.ge,
+					nutritionId_ge));
+		}
+		if (nutritionId_lt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.NUTRITION_ID, QueryCondition.lt,
+					nutritionId_lt));
+		}
+		if (nutritionId_le != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.NUTRITION_ID, QueryCondition.le,
+					nutritionId_le));
+		}
+		if (nutritionId_in != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.NUTRITION_ID, QueryCondition.in,
+					nutritionId_in));
+		}
+		if (fallId != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.FALL_ID,
+					QueryCondition.eq, fallId));
+		}
+		if (fallId_gt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.FALL_ID,
+					QueryCondition.gt, fallId_gt));
+		}
+		if (fallId_ge != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.FALL_ID,
+					QueryCondition.ge, fallId_ge));
+		}
+		if (fallId_lt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.FALL_ID,
+					QueryCondition.lt, fallId_lt));
+		}
+		if (fallId_le != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.FALL_ID,
+					QueryCondition.le, fallId_le));
+		}
+		if (fallId_in != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.FALL_ID,
+					QueryCondition.in, fallId_in));
+		}
+		if (soreId != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.SORE_ID,
+					QueryCondition.eq, soreId));
+		}
+		if (soreId_gt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.SORE_ID,
+					QueryCondition.gt, soreId_gt));
+		}
+		if (soreId_ge != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.SORE_ID,
+					QueryCondition.ge, soreId_ge));
+		}
+		if (soreId_lt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.SORE_ID,
+					QueryCondition.lt, soreId_lt));
+		}
+		if (soreId_le != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.SORE_ID,
+					QueryCondition.le, soreId_le));
+		}
+		if (soreId_in != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.SORE_ID,
+					QueryCondition.in, soreId_in));
+		}
+		if (mmseId != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.MMSE_ID,
+					QueryCondition.eq, mmseId));
+		}
+		if (mmseId_gt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.MMSE_ID,
+					QueryCondition.gt, mmseId_gt));
+		}
+		if (mmseId_ge != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.MMSE_ID,
+					QueryCondition.ge, mmseId_ge));
+		}
+		if (mmseId_lt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.MMSE_ID,
+					QueryCondition.lt, mmseId_lt));
+		}
+		if (mmseId_le != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.MMSE_ID,
+					QueryCondition.le, mmseId_le));
+		}
+		if (mmseId_in != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.MMSE_ID,
+					QueryCondition.in, mmseId_in));
+		}
+		if (taskStatus != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.TASK_STATUS, QueryCondition.eq,
+					taskStatus));
+		}
+		if (taskStatus_gt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.TASK_STATUS, QueryCondition.gt,
+					taskStatus_gt));
+		}
+		if (taskStatus_ge != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.TASK_STATUS, QueryCondition.ge,
+					taskStatus_ge));
+		}
+		if (taskStatus_lt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.TASK_STATUS, QueryCondition.lt,
+					taskStatus_lt));
+		}
+		if (taskStatus_le != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.TASK_STATUS, QueryCondition.le,
+					taskStatus_le));
+		}
+		if (taskStatus_in != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.TASK_STATUS, QueryCondition.in,
+					taskStatus_in));
+		}
+		if (masId != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.MAS_ID,
+					QueryCondition.eq, masId));
+		}
+		if (masId_gt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.MAS_ID,
+					QueryCondition.gt, masId_gt));
+		}
+		if (masId_ge != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.MAS_ID,
+					QueryCondition.ge, masId_ge));
+		}
+		if (masId_lt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.MAS_ID,
+					QueryCondition.lt, masId_lt));
+		}
+		if (masId_le != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.MAS_ID,
+					QueryCondition.le, masId_le));
+		}
+		if (masId_in != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.MAS_ID,
+					QueryCondition.in, masId_in));
+		}
+		if (barthelId != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.BARTHEL_ID, QueryCondition.eq,
+					barthelId));
+		}
+		if (barthelId_gt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.BARTHEL_ID, QueryCondition.gt,
+					barthelId_gt));
+		}
+		if (barthelId_ge != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.BARTHEL_ID, QueryCondition.ge,
+					barthelId_ge));
+		}
+		if (barthelId_lt != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.BARTHEL_ID, QueryCondition.lt,
+					barthelId_lt));
+		}
+		if (barthelId_le != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.BARTHEL_ID, QueryCondition.le,
+					barthelId_le));
+		}
+		if (barthelId_in != null) {
+			qc.andCondition(new QueryCondition(
+					HealthAssessmentEntity.BARTHEL_ID, QueryCondition.in,
+					barthelId_in));
+		}
+		if (fcaId != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.FCA_ID,
+					QueryCondition.eq, fcaId));
+		}
+		if (fcaId_gt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.FCA_ID,
+					QueryCondition.gt, fcaId_gt));
+		}
+		if (fcaId_ge != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.FCA_ID,
+					QueryCondition.ge, fcaId_ge));
+		}
+		if (fcaId_lt != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.FCA_ID,
+					QueryCondition.lt, fcaId_lt));
+		}
+		if (fcaId_le != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.FCA_ID,
+					QueryCondition.le, fcaId_le));
+		}
+		if (fcaId_in != null) {
+			qc.andCondition(new QueryCondition(HealthAssessmentEntity.FCA_ID,
+					QueryCondition.in, fcaId_in));
+		}
+		return qc;
+	}
+}

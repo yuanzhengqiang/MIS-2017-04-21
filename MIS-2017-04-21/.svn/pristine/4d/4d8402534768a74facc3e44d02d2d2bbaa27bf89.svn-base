@@ -1,0 +1,365 @@
+package fsk.handler;
+
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import com.framework.system.db.query.PageList;
+
+import fsk.entity.review.ReviewEntity;
+import fsk.entity.site.SiteEntity;
+import fsk.service.review.ReviewService;
+import fsk.service.site.SiteService;
+
+public class ReviewCountHandler {
+	private static DecimalFormat df = new DecimalFormat("0.00");// 格式化小数
+	private static SiteService siteService = SiteService.getInstance();
+	private static ReviewService reviewService = ReviewService.getInstance();
+
+	public static String reviewHandler(String startTime, String endTime, Integer pageno, Integer pagesize) {
+		JSONObject json = new JSONObject();
+		json.put("action", "QUERY_REVIEW_LIST_RESPONSE");
+		json.put("result", "100");
+		json.put("des", "success");
+		JSONArray jsonarr = new JSONArray();
+		try {
+			PageList siteList = siteService.getListByCondition(null, pageno, pagesize);
+			if (siteList != null) {
+				if (siteList.getResultList() != null && siteList.getResultList().size() > 0) {
+					JSONObject jsonpageobj = new JSONObject();
+					jsonpageobj.put("recordCount", String.valueOf(siteList.getRecordCount()));
+					jsonpageobj.put("pageCount", String.valueOf(siteList.getPageCount()));
+					jsonpageobj.put("pageno", String.valueOf(pageno));
+					jsonpageobj.put("pagesize", String.valueOf(pagesize));
+					json.put("page", jsonpageobj.toString());
+					for (int i = 0; i < siteList.getResultList().size(); i++) {
+						SiteEntity site = (SiteEntity) siteList.getResultList().get(i);
+						Integer siteId = site.getId();
+						String siteName = site.getName();
+						Integer yinghuifang = 0;// 应回访次数
+						String zhandianhuifang = "";// 站点回访总次数统计
+						String zhandiandianhua = "";// 站点电话回访统计
+						String zhandianruhu = "";// 站点入户回访统计
+						String zhandianjigou = "";// 站点机构回访统计
+						String pinbaohuifang = "";// 品保回访总次数统计
+						String pinbaodianhua = "";// 品保电话回访统计
+						String pinbaojigou = "";// 品保机构回访统计
+						String pinbaoruhu = "";// 品保入户回访统计
+						Map<String, Object> quetryReview = new HashMap<String, Object>();
+						quetryReview.put("siteId", siteId);
+						quetryReview.put("source", "1");
+						quetryReview.put("estimatedReviewTime_ge", startTime);
+						quetryReview.put("estimatedReviewTime_le", endTime);
+						List<ReviewEntity> reviewEstimaList = reviewService.getListByCondition(quetryReview);
+						if (reviewEstimaList != null && reviewEstimaList.size() > 0) {
+							yinghuifang = reviewEstimaList.size();
+						}
+						// 查询站点回访总次数
+						Map<String, Object> quetrzhandianReview = new HashMap<String, Object>();
+						quetrzhandianReview.put("siteId", siteId);
+						quetrzhandianReview.put("source", "1");
+						quetrzhandianReview.put("realReviewTime_ge", startTime);
+						quetrzhandianReview.put("realReviewTime_le", endTime);
+						List<ReviewEntity> reviewRealSiteList = reviewService.getListByCondition(quetrzhandianReview);
+						Integer zhandianhuifangall = 0;
+						Integer zhandiandianhuanum = 0;// 站点电话回访次数
+						Integer zhandianjigounum = 0;// 站点机构回访次数
+						Integer zhanfainruhunum = 0;// 站点入户回访次数
+						if (reviewRealSiteList != null && reviewRealSiteList.size() > 0) {
+							// 统计站点回访
+							zhandianhuifangall = reviewRealSiteList.size();
+							for (ReviewEntity review : reviewRealSiteList) {
+								String method = review.getMethod();
+								if ("1".equals(method)) {
+									zhandiandianhuanum++;
+								} else if ("2".equals(method)) {
+									zhanfainruhunum++;
+								} else if ("3".equals(method)) {
+									zhandianjigounum++;
+								}
+							}
+							if (yinghuifang != 0) {
+								// 为1时改为2
+								Integer yihuifangtemp = 0;
+								if (yinghuifang == 1) {
+									yihuifangtemp = 2;
+								} else {
+									yihuifangtemp = yinghuifang;
+								}
+								// 统计站点总回访
+								float percensite = (float) zhandianhuifangall * 100 / (yihuifangtemp * 3 - 3);
+								String percenstr = df.format(percensite);// 返回的是String类型
+								if (zhandianhuifangall == 0) {
+									zhandianhuifang = "0(0%)";
+								} else {
+									zhandianhuifang = zhandianhuifangall + "(" + percenstr + "%)";
+								}
+
+								// 统计站点电话回访
+								float percentdianhua = (float) zhandiandianhuanum * 100 / (yihuifangtemp * 3 - 3);
+								String percentdianhuastr = df.format(percentdianhua);// 返回的是String类型
+								if (zhandiandianhuanum == 0) {
+									zhandiandianhua = "0(0%)";
+								} else {
+									zhandiandianhua = zhandiandianhuanum + "(" + percentdianhuastr + "%)";
+								}
+								// 统计站点入户回访
+								float percentruhu = (float) zhanfainruhunum * 100 / (yihuifangtemp * 3 - 3);
+								String percentruhustr = df.format(percentruhu);// 返回的是String类型
+								if (zhanfainruhunum == 0) {
+									zhandianruhu = "0(0%)";
+								} else {
+									zhandianruhu = zhanfainruhunum + "(" + percentruhustr + "%)";
+								}
+								// 统计站点机构回访
+								float percentjigou = (float) zhandianjigounum * 100 / (yihuifangtemp * 3 - 3);
+								String percentjigoustr = df.format(percentjigou);// 返回的是String类型
+								if (zhandianjigounum == 0) {
+									zhandianjigou = "0(0%)";
+								} else {
+									zhandianjigou = zhandianjigounum + "(" + percentjigoustr + "%)";
+								}
+							} else {
+								zhandianhuifang = zhandianhuifangall + "";// 站点总回访
+								zhandiandianhua = zhandiandianhuanum + "";// 电话回访
+								zhandianruhu = zhanfainruhunum + "";// 入户回访
+								zhandianjigou = zhandianjigounum + "";// 机构回访
+
+							}
+						} else {
+							if (yinghuifang != 0) {
+								zhandianhuifang = "0(0%)";// 站点总回访
+								zhandiandianhua = "0(0%)";// 电话回访
+								zhandianruhu = "0(0%)";// 入户回访
+								zhandianjigou = "0(0%)";// 机构回访
+							} else {
+								zhandianhuifang = zhandianhuifangall + "";// 站点总回访
+								zhandiandianhua = zhandiandianhuanum + "";// 电话回访
+								zhandianruhu = zhanfainruhunum + "";// 入户回访
+								zhandianjigou = zhandianjigounum + "";// 机构回访
+							}
+
+						}
+						// 查询品保回访总次数
+						Integer pinbaohuifangall = 0;
+						Integer pinbaodianhaunum = 0;// 品保电话回访次数
+						Integer pinbaojigounum = 0;// 品保机构回访次数
+						Integer pinbaoruhunum = 0;// 品保入户回访次数
+						Map<String, Object> querypinbaoReview = new HashMap<String, Object>();
+						querypinbaoReview.put("siteId", siteId);
+						querypinbaoReview.put("source", "2");
+						querypinbaoReview.put("realReviewTime_ge", startTime);
+						querypinbaoReview.put("realReviewTime_le", endTime);
+						List<ReviewEntity> reviewRealPinbaoList = reviewService.getListByCondition(querypinbaoReview);
+						if (reviewRealPinbaoList != null && reviewRealPinbaoList.size() > 0) {
+							pinbaohuifangall = reviewRealPinbaoList.size();
+							for (ReviewEntity review : reviewRealPinbaoList) {
+								String method = review.getMethod();
+								if ("1".equals(method)) {
+									pinbaodianhaunum++;
+								} else if ("2".equals(method)) {
+									pinbaoruhunum++;
+								} else if ("3".equals(method)) {
+									pinbaojigounum++;
+								}
+							}
+							if (yinghuifang != 0) {
+								// 为1时改为2
+								Integer yihuifangtemp = 0;
+								if (yinghuifang == 1) {
+									yihuifangtemp = 2;
+								} else {
+									yihuifangtemp = yinghuifang;
+								}
+								// 统计品保总回访
+								float percenpin = (float) pinbaohuifangall * 100 / (yihuifangtemp * 3 - 3);
+								String percenstr = df.format(percenpin);// 返回的是String类型
+								if (pinbaohuifangall == 0) {
+									pinbaohuifang = "0(0%)";
+								} else {
+									pinbaohuifang = pinbaohuifangall + "(" + percenstr + "%)";
+								}
+								// 统计品保电话回访
+								float percenpindinahua = (float) pinbaodianhaunum * 100 / (yihuifangtemp * 3 - 3);
+								String percenpindinahuastr = df.format(percenpindinahua);// 返回的是String类型
+								if (pinbaodianhaunum == 0) {
+									pinbaodianhua = "0(0%)";
+								} else {
+									pinbaodianhua = pinbaodianhaunum + "(" + percenpindinahuastr + "%)";
+								}
+								// 统计品保入户回访
+								float percenpinruhu = (float) pinbaoruhunum * 100 / (yihuifangtemp * 3 - 3);
+								String percenpinruhustr = df.format(percenpinruhu);// 返回的是String类型
+								pinbaoruhu = pinbaoruhunum + "(" + percenpinruhustr + "%)";
+								if (pinbaoruhunum == 0) {
+									pinbaoruhu = "0(0%)";
+								} else {
+									pinbaoruhu = pinbaoruhunum + "(" + percenpinruhustr + "%)";
+								}
+								// 统计品保机构回访
+								float percenpinjigou = (float) pinbaojigounum * 100 / (yihuifangtemp * 3 - 3);
+								String percenpinjigoustr = df.format(percenpinjigou);// 返回的是String类型
+								if (pinbaojigounum == 0) {
+									pinbaojigou = "0(0%)";
+								} else {
+									pinbaojigou = pinbaojigounum + "(" + percenpinjigoustr + "%)";
+								}
+							} else {
+								pinbaohuifang = pinbaohuifangall + "";// 品保总回访
+								pinbaodianhua = pinbaodianhaunum + "";// 电话回访
+								pinbaoruhu = pinbaoruhunum + "";// 入户回访
+								pinbaojigou = pinbaojigounum + "";// 机构回访
+							}
+						} else {
+							if (yinghuifang != 0) {
+								pinbaohuifang = "0(0%)";// 品保总回访
+								pinbaodianhua = "0(0%)";// 电话回访
+								pinbaoruhu = "0(0%)";// 入户回访
+								pinbaojigou = "0(0%)";// 机构回访
+							} else {
+								pinbaohuifang = pinbaohuifangall + "";// 品保总回访
+								pinbaodianhua = pinbaodianhaunum + "";// 电话回访
+								pinbaoruhu = pinbaoruhunum + "";// 入户回访
+								pinbaojigou = pinbaojigounum + "";// 机构回访
+							}
+						}
+						JSONObject jsontemp = new JSONObject();
+						jsontemp.put("siteId", siteId);
+						jsontemp.put("siteName", siteName);
+						jsontemp.put("yinghuifang", yinghuifang);
+						jsontemp.put("zhandianhuifangall", zhandianhuifang);
+						jsontemp.put("zhandiandianhua", zhandiandianhua);
+						jsontemp.put("zhandianjigou", zhandianjigou);
+						jsontemp.put("zhandiantuhu", zhandianruhu);
+						jsontemp.put("pinbaohuifangall", pinbaohuifang);
+						jsontemp.put("pinbaodianhua", pinbaodianhua);
+						jsontemp.put("pinbaojigou", pinbaojigou);
+						jsontemp.put("pinbaoruhu", pinbaoruhu);
+						jsonarr.add(jsontemp);
+					}
+				}
+			}
+			JSONObject jsonlist = new JSONObject();
+			jsonlist.put("reviewList", jsonarr.toString());
+			json.put("content", jsonlist.toString());
+		} catch (Exception e) {
+			json.put("result", "200");
+			json.put("des", "failure");
+		}
+		return json.toString();
+	}
+
+	public static String satisfactionHandler(String siteIds, String startTime, String endTime) {
+		JSONObject json = new JSONObject();
+		json.put("result", "100");
+		json.put("des", "success");
+		Integer realReviewNum = 0;
+		Integer siteVeryGood = 0;// 站点回访非常满意数
+		Integer siteGood = 0;// 站点回访满意数
+		Integer siteSoso = 0;// 站点回访一般数
+		Integer siteBad = 0;// 站点回访中数
+		Integer siteVeryBad = 0;// 站点回访差数
+		Integer pinbaoVeryGood = 0;// 品保回访非常满意数
+		Integer pinbaoGood = 0;// 品保回访满意数
+		Integer pinbaoSoso = 0;// 品保回访一般数
+		Integer pinbaoBad = 0;// 品保回访中数
+		Integer pinbaoVeryBad = 0;// 品保回访差数
+		Integer allVeryGood = 0;// 全部回访非常满意数
+		Integer allGood = 0;// 全部回访满意数
+		Integer allSoso = 0;// 全部回访一般数
+		Integer allBad = 0;// 全部回访中数
+		Integer allVeryBad = 0;// 全部回访差数
+		String siteIdsed = "";
+		try {
+			// 根据传入站点id判断
+			if ("".equals(siteIds)) {
+				List<SiteEntity> siteList = siteService.getListByCondition(null);
+				if (siteList != null && siteList.size() > 0) {
+					for (SiteEntity site : siteList) {
+						siteIdsed = siteIdsed + site.getId() + ",";
+					}
+					if (!"".equals(siteIdsed)) {
+						siteIdsed = siteIdsed.replaceAll(",,", ",");
+						siteIdsed = siteIdsed.substring(0, siteIdsed.length() - 1);
+					}
+				}
+			} else {
+				siteIdsed = siteIds;
+			}
+			Map<String, Object> queryReview = new HashMap<String, Object>();
+			queryReview.put("siteId_in", siteIdsed);
+			queryReview.put("realReviewTime_ge", startTime);
+			queryReview.put("realReviewTime_le", endTime);
+			List<ReviewEntity> reviewList = reviewService.getListByCondition(queryReview);
+			// 遍历回访结果,统计满意度
+			if (reviewList != null && reviewList.size() > 0) {
+				realReviewNum = reviewList.size();
+				for (ReviewEntity review : reviewList) {
+					String question6 = review.getQuestion6();
+					String source = review.getSource();
+					if ("1".equals(question6)) {
+						allVeryGood++;
+						if ("1".equals(source)) {
+							siteVeryGood++;//
+						} else if ("2".equals(source)) {
+							pinbaoVeryGood++;
+						}
+					} else if ("2".equals(question6)) {
+						allGood++;
+						if ("1".equals(source)) {
+							siteGood++;
+						} else if ("2".equals(source)) {
+							pinbaoGood++;
+						}
+					} else if ("3".equals(question6)) {
+						allSoso++;
+						if ("1".equals(source)) {
+							siteSoso++;
+						} else if ("2".equals(source)) {
+							pinbaoSoso++;
+						}
+					} else if ("4".equals(question6)) {
+						allBad++;
+						if ("1".equals(source)) {
+							siteBad++;
+						} else if ("2".equals(source)) {
+							pinbaoBad++;
+						}
+					} else if ("5".equals(question6)) {
+						allVeryBad++;
+						if ("1".equals(source)) {
+							siteVeryBad++;
+						} else if ("2".equals(source)) {
+							pinbaoVeryBad++;
+						}
+					}
+				}
+			}
+			json.put("realReviewNum", realReviewNum);
+			json.put("siteVeryGood", siteVeryGood);
+			json.put("siteGood", siteGood);
+			json.put("siteSoso", siteSoso);
+			json.put("siteBad", siteBad);
+			json.put("siteVeryBad", siteVeryBad);
+			json.put("pinbaoVeryGood", pinbaoVeryGood);
+			json.put("pinbaoGood", pinbaoGood);
+			json.put("pinbaoSoso", pinbaoSoso);
+			json.put("pinbaoBad", pinbaoBad);
+			json.put("pinbaoVeryBad", pinbaoVeryBad);
+			json.put("allVeryGood", allVeryGood);
+			json.put("allGood", allGood);
+			json.put("allSoso", allSoso);
+			json.put("allBad", allBad);
+			json.put("allVeryBad", allVeryBad);
+		} catch (Exception e) {
+			json.put("result", "200");
+			json.put("des", "failure");
+		}
+		return json.toString();
+
+	}
+}

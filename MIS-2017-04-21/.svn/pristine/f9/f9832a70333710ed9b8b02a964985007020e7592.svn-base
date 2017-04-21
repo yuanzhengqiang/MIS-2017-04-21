@@ -1,0 +1,860 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%> 
+<%@ page import="fsk.init.SystemInit" %>
+<%
+	String nickname = (String) session.getAttribute("nickname");
+	if (nickname == null) {
+		nickname = "";
+	}
+	String header = SystemInit.header;
+	String headerImage = SystemInit.headerImage;
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="shortcut icon" href="images/logo.png">
+
+	<title>健康评估任务详情</title>
+
+	<!-- Bootstrap core CSS -->
+	<link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+
+	<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+	  <script src="../../assets/js/html5shiv.js"></script>
+	  <script src="../../assets/js/respond.min.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
+  <link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
+  <link href="js/jquery.icheck/skins/square/blue.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="js/jquery.crop/css/jquery.Jcrop.css" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" />	
+<style>
+.hideAndShow{display:none;}
+.hideul{position:absolute;top:33px;z-index:200;right:15px;left:15px;display:none}
+.hideul ul{ border:1px solid #ccc;width:100%;background:#f4f4f4;padding-left:0}
+.hideul ul li{ list-style-type:none;text-indent:20px}
+.hideul ul li:hover{ background:#ddd}
+textarea{resize:vertical}
+
+</style>
+<script type="text/javascript" src="js/addressJS.js"></script>
+</head>
+
+<body>
+<div class="navbar-fixed-top">
+	<div class="navbar navbar-default" style="margin-bottom: 0;">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="fa fa-gear"></span>
+          </button>
+          <a class="navbar-brand" href="#"  style="width:auto;background: url(images/<%=headerImage %>) no-repeat 0 10px;"><span><%=header %>/健康评估任务详情</span></a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right user-nav">
+            <li class="dropdown profile_menu">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <img src="images/avatar2.jpg"/>
+                <span id="accountNickname"><%=nickname %></span>
+<!--                 <b class="caret"></b> -->
+              </a>
+<!--               <ul class="dropdown-menu"> -->
+<!--                 <li><a href="#" class="md-trigger" data-modal="md-scale3">密码修改</a></li> -->
+<!--                 <li class="divider"></li> -->
+<!--                 <li><a href="systemLogin.do?logout">退出登录</a></li> -->
+<!--               </ul> -->
+            </li>
+          </ul>
+        </div><!--/.nav-collapse animate-collapse -->
+      </div>
+    </div>  <!-- 上侧栏结束 -->
+	<div id="head-nav" class=""> 
+        <div class="block-flat" >
+          <div class="row">
+            <div class="page-head col-xs-6" style="padding-bottom:0;padding-top:0;border:0;">
+				<h3>健康评估任务详情</h3>
+				<ol class="breadcrumb">
+					<li >健康管理</li>
+					<li class="active">健康评估任务详情</li>
+				</ol>
+			</div>
+            <div class="col-xs-6" style="text-align:right;padding-top:25px">
+            	<button class="btn btn-primary  " id="head_bjqdId" onclick="save()">编辑确定</button> 
+				<button class="btn btn-success" id="head_shtgId" onclick="savezhuangtaiOpenTC('3')">审核通过</button> 
+				<button class="btn btn-danger" id="head_tuihuiId" onclick="savezhuangtaiOpenTC('1')">退回</button>	
+				<button class="btn btn-default" id="head_quxiaoId" onclick="savezhuangtaiOpenTC('4')">取消</button>
+				<input type="hidden" value="" id="healthId">
+            </div>
+          </div>
+        </div>
+	 </div>
+</div>
+<div id="cl-wrapper1" style="overflow:hidden;margin-bottom: 0px;padding-top:180px">
+	<div class="cl-mcont" >
+	<div class="block-flat">
+   
+         <div class="row">
+					<div class=" col-xs-4 col-sm-2 col-md-2 col-lg-1" style="padding-top:6px">
+						 <strong>老人姓名</strong>
+					</div>
+					<div class="col-xs-8 col-sm-4 col-md-4 col-lg-2" style="margin-bottom:20px; padding-top:6px" id="oldName_input">
+						无								  
+					</div>
+					<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="padding-top:6px">
+						<strong>评估人</strong> 
+					</div>
+					<div class="col-xs-8 col-sm-4 col-md-4 col-lg-2" style="margin-bottom:20px; padding-top:6px" id="pgrName_input">
+						无								  
+					</div>
+					<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="padding-top:6px">
+						 <strong>分配人</strong> 
+					</div>
+					<div class="col-xs-8 col-sm-4 col-md-4 col-lg-2" style="margin-bottom:20px; padding-top:6px" id="fprName_input">
+						无								  
+					</div>
+					<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="padding-top:6px">
+						<strong>期望完成时间</strong>
+					</div>
+					<div class="col-xs-8 col-sm-4 col-md-4 col-lg-2" style="margin-bottom:20px;">
+						<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
+							<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
+							<input class="form-control" size="16" value="" readonly="" type="text" id="qwwcsj_input" >
+							<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+						</div>
+					</div>
+					<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="padding-top:6px">
+						 <strong>健康评估类型</strong>
+					</div>
+					<div class="col-xs-8 col-sm-4 col-md-4 col-lg-2" style="margin-bottom:20px; padding-top:6px">
+						<a href="#" id="pglx_input" target="_blank">无</a>								  
+					</div>
+					<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="padding-top:6px">
+						 <strong>任务状态</strong>
+					</div>
+					<div class="col-xs-8 col-sm-4 col-md-4 col-lg-2" style="margin-bottom:25px; padding-top:6px">
+						<a href="#" id="rwzt_input" target="_blank">无</a>		  
+					</div>
+					<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="padding-top:6px">
+						 <strong>健康评估状态</strong>
+					</div>
+					<div class="col-xs-8 col-sm-4 col-md-4 col-lg-2" style="margin-bottom:25px; padding-top:6px" id="jkpgzt_input">
+						无
+								  
+					</div>
+					<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="padding-top:6px">
+						<strong>审核通过时间</strong>
+					</div>
+					<div class="col-xs-8 col-sm-4 col-md-4 col-lg-2" style="margin-bottom:25px; padding-top:6px" id="shwcsj_input">
+						无
+								  
+					</div>
+					<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="padding-top:6px">
+						<strong>备注</strong>
+					</div>
+					<div class="col-xs-8 col-sm-10 col-md-10 col-lg-11" style="margin-bottom:20px; ">
+					<textarea class="form-control" id="beizhu_input"></textarea>
+								  
+					</div>
+				</div>
+				<div class="row">
+				
+                     <!-- 数据表格开始 -->
+					<div class="col-sm-12"><label style="font-size:16px">评估任务审核记录</label></div>
+					<div class="col-sm-12">							
+						<table class="table table-bordered dataTable hover" id="datatable">
+							<thead>
+								<tr >								
+									<th><strong>操作时间</strong></th>
+									<th><strong>操作类型</strong></th>									
+									<th><strong>操作人</strong></th>									
+									<th><strong>审核意见</strong></th>
+								</tr>
+							</thead>
+							<button class="md-trigger" data-modal="add-suggestion" style="display:none;" id="shengheyijianId"></button>
+							<tbody id="datacontainer" role="alert" aria-live="polite" aria-relevant="all">		
+								<!-- <tr>		                          
+		                          <td>2015-12-12 23:42:23</td>
+		                          <td>评估完成</td>
+		                          <td>护员2</td>
+		                          <td class="md-trigger" data-modal="add-suggestion" onclick="$('#suggestionText').val($(this).text())">评估很全面@！</td>
+		                        </tr> -->																												
+							</tbody>
+						</table>
+					</div>
+					<div class="col-sm-4">
+					<div class="" id="">
+						每页 <select id="pageSizeSelector"   size="1"  onchange="query2()"><option selected="selected" value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> 条 
+					</div>
+					</div>
+					<div class="col-sm-8">
+						<div class="pull-right">
+							<div class="">
+								<ul id="paginationArea" class="pagination" style="margin-top:0">
+								<li class="prev disabled"><a href="#"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+								<li class="active"><a href="#">1</a></li>
+								<li class="next"><a href="#">下一页&nbsp;<span class="fa fa-angle-right"></span></a></li></ul>
+							</div>
+						</div>
+					</div>
+			</div>
+							<!-- 数据条数提示结束 -->       
+         
+   
+</div>
+
+	</div>
+</div> <!-- 主页面结束 -->
+
+  <!-- 模态框开始-->
+          <div class="md-modal colored-header custom-width md-effect-9" id="add-suggestion">
+                  <div class="md-content">
+                    <div class="modal-header">
+                      <h3>审核意见添加或修改</h3>
+                      <button type="button" class="close md-close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                      <input type="hidden" id="hide_type" value="">
+                    </div>
+                    <div class="modal-body ">
+                      <div class="form-group">
+                       <textarea class="form-control" id="suggestionText"></textarea>
+                      </div>                          
+			</div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-primary btn-flat" data-dismiss="modal" onclick="savezhuangtai()">提交</button>
+                      <button type="button" class="btn btn-default btn-flat md-close" data-dismiss="modal" id="cancalOrClose">取消</button>
+                    </div>
+                  </div>
+              </div>      
+
+		 <div class="md-overlay" style="z-index:1050"></div>
+
+
+	<script src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+	<script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+  <script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
+	<script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
+	<script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+  <script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>   
+  <script type="text/javascript" src="js/masonry.js"></script>
+  <script type="text/javascript" src="js/jquery.crop/js/jquery.Jcrop.js"></script>
+
+  <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+  <script src="js/jquery.upload/js/jquery.iframe-transport.js"></script>
+  <!-- The basic File Upload plugin -->
+  <script src="js/jquery.upload/js/jquery.fileupload.js"></script>
+	<script type="text/javascript" src="js/behaviour/general.js"></script>
+	<script type="text/javascript" src="js/jquery.icheck/icheck.min.js"></script>
+<script type="text/javascript" src="js/highcharts.js"></script>
+
+    <script type="text/javascript">
+     
+      $(document).ready(function(){
+    	  var homeUrl = "<%=request.getContextPath()%>" + "/welcome.do?main";
+  		$(".navbar-brand").attr("href",homeUrl);
+        
+        //健康评估任务主键id
+        var Id="<%=request.getAttribute("Id")%>";
+        query(Id);
+        query2();
+    	$(".deleteThisTime").click(function(){               //清除日期框中的值
+    	       $(this).parent().prev()[0].value = "";
+    	    });
+        App.init();
+
+		getLoginName();
+	  });
+      
+   //转化日期20160606121212  2016-06-06
+   function riqiChange(data){
+   		if(data == null || data ==""){
+   			return "无";
+   		}
+   		var date_=data;
+    	var date2=data.substr(0,4)+"-"+data.substr(4,2)+"-"+data.substr(6,2);
+    	return date2;
+   }
+   
+   //健康评估类别转化
+function changeType(type){
+	var typeName = "";
+	switch(type){
+		case 1:
+			typeName = "康复评估";
+			break;
+		case 2:
+			typeName = "护理评估";
+			break;
+		case 3:
+			typeName = "混合健康评估";
+			break;
+		default:
+			typeName = "未知";
+			break;
+	}
+	return typeName;
+}
+//健康评估状态转化
+function changeStatus(status){
+	var statusName = "";
+	switch(status){
+		case 1:
+			statusName = "未完成";
+			break;
+		case 2:
+			statusName = "已完成";
+			break;
+		default:
+			statusName = "未知";
+			break;
+	}
+	return statusName;
+}
+//任务状态转化
+function changeRWStatus(status){
+	var statusName = "";
+	switch(status){
+		case 1:
+			statusName = "待评估";
+			break;
+		case 2:
+			statusName = "评估完成待审核";
+			break;
+		case 3:
+			statusName = "审核通过";
+			break;
+		case 4:
+			statusName = "取消";
+			break;
+		default:
+			statusName = "未知";
+			break;
+	}
+	return statusName;
+}
+/**
+ * 格式化时间
+ * @method formateTime
+ * @param {String} time 时间信息(YYYYMMDDHHmmSS)
+ * @return 格式化的时间(YYYY-MM-DD HH:mm:SS)
+ */
+function formateTime(time) {
+	if (time != null && time.length == 14) {
+		return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8) + " " + time.substring(8, 10) + ":" + time.substring(10, 12) + ":" + time.substring(12, 14);
+	} else {
+		return "无";
+	}
+}
+	//查询健康评估任务内容
+   function query(Id) {
+	var reqmsg="{'action':'QUERY_ASSESSMENT_TASK_INFO_REQUEST','content':{";
+	reqmsg += "\"id\":" + Id;
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "assessmentTask.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  if(data.content != null){
+            	  	if(data.content.healthAssessmentStatus == 1){
+            	  		$("#head_shtgId").attr("style","display:none");
+            	  		$("#head_tuihuiId").attr("style","display:none");
+            	  	}
+            	  	if(data.content.taskStatus == 4){
+            	  		$("#head_bjqdId").attr("style","display:none");
+            	  		$("#head_shtgId").attr("style","display:none");
+            	  		$("#head_tuihuiId").attr("style","display:none");
+            	  		$("#head_quxiaoId").attr("style","display:none");
+            	  		$("#beizhu_input").attr("readonly","readonly");
+            	  	}
+            	  	if(data.content.taskStatus == 3){
+            	  		$("#head_shtgId").attr("style","display:none");
+            	  		$("#head_tuihuiId").attr("style","display:none");
+            	  	}
+            	  	$("#healthId").val(data.content.healthAssessmentId);
+            	  	$("#oldName_input").html(data.content.olderName);
+            	  	$("#pgrName_input").html(data.content.assessmentName);
+            	  	$("#fprName_input").html(data.content.distributeName);
+            	  	$("#qwwcsj_input").val(riqiChange(data.content.expectedCompletionTime));
+            	  	$("#pglx_input").html(changeType(data.content.healthAssessmentType));
+            	  	$("#rwzt_input").html(changeRWStatus(data.content.taskStatus));
+            	  	$("#jkpgzt_input").html(changeStatus(data.content.healthAssessmentStatus));
+            	  	if(data.content.auditPassTime == null || data.content.auditPassTime == ""){
+            	  		$("#shwcsj_input").html("审核未通过");
+            	  	}else{
+            	  		$("#shwcsj_input").html(formateTime(data.content.auditPassTime));
+            	  	}
+            	  	$("#beizhu_input").val(data.content.des);
+            	  	var headUrl = "<%=request.getContextPath()%>";
+            	  	if(data.content.healthAssessmentType == 1){
+						$("#pglx_input").attr("href",headUrl+"/rehabilitationEvaluation.do?main&oldid=" + data.content.olderId + "&id=" + data.content.healthAssessmentId);
+						$("#rwzt_input").attr("href",headUrl+"/rehabilitationEvaluation.do?main&oldid=" + data.content.olderId + "&id=" + data.content.healthAssessmentId);
+					}else if(data.content.healthAssessmentType == 2){
+						$("#pglx_input").attr("href",headUrl+"/nursingEvaluation.do?main&oldid=" + data.content.olderId + "&id=" + data.content.healthAssessmentId);
+						$("#rwzt_input").attr("href",headUrl+"/nursingEvaluation.do?main&oldid=" + data.content.olderId + "&id=" + data.content.healthAssessmentId);
+					}else if(data.content.healthAssessmentType == 3){
+						$("#pglx_input").attr("href",headUrl+"/mixedhealthassessment.do?main&oldid=" + data.content.olderId + "&id=" + data.content.healthAssessmentId);
+						$("#rwzt_input").attr("href",headUrl+"/mixedhealthassessment.do?main&oldid=" + data.content.olderId + "&id=" + data.content.healthAssessmentId);
+					}
+            	  	
+            	  }
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+
+//查询健康评估任务列表信息
+var currentshownpage = 1;
+function query2() {
+	go2page2(1);
+}
+function go2page2(pagenumber){
+	var pagesize = $("#pageSizeSelector option:selected").val();
+	
+	var reqmsg="{'action':'QUERY_ASSESSMENT_LOG_LIST_REQUEST','page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+	var Id="<%=request.getAttribute("Id")%>";
+	if (Id != null && Id != "") {
+		reqmsg += "\"assessmentTaskId\":" + Id + ",";
+	}
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:true,
+          url : "assessmentLog.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  changeData2(data);
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//操作类型转化
+function changeCZleixing(status){
+	var statusName = "";
+	switch(status){
+		case 1:
+			statusName = "新增";
+			break;
+		case 2:
+			statusName = "编辑";
+			break;
+		case 3:
+			statusName = "审核通过";
+			break;
+		case 4:
+			statusName = "退回";
+			break;
+		case 5:
+			statusName = "取消";
+			break;
+		case 6:
+			statusName = "提交评定";
+			break;
+		default:
+			statusName = "未知";
+			break;
+	}
+	return statusName;
+}
+//获取当前时间return yyyymmddhhmmss
+function getNowFormatDate() {
+    var date = new Date();
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    var strHour = date.getHours();
+    var strMinutes = date.getMinutes();
+    var strSeconds = date.getSeconds();
+    
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    if (strHour >= 0 && strHour <= 9) {
+        strHour = "0" + strHour;
+    }
+    if (strMinutes >= 0 && strMinutes <= 9) {
+        strMinutes = "0" + strMinutes;
+    }
+    if (strSeconds >= 0 && strSeconds <= 9) {
+        strSeconds = "0" + strSeconds;
+    }
+    var currentdate = date.getFullYear() + "" + month + "" + strDate + "" + strHour + "" + strMinutes + "" + strSeconds;
+    return currentdate;
+}
+function changeData2(data){
+	var htmlcode = "";
+	if (data.content != null) {
+		jQuery.each(data.content.assessmentLogList, function(i, item) {
+			htmlcode += "<tr>";		
+		    htmlcode += "<td>" + formateTime(item.createTime) + "</td>";	
+		    htmlcode += "<td>" + changeCZleixing(item.type) + "</td>";
+		    htmlcode += "<td>" + item.personName + "</td>";	
+		    if(item.des != null && item.des != ""){
+		    	if(item.des.length > 50){
+		    		htmlcode += "<td><span>" + item.des.substr(0,50) + "</span>";	
+		    		htmlcode += "</br><span>" + item.des.substr(50,item.des.length) + "</span></td>";	
+		    	}else{
+		    		htmlcode += "<td>" + item.des + "</td>";	
+		    	}
+		    }else{
+		    	htmlcode += "<td></td>";	
+		    }
+			htmlcode += "</tr>";
+		});
+	}
+	$("#datacontainer").html(htmlcode);
+	if (data.page != null) {
+		genaratePaginateHtml(data.page.pageno, data.page.pageCount);
+		genarateRecordNumberHtml(data.page.pageno, data.page.pagesize, data.page.recordCount);
+	} else {
+		genaratePaginateHtml(1, 1);
+		genarateRecordNumberHtml(1, 10, 0);
+	}
+}
+
+/**
+ * 生成记录数信息
+ * @method genarateRecordNumberHtml
+ * @param {Number} currentpage 当前页
+ * @param {Number} pagesize 每页记录条目数
+ * @param {Number} totalRecord 总记录数
+ */
+function genarateRecordNumberHtml(currentpage, pagesize, totalRecord) {
+	var recordInfos = "";
+	if (totalRecord > 0) {
+	    recordInfos = "当前显示" + totalRecord + "条总记录";
+		recordInfos += "中第" + ((currentpage - 1) * pagesize + 1) + "-";
+		if (currentpage * pagesize > totalRecord) {
+			recordInfos += totalRecord;
+		} else {
+			recordInfos += currentpage * pagesize;
+		}
+		recordInfos += "条 ";
+	} else {
+		recordInfos = "当前显示0 条总记录中的第0-0条";
+	}
+	
+	$("#datatable_info").html(recordInfos);
+}
+
+/**
+ * 生成分页信息
+ * @method genaratePaginateHtml
+ * @param {Number} currentpage 当前页
+ * @param {Number} totalpage 总页数
+ */
+function genaratePaginateHtml(currentpage, totalpage, pagesize) {
+	currentshownpage = currentpage;
+
+	var htmlcode = "";
+	
+	//上一页
+	if (currentpage > 1) {
+		htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page2('1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+		htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page2('" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+	} else {
+		htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+		htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+	}
+	
+	//具体页码
+	if (totalpage <= 5) {
+		for (var i = 1; i <= totalpage; i++) {
+			if (currentpage == i) {
+				htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+			} else {
+				htmlcode += "<li><a href=\"#\" onclick=\"go2page2('" + i + "')\">" + i + "</a></li>";
+			}
+		}
+	} else {
+		var startpage = currentpage;
+		var endpage = currentpage;
+		while (true) {
+			if (endpage - startpage >= 4) {
+				break;
+			} else {
+				if (startpage > 1) {
+					startpage = startpage - 1;
+				}
+				if (endpage < totalpage) {
+					endpage = endpage - (-1);
+				}
+			}
+		}
+		
+		for (var i = startpage; i <= endpage; i++) {
+			if (currentpage == i) {
+				htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+			} else {
+				htmlcode += "<li><a href=\"#\" onclick=\"go2page2('" + i + "')\">" + i + "</a></li>";
+			}
+		}
+	}
+	
+	//下一页
+	if (totalpage > currentpage) {
+		htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page2('" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page2('" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+	} else {
+		htmlcode += "<li class=\"next disabled\"><a href=\"#\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		htmlcode += "<li class=\"next disabled\"><a href=\"#\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+	}
+	$("#paginationArea").html(htmlcode);
+}
+
+	//获取当前登陆员工姓名
+	function getLoginName(){
+    	  var userId_login = "<%=request.getAttribute("userId")%>";
+		  var reqmsg="{'action':'QUERY_EMPLOYEE_LIST_REQUEST','page':{'pageno':'1','pagesize':'1'},'content':{\"userId\":"+userId_login+"}}";
+		  var name="";
+		  jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "employee.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  if (data.content != null) {
+            	  	if(data.content.employeeList != null && data.content.employeeList.length == 1){
+            	  	   name = data.content.employeeList[0].name;
+            	  	   var roleNames = data.content.employeeList[0].roleNames;
+            	  	   if(roleNames.indexOf("站长") == -1 && roleNames.indexOf("组长") == -1){//都不包含，不能使用审核通过，退回按钮
+            	  	   	   $("#head_shtgId").attr("style","display:none");
+            	  	   	   $("#head_tuihuiId").attr("style","display:none");
+            	  	   }
+            	  	}
+            	  }
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     	  });
+     	  return name;
+	}
+	
+//保存健康评估任务编辑信息
+function save(){
+	var qwwcsj_input = $("#qwwcsj_input").val();
+	if(qwwcsj_input == null || qwwcsj_input == ""){
+		alert("请选择期望完成时间");
+		return;
+	}
+	var beizhu_input = $("#beizhu_input").val();
+	if (beizhu_input != null && beizhu_input != "") {
+		beizhu_input = JSON.stringify(beizhu_input);
+		if(beizhu_input.length > 500){
+			alert("备注最大字数超出限制500字");
+			return;
+		}
+	}
+
+	var reqmsg="{'action':'ADD_ASSESSMENT_TASK_INFO_REQUEST','content':{";
+	var Id="<%=request.getAttribute("Id")%>";
+	if (Id != null && Id != "") {
+		reqmsg += "\"id\":" + Id + ",";
+	}
+	if (qwwcsj_input != null && qwwcsj_input != "") {
+		var nowtime = getNowFormatDate();
+		qwwcsj_input = qwwcsj_input.substring(0, 4) + qwwcsj_input.substring(5, 7) + qwwcsj_input.substring(8, 10);
+		if(nowtime.substr(0,nowtime.length-6) > qwwcsj_input){
+			alert("期望完成时间小于当前时间");
+		}
+		qwwcsj_input = qwwcsj_input + "000000";
+		reqmsg += "\"expectedCompletionTime\":\"" + qwwcsj_input + "\",";
+	}
+	if (beizhu_input != null && beizhu_input != "") {
+		reqmsg += "\"des\":" + beizhu_input + ",";
+	}else{
+		reqmsg += "\"des\":\"\",";
+	}
+	
+	reqmsg += "\"assessmentLogList\":[{";
+	reqmsg += "\"type\":2,";
+	reqmsg += "\"createTime\":\"" + getNowFormatDate() + "\",";
+	if (beizhu_input != null && beizhu_input != "") {
+		reqmsg += "\"des\":" + beizhu_input + ",";
+	}else{
+		reqmsg += "\"des\":\"\",";
+	}
+	var name = getLoginName();
+	if(name == ""){
+		alert("当前非员工,无法操作");
+		return;
+	}else{
+		reqmsg += "\"personName\":\"" + name + "\",";
+	}
+	reqmsg += "}],";
+	
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:true,
+          url : "assessmentTask.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	 var Id="<%=request.getAttribute("Id")%>";
+        		 query(Id);
+        		 query2();
+              	 alert("编辑成功");
+              }else if(data.des=="failure"){
+                 alert("编辑失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+
+//审核通过,退回,取消三种状态判断，打开对应弹窗
+function savezhuangtaiOpenTC(type){
+	$("#suggestionText").val("");
+	$("#hide_type").val(type);
+	$("#shengheyijianId").click();
+}
+//保存三种操作日志
+function savezhuangtai(){
+	var type = $("#hide_type").val();
+	var suggestionText = $("#suggestionText").val();
+	if (suggestionText != null && suggestionText != "") {
+		suggestionText = JSON.stringify(suggestionText);
+		if(suggestionText.length > 500){
+			alert("备注最大字数超出限制500字");
+			return;
+		}
+	}
+	var reqmsg="{'action':'ADD_ASSESSMENT_TASK_INFO_REQUEST','content':{";
+	var Id="<%=request.getAttribute("Id")%>";
+	if (Id != null && Id != "") {
+		reqmsg += "\"id\":" + Id + ",";
+	}
+	reqmsg += "\"healthAssessmentId\":" + $("#healthId").val() + ",";
+	reqmsg += "\"taskStatus\":" + type + ",";
+	if(type == 1){
+		reqmsg += "\"healthAssessment\":{";
+    	reqmsg += "\"id\":" + $("#healthId").val() + ",";
+		reqmsg += "\"status\":1,";
+		reqmsg += "\"taskStatus\":1,";
+		reqmsg += "},";
+		reqmsg += "\"healthAssessmentStatus\":1,";
+		reqmsg += "\"auditPassTime\":\"\",";
+	}else if(type == 3){
+		reqmsg += "\"auditPassTime\":\"" + getNowFormatDate() +  "\",";
+	}
+	
+	reqmsg += "\"assessmentLogList\":[{";
+	if(type == 3){
+		reqmsg += "\"type\":3,";
+	}else if(type == 1){
+		reqmsg += "\"type\":4,";
+	}else if(type == 4){
+		reqmsg += "\"type\":5,";
+	}
+	if (suggestionText != null && suggestionText != "") {
+		reqmsg += "\"des\":" + suggestionText + ",";
+	}else{
+		reqmsg += "\"des\":\"\",";
+	}
+	reqmsg += "\"createTime\":\"" + getNowFormatDate() + "\",";
+	var name = getLoginName();
+	if(name == ""){
+		alert("当前非员工,无法操作");
+		return;
+	}else{
+		reqmsg += "\"personName\":\"" + name + "\",";
+	}
+	reqmsg += "}],";
+	
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:true,
+          url : "assessmentTask.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	 var Id="<%=request.getAttribute("Id")%>";
+        		 query(Id);
+        		 query2();
+        		 $("#cancalOrClose").click();
+              	 alert("操作成功");
+              }else if(data.des=="failure"){
+                 alert("操作失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+
+}
+    </script>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+  <script src="js/behaviour/voice-commands.js"></script>
+  <script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+<script type="text/javascript" src="js/jquery.form.js"></script>
+</body>
+</html>

@@ -1,0 +1,948 @@
+package fsk.parse.healthReport;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.framework.system.util.JsonUtil;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+import fsk.entity.healthReport.HealthReportEntity;
+
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.healthReportPhoto.HealthReportPhotoEntity;
+
+import com.framework.system.util.JsonUtil;
+import com.framework.system.db.query.OrderVO;
+
+/**
+ * @Title: Parse
+ * @Description: 健康评估报告解析器
+ * @author feng.gu
+ * @date 2016-07-12 15:06:40
+ * @version V1.0
+ * 
+ */
+public class HealthReportParse {
+	private static Logger logger = Logger.getLogger(HealthReportParse.class);
+	private static HealthReportParse healthReportParse;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static HealthReportParse getInstance() {
+		if (healthReportParse == null) {
+			healthReportParse = new HealthReportParse();
+		}
+		return healthReportParse;
+	}
+
+	public Map<String, Object> parse(int type, String command, String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			parseMap = this.parseByJson(command, reqStr, request);
+		} else if (type == 2) {
+			// xml
+			parseMap = this.parseByXml(command, reqStr, request);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByJson(String command, String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		try {
+			String actionReturn = null;
+			HealthReportEntity healthReportReturn = null;
+			List<HealthReportEntity> healthReportListReturn = null;
+			Integer idReturn = null;
+			Map<String, Object> queryMapReturn = null;
+			int pagenoReturn = 1;
+			int pagesizeReturn = 10;
+			List<OrderVO> orderListReturn = null;
+
+			Boolean employeeShowReturn = false;
+			Boolean delEmployeeReturn = false;
+			Boolean healthReportPhotoListShowReturn = false;
+			Boolean delHealthReportPhotoListReturn = false;
+
+			// json
+			Map reqParams = JsonUtil.getMap4Json(reqStr);
+			JSONObject contentreq = (JSONObject) reqParams.get("content");
+			if ("ADD_HEALTH_REPORT_INFO_REQUEST".equals(command)) {
+				actionReturn = "save";
+				healthReportReturn = new HealthReportEntity();
+				if (true) {
+					if (contentreq != null) {
+						Integer id = (Integer) contentreq.get("id");
+						if (id != null) {
+							healthReportReturn.setId(id);
+						}
+						String assessmentTime = (String) contentreq
+								.get("assessmentTime");
+						if (assessmentTime != null) {
+							healthReportReturn
+									.setAssessmentTime(assessmentTime);
+						}
+						Integer employeeId = (Integer) contentreq
+								.get("employeeId");
+						if (employeeId != null) {
+							healthReportReturn.setEmployeeId(employeeId);
+						}
+						String diseaseSummary = (String) contentreq
+								.get("diseaseSummary");
+						if (diseaseSummary != null) {
+							healthReportReturn
+									.setDiseaseSummary(diseaseSummary);
+						}
+						String recentRehabilitationGoals = (String) contentreq
+								.get("recentRehabilitationGoals");
+						if (recentRehabilitationGoals != null) {
+							healthReportReturn
+									.setRecentRehabilitationGoals(recentRehabilitationGoals);
+						}
+						String rehabilitationLongTermGoal = (String) contentreq
+								.get("rehabilitationLongTermGoal");
+						if (rehabilitationLongTermGoal != null) {
+							healthReportReturn
+									.setRehabilitationLongTermGoal(rehabilitationLongTermGoal);
+						}
+						String trainingProgram = (String) contentreq
+								.get("trainingProgram");
+						if (trainingProgram != null) {
+							healthReportReturn
+									.setTrainingProgram(trainingProgram);
+						}
+						Integer status = (Integer) contentreq.get("status");
+						if (status != null) {
+							healthReportReturn.setStatus(status);
+						}
+						String mainProblem = (String) contentreq
+								.get("mainProblem");
+						if (mainProblem != null) {
+							healthReportReturn.setMainProblem(mainProblem);
+						}
+						String suggest = (String) contentreq.get("suggest");
+						if (suggest != null) {
+							healthReportReturn.setSuggest(suggest);
+						}
+					}
+				}
+				if (true) {
+					Object employee = contentreq.get("employee");
+					if (employee != null) {
+						JSONObject obj = (JSONObject) employee;
+						if (obj != null) {
+							EmployeeEntity entity = new EmployeeEntity();
+							healthReportReturn.setEmployee(entity);
+						}
+					}
+				}
+				if (true) {
+					Object healthReportPhotoList = contentreq
+							.get("healthReportPhotoList");
+					if (healthReportPhotoList != null) {
+						JSONArray list = (JSONArray) healthReportPhotoList;
+						if (list != null) {
+							List<HealthReportPhotoEntity> entityList = new ArrayList<HealthReportPhotoEntity>();
+							for (int i = 0; i < list.size(); i++) {
+								JSONObject obj = list.getJSONObject(i);
+								if (obj != null) {
+									HealthReportPhotoEntity entity = new HealthReportPhotoEntity();
+
+									Integer id = (Integer) obj.get("id");
+									if (id != null) {
+										entity.setId(id);
+									}
+									Integer healthReportId = (Integer) obj
+											.get("healthReportId");
+									if (healthReportId != null) {
+										entity.setHealthReportId(healthReportId);
+									}
+									String photoUrl = (String) obj
+											.get("photoUrl");
+									if (photoUrl != null) {
+										entity.setPhotoUrl(photoUrl);
+									}
+									Integer showIndex = (Integer) obj
+											.get("showIndex");
+									if (showIndex != null) {
+										entity.setShowIndex(showIndex);
+									}
+									entityList.add(entity);
+								}
+							}
+							healthReportReturn
+									.setHealthReportPhotoList(entityList);
+						}
+
+					}
+				}
+			} else if ("QUERY_HEALTH_REPORT_INFO_REQUEST".equals(command)) {
+				actionReturn = "getById";
+				if (true) {
+					if (contentreq != null) {
+						idReturn = (Integer) contentreq.get("id");
+						String employeeShow = (String) contentreq
+								.get("employeeShow");
+						if ("true".equals(employeeShow)) {
+							employeeShowReturn = true;
+						}
+						String healthReportPhotoListShow = (String) contentreq
+								.get("healthReportPhotoListShow");
+						if ("true".equals(healthReportPhotoListShow)) {
+							healthReportPhotoListShowReturn = true;
+						}
+					}
+				}
+			} else if ("QUERY_HEALTH_REPORT_LIST_REQUEST".equals(command)) {
+				actionReturn = "getListByCondition";
+				if (true) {
+					if (contentreq != null) {
+						queryMapReturn = new HashMap<String, Object>();
+						Integer id_gt = (Integer) contentreq.get("id_gt");
+						Integer id_ge = (Integer) contentreq.get("id_ge");
+						Integer id_lt = (Integer) contentreq.get("id_lt");
+						Integer id_le = (Integer) contentreq.get("id_le");
+						String id_in = (String) contentreq.get("id_in");
+						Integer id = (Integer) contentreq.get("id");
+						if (id_gt != null) {
+							queryMapReturn.put("id_gt", id_gt);
+						}
+						if (id_ge != null) {
+							queryMapReturn.put("id_ge", id_ge);
+						}
+						if (id_lt != null) {
+							queryMapReturn.put("id_lt", id_lt);
+						}
+						if (id_le != null) {
+							queryMapReturn.put("id_le", id_le);
+						}
+						if (id_in != null) {
+							queryMapReturn.put("id_in", id_in);
+						}
+						if (id != null) {
+							queryMapReturn.put("id", id);
+						}
+						String assessmentTime_gt = (String) contentreq
+								.get("assessmentTime_gt");
+						String assessmentTime_ge = (String) contentreq
+								.get("assessmentTime_ge");
+						String assessmentTime_lt = (String) contentreq
+								.get("assessmentTime_lt");
+						String assessmentTime_le = (String) contentreq
+								.get("assessmentTime_le");
+						if (assessmentTime_gt != null) {
+							queryMapReturn.put("assessmentTime_gt",
+									assessmentTime_gt);
+						}
+						if (assessmentTime_ge != null) {
+							queryMapReturn.put("assessmentTime_ge",
+									assessmentTime_ge);
+						}
+						if (assessmentTime_lt != null) {
+							queryMapReturn.put("assessmentTime_lt",
+									assessmentTime_lt);
+						}
+						if (assessmentTime_le != null) {
+							queryMapReturn.put("assessmentTime_le",
+									assessmentTime_le);
+						}
+						Integer employeeId_gt = (Integer) contentreq
+								.get("employeeId_gt");
+						Integer employeeId_ge = (Integer) contentreq
+								.get("employeeId_ge");
+						Integer employeeId_lt = (Integer) contentreq
+								.get("employeeId_lt");
+						Integer employeeId_le = (Integer) contentreq
+								.get("employeeId_le");
+						String employeeId_in = (String) contentreq
+								.get("employeeId_in");
+						Integer employeeId = (Integer) contentreq
+								.get("employeeId");
+						if (employeeId_gt != null) {
+							queryMapReturn.put("employeeId_gt", employeeId_gt);
+						}
+						if (employeeId_ge != null) {
+							queryMapReturn.put("employeeId_ge", employeeId_ge);
+						}
+						if (employeeId_lt != null) {
+							queryMapReturn.put("employeeId_lt", employeeId_lt);
+						}
+						if (employeeId_le != null) {
+							queryMapReturn.put("employeeId_le", employeeId_le);
+						}
+						if (employeeId_in != null) {
+							queryMapReturn.put("employeeId_in", employeeId_in);
+						}
+						if (employeeId != null) {
+							queryMapReturn.put("employeeId", employeeId);
+						}
+						String diseaseSummary_like = (String) contentreq
+								.get("diseaseSummary_like");
+						String diseaseSummary_isNull = (String) contentreq
+								.get("diseaseSummary_isNull");
+						String diseaseSummary_isNotNull = (String) contentreq
+								.get("diseaseSummary_isNotNull");
+						String diseaseSummary_in = (String) contentreq
+								.get("diseaseSummary_in");
+						String diseaseSummary = (String) contentreq
+								.get("diseaseSummary");
+						if (diseaseSummary_like != null) {
+							queryMapReturn.put("diseaseSummary_like",
+									diseaseSummary_like);
+						}
+						if (diseaseSummary_isNull != null) {
+							queryMapReturn.put("diseaseSummary_isNull",
+									diseaseSummary_isNull);
+						}
+						if (diseaseSummary_isNotNull != null) {
+							queryMapReturn.put("diseaseSummary_isNotNull",
+									diseaseSummary_isNotNull);
+						}
+						if (diseaseSummary_in != null) {
+							queryMapReturn.put("diseaseSummary_in",
+									diseaseSummary_in);
+						}
+						if (diseaseSummary != null) {
+							queryMapReturn
+									.put("diseaseSummary", diseaseSummary);
+						}
+						String recentRehabilitationGoals_like = (String) contentreq
+								.get("recentRehabilitationGoals_like");
+						String recentRehabilitationGoals_isNull = (String) contentreq
+								.get("recentRehabilitationGoals_isNull");
+						String recentRehabilitationGoals_isNotNull = (String) contentreq
+								.get("recentRehabilitationGoals_isNotNull");
+						String recentRehabilitationGoals_in = (String) contentreq
+								.get("recentRehabilitationGoals_in");
+						String recentRehabilitationGoals = (String) contentreq
+								.get("recentRehabilitationGoals");
+						if (recentRehabilitationGoals_like != null) {
+							queryMapReturn.put(
+									"recentRehabilitationGoals_like",
+									recentRehabilitationGoals_like);
+						}
+						if (recentRehabilitationGoals_isNull != null) {
+							queryMapReturn.put(
+									"recentRehabilitationGoals_isNull",
+									recentRehabilitationGoals_isNull);
+						}
+						if (recentRehabilitationGoals_isNotNull != null) {
+							queryMapReturn.put(
+									"recentRehabilitationGoals_isNotNull",
+									recentRehabilitationGoals_isNotNull);
+						}
+						if (recentRehabilitationGoals_in != null) {
+							queryMapReturn.put("recentRehabilitationGoals_in",
+									recentRehabilitationGoals_in);
+						}
+						if (recentRehabilitationGoals != null) {
+							queryMapReturn.put("recentRehabilitationGoals",
+									recentRehabilitationGoals);
+						}
+						String rehabilitationLongTermGoal_like = (String) contentreq
+								.get("rehabilitationLongTermGoal_like");
+						String rehabilitationLongTermGoal_isNull = (String) contentreq
+								.get("rehabilitationLongTermGoal_isNull");
+						String rehabilitationLongTermGoal_isNotNull = (String) contentreq
+								.get("rehabilitationLongTermGoal_isNotNull");
+						String rehabilitationLongTermGoal_in = (String) contentreq
+								.get("rehabilitationLongTermGoal_in");
+						String rehabilitationLongTermGoal = (String) contentreq
+								.get("rehabilitationLongTermGoal");
+						if (rehabilitationLongTermGoal_like != null) {
+							queryMapReturn.put(
+									"rehabilitationLongTermGoal_like",
+									rehabilitationLongTermGoal_like);
+						}
+						if (rehabilitationLongTermGoal_isNull != null) {
+							queryMapReturn.put(
+									"rehabilitationLongTermGoal_isNull",
+									rehabilitationLongTermGoal_isNull);
+						}
+						if (rehabilitationLongTermGoal_isNotNull != null) {
+							queryMapReturn.put(
+									"rehabilitationLongTermGoal_isNotNull",
+									rehabilitationLongTermGoal_isNotNull);
+						}
+						if (rehabilitationLongTermGoal_in != null) {
+							queryMapReturn.put("rehabilitationLongTermGoal_in",
+									rehabilitationLongTermGoal_in);
+						}
+						if (rehabilitationLongTermGoal != null) {
+							queryMapReturn.put("rehabilitationLongTermGoal",
+									rehabilitationLongTermGoal);
+						}
+						String trainingProgram_like = (String) contentreq
+								.get("trainingProgram_like");
+						String trainingProgram_isNull = (String) contentreq
+								.get("trainingProgram_isNull");
+						String trainingProgram_isNotNull = (String) contentreq
+								.get("trainingProgram_isNotNull");
+						String trainingProgram_in = (String) contentreq
+								.get("trainingProgram_in");
+						String trainingProgram = (String) contentreq
+								.get("trainingProgram");
+						if (trainingProgram_like != null) {
+							queryMapReturn.put("trainingProgram_like",
+									trainingProgram_like);
+						}
+						if (trainingProgram_isNull != null) {
+							queryMapReturn.put("trainingProgram_isNull",
+									trainingProgram_isNull);
+						}
+						if (trainingProgram_isNotNull != null) {
+							queryMapReturn.put("trainingProgram_isNotNull",
+									trainingProgram_isNotNull);
+						}
+						if (trainingProgram_in != null) {
+							queryMapReturn.put("trainingProgram_in",
+									trainingProgram_in);
+						}
+						if (trainingProgram != null) {
+							queryMapReturn.put("trainingProgram",
+									trainingProgram);
+						}
+						Integer status_gt = (Integer) contentreq
+								.get("status_gt");
+						Integer status_ge = (Integer) contentreq
+								.get("status_ge");
+						Integer status_lt = (Integer) contentreq
+								.get("status_lt");
+						Integer status_le = (Integer) contentreq
+								.get("status_le");
+						String status_in = (String) contentreq.get("status_in");
+						Integer status = (Integer) contentreq.get("status");
+						if (status_gt != null) {
+							queryMapReturn.put("status_gt", status_gt);
+						}
+						if (status_ge != null) {
+							queryMapReturn.put("status_ge", status_ge);
+						}
+						if (status_lt != null) {
+							queryMapReturn.put("status_lt", status_lt);
+						}
+						if (status_le != null) {
+							queryMapReturn.put("status_le", status_le);
+						}
+						if (status_in != null) {
+							queryMapReturn.put("status_in", status_in);
+						}
+						if (status != null) {
+							queryMapReturn.put("status", status);
+						}
+						String mainProblem_like = (String) contentreq
+								.get("mainProblem_like");
+						String mainProblem_isNull = (String) contentreq
+								.get("mainProblem_isNull");
+						String mainProblem_isNotNull = (String) contentreq
+								.get("mainProblem_isNotNull");
+						String mainProblem_in = (String) contentreq
+								.get("mainProblem_in");
+						String mainProblem = (String) contentreq
+								.get("mainProblem");
+						if (mainProblem_like != null) {
+							queryMapReturn.put("mainProblem_like",
+									mainProblem_like);
+						}
+						if (mainProblem_isNull != null) {
+							queryMapReturn.put("mainProblem_isNull",
+									mainProblem_isNull);
+						}
+						if (mainProblem_isNotNull != null) {
+							queryMapReturn.put("mainProblem_isNotNull",
+									mainProblem_isNotNull);
+						}
+						if (mainProblem_in != null) {
+							queryMapReturn
+									.put("mainProblem_in", mainProblem_in);
+						}
+						if (mainProblem != null) {
+							queryMapReturn.put("mainProblem", mainProblem);
+						}
+						String suggest_like = (String) contentreq
+								.get("suggest_like");
+						String suggest_isNull = (String) contentreq
+								.get("suggest_isNull");
+						String suggest_isNotNull = (String) contentreq
+								.get("suggest_isNotNull");
+						String suggest_in = (String) contentreq
+								.get("suggest_in");
+						String suggest = (String) contentreq.get("suggest");
+						if (suggest_like != null) {
+							queryMapReturn.put("suggest_like", suggest_like);
+						}
+						if (suggest_isNull != null) {
+							queryMapReturn
+									.put("suggest_isNull", suggest_isNull);
+						}
+						if (suggest_isNotNull != null) {
+							queryMapReturn.put("suggest_isNotNull",
+									suggest_isNotNull);
+						}
+						if (suggest_in != null) {
+							queryMapReturn.put("suggest_in", suggest_in);
+						}
+						if (suggest != null) {
+							queryMapReturn.put("suggest", suggest);
+						}
+
+						Integer healthReportPhotoId = (Integer) contentreq
+								.get("healthReportPhotoId");
+						if (healthReportPhotoId != null) {
+							queryMapReturn.put("healthReportPhotoId",
+									healthReportPhotoId);
+						}
+
+						String employeeShow = (String) contentreq
+								.get("employeeShow");
+						if ("true".equals(employeeShow)) {
+							employeeShowReturn = true;
+						}
+						String healthReportPhotoListShow = (String) contentreq
+								.get("healthReportPhotoListShow");
+						if ("true".equals(healthReportPhotoListShow)) {
+							healthReportPhotoListShowReturn = true;
+						}
+					}
+					JSONObject pagereq = (JSONObject) reqParams.get("page");
+					if (pagereq != null) {
+						String pagenotemp = (String) pagereq.get("pageno");
+						String pagesizetemp = (String) pagereq.get("pagesize");
+						if ((pagenotemp != null)
+								&& (!"".equals(pagenotemp.trim()))) {
+							pagenoReturn = Integer.valueOf(pagenotemp)
+									.intValue();
+						}
+						if ((pagesizetemp != null)
+								&& (!"".equals(pagesizetemp.trim()))) {
+							pagesizeReturn = Integer.valueOf(pagesizetemp)
+									.intValue();
+						}
+					}
+					Object orderreq = (Object) reqParams.get("order");
+					if (orderreq != null) {
+						JSONArray order = (JSONArray) orderreq;
+						orderListReturn = new ArrayList<OrderVO>();
+						for (int i = 0; i < order.size(); i++) {
+							JSONObject obj = order.getJSONObject(i);
+							OrderVO orderVO = new OrderVO();
+							orderVO.setName((String) obj.get("column"));
+							orderVO.setOrderType((String) obj.get("type"));
+							orderListReturn.add(orderVO);
+						}
+					}
+				}
+			} else if ("DEL_HEALTH_REPORT_INFO_REQUEST".equals(command)) {
+				actionReturn = "del";
+				if (true) {
+					if (contentreq != null) {
+						idReturn = (Integer) contentreq.get("id");
+						String delEmployee = (String) contentreq
+								.get("delEmployee");
+						if ("true".equals(delEmployee)) {
+							delEmployeeReturn = true;
+						}
+						String delHealthReportPhotoList = (String) contentreq
+								.get("delHealthReportPhotoList");
+						if ("true".equals(delHealthReportPhotoList)) {
+							delHealthReportPhotoListReturn = true;
+						}
+					}
+				}
+			} else if ("DEL_HEALTH_REPORT_LIST_REQUEST".equals(command)) {
+				actionReturn = "delList";
+				if (true) {
+					if (contentreq != null) {
+						queryMapReturn = new HashMap<String, Object>();
+						Integer id_gt = (Integer) contentreq.get("id_gt");
+						Integer id_ge = (Integer) contentreq.get("id_ge");
+						Integer id_lt = (Integer) contentreq.get("id_lt");
+						Integer id_le = (Integer) contentreq.get("id_le");
+						String id_in = (String) contentreq.get("id_in");
+						Integer id = (Integer) contentreq.get("id");
+						if (id_gt != null) {
+							queryMapReturn.put("id_gt", id_gt);
+						}
+						if (id_ge != null) {
+							queryMapReturn.put("id_ge", id_ge);
+						}
+						if (id_lt != null) {
+							queryMapReturn.put("id_lt", id_lt);
+						}
+						if (id_le != null) {
+							queryMapReturn.put("id_le", id_le);
+						}
+						if (id_in != null) {
+							queryMapReturn.put("id_in", id_in);
+						}
+						if (id != null) {
+							queryMapReturn.put("id", id);
+						}
+						String assessmentTime_gt = (String) contentreq
+								.get("assessmentTime_gt");
+						String assessmentTime_ge = (String) contentreq
+								.get("assessmentTime_ge");
+						String assessmentTime_lt = (String) contentreq
+								.get("assessmentTime_lt");
+						String assessmentTime_le = (String) contentreq
+								.get("assessmentTime_le");
+						if (assessmentTime_gt != null) {
+							queryMapReturn.put("assessmentTime_gt",
+									assessmentTime_gt);
+						}
+						if (assessmentTime_ge != null) {
+							queryMapReturn.put("assessmentTime_ge",
+									assessmentTime_ge);
+						}
+						if (assessmentTime_lt != null) {
+							queryMapReturn.put("assessmentTime_lt",
+									assessmentTime_lt);
+						}
+						if (assessmentTime_le != null) {
+							queryMapReturn.put("assessmentTime_le",
+									assessmentTime_le);
+						}
+						Integer employeeId_gt = (Integer) contentreq
+								.get("employeeId_gt");
+						Integer employeeId_ge = (Integer) contentreq
+								.get("employeeId_ge");
+						Integer employeeId_lt = (Integer) contentreq
+								.get("employeeId_lt");
+						Integer employeeId_le = (Integer) contentreq
+								.get("employeeId_le");
+						String employeeId_in = (String) contentreq
+								.get("employeeId_in");
+						Integer employeeId = (Integer) contentreq
+								.get("employeeId");
+						if (employeeId_gt != null) {
+							queryMapReturn.put("employeeId_gt", employeeId_gt);
+						}
+						if (employeeId_ge != null) {
+							queryMapReturn.put("employeeId_ge", employeeId_ge);
+						}
+						if (employeeId_lt != null) {
+							queryMapReturn.put("employeeId_lt", employeeId_lt);
+						}
+						if (employeeId_le != null) {
+							queryMapReturn.put("employeeId_le", employeeId_le);
+						}
+						if (employeeId_in != null) {
+							queryMapReturn.put("employeeId_in", employeeId_in);
+						}
+						if (employeeId != null) {
+							queryMapReturn.put("employeeId", employeeId);
+						}
+						String diseaseSummary_like = (String) contentreq
+								.get("diseaseSummary_like");
+						String diseaseSummary_isNull = (String) contentreq
+								.get("diseaseSummary_isNull");
+						String diseaseSummary_isNotNull = (String) contentreq
+								.get("diseaseSummary_isNotNull");
+						String diseaseSummary_in = (String) contentreq
+								.get("diseaseSummary_in");
+						String diseaseSummary = (String) contentreq
+								.get("diseaseSummary");
+						if (diseaseSummary_like != null) {
+							queryMapReturn.put("diseaseSummary_like",
+									diseaseSummary_like);
+						}
+						if (diseaseSummary_isNull != null) {
+							queryMapReturn.put("diseaseSummary_isNull",
+									diseaseSummary_isNull);
+						}
+						if (diseaseSummary_isNotNull != null) {
+							queryMapReturn.put("diseaseSummary_isNotNull",
+									diseaseSummary_isNotNull);
+						}
+						if (diseaseSummary_in != null) {
+							queryMapReturn.put("diseaseSummary_in",
+									diseaseSummary_in);
+						}
+						if (diseaseSummary != null) {
+							queryMapReturn
+									.put("diseaseSummary", diseaseSummary);
+						}
+						String recentRehabilitationGoals_like = (String) contentreq
+								.get("recentRehabilitationGoals_like");
+						String recentRehabilitationGoals_isNull = (String) contentreq
+								.get("recentRehabilitationGoals_isNull");
+						String recentRehabilitationGoals_isNotNull = (String) contentreq
+								.get("recentRehabilitationGoals_isNotNull");
+						String recentRehabilitationGoals_in = (String) contentreq
+								.get("recentRehabilitationGoals_in");
+						String recentRehabilitationGoals = (String) contentreq
+								.get("recentRehabilitationGoals");
+						if (recentRehabilitationGoals_like != null) {
+							queryMapReturn.put(
+									"recentRehabilitationGoals_like",
+									recentRehabilitationGoals_like);
+						}
+						if (recentRehabilitationGoals_isNull != null) {
+							queryMapReturn.put(
+									"recentRehabilitationGoals_isNull",
+									recentRehabilitationGoals_isNull);
+						}
+						if (recentRehabilitationGoals_isNotNull != null) {
+							queryMapReturn.put(
+									"recentRehabilitationGoals_isNotNull",
+									recentRehabilitationGoals_isNotNull);
+						}
+						if (recentRehabilitationGoals_in != null) {
+							queryMapReturn.put("recentRehabilitationGoals_in",
+									recentRehabilitationGoals_in);
+						}
+						if (recentRehabilitationGoals != null) {
+							queryMapReturn.put("recentRehabilitationGoals",
+									recentRehabilitationGoals);
+						}
+						String rehabilitationLongTermGoal_like = (String) contentreq
+								.get("rehabilitationLongTermGoal_like");
+						String rehabilitationLongTermGoal_isNull = (String) contentreq
+								.get("rehabilitationLongTermGoal_isNull");
+						String rehabilitationLongTermGoal_isNotNull = (String) contentreq
+								.get("rehabilitationLongTermGoal_isNotNull");
+						String rehabilitationLongTermGoal_in = (String) contentreq
+								.get("rehabilitationLongTermGoal_in");
+						String rehabilitationLongTermGoal = (String) contentreq
+								.get("rehabilitationLongTermGoal");
+						if (rehabilitationLongTermGoal_like != null) {
+							queryMapReturn.put(
+									"rehabilitationLongTermGoal_like",
+									rehabilitationLongTermGoal_like);
+						}
+						if (rehabilitationLongTermGoal_isNull != null) {
+							queryMapReturn.put(
+									"rehabilitationLongTermGoal_isNull",
+									rehabilitationLongTermGoal_isNull);
+						}
+						if (rehabilitationLongTermGoal_isNotNull != null) {
+							queryMapReturn.put(
+									"rehabilitationLongTermGoal_isNotNull",
+									rehabilitationLongTermGoal_isNotNull);
+						}
+						if (rehabilitationLongTermGoal_in != null) {
+							queryMapReturn.put("rehabilitationLongTermGoal_in",
+									rehabilitationLongTermGoal_in);
+						}
+						if (rehabilitationLongTermGoal != null) {
+							queryMapReturn.put("rehabilitationLongTermGoal",
+									rehabilitationLongTermGoal);
+						}
+						String trainingProgram_like = (String) contentreq
+								.get("trainingProgram_like");
+						String trainingProgram_isNull = (String) contentreq
+								.get("trainingProgram_isNull");
+						String trainingProgram_isNotNull = (String) contentreq
+								.get("trainingProgram_isNotNull");
+						String trainingProgram_in = (String) contentreq
+								.get("trainingProgram_in");
+						String trainingProgram = (String) contentreq
+								.get("trainingProgram");
+						if (trainingProgram_like != null) {
+							queryMapReturn.put("trainingProgram_like",
+									trainingProgram_like);
+						}
+						if (trainingProgram_isNull != null) {
+							queryMapReturn.put("trainingProgram_isNull",
+									trainingProgram_isNull);
+						}
+						if (trainingProgram_isNotNull != null) {
+							queryMapReturn.put("trainingProgram_isNotNull",
+									trainingProgram_isNotNull);
+						}
+						if (trainingProgram_in != null) {
+							queryMapReturn.put("trainingProgram_in",
+									trainingProgram_in);
+						}
+						if (trainingProgram != null) {
+							queryMapReturn.put("trainingProgram",
+									trainingProgram);
+						}
+						Integer status_gt = (Integer) contentreq
+								.get("status_gt");
+						Integer status_ge = (Integer) contentreq
+								.get("status_ge");
+						Integer status_lt = (Integer) contentreq
+								.get("status_lt");
+						Integer status_le = (Integer) contentreq
+								.get("status_le");
+						String status_in = (String) contentreq.get("status_in");
+						Integer status = (Integer) contentreq.get("status");
+						if (status_gt != null) {
+							queryMapReturn.put("status_gt", status_gt);
+						}
+						if (status_ge != null) {
+							queryMapReturn.put("status_ge", status_ge);
+						}
+						if (status_lt != null) {
+							queryMapReturn.put("status_lt", status_lt);
+						}
+						if (status_le != null) {
+							queryMapReturn.put("status_le", status_le);
+						}
+						if (status_in != null) {
+							queryMapReturn.put("status_in", status_in);
+						}
+						if (status != null) {
+							queryMapReturn.put("status", status);
+						}
+						String mainProblem_like = (String) contentreq
+								.get("mainProblem_like");
+						String mainProblem_isNull = (String) contentreq
+								.get("mainProblem_isNull");
+						String mainProblem_isNotNull = (String) contentreq
+								.get("mainProblem_isNotNull");
+						String mainProblem_in = (String) contentreq
+								.get("mainProblem_in");
+						String mainProblem = (String) contentreq
+								.get("mainProblem");
+						if (mainProblem_like != null) {
+							queryMapReturn.put("mainProblem_like",
+									mainProblem_like);
+						}
+						if (mainProblem_isNull != null) {
+							queryMapReturn.put("mainProblem_isNull",
+									mainProblem_isNull);
+						}
+						if (mainProblem_isNotNull != null) {
+							queryMapReturn.put("mainProblem_isNotNull",
+									mainProblem_isNotNull);
+						}
+						if (mainProblem_in != null) {
+							queryMapReturn
+									.put("mainProblem_in", mainProblem_in);
+						}
+						if (mainProblem != null) {
+							queryMapReturn.put("mainProblem", mainProblem);
+						}
+						String suggest_like = (String) contentreq
+								.get("suggest_like");
+						String suggest_isNull = (String) contentreq
+								.get("suggest_isNull");
+						String suggest_isNotNull = (String) contentreq
+								.get("suggest_isNotNull");
+						String suggest_in = (String) contentreq
+								.get("suggest_in");
+						String suggest = (String) contentreq.get("suggest");
+						if (suggest_like != null) {
+							queryMapReturn.put("suggest_like", suggest_like);
+						}
+						if (suggest_isNull != null) {
+							queryMapReturn
+									.put("suggest_isNull", suggest_isNull);
+						}
+						if (suggest_isNotNull != null) {
+							queryMapReturn.put("suggest_isNotNull",
+									suggest_isNotNull);
+						}
+						if (suggest_in != null) {
+							queryMapReturn.put("suggest_in", suggest_in);
+						}
+						if (suggest != null) {
+							queryMapReturn.put("suggest", suggest);
+						}
+
+						String delEmployee = (String) contentreq
+								.get("delEmployee");
+						if ("true".equals(delEmployee)) {
+							delEmployeeReturn = true;
+						}
+						Integer healthReportPhotoId = (Integer) contentreq
+								.get("healthReportPhotoId");
+						if (healthReportPhotoId != null) {
+							queryMapReturn.put("healthReportPhotoId",
+									healthReportPhotoId);
+						}
+						String delHealthReportPhotoList = (String) contentreq
+								.get("delHealthReportPhotoList");
+						if ("true".equals(delHealthReportPhotoList)) {
+							delHealthReportPhotoListReturn = true;
+						}
+					}
+					JSONObject pagereq = (JSONObject) reqParams.get("page");
+					if (pagereq != null) {
+						String pagenotemp = (String) pagereq.get("pageno");
+						String pagesizetemp = (String) pagereq.get("pagesize");
+						if ((pagenotemp != null)
+								&& (!"".equals(pagenotemp.trim()))) {
+							pagenoReturn = Integer.valueOf(pagenotemp)
+									.intValue();
+						}
+						if ((pagesizetemp != null)
+								&& (!"".equals(pagesizetemp.trim()))) {
+							pagesizeReturn = Integer.valueOf(pagesizetemp)
+									.intValue();
+						}
+					}
+				}
+			}
+
+			if (actionReturn != null && !"".equals(actionReturn)) {
+				parseMap.put("action", actionReturn);
+			}
+			if (healthReportReturn != null) {
+				parseMap.put("healthReport", healthReportReturn);
+			}
+			if (healthReportListReturn != null
+					&& healthReportListReturn.size() > 0) {
+				parseMap.put("healthReportList", healthReportListReturn);
+			}
+			if (idReturn != null) {
+				parseMap.put("id", idReturn);
+			}
+			if (orderListReturn != null && orderListReturn.size() > 0) {
+				parseMap.put("orderList", orderListReturn);
+			}
+			if (queryMapReturn != null) {
+				parseMap.put("queryMap", queryMapReturn);
+			}
+			if (pagenoReturn > 0) {
+				parseMap.put("pageno", pagenoReturn);
+			}
+			if (pagesizeReturn > 0) {
+				parseMap.put("pagesize", pagesizeReturn);
+			}
+
+			if (employeeShowReturn != null) {
+				parseMap.put("employeeShow", employeeShowReturn);
+			}
+			if (delEmployeeReturn != null) {
+				parseMap.put("delEmployee", delEmployeeReturn);
+			}
+			if (healthReportPhotoListShowReturn != null) {
+				parseMap.put("healthReportPhotoListShow",
+						healthReportPhotoListShowReturn);
+			}
+			if (delHealthReportPhotoListReturn != null) {
+				parseMap.put("delHealthReportPhotoList",
+						delHealthReportPhotoListReturn);
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByXml(String command, String reqStr,
+			HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

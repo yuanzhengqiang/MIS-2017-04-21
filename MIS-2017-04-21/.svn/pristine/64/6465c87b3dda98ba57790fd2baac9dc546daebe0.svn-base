@@ -1,0 +1,457 @@
+package fsk.parse.employeePositionalTitle;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.util.JsonUtil;
+
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.employeePositionalTitle.EmployeePositionalTitleEntity;
+ /**   
+ * @Title: Parse
+ * @Description: 员工职称关联表解析器
+ * @author feng.gu
+ * @date 2016-06-21 08:39:50
+ * @version V1.0   
+ *
+ */
+public class EmployeePositionalTitleParse {
+	private static Logger logger = Logger.getLogger(EmployeePositionalTitleParse.class);
+	private static EmployeePositionalTitleParse employeePositionalTitleParse;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static EmployeePositionalTitleParse getInstance() {
+		if (employeePositionalTitleParse == null) {
+			employeePositionalTitleParse = new EmployeePositionalTitleParse();
+		}
+		return employeePositionalTitleParse;
+	}
+
+	public Map<String, Object> parse(int type, String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			parseMap = this.parseByJson(command,reqStr, request);
+		} else if (type == 2) {
+			// xml
+			parseMap = this.parseByXml(command,reqStr, request);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByJson(String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		try {
+			String actionReturn = null;
+			EmployeePositionalTitleEntity employeePositionalTitleReturn = null;
+			List<EmployeePositionalTitleEntity> employeePositionalTitleListReturn = null;
+			Integer idReturn = null;			
+			Map<String, Object> queryMapReturn = null;
+			int pagenoReturn = 1;
+			int pagesizeReturn = 10;
+			List<OrderVO> orderListReturn = null;
+			
+															Boolean employeeShowReturn = false;
+			Boolean delEmployeeReturn = false;
+																								Boolean positionalTitleShowReturn = false;
+			Boolean delPositionalTitleReturn = false;
+															
+			//json
+			Map reqParams = JsonUtil.getMap4Json(reqStr);
+			JSONObject contentreq = (JSONObject)reqParams.get("content");
+			if ("ADD_EMPLOYEE_POSITIONAL_TITLE_INFO_REQUEST".equals(command)) {
+				actionReturn = "save";
+				employeePositionalTitleReturn = new EmployeePositionalTitleEntity();
+				if(true){
+					if(contentreq!=null){
+												    						    Integer id = (Integer)contentreq.get("id");
+	                		if(id!=null){
+			                	employeePositionalTitleReturn.setId(id);
+			                }
+						    												    						    Integer employeeId = (Integer)contentreq.get("employeeId");
+	                		if(employeeId!=null){
+			                	employeePositionalTitleReturn.setEmployeeId(employeeId);
+			                }
+						    												    						    Integer positionalTitleId = (Integer)contentreq.get("positionalTitleId");
+	                		if(positionalTitleId!=null){
+			                	employeePositionalTitleReturn.setPositionalTitleId(positionalTitleId);
+			                }
+						    											}					
+				}
+																				if(true){
+					Object employee = contentreq.get("employee");
+					if(employee!=null){
+						JSONObject obj = (JSONObject)employee;
+						if(obj!=null){
+							EmployeeEntity entity = new EmployeeEntity();						
+														employeePositionalTitleReturn.setEmployee(entity);
+						}						
+					}
+				}
+																																if(true){
+					Object positionalTitle = contentreq.get("positionalTitle");
+					if(positionalTitle!=null){
+						JSONObject obj = (JSONObject)positionalTitle;
+						if(obj!=null){
+							DataDicEntity entity = new DataDicEntity();						
+								                		Integer id = (Integer)obj.get("id");
+	                		if(id!=null){
+			                	entity.setId(id);
+			                }
+								                		String code = (String)obj.get("code");
+	                		if(code!=null){
+			                	entity.setCode(code);
+			                }
+								                		String name = (String)obj.get("name");
+	                		if(name!=null){
+			                	entity.setName(name);
+			                }
+								                		String value = (String)obj.get("value");
+	                		if(value!=null){
+			                	entity.setValue(value);
+			                }
+								                		String des = (String)obj.get("des");
+	                		if(des!=null){
+			                	entity.setDes(des);
+			                }
+								                		Integer parentId = (Integer)obj.get("parentId");
+	                		if(parentId!=null){
+			                	entity.setParentId(parentId);
+			                }
+								                		Integer createUserId = (Integer)obj.get("createUserId");
+	                		if(createUserId!=null){
+			                	entity.setCreateUserId(createUserId);
+			                }
+								                		String createTime = (String)obj.get("createTime");
+	                		if(createTime!=null){
+			                	entity.setCreateTime(createTime);
+			                }
+								                		Integer updateUserId = (Integer)obj.get("updateUserId");
+	                		if(updateUserId!=null){
+			                	entity.setUpdateUserId(updateUserId);
+			                }
+								                		String updateTime = (String)obj.get("updateTime");
+	                		if(updateTime!=null){
+			                	entity.setUpdateTime(updateTime);
+			                }
+														employeePositionalTitleReturn.setPositionalTitle(entity);
+						}						
+					}
+				}
+																			} else if ("QUERY_EMPLOYEE_POSITIONAL_TITLE_INFO_REQUEST".equals(command)) {
+				actionReturn = "getById";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");
+					        																												String employeeShow = (String)contentreq.get("employeeShow");
+							if("true".equals(employeeShow)){
+								employeeShowReturn = true;
+							}
+																																																								String positionalTitleShow = (String)contentreq.get("positionalTitleShow");
+							if("true".equals(positionalTitleShow)){
+								positionalTitleShowReturn = true;
+							}
+																																	}	
+				}
+			} else if ("QUERY_EMPLOYEE_POSITIONAL_TITLE_LIST_REQUEST".equals(command)) {
+				actionReturn = "getListByCondition";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																								Integer employeeId_gt = (Integer)contentreq.get("employeeId_gt");
+						Integer employeeId_ge = (Integer)contentreq.get("employeeId_ge");
+						Integer employeeId_lt = (Integer)contentreq.get("employeeId_lt");
+						Integer employeeId_le = (Integer)contentreq.get("employeeId_le");
+						String employeeId_in = (String)contentreq.get("employeeId_in");
+						Integer employeeId = (Integer)contentreq.get("employeeId");
+                        if(employeeId_gt!=null){
+                        	queryMapReturn.put("employeeId_gt", employeeId_gt);
+						}
+						if(employeeId_ge!=null){
+                        	queryMapReturn.put("employeeId_ge", employeeId_ge);
+						}
+						if(employeeId_lt!=null){
+                        	queryMapReturn.put("employeeId_lt", employeeId_lt);
+						}
+						if(employeeId_le!=null){
+                        	queryMapReturn.put("employeeId_le", employeeId_le);
+						}
+						if(employeeId_in!=null){
+                        	queryMapReturn.put("employeeId_in", employeeId_in);
+						}
+						if(employeeId!=null){
+                        	queryMapReturn.put("employeeId", employeeId);
+						}		
+																								Integer positionalTitleId_gt = (Integer)contentreq.get("positionalTitleId_gt");
+						Integer positionalTitleId_ge = (Integer)contentreq.get("positionalTitleId_ge");
+						Integer positionalTitleId_lt = (Integer)contentreq.get("positionalTitleId_lt");
+						Integer positionalTitleId_le = (Integer)contentreq.get("positionalTitleId_le");
+						String positionalTitleId_in = (String)contentreq.get("positionalTitleId_in");
+						Integer positionalTitleId = (Integer)contentreq.get("positionalTitleId");
+                        if(positionalTitleId_gt!=null){
+                        	queryMapReturn.put("positionalTitleId_gt", positionalTitleId_gt);
+						}
+						if(positionalTitleId_ge!=null){
+                        	queryMapReturn.put("positionalTitleId_ge", positionalTitleId_ge);
+						}
+						if(positionalTitleId_lt!=null){
+                        	queryMapReturn.put("positionalTitleId_lt", positionalTitleId_lt);
+						}
+						if(positionalTitleId_le!=null){
+                        	queryMapReturn.put("positionalTitleId_le", positionalTitleId_le);
+						}
+						if(positionalTitleId_in!=null){
+                        	queryMapReturn.put("positionalTitleId_in", positionalTitleId_in);
+						}
+						if(positionalTitleId!=null){
+                        	queryMapReturn.put("positionalTitleId", positionalTitleId);
+						}		
+															
+						    																																																	
+																																			String employeeShow = (String)contentreq.get("employeeShow");
+							if("true".equals(employeeShow)){
+								employeeShowReturn = true;
+							}
+																																																								String positionalTitleShow = (String)contentreq.get("positionalTitleShow");
+							if("true".equals(positionalTitleShow)){
+								positionalTitleShowReturn = true;
+							}
+																																	}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				    Object orderreq = (Object) reqParams.get("order");
+					if (orderreq != null) {
+						JSONArray order = (JSONArray)orderreq;
+						orderListReturn = new ArrayList<OrderVO>();
+						for(int i=0;i<order.size();i++){
+							JSONObject obj = order.getJSONObject(i);
+							OrderVO orderVO = new OrderVO();
+							orderVO.setName((String)obj.get("column"));
+							orderVO.setOrderType((String)obj.get("type"));
+							orderListReturn.add(orderVO);
+						}						
+					}
+				}
+			} else if ("DEL_EMPLOYEE_POSITIONAL_TITLE_INFO_REQUEST".equals(command)) {
+				actionReturn = "del";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");	
+						    																												String delEmployee = (String)contentreq.get("delEmployee");
+							if("true".equals(delEmployee)){
+								delEmployeeReturn = true;
+							}
+																																																								String delPositionalTitle = (String)contentreq.get("delPositionalTitle");
+							if("true".equals(delPositionalTitle)){
+								delPositionalTitleReturn = true;
+							}
+																																	}	
+				}
+			} else if ("DEL_EMPLOYEE_POSITIONAL_TITLE_LIST_REQUEST".equals(command)) {
+				actionReturn = "delList";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																								Integer employeeId_gt = (Integer)contentreq.get("employeeId_gt");
+						Integer employeeId_ge = (Integer)contentreq.get("employeeId_ge");
+						Integer employeeId_lt = (Integer)contentreq.get("employeeId_lt");
+						Integer employeeId_le = (Integer)contentreq.get("employeeId_le");
+						String employeeId_in = (String)contentreq.get("employeeId_in");
+						Integer employeeId = (Integer)contentreq.get("employeeId");
+                        if(employeeId_gt!=null){
+                        	queryMapReturn.put("employeeId_gt", employeeId_gt);
+						}
+						if(employeeId_ge!=null){
+                        	queryMapReturn.put("employeeId_ge", employeeId_ge);
+						}
+						if(employeeId_lt!=null){
+                        	queryMapReturn.put("employeeId_lt", employeeId_lt);
+						}
+						if(employeeId_le!=null){
+                        	queryMapReturn.put("employeeId_le", employeeId_le);
+						}
+						if(employeeId_in!=null){
+                        	queryMapReturn.put("employeeId_in", employeeId_in);
+						}
+						if(employeeId!=null){
+                        	queryMapReturn.put("employeeId", employeeId);
+						}		
+																								Integer positionalTitleId_gt = (Integer)contentreq.get("positionalTitleId_gt");
+						Integer positionalTitleId_ge = (Integer)contentreq.get("positionalTitleId_ge");
+						Integer positionalTitleId_lt = (Integer)contentreq.get("positionalTitleId_lt");
+						Integer positionalTitleId_le = (Integer)contentreq.get("positionalTitleId_le");
+						String positionalTitleId_in = (String)contentreq.get("positionalTitleId_in");
+						Integer positionalTitleId = (Integer)contentreq.get("positionalTitleId");
+                        if(positionalTitleId_gt!=null){
+                        	queryMapReturn.put("positionalTitleId_gt", positionalTitleId_gt);
+						}
+						if(positionalTitleId_ge!=null){
+                        	queryMapReturn.put("positionalTitleId_ge", positionalTitleId_ge);
+						}
+						if(positionalTitleId_lt!=null){
+                        	queryMapReturn.put("positionalTitleId_lt", positionalTitleId_lt);
+						}
+						if(positionalTitleId_le!=null){
+                        	queryMapReturn.put("positionalTitleId_le", positionalTitleId_le);
+						}
+						if(positionalTitleId_in!=null){
+                        	queryMapReturn.put("positionalTitleId_in", positionalTitleId_in);
+						}
+						if(positionalTitleId!=null){
+                        	queryMapReturn.put("positionalTitleId", positionalTitleId);
+						}		
+																		
+																														String delEmployee = (String)contentreq.get("delEmployee");
+						if("true".equals(delEmployee)){
+							delEmployeeReturn = true;
+						}
+																																																String delPositionalTitle = (String)contentreq.get("delPositionalTitle");
+						if("true".equals(delPositionalTitle)){
+							delPositionalTitleReturn = true;
+						}
+																													}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				}
+			}
+
+			if (actionReturn != null && !"".equals(actionReturn)) {
+				parseMap.put("action", actionReturn);
+			}
+			if (employeePositionalTitleReturn != null) {
+				parseMap.put("employeePositionalTitle", employeePositionalTitleReturn);
+			}
+			if (employeePositionalTitleListReturn != null && employeePositionalTitleListReturn.size() > 0) {
+				parseMap.put("employeePositionalTitleList", employeePositionalTitleListReturn);
+			}
+			if (idReturn != null) {
+				parseMap.put("id", idReturn);
+			}	
+			if (orderListReturn != null && orderListReturn.size() > 0) {
+				parseMap.put("orderList", orderListReturn);
+			}		
+			if (queryMapReturn != null) {
+				parseMap.put("queryMap", queryMapReturn);
+			}
+			if (pagenoReturn > 0) {
+				parseMap.put("pageno", pagenoReturn);
+			}
+			if (pagesizeReturn > 0) {
+				parseMap.put("pagesize", pagesizeReturn);
+			}
+			
+			
+															if (employeeShowReturn != null) {
+				parseMap.put("employeeShow", employeeShowReturn);
+			}
+			if (delEmployeeReturn != null) {
+				parseMap.put("delEmployee", delEmployeeReturn);
+			}
+																								if (positionalTitleShowReturn != null) {
+				parseMap.put("positionalTitleShow", positionalTitleShowReturn);
+			}
+			if (delPositionalTitleReturn != null) {
+				parseMap.put("delPositionalTitle", delPositionalTitleReturn);
+			}
+															
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByXml(String command,String reqStr,
+			HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

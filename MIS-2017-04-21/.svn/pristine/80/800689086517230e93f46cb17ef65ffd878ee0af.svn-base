@@ -1,0 +1,155 @@
+package fsk.handler.assessmentLog;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.db.query.OrderVO;
+
+import fsk.entity.assessmentLog.AssessmentLogEntity;
+import fsk.pack.assessmentLog.AssessmentLogPack;
+import fsk.parse.assessmentLog.AssessmentLogParse;
+import fsk.service.assessmentLog.AssessmentLogService;
+
+/**
+ * @Title: Handler
+ * @Description: 评估操作日志业务处理器
+ * @author feng.gu
+ * @date 2016-07-19 11:09:28
+ * @version V1.0
+ * 
+ */
+public class AssessmentLogHandler extends BaseHandler {
+	private static Logger logger = Logger.getLogger(AssessmentLogService.class);
+	/**
+	 * 解析器
+	 */
+	private AssessmentLogParse assessmentLogParse = AssessmentLogParse
+			.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private AssessmentLogService assessmentLogService = AssessmentLogService
+			.getInstance();
+	/**
+	 * 封装器
+	 */
+	private AssessmentLogPack assessmentLogPack = AssessmentLogPack
+			.getInstance();
+
+	private static AssessmentLogHandler assessmentLogHandler;
+
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static AssessmentLogHandler getInstance() {
+		if (assessmentLogHandler == null) {
+			assessmentLogHandler = new AssessmentLogHandler();
+		}
+		return assessmentLogHandler;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type, String command, String reqStr,
+			HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("请求消息：" + reqStr);
+		String resultStr = "";
+		try {
+			// 解析
+			Map<String, Object> parseMap = assessmentLogParse.parse(type,
+					command, reqStr, request);
+			String action = (String) parseMap.get("action");
+			AssessmentLogEntity assessmentLog = (AssessmentLogEntity) parseMap
+					.get("assessmentLog");
+			List<AssessmentLogEntity> assessmentLogList = (List<AssessmentLogEntity>) parseMap
+					.get("assessmentLogList");
+			Integer id = (Integer) parseMap.get("id");
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap
+					.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+
+			Boolean assessmentTaskShow = (Boolean) parseMap
+					.get("assessmentTaskShow");
+			Boolean delAssessmentTask = (Boolean) parseMap
+					.get("delAssessmentTask");
+
+			// 业务处理
+			Object result = null;
+			if ("save".equals(action)) {
+				result = assessmentLogService.save(assessmentLog);
+			} else if ("saveList".equals(action)) {
+				result = assessmentLogService.saveList(assessmentLogList);
+			} else if ("getById".equals(action)) {
+				result = assessmentLogService.getById(id, assessmentTaskShow);
+			} else if ("getListByCondition".equals(action)) {
+				// 根据数据权限 增加查询条件
+				queryMap = systemService.addDataRule("AssessmentLogEntity",
+						queryMap, request);
+				result = assessmentLogService.getListByCondition(queryMap,
+						orderList, pageno, pagesize, assessmentTaskShow);
+			} else if ("del".equals(action)) {
+				result = assessmentLogService.del(id, delAssessmentTask);
+			} else if ("delList".equals(action)) {
+				result = assessmentLogService.delList(queryMap,
+						delAssessmentTask);
+			}
+			// 封装
+			Map<String, Object> packMap = assessmentLogPack.pack(type, action,
+					result, assessmentLog);
+			String actionBack = (String) packMap.get("action");
+			String resultBack = (String) packMap.get("result");
+			String desBack = (String) packMap.get("des");
+			JSONObject pageBack = (JSONObject) packMap.get("page");
+			JSONObject contentBack = (JSONObject) packMap.get("content");
+
+			JSONObject repJson = new JSONObject();
+			if (actionBack != null && !"".equals(actionBack)) {
+				repJson.put("action", actionBack);
+			}
+			if (resultBack != null && !"".equals(resultBack)) {
+				repJson.put("result", resultBack);
+			}
+			if (desBack != null && !"".equals(desBack)) {
+				repJson.put("des", desBack);
+			}
+			if (pageBack != null) {
+				repJson.put("page", pageBack);
+			}
+			if (contentBack != null && !"".equals(contentBack)) {
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息：" + repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

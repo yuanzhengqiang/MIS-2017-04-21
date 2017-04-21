@@ -1,0 +1,218 @@
+package fsk.entity.nursingPlanService;
+
+import java.util.List;
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+import fsk.entity.employeeDistribution.EmployeeDistributionEntity;
+import fsk.entity.nursingPlan.NursingPlanEntity;
+import fsk.entity.service.ServiceEntity;
+
+/**
+ * @Title: Entity
+ * @Description: 护理计划服务项目
+ * @author feng.gu
+ * @date 2016-12-29 16:38:50
+ * @version V1.0
+ * 
+ */
+@TableDescription(name = "B_NURSING_PLAN_SERVICE")
+public class NursingPlanServiceEntity implements java.io.Serializable {
+	public final static String ID = "ID";
+	public final static String NURSING_PLAN_ID = "NURSING_PLAN_ID";
+	public final static String SERVICE_ID = "SERVICE_ID";
+	public final static String SERVICE_NUM = "SERVICE_NUM";
+	public final static String DES = "DES";
+	public final static String SERVICE_CHILDS = "SERVICE_CHILDS";
+	public final static String EXPECTED_SERVICE_TIME = "EXPECTED_SERVICE_TIME";
+	public final static String HEALTH_INSURANCE = "HEALTH_INSURANCE";
+	public final static String PERIOD = "PERIOD";
+	public final static String LAST_CREATETASK_TIME = "LAST_CREATETASK_TIME";
+
+	/**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+	/**
+	 * 护理计划ID
+	 */
+	@ColumnDescription(name = "NURSING_PLAN_ID")
+	private Integer nursingPlanId;
+	/**
+	 * 服务项目ID
+	 */
+	@ColumnDescription(name = "SERVICE_ID")
+	private Integer serviceId;
+	/**
+	 * 服务数量
+	 */
+	@ColumnDescription(name = "SERVICE_NUM")
+	private Integer serviceNum;
+	/**
+	 * 备注
+	 */
+	@ColumnDescription(name = "DES")
+	private String des;
+	/**
+	 * 服务子项(英文逗号间隔)
+	 */
+	@ColumnDescription(name = "SERVICE_CHILDS")
+	private String serviceChilds;
+	/**
+	 * 预计服务时长
+	 */
+	@ColumnDescription(name = "EXPECTED_SERVICE_TIME")
+	private String expectedServiceTime;
+	/**
+	 * 是否医保(1-医保 2-市场)
+	 */
+	@ColumnDescription(name = "HEALTH_INSURANCE")
+	private Integer healthInsurance;
+	/**
+	 * 计划周期(1-月 2-周)
+	 */
+	@ColumnDescription(name = "PERIOD")
+	private Integer period;
+	/**
+	 * 已生成的工单最新日期
+	 */
+	@ColumnDescription(name = "LAST_CREATETASK_TIME")
+	private String lastCreatetaskTime;
+
+	// 新增字段serviceName
+	private String serviceName;
+
+	public String getServiceName() {
+		return serviceName;
+	}
+
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Integer getNursingPlanId() {
+		return nursingPlanId;
+	}
+
+	public void setNursingPlanId(Integer nursingPlanId) {
+		this.nursingPlanId = nursingPlanId;
+	}
+
+	public Integer getServiceId() {
+		return serviceId;
+	}
+
+	public void setServiceId(Integer serviceId) {
+		this.serviceId = serviceId;
+	}
+
+	public Integer getServiceNum() {
+		return serviceNum;
+	}
+
+	public void setServiceNum(Integer serviceNum) {
+		this.serviceNum = serviceNum;
+	}
+
+	public String getDes() {
+		return des;
+	}
+
+	public void setDes(String des) {
+		this.des = des;
+	}
+
+	public String getServiceChilds() {
+		return serviceChilds;
+	}
+
+	public void setServiceChilds(String serviceChilds) {
+		this.serviceChilds = serviceChilds;
+	}
+
+	public String getExpectedServiceTime() {
+		return expectedServiceTime;
+	}
+
+	public void setExpectedServiceTime(String expectedServiceTime) {
+		this.expectedServiceTime = expectedServiceTime;
+	}
+
+	public Integer getHealthInsurance() {
+		return healthInsurance;
+	}
+
+	public void setHealthInsurance(Integer healthInsurance) {
+		this.healthInsurance = healthInsurance;
+	}
+
+	public Integer getPeriod() {
+		return period;
+	}
+
+	public void setPeriod(Integer period) {
+		this.period = period;
+	}
+
+	public String getLastCreatetaskTime() {
+		return lastCreatetaskTime;
+	}
+
+	public void setLastCreatetaskTime(String lastCreatetaskTime) {
+		this.lastCreatetaskTime = lastCreatetaskTime;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "ManyToOne", joinEntity = "NursingPlanEntity", joinColumn = "ID")
+	private NursingPlanEntity nursingPlan;
+
+	public NursingPlanEntity getNursingPlan() {
+		return nursingPlan;
+	}
+
+	public void setNursingPlan(NursingPlanEntity nursingPlan) {
+		this.nursingPlan = nursingPlan;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "ManyToOne", joinEntity = "ServiceEntity", joinColumn = "ID")
+	private ServiceEntity service;
+
+	public ServiceEntity getService() {
+		return service;
+	}
+
+	public void setService(ServiceEntity service) {
+		this.service = service;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "OneToMany", joinEntity = "EmployeeDistributionEntity", joinColumn = "NURSING_PLAN_SERVICE_ID")
+	private List<EmployeeDistributionEntity> employeeDistributionList;
+
+	public List<EmployeeDistributionEntity> getEmployeeDistributionList() {
+		return employeeDistributionList;
+	}
+
+	public void setEmployeeDistributionList(List<EmployeeDistributionEntity> employeeDistributionList) {
+		this.employeeDistributionList = employeeDistributionList;
+	}
+
+}

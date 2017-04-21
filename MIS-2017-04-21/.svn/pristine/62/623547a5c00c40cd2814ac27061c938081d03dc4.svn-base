@@ -1,0 +1,1638 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="shortcut icon" href="images/logo.png">
+
+<title>老人列表</title>
+
+<!-- Bootstrap core CSS -->
+<link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+<link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
+<link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+<link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
+<link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+<link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
+<link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
+<link rel="stylesheet" type="text/css" href="js/intro.js/introjs.css" />
+<link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
+<link rel="stylesheet" type="text/css" href="js/jquery.datatables/bootstrap-adapter/css/datatables.css" />
+<script type="text/javascript" src="js/sortListTool.js"></script>
+<!-- Custom styles for this template -->
+<link href="css/style.css" rel="stylesheet" />
+<style type="text/css">
+.timeTip {
+	width: 220px;
+	height: 80px;
+	background: #f3f9ff;
+	border: 2px solid #dadada;
+	z-index: 10;
+}
+
+.timeTip div {
+	margin: 20px 30px
+}
+
+.hideAndShow {
+	display: none;
+}
+
+.no-bg-border {
+	background-color: #fff;
+	border: none
+}
+</style>
+</head>
+<body style="opacity: 1; margin-left: 0px;">
+	<div style="width: 100%; height: 100%;">
+		<div class="container-fluid" style="padding: 0px">
+			<!-- 头部开始 -->
+			<div class="page-head">
+				<h2 id="head_oldSum">老人列表&nbsp;&nbsp;&nbsp;数量：0</h2>
+				<ol class="breadcrumb">
+					<li>客户管理</li>
+					<input type="hidden" value="" id="sortType">
+					<input type="hidden" value="" id="sortColumn">
+					<li class="active">老人列表</li>
+				</ol>
+			</div>
+		</div>
+		<!-- 头部结束 -->
+
+		<div class="cl-mcont">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="block-flat">
+						<div class="content">
+							<div class="table-responsive">
+								<div class="dataTables_wrapper form-inline">
+									<!-- 查询框开始 -->
+									<div class="row">
+										<div class="col-sm-1" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>姓名</label>
+										</div>
+										<div class="col-sm-5" style="margin-bottom:10px;">
+											<input class="form-control" type="text" style="width: 100%" id="name_input">
+										</div>
+										<div class="col-sm-1" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>会员号</label>
+										</div>
+										<div class="col-sm-5" style="margin-bottom:10px;">
+											<input class="form-control" type="text" style="width: 100%" id="idNumber">
+										</div>
+										<div class="col-sm-1" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>性别</label>
+										</div>
+										<div class="col-sm-5" style="margin-bottom:10px;">
+											<select class="form-control" type="text" id="sex" style="width: 100%">
+												<option value="">全部</option>
+												<option value="男">男</option>
+												<option value="女">女</option>
+											</select>
+										</div>
+										<div class="col-sm-1" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>年龄</label>
+										</div>
+										<div class="col-sm-5" style="margin-bottom:10px;">
+											<div class="input-group">
+												<input type="text" class="form-control" id="age1" onpaste="return false;" onkeypress="keyPress()">
+												<span class="input-group-addon" style="border:0;background:#fff;">~</span>
+												<input type="text" class="form-control" id="age2" onpaste="return false;" onkeypress="keyPress()">
+											</div>
+										</div>
+										<div class="col-sm-1   hideAndShow" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>客户来源</label>
+										</div>
+										<div class="col-sm-5   hideAndShow" style="margin-bottom:10px;">
+											<select class="form-control" type="text" id="customerSource" style="width: 100%">
+												<option value="">全部</option>
+												<option value="医保">医保</option>
+												<option value="政府采购">政府采购</option>
+												<option value="商业">商业</option>
+												<option value="其他">其他</option>
+											</select>
+										</div>
+										<div class="col-sm-1   hideAndShow" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>客户状态</label>
+										</div>
+										<div class="col-sm-5   hideAndShow" style="margin-bottom:10px;">
+											<select class="form-control" type="text" style="width: 100%" id="customerState">
+												<option value="">全部</option>
+												<option value="0">正常</option>
+												<option value="1">审核不通过</option>
+												<option value="2">待评估</option>
+											</select>
+										</div>
+										<div class="col-sm-1   hideAndShow" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>会员卡号</label>
+										</div>
+										<div class="col-sm-5   hideAndShow" style="margin-bottom:10px;">
+											<input class="form-control" type="text" style="width: 100%" id="idNumber_Card">
+										</div>
+										<div class="col-sm-1   hideAndShow" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>护理级别</label>
+										</div>
+										<div class="col-sm-5   hideAndShow" style="margin-bottom:10px;">
+											<select id="hulijibie" class="form-control" style="width: 100%">
+												<option value="">全部</option>
+												<option value="1">1级</option>
+												<option value="2">2级</option>
+												<option value="3">3级</option>
+												<option value="4">4级</option>
+												<option value="5">5级</option>
+												<option value="6">6级</option>
+											</select>
+										</div>
+										<div class="col-sm-1   hideAndShow" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>余额</label>
+										</div>
+										<div class="col-sm-5   hideAndShow" style="margin-bottom:10px;">
+											<div class="input-group">
+												<input type="text" class="form-control" id="yue1" onpaste="return false;" onkeypress="keyPress3()">
+												<span class="input-group-addon" style="border:0;background:#fff;">~</span>
+												<input type="text" class="form-control" id="yue2" onpaste="return false;" onkeypress="keyPress3()">
+											</div>
+										</div>
+										<div class="col-sm-1   hideAndShow" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<strong>入会时间</strong>
+										</div>
+										<div class="col-sm-4 col-md-4 hideAndShow" style="margin-bottom:10px;">
+											<div class="input-group">
+												<input class="datetime form-control" size="10" type="text" id="rhsjstart_input" readonly="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD" />
+												<span class="input-group-btn">
+													<button class="btn btn-danger deleteThisTime" type="button">
+														<span class="fa fa-times"></span>
+													</button>
+												</span>
+												<span class="input-group-addon no-bg-border">~</span>
+												<input class="datetime form-control" size="10" type="text" id="rhsjend_input" readonly="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD" />
+												<span class="input-group-btn">
+													<button class="btn btn-danger deleteThisTime" type="button">
+														<span class="fa fa-times"></span>
+													</button>
+												</span>
+											</div>
+										</div>
+										<div style="clear:both;"></div>
+										<div class="col-sm-1   hideAndShow" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>服务站点</label>
+										</div>
+										<div class="col-sm-5   hideAndShow" style="margin-bottom:10px;">
+											<select id="siteIdsQuery" class="select2" multiple>
+											</select>
+										</div>
+										<div class="col-sm-1 hideAndShow" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>录入来源</label>
+										</div>
+										<div class="col-sm-5 hideAndShow" style="margin-bottom:10px;">
+											<select class="form-control" type="text" id="source" style="width: 100%">
+												<option value="">全部</option>
+												<option value="1">系统录入</option>
+												<option value="2">微信新增</option>
+												<option value="3">长护险代理老人</option>
+											</select>
+										</div>
+										<div style="clear:both"></div>
+										<div class="col-sm-1 hideAndShow" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>服务区域</label>
+										</div>
+										<div class="col-sm-2   hideAndShow" style="margin-bottom:10px;">
+											<select class="form-control" type="text" id="quyushen_input" style="width: 100%">
+											</select>
+										</div>
+										<div class="col-sm-2   hideAndShow" style="margin-bottom:10px;">
+											<select class="form-control" type="text" id="quyushi_input" style="width: 100%">
+											</select>
+										</div>
+										<div class="col-sm-2   hideAndShow" style="margin-bottom:10px;">
+											<select class="form-control" type="text" id="quyuqu_input" style="width: 100%">
+											</select>
+										</div>
+										<div class="col-sm-5   hideAndShow" style="margin-bottom:10px;">
+											<select class="form-control" type="text" id="quyujiedao_input" style="width: 100%">
+											</select>
+										</div>
+										<div class="col-sm-1   hideAndShow" style="text-align: right; vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>身份证</label>
+										</div>
+										<div class="col-sm-5   hideAndShow" style="margin-bottom:10px;">
+											<input class="form-control" type="text" style="width: 100%" id="identity">
+										</div>
+
+									</div>
+									<!-- 查询框结束 -->
+									<!-- 操作按钮开始 -->
+									<div class="row">
+										<div class="col-sm-12">
+											<c:if test="${older_query_btn_control != 'yes' or older_query_btn_show == 'yes'}">
+												<button class="btn btn-primary" style="margin-bottom: 0px !important; height: 34px;margin-left:0;" onclick="query()">查询</button>
+											</c:if>
+											<a style="cursor:pointer;text-decoration:underline;vertical-align:bottom;" onclick="$('.hideAndShow').toggle();">更多查询条件</a>
+											<button type="button" class="btn btn-primary btn-flat" style="float: right;" onclick="synchronizationOlders()">
+												<span>
+													<i class="fa fa-cloud-upload" style="margin-right:5px;"></i>同步
+												</span>
+											</button>
+											<c:if test="${older_del_btn_control != 'yes' or older_del_btn_show == 'yes'}">
+												<button type="button" class="btn btn-danger btn-flat" style="float: right; margin-right: 0px;" onclick="doDel()">
+													<span>
+														<i class="fa fa-trash-o" style="margin-right:5px;"></i>删除
+													</span>
+												</button>
+											</c:if>
+											<c:if test="${older_add_btn_control != 'yes' or older_add_btn_show == 'yes'}">
+												<button type="button" class="btn btn-primary btn-flat md-trigger" style="float: right;" onclick="doAdd()">
+													<span>
+														<i class="fa fa-plus" style="margin-right:5px;"></i>新增
+													</span>
+												</button>
+												<a href="<%=request.getContextPath()%>/addOlders.do?main&inputType=1" id="addA" target="_blank" style="display:none;">新增</a>
+											</c:if>
+											<c:if test="${older_daochu_btn_control != 'yes' or older_daochu_btn_show == 'yes'}">
+												<button type="button" id="daochuanniu" class="btn btn-primary btn-flat  md-trigger" style="display:none;" data-modal="Export-daochu">
+													<button type="button" class="btn btn-primary btn-flat" style="float: right;" onclick="exportxls();">
+														<span>
+															<i class="fa fa-upload" style="margin-right:5px;"></i>导出
+														</span>
+													</button>
+													<form action="older.do?exportxls" method="post" style="display:none;">
+														<!-- 导出功能 form不可见 -->
+														<input type="text" name="name_input" value="" id="">
+														<input type="text" name="idNumber" value="" id="">
+														<input type="text" name="sex" value="" id="">
+														<input type="text" name="age1" value="" id="">
+														<input type="text" name="age2" value="" id="">
+														<input type="text" name="customerSource" value="" id="">
+														<input type="text" name="customerState" value="" id="">
+														<input type="text" name="idNumber_Card" value="" id="">
+														<input type="text" name="hulijibie" value="" id="">
+														<input type="text" name="siteIdsQuery" value="" id="">
+														<input type="text" name="quyushen_input" value="" id="">
+														<input type="text" name="quyushi_input" value="" id="">
+														<input type="text" name="quyuqu_input" value="" id="">
+														<input type="text" name="quyujiedao_input" value="">
+														<input type="text" name="olderSource" value="" id="">
+														<input type="text" name="ids2" value="" id="">
+														<input type="submit" value="Submit" id="SubmitButton" />
+													</form>
+											</c:if>
+											<c:if test="${older_daoru_btn_control != 'yes' or older_daoru_btn_show == 'yes'}">
+												<button type="button" class="btn btn-primary btn-flat md-trigger" style="float: right;display:none;" data-modal="import" id="showimport"></button>
+												<button type="button" class="btn btn-primary btn-flat md-trigger" style="float: right;" onclick="showimport()">
+													<span>
+														<i class="fa fa-download" style="margin-right:5px;"></i>导入
+													</span>
+												</button>
+											</c:if>
+										</div>
+									</div>
+									<!-- 操作按钮结束 -->
+									<!-- 数据表格开始 -->
+									<div class="row">
+										<div class="col-sm-12">
+											<table class="table table-bordered dataTable hover" id="datatable" aria-describedby="datatable_info">
+												<thead>
+													<tr role="row">
+														<th style="width:2%;">
+															<input id="allselectchecker" type="checkbox" class="col_selector" onclick="selectAll();">
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'memberNum')">
+															<strong>会员号</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'memberCard')">
+															<strong>会员卡号</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_name')">
+															<strong>姓名</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'idnumber')">
+															<strong>身份证</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_gender')">
+															<strong>性别</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'birthdate')">
+															<strong>年龄</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_memberSource')">
+															<strong>客户来源</strong>
+														</th>
+														<th>
+															<strong>录入来源</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'memberStatus')">
+															<strong>客户状态</strong>
+														</th>
+														<th>
+															<strong>服务站点</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'mobileTel')">
+															<strong>联系方式</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'nurseLevel')">
+															<strong>护理级别</strong>
+														</th>
+														<th>
+															<strong>所属区域</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'accountNum')">
+															<strong>余额</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'createTime')">
+															<strong>入会时间</strong>
+														</th>
+														<th>
+															<strong>操作</strong>
+														</th>
+													</tr>
+												</thead>
+												<tbody id="datacontainer" role="alert" aria-live="polite" aria-relevant="all">
+												</tbody>
+											</table>
+										</div>
+									</div>
+									<!-- 数据表格结束 -->
+									<!-- 数据条数提示开始 -->
+									<div class="row">
+										<div class="col-sm-12">
+											<div class="pull-left">
+												<div id="datatable_info" class="dataTables_info">当前显示0 条总记录中的第0-0条</div>
+											</div>
+											<div class="clearfix"></div>
+										</div>
+									</div>
+									<!-- 数据条数提示结束 -->
+									<!-- 分页条开始 -->
+									<div class="row">
+										<div class="col-sm-4">
+											<div class="dataTables_length" id="datatable2_length">
+												<label style="margin-top:18px;">
+													每页
+													<select id="pageSizeSelector" class="form-control" aria-controls="datatable2" size="1" name="datatable2_length" onchange="query()">
+														<option selected="selected" value="10">10</option>
+														<option value="25">25</option>
+														<option value="50">50</option>
+														<option value="100">100</option>
+													</select>
+													条
+												</label>
+											</div>
+										</div>
+										<div class="col-sm-8">
+											<div class="pull-right">
+												<div class="dataTables_paginate paging_bs_normal">
+													<ul id="paginationArea" class="pagination">
+														<li class="prev disabled">
+															<a href="#">
+																<span class="fa fa-angle-left"></span>
+																&nbsp;上一页
+															</a>
+														</li>
+														<li class="active">
+															<a href="#">1</a>
+														</li>
+														<li class="next">
+															<a href="#">
+																下一页&nbsp;
+																<span class="fa fa-angle-right"></span>
+															</a>
+														</li>
+													</ul>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- 分页条结束 -->
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 导入配置模态框 -->
+	<div class="md-modal md-effect-1" id="import">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="block-flat">
+					<div class="header">
+						<h4>请选择要导入的文件</h4>
+					</div>
+					<div class="content">
+						<div class="form-group" style="text-align: center;">
+							<div style="margin-bottom:15px;margin-top:15px;text-align:center">
+								<a class="btn btn-primary btn-rad" href="older.do?download">
+									<span>
+										<i class="fa fa-download" style="margin-right:5px;"></i>下载配置模板
+									</span>
+								</a>
+							</div>
+						</div>
+						<form id="xlsuploadform" class="secondcol" action="older.do?importxls" method="post" enctype="multipart/form-data">
+							<div style="text-align:center">
+								<label class="col-sm-2 control-label" style="margin-top: 9px;">省</label>
+								<div class="col-sm-4">
+									<select class="form-control" id="sheng_input" name="provinceId">
+									</select>
+								</div>
+								<label class="col-sm-2 control-label" style="margin-top: 9px;">市</label>
+								<div class="col-sm-4">
+									<select class="form-control" id="shi_input" name="cityId">
+									</select>
+								</div>
+							</div>
+							<div style="text-align:center; margin-bottom:10px">
+								<label class="col-sm-2 control-label" style="margin-bottom:15px;margin-top:24px;">区</label>
+								<div class="col-sm-4" style="margin-bottom:15px;margin-top:15px;">
+									<select class="form-control" id="qu_input" name="areaId">
+									</select>
+								</div>
+								<label class="col-sm-2 control-label" style="margin-bottom:15px;margin-top:24px;">街道</label>
+								<div class="col-sm-4" style="margin-bottom:15px;margin-top:15px;">
+									<select class="form-control" id="jiedao_input" name="streetId">
+									</select>
+								</div>
+							</div>
+							<div style="text-align:center; margin-bottom:10px">
+								<label class="col-sm-2 control-label" style="margin-bottom:15px;margin-top:24px;">站点</label>
+								<div class="col-sm-6" style="margin-bottom:15px;margin-top:15px;" id="oldSitePopHtml">
+								</div>
+								<div class="col-sm-4" style="margin-bottom:15px;margin-top:15px;text-align:right;" onclick="xiugaisite()">
+									<input type="button" class="btn btn-primary btn-flat btn-rad md-trigger" data-modal="editSitemodal" value="修改">
+								</div>
+							</div>
+							<input id="xls4upload" name="xls4upload" type="file" class="btn btn-rad" style="width:80%;margin-left:10%;text-align:left;">
+						</form>
+						<div class="form-group" style="text-align: center;">
+							<button type="button" class="btn btn-success btn-rad " style="margin-top:20px" onclick="uploadFile4import();">
+								<span>
+									<i class="fa fa-check" style="margin-right:5px;"></i>确定
+								</span>
+							</button>
+							<button type="button" class="btn btn-default btn-rad md-close" style="margin-left: 50px;margin-top:20px" id="cancel-config">
+								<span>
+									<i class="fa fa-times" style="margin-right:5px;"></i>取消
+								</span>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 导入配置 结束-->
+
+	<div class="md-modal md-effect-1" id="Export-confi">
+		<!-- 导出配置模态框 -->
+		<div class="md-content">
+			<div class="modal-header" style="border-bottom:1px solid #ddd;margin:0 20px;">
+				<h3>导出配置</h3>
+				<button type="button" class="close md-close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+			<div style="margin-bottom:25px;margin-top:15px;text-align:center">
+				<button type="button" class="btn btn-default btn-lg">确认老人数量，输出excel文件</button>
+			</div>
+		</div>
+	</div>
+	<!-- 导出配置 结束-->
+
+
+	<div class="md-modal md-effect-1" id="Export-daochu">
+		<!-- 导出提示框  开始-->
+		<div class="md-content">
+			<div class="modal-header" style="border-bottom:1px solid #ddd;margin:0 20px;">
+				<h3>正在导出，请稍后...</h3>
+				<button type="button" class="close md-close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+		</div>
+	</div>
+	<!-- 导出 结束-->
+
+	<input type="button" class="btn btn-primary btn-flat btn-rad md-trigger" data-modal="editSitemodal" id="editSite" style="display:none;" value="修改">
+	<!-- 选择站点 -->
+	<div class="md-modal colored-header custom-width md-effect-9" id="editSitemodal">
+		<div class="md-content">
+			<div class="modal-header">
+				<h3>选择站点</h3>
+				<button type="button" class="close md-close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<input type="hidden" id="editSiteOlderId">
+			</div>
+			<div class="modal-body form">
+				<form class="form-horizontal">
+					<div class="form-group" style="margin-left:20px;margin-right:20px;">
+						<div class="col-sm-12" id="guanlian-sitechoose"></div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary btn-flat md-close" id="saveOlderSiteImportId" data-dismiss="modal" onclick="saveOlderSiteImport()">保存</button>
+				<button type="button" class="btn btn-primary btn-flat md-close" id="saveOlderSiteId" data-dismiss="modal" onclick="saveOlderSite()">保存</button>
+				<button type="button" class="btn btn-default btn-flat md-close" data-dismiss="modal">取消</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Nifty Modal -->
+	<div class="md-overlay"></div>
+	<!-- Nifty Modal的遮罩层-->
+	
+	<script type="text/javascript" src="js/mordo.tools/mordo.inputControl.js"></script>
+	<script type="text/javascript" src="js/mordo.tools/mordo.timeProcessing.js"></script>
+	<script type="text/javascript" src="js/addressJS.js"></script>
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+	<script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+	<script type="text/javascript" src="js/behaviour/general.js"></script>
+	<script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+	<script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
+	<script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
+	<script src="js/skycons/skycons.js" type="text/javascript"></script>
+	<script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
+	<script src="js/intro.js/intro.js" type="text/javascript"></script>
+	<script src="js/behaviour/voice-commands.js"></script>
+	<script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+	<script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>
+	<script type="text/javascript" src="js/jquery.form.js"></script>
+	<script type="text/javascript">
+	/**初始化**/
+	$(document).ready(function(){
+		getzhandian();//站点信息搜索条件初始化
+		query();//老人列表信息初始化
+		
+		//插件样式初始化
+	    App.init();
+	    $(".md-trigger").modalEffects();
+	    $(".deleteThisTime").click(function(){               // 清除日期框中的值
+    	      $(this).parent().prev()[0].value = "";
+    	      // $(this).parent().siblings("input").val("");
+    	});
+		
+		//服务区域搜索条件初始化
+	    var result = new Array();
+	    result = getAddresses(4897);
+	    var html = "";
+	    html +="<option value=\"\">省</option>";
+	    for(var i = 0;i < result.length;i++){
+	       html +="<option value=\"" + result[i].id + "\">" + result[i].name + "</option>";
+	    }
+	    $("#quyushen_input").html(html);
+	    $("#quyushi_input").html("<option value=\"\">市</option>");
+	    $("#quyuqu_input").html("<option value=\"\">区</option>");
+	    $("#quyujiedao_input").html("<option value=\"\">街道</option>");
+	    //省变化事件
+    	$("#quyushen_input").change(function(e){
+        	if($("#quyushen_input").val() == ""){
+        		$("#quyushi_input").html("<option value=\"\">市</option>");
+        		$("#quyuqu_input").html("<option value=\"\">区</option>");
+        		$("#quyujiedao_input").html("<option value=\"\">街道</option>");
+        	}else{
+        		getquyushixinxi($("#quyushen_input").val());
+        		getquyuquxinxi($("#quyushi_input").val());
+        		getquyujiedaoxinxi($("#quyuqu_input").val());
+        	}
+        });
+        //市变化事件
+        $("#quyushi_input").change(function(e){
+        	if($("#quyushi_input").val() == ""){
+        		$("#quyuqu_input").html("<option value=\"\">区</option>");
+        		$("#quyujiedao_input").html("<option value=\"\">街道</option>");
+        	}else{
+        		getquyuquxinxi($("#quyushi_input").val());
+        		getquyujiedaoxinxi($("#quyuqu_input").val());
+        	}
+        });
+        //区变化事件
+        $("#quyuqu_input").change(function(e){
+        	if($("#quyuqu_input").val() == ""){
+        		$("#quyujiedao_input").html("<option value=\"\">街道</option>");
+        	}else{
+        		getquyujiedaoxinxi($("#quyuqu_input").val());
+        	}
+        });
+	});
+	
+	
+	
+	/**列表**/
+	var currentshownpage = 1;
+	var path = "older.do";
+	//查询老人列表信息
+	function query() {
+		go2page(1);
+	}
+	function go2page(pagenumber){
+		var pagesize = $("#pageSizeSelector option:selected").val();
+		var name2search = $("#name_input").val();
+		var idNumber = $("#idNumber").val();
+		var sex = $("#sex").val();
+		
+		var age1 = $("#age1").val();
+		var age2 = $("#age2").val();
+		var reg = new RegExp("^[0-9]*$"); 
+	    if(age1 != "" && !reg.test(age1)){  
+	        alert("请输入符合规范的年龄");  
+	        return;
+	    }  
+	    if(age2 != "" && !reg.test(age2)){  
+	        alert("请输入符合规范的年龄");  
+	        return;
+	    }
+		if(age1 != "" && age2 != "" && parseFloat(age1)>parseFloat(age2)){
+			alert("最大年龄不能小于最小年龄");
+			return;
+		}
+		var d = new Date();
+		var nowYear = d.getFullYear();
+		var year1="";
+		var year2="";
+		if($.trim(age1) != ""){
+			 year1= nowYear- age1 + "1231";
+		}
+		if($.trim(age2) != ""){
+			 year2= nowYear- age2 + "0101";
+		}
+		
+		var customerSource = "";
+		if($("#customerSource").val() != ""){
+			customerSource = $("#customerSource").val();
+		}
+		var customerState = "";
+		if($("#customerState").val() != ""){
+			customerState =	$("#customerState").val();
+		}
+		var idNumber_Card = $("#idNumber_Card").val();
+		var siteIdsQuery = $("#siteIdsQuery").val();
+		var source = $("#source").val();
+		var hulijibie = $("#hulijibie").val();
+		
+		var quyushen_input = $("#quyushen_input").val();
+	 	var quyushi_input = $("#quyushi_input").val();
+	 	var quyuqu_input = $("#quyuqu_input").val();
+	 	var quyujiedao_input = $("#quyujiedao_input").val();
+	 	
+	 	var yue1 = $("#yue1").val();
+		var yue2 = $("#yue2").val();
+	    /*
+		 * if(yue1 != "" && !reg2.test(yue1)){ alert("请输入正确的余额"); return; }
+		 * if(yue2 != "" && !reg2.test(yue2)){ alert("请输入正确的余额"); return; }
+		 */
+		if(yue1 != "" && yue2 != "" && parseFloat(yue1)>parseFloat(yue2)){
+			alert("最大余额不能小于最小余额");
+			return;
+		}
+		
+		var rhsjstart_input = $("#rhsjstart_input").val();
+		var rhsjend_input = $("#rhsjend_input").val();
+		if(rhsjstart_input !="" && rhsjend_input !="" && rhsjstart_input > rhsjend_input){
+			alert("入会开始时间不能大于结束时间");
+			return;
+		}
+		
+		var identity = $("#identity").val();
+	 	
+		var reqmsg = "{'action':'QUERY_OLDER_LIST_REQUEST',";
+		
+		var sortType = $("#sortType").val();
+		var sortColumn = $("#sortColumn").val();
+		if(sortType != null && sortType != ""){
+			if(sortColumn == "birthdate"){
+				if(sortType == "desc"){
+					sortType = "asc";
+				}else if(sortType == "asc"){
+					sortType = "desc";
+				}
+			}
+			reqmsg += "'order':[{'column':'" + sortColumn + "','type':'" + sortType + "'}],";
+		}
+		
+		reqmsg += "'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{'olderSiteListShow':'true',";
+		
+		if (name2search != null && name2search != "") {
+			reqmsg += "\"name_like\":\"" + name2search + "\",";
+		}
+		if (idNumber != null && idNumber != "") {
+			reqmsg += "\"memberNum_like\":\"" + idNumber + "\",";
+		}
+		if (sex != null && sex != "") {
+			reqmsg += "\"gender\":\"" + sex + "\",";
+		}
+		if (year1 != null && year1 != "") {
+			reqmsg += "\"birthdate_le\":\"" + year1 + "\",";
+		}
+		if (year2 != null && year2 != "") {
+			reqmsg += "\"birthdate_ge\":\"" + year2 + "\",";
+		}
+		if (customerSource != null && customerSource != "") {
+			reqmsg += "\"memberSource_like\":\"" + customerSource + "\",";
+		}
+		if (customerState != null && customerState != "") {
+			reqmsg += "\"memberStatus\":" + customerState + ",";
+		}
+		if (idNumber_Card != null && idNumber_Card != "") {
+			reqmsg += "\"memberCard_like\":\"" + idNumber_Card + "\",";
+		}
+		if (siteIdsQuery != null && siteIdsQuery != "") {
+			reqmsg += "\"siteIdsQuery\":\"" + siteIdsQuery + "\",";
+		}
+		
+		if (hulijibie != null && hulijibie != "") {
+			reqmsg += "\"nurseLevel\":" + hulijibie + ",";
+		}
+		
+		if (quyushen_input != null && quyushen_input != "") {
+			reqmsg += "\"serviceProvinceId\":" + quyushen_input + ",";
+		}
+		if (quyushi_input != null && quyushi_input != "") {
+			reqmsg += "\"serviceCityId\":" + quyushi_input + ",";
+		}
+		if (quyuqu_input != null && quyuqu_input != "") {
+			reqmsg += "\"serviceAreaId\":" + quyuqu_input + ",";
+		}
+		if (quyujiedao_input != null && quyujiedao_input != "") {
+			reqmsg += "\"serviceStreetId\":" + quyujiedao_input + ",";
+		}
+		if (source != null && source != "") {
+			reqmsg += "\"source\":" + source + ",";
+		}
+		if (yue1 != null && yue1 != "") {
+			reqmsg += "\"accountNum_ge\":" + yue1 + ",";
+		}
+		if (yue2 != null && yue2 != "") {
+			reqmsg += "\"accountNum_le\":" + yue2 + ",";
+		}
+		
+		if (rhsjstart_input != null && rhsjstart_input != "") {
+			reqmsg += "\"createTime_ge\":\"" + rhsjstart_input.substring(0, 4) + rhsjstart_input.substring(5, 7) + rhsjstart_input.substring(8, 10) + "000001" + "\",";
+		}
+		if (rhsjend_input != null && rhsjend_input != "") {
+			reqmsg += "\"createTime_le\":\"" + rhsjend_input.substring(0, 4) + rhsjend_input.substring(5, 7) + rhsjend_input.substring(8, 10) + "235959" + "\",";
+		}
+		
+		if (identity != null && identity != "") {
+			reqmsg += "\"idnumber_like\":\"" + identity + "\",";
+		}
+		
+		reqmsg += "}}";
+	
+	    jQuery.ajax({
+	          type : "post",
+	          async:true,
+	          url : path+"?handler",
+	          dataType : "json",
+	          data: {
+	               "reqmsg":reqmsg
+	          },
+	          success : function(data){
+	              if(data.des == "success"){
+	            	  changeData(data);
+	              }else{
+	                  alert("查询老人信息失败");
+	              }
+	          },
+	          error:function(){
+		           alert("查询老人信息失败");
+	          }
+	     });
+	}
+	function changeData(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			var serviceall = "";
+			var serviceProvince = "";
+			var serviceCity = "";
+			var serviceArea = "";
+			var serviceStreet = ""; 
+			var sites = ""; 
+			jQuery.each(data.content.olderList, function(i, item) {
+				htmlcode += "<tr class=\"gradeA odd\"><td><input type=\"checkbox\" value=\"" + item.id + "\" class=\"col_selector\"></td>";		
+			    htmlcode += "<td>" + item.memberNum + "</td>";// 会员号
+			    htmlcode += "<td>" + item.memberCard + "</td>";	// 会员卡号
+			    htmlcode += "<td>" + item.name + "</td>";// 姓名
+			    htmlcode += "<td>" + item.idnumber + "</td>";// 身份证
+			    htmlcode += "<td>" + item.gender + "</td>";// 性别
+			    htmlcode += "<td>" + calculationAgeByBirthday(item.birthdate) + "</td>";// 年龄
+			    htmlcode += "<td>" + item.memberSource + "</td>";// 客户来源
+			    htmlcode += "<td>" + inputSource(item.source) + "</td>";// 录入来源
+			    htmlcode += "<td>" + khztChange(item.memberStatus) + "</td>";// 客户状态
+			    
+			    if (item.olderSiteList != null && item.olderSiteList.length > 0) {
+				    jQuery.each(item.olderSiteList, function(j, item2) {
+				    	sites += item2.siteName + ",";
+				    });
+					if(sites != ""){
+						sites = sites.substr(0,sites.length - 1);
+					}
+				}
+				if(sites != null && sites != "" && sites.length > 16){
+					htmlcode += "<td>" + sites.substr(0,16) + "...</td>";// 服务站点
+				}else{
+					htmlcode += "<td>" + sites + "</td>";// 服务站点
+				}
+				sites = "";
+				    
+			    if(item.homeTel != null && item.homeTel != "" && item.mobileTel != null && item.mobileTel != ""){
+			    	htmlcode += "<td>" + item.homeTel+" / "+ item.mobileTel+ "</td>";// 联系方式
+			    }else if((item.homeTel != null && item.homeTel != "") && (item.mobileTel == null || item.mobileTel == "")){
+			    	htmlcode += "<td>" + item.homeTel + "</td>";// 联系方式
+			    }else if((item.mobileTel != null && item.mobileTel != "") && ((item.homeTel == null || item.homeTel == ""))){
+			    	htmlcode += "<td>" + item.mobileTel + "</td>";// 联系方式
+			    }else{
+			    	htmlcode += "<td></td>";// 联系方式
+			    }
+			    htmlcode += "<td>" + ((item.nurseLevel == null || item.nurseLevel == "") ? "" : (item.nurseLevel + "级")) + "</td>";// 护理级别
+			    serviceProvince = getNameById(item.serviceProvinceId);
+			    if(serviceProvince != ""){
+			    	serviceProvince += ",";
+			    }
+				serviceCity = getNameById(item.serviceCityId);
+				if(serviceCity != ""){
+			    	serviceCity += ",";
+			    }
+				serviceArea = getNameById(item.serviceAreaId);
+				if(serviceArea != ""){
+			    	serviceArea += ",";
+			    }
+				serviceStreet = getNameById(item.serviceStreetId); 
+				if(serviceStreet != ""){
+			    	serviceStreet += ",";
+			    }
+				serviceall = serviceProvince + serviceCity + serviceArea + serviceStreet;
+				if(serviceall != ""){
+					serviceall = serviceall.substr(0,serviceall.length-1);
+				}
+			    htmlcode += "<td>" + serviceall + "</td>";// 所属区域
+			    serviceall = "";
+				serviceProvince = "";
+				serviceCity = "";
+				serviceArea = "";
+				serviceStreet = ""; 
+			    
+			    htmlcode += "<td>" + item.accountNum + "</td>";// 余额
+			    htmlcode += "<td>" + formateTime(item.createTime) + "</td>";// 入会时间
+			    
+				htmlcode += "<td><div class=\"btn-group\">";
+				htmlcode += "<button class=\"btn btn-default btn-xs\" type=\"button\">操作</button>";
+				htmlcode += "<button data-toggle=\"dropdown\" class=\"btn btn-xs btn-primary dropdown-toggle\" type=\"button\">";
+				htmlcode += "<span class=\"caret\" style=\"padding:0;\"></span>";
+				htmlcode += "<span class=\"sr-only\">Toggle Dropdown</span>";
+				htmlcode += "</button>";
+				htmlcode += "<ul role=\"menu\" class=\"dropdown-menu pull-right\">";
+				var headUrl = "<%=request.getContextPath()%>";
+				<c:if test="${older_queryXQ_opt_control != 'yes' or older_queryXQ_opt_show == 'yes'}">
+					htmlcode += "<li><a href=\""+headUrl+"/daeOlder.do?main&id="+item.id+"\" target=\"_blank\">查看详情</a></li>";
+				</c:if>	
+				<c:if test="${older_review_opt_control != 'yes' or older_review_opt_show == 'yes'}">
+					htmlcode += "<li><a href=\""+headUrl+"/review.do?mainXQ&olderId="+item.id+"\" target=\"_blank\">回访</a></li>";
+				</c:if>	
+				<c:if test="${older_healthAssessment_opt_control != 'yes' or older_healthAssessment_opt_show == 'yes'}">
+					htmlcode += "<li><a href=\""+headUrl+"/assessmentTask.do?mainAdd&oldid="+item.id+"\" target=\"_blank\">健康评估</a></li>";
+				</c:if>	
+				if(item.source == 3){// 是长护险的老人则显示导出功能
+					<c:if test="${older_longActingInsuranceAgentOlderExport_opt_control != 'yes' or older_longActingInsuranceAgentOlderExport_opt_show == 'yes'}">
+						htmlcode += "<li><a href=\"" + headUrl + "/export.do?exportdoc&olderId=" + item.id + "\" target=\"_blank\">长护险申请表</a></li>";
+					</c:if>	
+				}
+				<c:if test="${older_del_opt_control != 'yes' or older_del_opt_show == 'yes'}">
+					htmlcode += "<li onclick=\"del2('" + item.id + "')\"><a href=\"###\">删除</a></li>";
+				</c:if>	
+				<c:if test="${older_serviceSite_opt_control != 'yes' or older_serviceSite_opt_show == 'yes'}">
+					htmlcode += "<li onclick=\"getSitesForEdit('" + item.id + "')\"><a href=\"###\">服务站点</a></li>";
+				</c:if>	
+				htmlcode += "</ul>";
+				htmlcode += "</div></td>";		
+				htmlcode += "</tr>";
+			});
+		}
+		$("#datacontainer").html(htmlcode);
+		if(data.page != null && data.page != ""){
+			if(data.page.recordCount != null && data.page.recordCount != ""){
+				$("#head_oldSum").html("老人列表&nbsp;&nbsp;&nbsp;数量：" + data.page.recordCount);
+			}
+		}else{
+			$("#head_oldSum").html("老人列表&nbsp;&nbsp;&nbsp;数量：0");
+		}
+		
+		if (data.page != null) {
+			genaratePaginateHtml(data.page.pageno, data.page.pageCount);
+			genarateRecordNumberHtml(data.page.pageno, data.page.pagesize, data.page.recordCount);
+		} else {
+			genaratePaginateHtml(1, 1);
+			genarateRecordNumberHtml(1, 10, 0);
+		}
+	}
+	/**
+	 * 生成记录数信息
+	 * 
+	 * @method genarateRecordNumberHtml
+	 * @param {Number}
+	 *            currentpage 当前页
+	 * @param {Number}
+	 *            pagesize 每页记录条目数
+	 * @param {Number}
+	 *            totalRecord 总记录数
+	 */
+	function genarateRecordNumberHtml(currentpage, pagesize, totalRecord) {
+		var recordInfos = "";
+		if (totalRecord > 0) {
+		    recordInfos = "当前显示" + totalRecord + "条总记录";
+			recordInfos += "中第" + ((currentpage - 1) * pagesize + 1) + "-";
+			if (currentpage * pagesize > totalRecord) {
+				recordInfos += totalRecord;
+			} else {
+				recordInfos += currentpage * pagesize;
+			}
+			recordInfos += "条 ";
+		} else {
+			recordInfos = "当前显示0 条总记录中的第0-0条";
+		}
+		
+		$("#datatable_info").html(recordInfos);
+	}
+	/**
+	 * 生成分页信息
+	 * 
+	 * @method genaratePaginateHtml
+	 * @param {Number}
+	 *            currentpage 当前页
+	 * @param {Number}
+	 *            totalpage 总页数
+	 */
+	function genaratePaginateHtml(currentpage, totalpage, pagesize) {
+		currentshownpage = currentpage;
+	
+		var htmlcode = "";
+		
+		// 上一页
+		if (currentpage > 1) {
+			htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page('1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page('" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		} else {
+			htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		}
+		
+		// 具体页码
+		if (totalpage <= 5) {
+			for (var i = 1; i <= totalpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"#\" onclick=\"go2page('" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		} else {
+			var startpage = currentpage;
+			var endpage = currentpage;
+			while (true) {
+				if (endpage - startpage >= 4) {
+					break;
+				} else {
+					if (startpage > 1) {
+						startpage = startpage - 1;
+					}
+					if (endpage < totalpage) {
+						endpage = endpage - (-1);
+					}
+				}
+			}
+			
+			for (var i = startpage; i <= endpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"#\" onclick=\"go2page('" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		}
+		
+		// 下一页
+		if (totalpage > currentpage) {
+			htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page('" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page('" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		} else {
+			htmlcode += "<li class=\"next disabled\"><a href=\"#\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next disabled\"><a href=\"#\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		}
+		$("#paginationArea").html(htmlcode);
+	}
+	//列表全选
+	function selectAll() {
+		if ($("#allselectchecker").is(':checked')) {
+			$(".col_selector").prop("checked", true);
+		} else {
+			$(".col_selector").prop("checked", false);
+		}
+	}
+	
+	//跳转新增页
+	function doAdd() {
+		document.getElementById("addA").click();
+	}
+	
+	//删除多条信息
+	function doDel() {
+		var selectedItemNumber = $("tbody .col_selector:checked").length;
+		if (selectedItemNumber >= 1) {
+			var ids2del = "";
+			$("tbody .col_selector:checked").each(function() {
+				ids2del += $(this).val() + ",";
+			});
+			if (ids2del != "") {
+				ids2del = ids2del.substring(0, ids2del.length - 1);
+			}
+		  if (confirm("是否确认删除?"))  {  
+			jQuery.ajax({
+				type:"post",
+				url:path+"?del",
+				async:true,
+				dataType:"json",
+				data:{ids:ids2del},
+				success:function(data) {
+					alert(data.des);
+					if (data.result == "success") {
+						go2page(currentshownpage);
+					}else if(data.des=="failure"){
+	                 alert("删除失败");
+	                }
+				},
+				error:function() {
+					alert("error");
+				}
+			});
+			}
+		} else {
+			alert("请选择要删除的数据");
+		}
+	}
+	
+	//删除单条信息
+	function del2(id) {
+		  if (confirm("是否确认删除?"))  {  
+			jQuery.ajax({
+				type:"post",
+				url:path+"?del",
+				async:true,
+				dataType:"json",
+				data:{ids:id},
+				success:function(data) {
+					alert(data.des);
+					if (data.result == "success") {
+						go2page(currentshownpage);
+					}else if(data.des=="failure"){
+	                    alert("删除失败");
+	                }
+				},
+				error:function() {
+					alert("error");
+				}
+			});
+		}
+	}
+	
+	
+	
+	/**导出功能**/	
+	//导出
+	function exportxls(){
+		if (confirm("是否确认导出?"))  { 
+			var selectedItemNumber = $("tbody .col_selector:checked").length;
+			var ids2 = "";
+			if (selectedItemNumber >= 1) {
+				$("tbody .col_selector:checked").each(function() {
+					ids2 += $(this).val() + ",";
+				});
+				if (ids2 != "") {
+					ids2 = ids2.substring(0, ids2.length - 1);
+				}
+			}
+			if(ids2 == ""){
+				var name_input = $("#name_input").val();// 姓名
+				var idNumber = $("#idNumber").val();// 会员号
+				var sex = $("#sex").val();// 性别
+				
+				var age1 = $("#age1").val();
+				var age2 = $("#age2").val();
+				var reg = new RegExp("^[0-9]*$"); 
+			    if(age1 != "" && !reg.test(age1)){  
+			        alert("请输入符合规范的年龄");  
+			        return;
+			    }  
+			    if(age2 != "" && !reg.test(age2)){  
+			        alert("请输入符合规范的年龄");  
+			        return;
+			    }  
+				if(age1 != "" && age2 != "" && age1>age2){
+					alert("最大年龄不能小于最小年龄");
+					return;
+				}
+				
+				var d = new Date();
+				var nowYear = d.getFullYear();
+				var year1="";// 年龄1
+				var year2="";// 年龄2
+				if($.trim(age1) != ""){
+					 year1= nowYear- age1 + "1231";
+				}
+				if($.trim(age2) != ""){
+					 year2= nowYear- age2 + "0101";
+				}
+				var source = $("#source").val();// 客户来源
+				var customerSource = $("#customerSource").val();// 客户来源
+				var customerState = $("#customerState").val();// 客户状态
+				var idNumber_Card = $("#idNumber_Card").val();// 会员卡号
+				var hulijibie = $("#hulijibie").val();// 护理级别
+				var siteIdsQuery = $("#siteIdsQuery").val();// 服务站点
+				
+				var quyushen_input = $("#quyushen_input").val();// 服务区域-省
+				var quyushi_input = $("#quyushi_input").val();// 服务区域-市
+				var quyuqu_input = $("#quyuqu_input").val();// 服务区域-区
+				var quyujiedao_input = $("#quyujiedao_input").val();// 服务区域-街道
+				
+				$("[name=name_input]").val(name_input);
+				$("[name=idNumber]").val(idNumber);
+				$("[name=sex]").val(sex);
+				$("[name=age1]").val(year1);
+				$("[name=age2]").val(year2);
+				$("[name=customerSource]").val(customerSource);
+				$("[name=customerState]").val(customerState);
+				$("[name=idNumber_Card]").val(idNumber_Card);
+				$("[name=hulijibie]").val(hulijibie);
+				$("[name=siteIdsQuery]").val(siteIdsQuery);
+				$("[name=quyushen_input]").val(quyushen_input);
+				$("[name=quyushi_input]").val(quyushi_input);
+				$("[name=quyuqu_input]").val(quyuqu_input);
+				$("[name=quyujiedao_input]").val(quyujiedao_input);
+				$("[name=olderSource]").val(source);
+			}else{
+				$("[name=ids2]").val(ids2);
+			}
+			$("#SubmitButton").click();
+			$("#daochuanniu").click();
+	   	}
+	}
+
+	
+	
+	/**导入功能**/
+	//导入功能选择站点
+	function xiugaisite(){
+		$("#saveOlderSiteId").hide();
+		$("#saveOlderSiteImportId").show();
+		$("#editSiteOlderId").val("");
+		var allSites = "";
+		jQuery.ajax({
+			type : "post",
+			async:false,
+			url : "addEmployee.do?getzhandian",
+			dataType : "json",
+			data: {
+			     "zhandian":"站点"
+			},
+			success : function(data){
+			    if(data.des == "success"){
+			  	  var id = data.id.split(",");
+			  	  var name = data.name.split(",");
+			  	  for(var i = 0;i < id.length;i++){
+			  	  	allSites += "<label class=\"checkbox-inline\" style=\" margin-left:20px;\"> <input type=\"checkbox\" name=\"rad16\" value=\"" + name[i] + "\" class=\"icheck\" id=\"" + id[i] + "\" >&nbsp;" + name[i] + "</label>";
+			  	  }
+			    }
+			},
+			error:function(){
+			   alert("查询服务站点失败");
+			}
+	    });
+		$("#guanlian-sitechoose").html(allSites);
+	}
+	//导入功能选择站点后确定
+	function saveOlderSiteImport(){
+		var html="";
+		var boxes = document.getElementsByName("rad16");
+		if(boxes != null){
+			for(i = 0;i < boxes.length;i++){
+				if(boxes[i].checked == true){
+					html += "<span style=\"margin-right:10px\" id=\"site" + i + "\">" + boxes[i].value + "</span><input id=\"siteId" + i + "\" type=\"hidden\" value=\"" + boxes[i].id + "\">";
+				}
+			}
+		}
+		$("#oldSitePopHtml").html(html);
+	}
+	
+	// 显示导入模态框
+	function showimport(){
+		$("#sheng_input").html("<option value=\"\">省</option>");
+	    $("#shi_input").html("<option value=\"\">市</option>");
+	    $("#qu_input").html("<option value=\"\">区</option>");
+	    $("#jiedao_input").html("<option value=\"\">街道</option>");
+	    $("#xls4upload").val("");
+	  	// 模态框中获取省
+	    var modalResult = new Array();
+	    modalResult = getAddresses(4897);
+	    var html="";
+	    html+="<option value=\"\">省</option>";
+	    for(var i=0;i<modalResult.length;i++){
+	       html+="<option value=\""+modalResult[i].id+"\">"+modalResult[i].name+"</option>";
+	    }
+	    $("#sheng_input").html(html);
+	    $("#shi_input").html("<option value=\"\">市</option>");
+	    $("#qu_input").html("<option value=\"\">区</option>");
+	    $("#jiedao_input").html("<option value=\"\">街道</option>");
+	    
+    	$("#sheng_input").change(function(e){
+        	if($("#sheng_input").val() == ""){
+        		$("#shi_input").html("<option value=\"\">市</option>");
+        		$("#qu_input").html("<option value=\"\">区</option>");
+        		$("#jiedao_input").html("<option value=\"\">街道</option>");
+        	}else{
+        		getquyushixinxi($("#sheng_input").val());
+        		getquyuquxinxi($("#shi_input").val());
+        		getquyujiedaoxinxi($("#qu_input").val());
+        	}
+        });
+        
+        $("#shi_input").change(function(e){
+        	if($("#shi_input").val() == ""){
+        		$("#qu_input").html("<option value=\"\">区</option>");
+        		$("#jiedao_input").html("<option value=\"\">街道</option>");
+        	}else{
+        		getquyuquxinxi($("#shi_input").val());
+        		getquyujiedaoxinxi($("#qu_input").val());
+        	}
+        });
+        
+        $("#qu_input").change(function(e){
+        	if($("#qu_input").val() == ""){
+        		$("#jiedao_input").html("<option value=\"\">街道</option>");
+        	}else{
+        		getquyujiedaoxinxi($("#qu_input").val());
+        	}
+        });
+		$("#showimport").click();
+	}
+	
+	// 上传文件
+	function uploadFile4import() {
+		var currFile = $("#xls4upload").val();
+		var sheng_input = $("#sheng_input").val();
+		if(sheng_input ==""){
+			alert("所在省不能为空");
+			return;
+		}
+		var shi_input = $("#shi_input").val();
+		if(shi_input ==""){
+			alert("所在市不能为空");
+			return;
+		}
+		var qu_input = $("#qu_input").val();
+		if(qu_input ==""){
+			alert("所在区不能为空");
+			return;
+		}
+		var jiedao_input = $("#jiedao_input").val();
+		sheng_input = parseInt(sheng_input);
+		shi_input = parseInt(shi_input);
+		qu_input = parseInt(qu_input);
+		jiedao_input = parseInt(jiedao_input)
+		$("#provinceId").val(parseInt(sheng_input));
+		$("#cityId").val(parseInt(shi_input));
+		$("#areaId").val(parseInt(qu_input));
+		$("#streetId").val(parseInt(jiedao_input));
+		
+		var siteinput = $("#oldSitePopHtml input");//站点
+		var siteIds = "";
+		if(siteinput != null && siteinput.length > 0){
+			for(var i = 0;i < siteinput.length;i++){
+				siteIds += $("#oldSitePopHtml").find("input:eq("+i+")").val() + ",";
+			}
+			if(siteIds != ""){
+				siteIds = siteIds.substr(0,siteIds.length - 1);
+			}
+		}
+		// $("#xlsuploadform").attr("action","older.do?importxls&provinceId="+sheng_input+"&cityId="+shi_input+"&areaId="+qu_input+"&streetId="+jiedao_input)
+		if (currFile != null && currFile != "") {
+			var ajax_option = {
+				async : false,
+				dataType : "json",
+				data : {
+					"provinceId":sheng_input,
+					"cityId":shi_input,
+					"areaId":qu_input,
+					"streetId":jiedao_input,
+					"siteIds":siteIds
+				},
+				success : function(data) {
+					if(data.errorPath != null && data.errorPath != ""){
+						alert(data.des + " 未导入的数据下载地址:" + data.errorPath);
+					}else{
+						alert(data.des);
+					}
+					if (data.result == "success") {
+						go2page(currentshownpage);
+						$("#cancel-config").click();
+					}
+				},
+				error:function() {
+					alert("与服务器通讯失败");
+				}
+			};
+			$("#xlsuploadform").ajaxSubmit(ajax_option);
+		} else {
+			alert("请选择要导入的文件");
+		}
+	}
+	
+	
+	
+	/**同步方法**/
+	// 批量同步older信息到床垫服务器
+	function synchronizationOlders(){
+	   if (confirm("是否同步?"))  {  
+		  jQuery.ajax({
+	          type : "post",
+	          async: false,
+	          url : "older.do?sendOlders",
+	          dataType : "json",
+	          data: { },
+	          success : function(data){
+	              if(data == true){
+	            	 alert("同步成功");
+	              }else if(data == false){
+	              	 alert("同步失败");
+	              }
+	          },
+	          error:function(){
+		           alert("同步失败");
+	          }
+	      });
+	   }
+	}		
+	
+	/**工具方法**/
+	//根据排序规则重新查询
+	function queryBySort(par,column){
+		var classFlag = listSortClickEvent(par);
+		var type = judgmentChinese(column);
+		if(type != null && type != ""){
+			classFlag = type + classFlag;
+			column = column.substr(8,column.length);
+		}
+		$("#sortType").val(classFlag);
+		$("#sortColumn").val(column);
+		go2page(currentshownpage);
+	}
+	
+	// 获取市信息
+    function getquyushixinxi(id){
+	    var result = new Array();
+		result = getAddresses(id);
+	    var html = "";
+	    html += "<option value=\"\">市</option>";
+	    for(var i = 0;i < result.length;i++){
+	    	html += "<option value=\"" + result[i].id + "\">" + result[i].name + "</option>";
+	    }
+	    var modalClass = $("#import").attr("class");// 获取模态框class
+	    if(modalClass == "md-modal md-effect-1 md-show"){
+	    	$("#shi_input").html(html);
+	    }else{
+	    	$("#quyushi_input").html(html);
+	    }
+    }
+    
+	// 获取区信息
+  	function getquyuquxinxi(id){
+	    var result = new Array();
+		result = getAddresses(id);
+	    var html = "";
+	    html += "<option value=\"\">区</option>";
+	    for(var i = 0;i < result.length;i++){
+	    	html += "<option value=\"" + result[i].id + "\">" + result[i].name + "</option>";
+	    }
+	    var modalClass = $("#import").attr("class");// 获取模态框class
+	    if(modalClass == "md-modal md-effect-1 md-show"){
+	    	$("#qu_input").html(html);
+	    }else{
+	    	$("#quyuqu_input").html(html);
+	    }
+  	}
+      
+    // 获取街道信息
+    function getquyujiedaoxinxi(id){
+	    var result = new Array();
+		result = getAddresses(id);
+	    var html = "";
+	    html += "<option value=\"\">街道</option>";
+	    for(var i = 0;i < result.length;i++){
+	    	html += "<option value=\"" + result[i].id + "\">" + result[i].name + "</option>";
+	    }
+	    var modalClass = $("#import").attr("class");// 获取模态框class
+	    if(modalClass == "md-modal md-effect-1 md-show"){
+	    	$("#jiedao_input").html(html);
+	    }else{
+	    	 $("#quyujiedao_input").html(html);
+	    }
+    }
+    
+    // 获取所有站点列表
+	function getzhandian(){
+		var html = "";
+		jQuery.ajax({
+	        type : "post",
+	        async:false,
+	        url : "addEmployee.do?getzhandian",
+	        dataType : "json",
+	        data: {
+	             "zhandian":"站点"
+	        },
+	        success : function(data){
+	            if(data.des == "success"){
+	            	var id = data.id.split(",");
+	            	var name = data.name.split(",");
+	            	for(var i = 0;i < id.length;i++){
+	            	   html = html + "<option value=\"" + id[i] + "\">" + name[i] + "</option>";
+	            	}
+	            }
+	        },
+	        error:function(){
+		         alert("获取站点列表失败");
+	        }
+	    });
+		$("#siteIdsQuery").html(html);
+	}	
+	
+	// 录入来源
+	function inputSource(value){
+		var source = "系统录入";
+  		switch (value)
+		{
+			case 1:
+			source="系统录入";
+			break;
+
+			case 2:
+			source="微信录入";
+			break;
+			
+			case 3:
+			source="长护险代理老人";
+			break;
+			
+			default:
+			break;
+		}
+		return source;
+	}
+
+	// 客户状态
+	function khztChange(id){
+		var name="未知";
+     	switch (id)
+		{
+			case 0:
+  			name="正常";
+  			break;
+  			
+			case 1:
+  			name="审核不通过";
+  			break;
+
+			case 2:
+  			name="待评估";
+  			break;
+  			
+  			default:
+  			break;
+		}
+		return name;
+	}
+	
+	
+	
+	/**修改服务站点**/
+	//根据老人id获取已有站点，获取弹窗所有站点，打开弹窗
+	function getSitesForEdit(id){
+		$("#saveOlderSiteId").show();
+		$("#saveOlderSiteImportId").hide();
+		$("#editSiteOlderId").val(id);
+		var olderSites = new Array();// 站点
+		var reqmsg = "{'action':'QUERY_OLDER_INFO_REQUEST','content':{\"olderSiteListShow\":\"true\",\"id\":" + id + "}}";
+		jQuery.ajax({
+			type : "post",
+		    async:false,
+		    url : "daeOlder.do?handler",
+		    dataType : "json",
+		    data: {
+		         "reqmsg":reqmsg
+		    },
+		    success : function(data){
+		        if(data.des == "success"){
+		      	  if (data.content != null) {
+					if(data.content.olderSiteList != null && data.content.olderSiteList.length > 0){
+						jQuery.each(data.content.olderSiteList, function(i, item) {
+							olderSites.push(item.siteId);
+						});
+					}
+		      	  }
+		        }else{
+		           alert("查询老人服务站点失败");
+		        }
+		    },
+		    error:function(){
+		       alert("查询老人服务站点失败");
+		    }
+		});
+    	 
+		var allSites = "";
+		jQuery.ajax({
+			type : "post",
+			async:false,
+			url : "addEmployee.do?getzhandian",
+			dataType : "json",
+			data: {
+			     "zhandian":"站点"
+			},
+			success : function(data){
+			    if(data.des == "success"){
+			  	  var id = data.id.split(",");
+			  	  var name = data.name.split(",");
+			  	  for(var i = 0;i < id.length;i++){
+			  	  	allSites += "<label class=\"checkbox-inline\" style=\" margin-left:20px;\"> <input type=\"checkbox\" name=\"rad16\" value=\"" + name[i] + "\" class=\"icheck\" id=\"" + id[i] + "\" >&nbsp;" + name[i] + "</label>";
+			  	  }
+			    }
+			},
+			error:function(){
+			   alert("查询服务站点失败");
+			}
+	    });
+	      
+		$("#guanlian-sitechoose").html(allSites);
+	    if(olderSites != null && olderSites.length > 0){
+	    	var boxes = document.getElementsByName("rad16");
+			for(i = 0;i < boxes.length;i++){
+				for(j = 0;j < olderSites.length;j++){
+					if(boxes[i].id == olderSites[j]){
+						boxes[i].checked = true;
+						break;
+					}
+				}
+			}	
+	  	}
+	 	$("#editSite").click();
+	}
+	
+	//保存修改老人关联站点
+	function saveOlderSite(){
+		var OlderId = $("#editSiteOlderId").val();
+		var reqmsg = "{'action':'ADD_OLDER_INFO_REQUEST','content':{";
+		reqmsg += "\"olderSiteList\":[";
+		var boxes = document.getElementsByName("rad16");
+			if(boxes != null){
+			for(i = 0;i < boxes.length;i++){
+				if(boxes[i].checked == true){
+					reqmsg += "{\"siteId\":" + boxes[i].id + "},";
+				}
+			}
+		}
+		reqmsg += "],";
+		reqmsg += "\"id\":" + OlderId;
+		reqmsg += "}}";
+
+		jQuery.ajax({
+	          type : "post",
+	          async:true,
+	          url : "daeOlder.do?handler",
+	          dataType : "json",
+	          data: {
+	               "reqmsg":reqmsg
+	          },
+	          success : function(data){
+	              if(data.des == "success"){
+	              	go2page(currentshownpage);
+	              	alert("修改关联站点成功");
+	              }else{
+	                 alert("修改关联站点失败");
+	              }
+	          },
+	          error:function(){
+		          alert("修改关联站点失败");
+	          }
+	     });
+	}
+	</script>
+</body>
+</html>

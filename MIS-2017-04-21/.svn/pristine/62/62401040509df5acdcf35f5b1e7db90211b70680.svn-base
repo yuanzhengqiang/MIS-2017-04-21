@@ -1,0 +1,20 @@
+package fsk.controller.physiologicalParametersCurrent;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+@RequestMapping("/olderParEcg")
+@Controller	
+public class physiologicalParametersCurrentECGController {
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/older/electrocardiogram");
+		String picId = request.getParameter("picId");
+		mav.addObject("picId", picId);
+		
+		return mav;
+	}
+}

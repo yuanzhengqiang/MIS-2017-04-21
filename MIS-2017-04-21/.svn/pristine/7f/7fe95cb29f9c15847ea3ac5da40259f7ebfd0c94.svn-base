@@ -1,0 +1,572 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%> 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="shortcut icon" href="images/logo.png">
+
+	<title>健康咨询</title>
+
+	<!-- Bootstrap core CSS -->
+	<link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+
+	<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+	  <script src="../../assets/js/html5shiv.js"></script>
+	  <script src="../../assets/js/respond.min.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
+  	<link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
+  	<link href="js/jquery.icheck/skins/square/blue.css" rel="stylesheet">
+
+ 	<link rel="stylesheet" href="js/jquery.crop/css/jquery.Jcrop.css" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" />	
+	<link rel="stylesheet" type="text/css" href="js/jquery.datatables/bootstrap-adapter/css/datatables.css" />
+	<script type="text/javascript" src="js/sortListTool.js"></script>
+	<style>
+
+	</style>
+  </head>
+  <body>
+    <div id="cl-wrapper" style="padding-top:0;background:#fff;">	
+	<input type="hidden" value="" id="sortType">
+	<input type="hidden" value="" id="sortColumn">
+	<div class="cl-mcont"  style="background:#fff; padding-top:0px">
+	  <div class="row" >	  	
+		<div class="col-sm-2" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+			<label>编号</label>
+		</div>
+		<div class="col-sm-4 "  style="margin-bottom:10px;">
+			<input class="form-control" type="text" style="width: 100%" id="recordCode">
+		</div>
+		<div class="col-sm-2" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+			<label>发言类型</label>
+		</div>
+		<div class="col-sm-4 "  style="margin-bottom:10px;">
+			<select  class="form-control" style="width:100%" id="spokesType">
+              <option value="" ></option>
+              <option value="2">咨询</option>
+              <option value="1">解答</option>
+            </select>
+		</div>
+		<div class="col-sm-2  col-md-2" style="vertical-align: middle; height: 34px; line-height: 34px;">
+			<label>发言人姓名</label>
+		</div>
+		<div class="col-sm-4 "  style="margin-bottom:10px;">
+			<input class="form-control" type="text" style="width: 100%" id="spokesmanName">
+		</div>
+		<div class="col-sm-2  col-md-2" style="vertical-align: middle; height: 34px; line-height: 34px;">
+			<label>发言内容</label>
+		</div>
+		<div class="col-sm-4 "  style="margin-bottom:10px;">
+			<input class="form-control" type="text" style="width: 100%" id="chatContent_like">
+		</div>
+		<div class="col-sm-2  col-md-2" style="vertical-align: middle; height: 34px; line-height: 34px;">
+			<label>发言时间</label>
+		</div>
+		<div class="col-sm-4 col-md-4 " style="margin-bottom:10px;">
+			<div class="input-group date datetime " data-date-format="yyyy-mm-dd HH:ii" >
+                    <span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
+                    <input class="form-control" size="16" type="text" readonly placeholder="开始时间" id="chatTime_ge">
+                    <span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+                  </div>
+		</div>
+		<div class="col-sm-4 col-md-4 " style="margin-bottom:10px;">
+			<div class="input-group date datetime " data-date-format="yyyy-mm-dd HH:ii" >
+                    <span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
+                    <input class="form-control" size="19" type="text" readonly placeholder="结束时间" id="chatTime_le">
+                    <span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+                  </div>
+		</div>
+		
+		
+		
+	<!-- 查询框结束 -->
+	<!-- 操作按钮开始 -->
+		<div class="col-sm-12">	
+			 <button type="button" class="btn btn-primary " onclick="go2page(1)">查询</button>
+			 <button type="button" class="btn btn-primary pull-right  md-trigger" data-modal="form-primary" onclick="clearcontern()">新增</button>
+		</div>
+	</div>
+	<!-- 操作按钮结束 -->
+                            <!-- 数据表格开始-->
+	<div class="row">
+		<div class="col-sm-12">							
+			<table class="table table-bordered dataTable hover" id="datatable" aria-describedby="datatable_info">
+				<thead>
+					<tr role="row">
+						<th name="needSort" class="sorting" onclick="queryBySort(this,'recordCode')"><strong>编号</strong></th>
+						<th name="needSort" class="sorting" onclick="queryBySort(this,'spokesType')"><strong>发言类型</strong></th>
+						<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_spokesmanName')"><strong>发言人</strong></th>
+						<th name="needSort" class="sorting" onclick="queryBySort(this,'spokesmanType')"><strong>发言人类型</strong></th>
+						<th><strong>发言内容</strong></th>
+						<th name="needSort" class="sorting" onclick="queryBySort(this,'chatTime')"><strong>发言时间</strong></th>
+					</tr>
+				</thead>
+				<tbody id="datacontainer" >	
+																							
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<!-- 数据表格结束 --
+	<!-- 数据条数提示开始 -->
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="pull-left">
+				<div id="datatable_info" class="dataTables_info">
+					当前显示0 条总记录中的第0-0条
+				</div>
+			</div>
+			<div class="clearfix"></div>
+		</div>
+	</div>
+	<!-- 数据条数提示结束 -->
+    <!-- 分页条开始 -->
+	<div class="row">
+		<div class="col-sm-4">
+			<div class="dataTables_length" id="datatable2_length">
+				<label style="margin-top:18px;">每页 <select id="pageSizeSelector" size="1" onchange="go2page(1);"><option selected="selected" value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> 条</label>
+			</div>
+		</div>
+		<div class="col-sm-8">
+			<div class="pull-right">
+				<div class="dataTables_paginate paging_bs_normal">
+					<ul id="paginationArea" class="pagination">
+					<li class="prev disabled"><a href="#"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+					<li class="active"><a href="#">1</a></li>
+					<li class="next"><a href="#">下一页&nbsp;<span class="fa fa-angle-right"></span></a></li></ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 分页条结束 -->
+	</div>
+	<div id="getHeight"></div>
+</div> <!-- 主页面结束 -->
+        <div class="md-modal colored-header custom-width md-effect-9" id="form-primary" style="width:70%">
+                    <div class="md-content">
+                      <div class="modal-header">
+                        <h3>新增聊天记录</h3>
+                        <button type="button" class="close md-close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                      </div>
+                      <div class="modal-body form">
+                        
+                        <div class="form-group">
+                          <label>发言内容</label> 
+                          <textarea type="text" id="chatContent1" class="form-control" ></textarea>
+                        </div> 
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-flat " onclick="savechat()">提交</button>
+                        <button type="button" class="btn btn-default btn-flat md-close" data-dismiss="modal" id="closemodal">取消</button>
+                      
+                      </div>
+                    </div>
+                </div>
+      </div>
+	 <div class="md-overlay"></div>
+
+	<script src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+	<script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+  	<script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
+	<script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
+	<script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+  	<script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>   
+  	<script type="text/javascript" src="js/masonry.js"></script>
+  	<script type="text/javascript" src="js/jquery.crop/js/jquery.Jcrop.js"></script>
+  	<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+  	<script src="js/jquery.upload/js/jquery.iframe-transport.js"></script>
+  	<!-- The basic File Upload plugin -->
+  	<script src="js/jquery.upload/js/jquery.fileupload.js"></script>
+	<script type="text/javascript" src="js/behaviour/general.js"></script>
+	<script type="text/javascript" src="js/jquery.icheck/icheck.min.js"></script>
+<script src="js/jquery.maskedinput/jquery.maskedinput.js" type="text/javascript"></script>
+
+
+    <script type="text/javascript">
+//根据排序规则重新查询
+function queryBySort(par,column){
+	var classFlag = listSortClickEvent(par);
+	var type = judgmentChinese(column);
+	if(type != null && type != ""){
+		classFlag = type + classFlag;
+		column = column.substr(8,column.length);
+	}
+	$("#sortType").val(classFlag);
+	$("#sortColumn").val(column);
+	go2page(currentshownpage);
+}
+        
+	$(document).ready(function(){	
+		App.init();
+		 App.masks();
+
+    	$(".md-trigger").modalEffects();
+    	$(".deleteThisTime").click(function(){               //清除日期框中的值
+ 	       $(this).parent().prev()[0].value = "";
+ 		});
+    	go2page(1);    	
+    	//getuserid();   
+    	//GetRequest() 	
+	});
+	
+	//iframe内嵌页面设置高度
+   	function reset() {
+ 		window.parent.reset();
+	}
+	
+	//查询列表
+	var currentshownpage = 1;
+
+	function go2page(pagenumber){
+		//var reg1 = new RegExp("^(0|[1-9][0-9]*)$"); 
+		
+		var pagesize = $("#pageSizeSelector option:selected").val();		
+		var olderId="<%=request.getAttribute("olderId")%>";
+		var reqmsg="{\"action\":\"QUERY_CHAT_LIST_REQUEST\",";
+		
+		var sortType = $("#sortType").val();
+		var sortColumn = $("#sortColumn").val();
+		if(sortType != null && sortType != ""){
+			reqmsg += "'order':[{'column':'" + sortColumn + "','type':'" + sortType + "'}],";
+		}
+	
+		reqmsg += "\"page\":{\"pageno\":\"" + pagenumber + "\",\"pagesize\":\"" + pagesize + "\"},\"content\":{";
+		reqmsg += "\"olderId\":" + olderId + ",";
+		var recordCode = $("#recordCode").val();//记录编号精确查询
+		if (recordCode != null && recordCode != "") {
+			reqmsg += "\"recordCode\":\"" + recordCode + "\",";
+		}
+		var spokesType = $("#spokesType").val();//发言类型
+		if (spokesType != null && spokesType != "") {
+			reqmsg += "\"spokesType\":" + spokesType + ",";
+		}
+		var spokesmanName = $("#spokesmanName").val();//发言人姓名精确
+		if (spokesmanName != null && spokesmanName != "") {
+			reqmsg += "\"spokesmanName\":\"" + spokesmanName + "\",";
+		}
+		var chatContent_like = $("#chatContent_like").val();//聊天内容模糊
+		if (chatContent_like != null && chatContent_like != "") {
+			reqmsg += "\"chatContent_like\":\"" + chatContent_like + "\",";
+		}
+		var chatTime_ge = $("#chatTime_ge").val();
+		if (chatTime_ge != null && chatTime_ge != "") {
+			chatTime_ge = chatTime_ge.substring(0, 4) + chatTime_ge.substring(5, 7) + chatTime_ge.substring(8, 10)+chatTime_ge.substring(11, 13)+chatTime_ge.substring(14, 16) + "01";
+			reqmsg += "\"chatTime_ge\":\"" + chatTime_ge + "\",";
+		}
+		var chatTime_le = $("#chatTime_le").val();
+		if (chatTime_le != null && chatTime_le != "") {
+			chatTime_le = chatTime_le.substring(0, 4) + chatTime_le.substring(5, 7) + chatTime_le.substring(8, 10)+chatTime_le.substring(11, 13)+chatTime_le.substring(14, 16) + "59";
+			reqmsg += "\"chatTime_le\":\"" + chatTime_le + "\",";
+		}
+		if (chatTime_ge != null && chatTime_ge != "" && chatTime_le != null && chatTime_le != "") {
+			if(chatTime_ge > chatTime_le){
+				alert("开始时间不能大于结束时间");
+				return;
+			}
+		}
+		
+		reqmsg += "}}";
+
+	    jQuery.ajax({
+	          type : "post",
+	          async:true,
+	          url : "chat.do?handler",
+
+	          dataType : "json",
+	          data: {
+	               "reqmsg":reqmsg
+	          },
+	          success : function(data){
+	              if(data.des=="success"){
+	            	  changeData(data);
+	              }else if(data.des=="failure"){
+	                 alert("查询失败");
+	              }
+	          },
+
+	          error:function(){
+		           alert("error");
+	          }
+	     });
+		}
+	
+	function savechat(){
+		var olderId="<%=request.getAttribute("olderId")%>";
+		if(olderId =="" && olderId == null){
+			return;
+		}
+		var reqmsg="{\"action\":\"ADD_CHAT_INFO_REQUEST\",\"content\":{";
+		reqmsg += "\"olderId\":" + olderId + ",";	
+		reqmsg += "\"spokesmanType\":1,";
+		reqmsg += "\"spokesType\":1,";
+		var chatContent = document.getElementById("chatContent1").value.replace(/\n/g, '_@').replace(/\r/g, '_#');
+		chatContent = chatContent.replace(/_#_@/g, '<br/>');//IE7-8
+		chatContent = chatContent.replace(/_@/g, '<br/>');//IE9、FF、chrome
+		chatContent = chatContent.replace(/\s/g, '&nbsp;');//空格处理
+		if (chatContent != null && chatContent != "") {
+			reqmsg += "\"chatContent\":\"" + chatContent + "\",";
+		}else{
+			alert("聊天内容不能为空");
+			return;
+		}
+		var chatTime = getNowFormatDate();
+		reqmsg += "\"chatTime\":\"" + chatTime + "\",";	
+		reqmsg += "}}";
+
+	    jQuery.ajax({
+	          type : "post",
+	          async:true,
+	          url : "chat.do?handler",
+	          dataType : "json",
+	          data: {
+	               "reqmsg":reqmsg
+	          },
+	          success : function(data){
+	              if(data.des=="success"){
+	            	 alert("新增成功");
+	            	 go2page(currentshownpage);
+	            	 $("#closemodal").click();
+	              }else if(data.des=="failure"){
+	                 alert("新增失败");
+	              }
+	          },
+	          error:function(){
+		           alert("error");
+	          }
+	     });
+	}
+	function changeData(data){
+		var htmlCode = "";
+		if (data.content != null) {
+			if(data.content.chatList != null){
+					jQuery.each(data.content.chatList, function(i, item) {
+						htmlCode += "<tr>";	
+						htmlCode += "<td>" + item.recordCode + "</td>";	
+						htmlCode += "<td>" + spokesType(item.spokesType) + "</td>";
+						if(item.spokesType==1){
+							htmlCode += "<td>" + item.spokesmanName + "</td>";	
+						}else{
+							htmlCode += "<td>" + item.olderName + "</td>";
+						}
+							
+						htmlCode += "<td>" + spokesmanType(item.spokesmanType) + "</td>";	
+						htmlCode += "<td title=\"" + item.chatContent + "\">" + formateLog(item.chatContent) + "</td>";	
+						htmlCode += "<td>" + formateTime(item.chatTime) + "</td>";
+						htmlCode += "</tr>";
+					});
+			}
+		}
+		$("#datacontainer").html(htmlCode);
+		if (data.page != null) {
+			genaratePaginateHtml(data.page.pageno, data.page.pageCount);
+			genarateRecordNumberHtml(data.page.pageno, data.page.pagesize, data.page.recordCount);
+				
+		} else {
+			genaratePaginateHtml(1, 1);
+			genarateRecordNumberHtml(1, 10, 0);
+				
+		}
+		reset();
+	}
+	 
+/**
+ * 格式化时间
+ * @method formateTime
+ * @param {String} time 时间信息(YYYYMMDDHHmmSS)
+ * @return 格式化的时间(YYYY-MM-DD)
+ */
+function formateTime(time) {
+	if (time != null && time.length == 8) {
+		return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8);
+	}else if (time != null && time.length == 14) {
+		return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8)+" "+ time.substring(8, 10)+":"+ time.substring(10, 12)+":"+ time.substring(12, 14);
+	} else {
+		return time;
+	}
+}
+	//文字过长，缩略显示		 
+	function formateLog(par){
+		if (par != null && par.length >50) {
+			return par.substring(0, 50) + "..." ;
+		}else {
+			return par;
+		}
+	}
+function spokesType(type){//1-解答，2-咨询
+	var typeName = "";
+	switch(type){
+	case 1:
+		typeName = "解答";
+		break;
+		
+	case 2:
+		typeName = "咨询";
+		break;
+	
+	default:
+		typeName = "未知";
+		break;
+    }
+	return typeName;
+}
+
+function spokesmanType(type){//1-护理员，2-微信
+	var typeName = "";
+	switch(type){
+	case 1:
+		typeName = "护理员";
+		break;
+		
+	case 2:
+		typeName = "微信";
+		break;
+	
+	default:
+		typeName = "未知";
+		break;
+    }
+	return typeName;
+}
+
+/**
+ * 生成记录数信息
+ * @method genarateRecordNumberHtml
+ * @param {Number} currentpage 当前页
+ * @param {Number} pagesize 每页记录条目数
+ * @param {Number} totalRecord 总记录数
+ */
+function genarateRecordNumberHtml(currentpage, pagesize, totalRecord) {
+	var recordInfos = "";
+	if (totalRecord > 0) {
+	    recordInfos = "当前显示" + totalRecord + "条总记录";
+		recordInfos += "中第" + ((currentpage - 1) * pagesize + 1) + "-";
+		if (currentpage * pagesize > totalRecord) {
+			recordInfos += totalRecord;
+		} else {
+			recordInfos += currentpage * pagesize;
+		}
+		recordInfos += "条 ";
+	} else {
+		recordInfos = "当前显示0 条总记录中的第0-0条";
+	}
+	
+	$("#datatable_info").html(recordInfos);
+}
+
+/**
+ * 生成分页信息
+ * @method genaratePaginateHtml
+ * @param {Number} currentpage 当前页
+ * @param {Number} totalpage 总页数
+ */
+function genaratePaginateHtml(currentpage, totalpage, pagesize) {
+	currentshownpage = currentpage;
+	var htmlcode = "";	
+	//上一页
+	if (currentpage > 1) {
+		htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page('1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+		htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page('" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+	} else {
+		htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+		htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+	}
+	
+	//具体页码
+	if (totalpage <= 5) {
+		for (var i = 1; i <= totalpage; i++) {
+			if (currentpage == i) {
+				htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+			} else {
+				htmlcode += "<li><a href=\"#\" onclick=\"go2page('" + i + "')\">" + i + "</a></li>";
+			}
+		}
+	} else {
+		var startpage = currentpage;
+		var endpage = currentpage;
+		while (true) {
+			if (endpage - startpage >= 4) {
+				break;
+			} else {
+				if (startpage > 1) {
+					startpage = startpage - 1;
+				}
+				if (endpage < totalpage) {
+					endpage = endpage - (-1);
+				}
+			}
+		}
+		
+		for (var i = startpage; i <= endpage; i++) {
+			if (currentpage == i) {
+				htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+			} else {
+				htmlcode += "<li><a href=\"#\" onclick=\"go2page('" + i + "')\">" + i + "</a></li>";
+			}
+		}
+	}
+	
+	//下一页
+	if (totalpage > currentpage) {
+		htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page('" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page('" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+	} else {
+		htmlcode += "<li class=\"next disabled\"><a href=\"#\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		htmlcode += "<li class=\"next disabled\"><a href=\"#\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+	}
+	$("#paginationArea").html(htmlcode);
+}
+
+
+
+function clearcontern(){//新增时清空原文本输入框
+	$("#form-primary textarea").val("");
+}
+
+function getNowFormatDate() {//获取当前时间20161020202000
+    var date = new Date();
+    var month = date.getMonth() + 1;
+    var currentdate = date.getFullYear() +""+ plus0(month) +""+ plus0(date.getDate())+""+ plus0(date.getHours()) +""+ plus0(date.getMinutes()) +""+ plus0(date.getSeconds());
+    return currentdate;
+}
+function plus0(par){ //月 日 时 分秒 小于10 前面+0
+	if (par >= 0 && par <= 9) {
+        par = "0" + par;
+        return par;
+    }else{
+    	return par;
+    }
+}
+
+
+
+    </script>
+
+  <script src="js/behaviour/voice-commands.js"></script>
+  <script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+<script type="text/javascript" src="js/jquery.form.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,313 @@
+/*     */ package fsk.handler.parse;
+/*     */ 
+/*     */ import java.io.ByteArrayInputStream;
+/*     */ import java.io.IOException;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.UnsupportedEncodingException;
+/*     */ import fsk.entity.vo.gateway.FAlarm;
+/*     */ import fsk.entity.vo.gateway.FAlarms;
+/*     */ import fsk.entity.vo.gateway.FBed;
+/*     */ import fsk.entity.vo.gateway.FBeds;
+/*     */ import fsk.entity.vo.gateway.FDoor;
+/*     */ import fsk.entity.vo.gateway.FDoors;
+/*     */ import fsk.entity.vo.gateway.FInfrared;
+/*     */ import fsk.entity.vo.gateway.FInfrareds;
+/*     */ import fsk.entity.vo.gateway.FLocal;
+/*     */ import fsk.entity.vo.gateway.FLocals;
+/*     */ import fsk.entity.vo.gateway.FOlder;
+/*     */ import fsk.entity.vo.gateway.FOlders;
+/*     */ import fsk.entity.vo.gateway.FQuickAlarm;
+/*     */ import fsk.entity.vo.gateway.FQuickAlarms;
+/*     */ import fsk.entity.vo.gateway.FUrinedetect;
+/*     */ import fsk.entity.vo.gateway.FUrinedetects;
+/*     */ import fsk.entity.vo.gateway.FWristband;
+/*     */ import fsk.entity.vo.gateway.FWristbands;
+/*     */ import fsk.entity.vo.gateway.FWsd;
+/*     */ import fsk.entity.vo.gateway.FWsds;
+/*     */ import fsk.entity.vo.gateway.Frame;
+/*     */ import org.apache.commons.digester.Digester;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.xml.sax.SAXException;
+/*     */ 
+/*     */ public class GateWayXmlParse
+/*     */ {
+/*  41 */   private static Logger logger = Logger.getLogger(GateWayXmlParse.class);
+/*     */ 
+/*     */   public Frame parseXml(InputStream inputStream)
+/*     */   {
+/*  45 */     Digester digester = new Digester();
+/*  46 */     Frame result = new Frame();
+/*  47 */     digester.push(result);
+/*  48 */     addRules(digester);
+/*     */     try {
+/*  50 */       digester.parse(inputStream);
+/*     */     } catch (SAXException saxE) {
+/*  52 */       logger.error("XML解析错误", saxE);
+/*  53 */       result = null;
+/*     */       try
+/*     */       {
+/*  62 */         if (inputStream != null) {
+/*  63 */           inputStream.close();
+/*  64 */           inputStream = null;
+/*     */         }
+/*     */       } catch (Exception e) {
+/*  67 */         logger.error(e);
+/*     */       }
+/*     */     }
+/*     */     catch (IOException ioE)
+/*     */     {
+/*  55 */       logger.error("XML解析错误", ioE);
+/*  56 */       result = null;
+/*     */       try
+/*     */       {
+/*  62 */         if (inputStream != null) {
+/*  63 */           inputStream.close();
+/*  64 */           inputStream = null;
+/*     */         }
+/*     */       } catch (Exception e) {
+/*  67 */         logger.error(e);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/*  58 */       logger.error("XML解析错误", e);
+/*  59 */       result = null;
+/*     */       try
+/*     */       {
+/*  62 */         if (inputStream != null) {
+/*  63 */           inputStream.close();
+/*  64 */           inputStream = null;
+/*     */         }
+/*     */       } catch (Exception e1) {
+/*  67 */         logger.error(e);
+/*     */       }
+/*     */     }
+/*     */     finally
+/*     */     {
+/*     */       try
+/*     */       {
+/*  62 */         if (inputStream != null) {
+/*  63 */           inputStream.close();
+/*  64 */           inputStream = null;
+/*     */         }
+/*     */       } catch (Exception e) {
+/*  67 */         logger.error(e);
+/*     */       }
+/*     */     }
+/*  70 */     return result;
+/*     */   }
+/*     */ 
+/*     */   public Frame parseXml(String xml)
+/*     */   {
+/*  80 */     Frame result = null;
+/*  81 */     ByteArrayInputStream bis = null;
+/*     */     try {
+/*  83 */       bis = new ByteArrayInputStream(xml.getBytes("UTF8"));
+/*     */     }
+/*     */     catch (UnsupportedEncodingException e) {
+/*  86 */       e.printStackTrace();
+/*     */     }
+/*  88 */     result = parseXml(bis);
+/*  89 */     return result;
+/*     */   }
+/*     */ 
+/*     */   public void addRules(Digester digester) {
+/*  93 */     digester.addSetProperties("frame", "id", "id");
+/*  94 */     digester.addSetProperties("frame", "action", "action");
+/*     */ 
+/*  96 */     digester.addObjectCreate("frame/olders", FOlders.class);
+/*  97 */     digester.addSetProperties("frame/olders", "count", "count");
+/*  98 */     digester.addSetProperties("frame/olders", "offline", "offline");
+/*  99 */     digester.addObjectCreate("frame/olders/older", FOlder.class);
+/* 100 */     digester.addSetProperties("frame/olders/older", "id", "id");
+/* 101 */     digester.addSetProperties("frame/olders/older", "time", "time");
+/* 102 */     digester.addSetProperties("frame/olders/older", "longitude", "longitude");
+/* 103 */     digester.addSetProperties("frame/olders/older", "latitude", "latitude");
+/* 104 */     digester.addSetProperties("frame/olders/older", "room", "room");
+/* 105 */     digester.addSetProperties("frame/olders/older", "floor", "floor");
+/* 106 */     digester.addSetProperties("frame/olders/older", "type", "type");
+/* 107 */     digester.addSetProperties("frame/olders/older", "status", "status");
+/* 108 */     digester.addSetNext("frame/olders/older", "add");
+/* 109 */     digester.addSetNext("frame/olders", "setOlders");
+/*     */ 
+/* 111 */     digester.addObjectCreate("frame/wsds", FWsds.class);
+/* 112 */     digester.addSetProperties("frame/wsds", "count", "count");
+/* 113 */     digester.addSetProperties("frame/wsds", "offline", "offline");
+/* 114 */     digester.addSetProperties("frame/wsds", "wp", "wp");
+/* 115 */     digester.addSetProperties("frame/wsds", "hp", "hp");
+/* 116 */     digester.addSetProperties("frame/wsds", "hd", "hd");
+/* 117 */     digester.addObjectCreate("frame/wsds/wsd", FWsd.class);
+/* 118 */     digester.addSetProperties("frame/wsds/wsd", "id", "id");
+/* 119 */     digester.addSetProperties("frame/wsds/wsd", "type", "type");
+/* 120 */     digester.addSetProperties("frame/wsds/wsd", "temp_time", "tempTime");
+/* 121 */     digester.addSetProperties("frame/wsds/wsd", "temp", "temp");
+/* 122 */     digester.addSetProperties("frame/wsds/wsd", "humi_time", "humiTime");
+/* 123 */     digester.addSetProperties("frame/wsds/wsd", "humi", "humi");
+/* 124 */     digester.addSetProperties("frame/wsds/wsd", "temp_status", "tempStatus");
+/* 125 */     digester.addSetProperties("frame/wsds/wsd", "humi_status", "humiStatus");
+/* 126 */     digester.addSetNext("frame/wsds/wsd", "add");
+/* 127 */     digester.addSetNext("frame/wsds", "setWsds");
+/*     */ 
+/* 129 */     digester.addObjectCreate("frame/alarms", FAlarms.class);
+/* 130 */     digester.addSetProperties("frame/alarms/alarm", "count", "count");
+/* 131 */     digester.addObjectCreate("frame/alarms/alarm", FAlarm.class);
+/* 132 */     digester.addSetProperties("frame/alarms/alarm", "id", "id");
+/* 133 */     digester.addSetProperties("frame/alarms/alarm", "time", "time");
+/* 134 */     digester.addSetProperties("frame/alarms/alarm", "count", "count");
+/* 135 */     digester.addSetProperties("frame/alarms/alarm", "status", "status");
+/*     */ 
+/* 137 */     digester.addObjectCreate("frame/alarms/alarm/beds", FBeds.class);
+/* 138 */     digester.addSetProperties("frame/alarms/alarm/beds", "count", "count");
+/* 139 */     digester.addSetProperties("frame/alarms/alarm/beds", "offline", "offline");
+/* 140 */     digester.addObjectCreate("frame/alarms/alarm/beds/bed", FBed.class);
+/* 141 */     digester.addSetProperties("frame/alarms/alarm/beds/bed", "id", "id");
+/* 142 */     digester.addSetProperties("frame/alarms/alarm/beds/bed", "time", "time");
+/* 143 */     digester.addSetProperties("frame/alarms/alarm/beds/bed", "status", "status");
+/* 144 */     digester.addSetProperties("frame/alarms/alarm/beds/bed", "type", "type");
+/* 145 */     digester.addSetProperties("frame/alarms/alarm/beds/bed", "start", "start");
+/* 146 */     digester.addSetProperties("frame/alarms/alarm/beds/bed", "end", "end");
+/* 147 */     digester.addSetProperties("frame/alarms/alarm/beds/bed", "yz", "yz");
+/* 148 */     digester.addSetNext("frame/alarms/alarm/beds/bed", "add");
+/* 149 */     digester.addSetNext("frame/alarms/alarm/beds", "setBeds");
+/*     */ 
+/* 151 */     digester.addObjectCreate("frame/alarms/alarm/doors", FDoors.class);
+/* 152 */     digester.addSetProperties("frame/alarms/alarm/doors", "count", "count");
+/* 153 */     digester.addSetProperties("frame/alarms/alarm/doors", "offline", "offline");
+/* 154 */     digester.addObjectCreate("frame/alarms/alarm/doors/door", FDoor.class);
+/* 155 */     digester.addSetProperties("frame/alarms/alarm/doors/door", "id", "id");
+/* 156 */     digester.addSetProperties("frame/alarms/alarm/doors/door", "time", "time");
+/* 157 */     digester.addSetProperties("frame/alarms/alarm/doors/door", "status", "status");
+/* 158 */     digester.addSetProperties("frame/alarms/alarm/doors/door", "type", "type");
+/* 159 */     digester.addSetProperties("frame/alarms/alarm/doors/door", "start", "start");
+/* 160 */     digester.addSetProperties("frame/alarms/alarm/doors/door", "end", "end");
+/* 161 */     digester.addSetProperties("frame/alarms/alarm/doors/door", "yz", "yz");
+/* 162 */     digester.addSetNext("frame/alarms/alarm/doors/door", "add");
+/* 163 */     digester.addSetNext("frame/alarms/alarm/doors", "setDoors");
+/*     */ 
+/* 165 */     digester.addObjectCreate("frame/alarms/alarm/quickalarms", FQuickAlarms.class);
+/* 166 */     digester.addSetProperties("frame/alarms/alarm/quickalarms", "count", "count");
+/* 167 */     digester.addSetProperties("frame/alarms/alarm/quickalarms", "offline", "offline");
+/* 168 */     digester.addObjectCreate("frame/alarms/alarm/quickalarms/quickalarm", FQuickAlarm.class);
+/* 169 */     digester.addSetProperties("frame/alarms/alarm/quickalarms/quickalarm", "id", "id");
+/* 170 */     digester.addSetProperties("frame/alarms/alarm/quickalarms/quickalarm", "time", "time");
+/* 171 */     digester.addSetProperties("frame/alarms/alarm/quickalarms/quickalarm", "status", "status");
+/* 172 */     digester.addSetProperties("frame/alarms/alarm/quickalarms/quickalarm", "type", "type");
+/* 173 */     digester.addSetProperties("frame/alarms/alarm/quickalarms/quickalarm", "start", "start");
+/* 174 */     digester.addSetProperties("frame/alarms/alarm/quickalarms/quickalarm", "end", "end");
+/* 175 */     digester.addSetProperties("frame/alarms/alarm/quickalarms/quickalarm", "yz", "yz");
+/* 176 */     digester.addSetNext("frame/alarms/alarm/quickalarms/quickalarm", "add");
+/* 177 */     digester.addSetNext("frame/alarms/alarm/quickalarms", "setQuickAlarms");
+/*     */ 
+/* 179 */     digester.addObjectCreate("frame/alarms/alarm/urinedetects", FUrinedetects.class);
+/* 180 */     digester.addObjectCreate("frame/alarms/alarm/urinedetects/urinedetect", FUrinedetect.class);
+/* 181 */     digester.addSetProperties("frame/alarms/alarm/urinedetects/urinedetect", "id", "id");
+/* 182 */     digester.addSetProperties("frame/alarms/alarm/urinedetects/urinedetect", "time", "time");
+/* 183 */     digester.addSetProperties("frame/alarms/alarm/urinedetects/urinedetect", "status", "status");
+/* 184 */     digester.addSetProperties("frame/alarms/alarm/urinedetects/urinedetect", "type", "type");
+/* 185 */     digester.addSetProperties("frame/alarms/alarm/urinedetects/urinedetect", "normal", "normal");
+/* 186 */     digester.addSetProperties("frame/alarms/alarm/urinedetects/urinedetect", "start", "start");
+/* 187 */     digester.addSetProperties("frame/alarms/alarm/urinedetects/urinedetect", "end", "end");
+/* 188 */     digester.addSetProperties("frame/alarms/alarm/urinedetects/urinedetect", "yz", "yz");
+/* 189 */     digester.addSetNext("frame/alarms/alarm/urinedetects/urinedetect", "add");
+/* 190 */     digester.addSetNext("frame/alarms/alarm/urinedetects", "setUrinedetects");
+/*     */ 
+/* 192 */     digester.addSetNext("frame/alarms/alarm", "add");
+/* 193 */     digester.addSetNext("frame/alarms", "setAlarms");
+/*     */ 
+/* 195 */     digester.addObjectCreate("frame/beds", FBeds.class);
+/* 196 */     digester.addSetProperties("frame/beds", "count", "count");
+/* 197 */     digester.addSetProperties("frame/beds", "offline", "offline");
+/* 198 */     digester.addObjectCreate("frame/beds/bed", FBed.class);
+/* 199 */     digester.addSetProperties("frame/beds/bed", "id", "id");
+/* 200 */     digester.addSetProperties("frame/beds/bed", "time", "time");
+/* 201 */     digester.addSetProperties("frame/beds/bed", "status", "status");
+/* 202 */     digester.addSetProperties("frame/beds/bed", "type", "type");
+/* 203 */     digester.addSetProperties("frame/beds/bed", "start", "start");
+/* 204 */     digester.addSetProperties("frame/beds/bed", "end", "end");
+/* 205 */     digester.addSetProperties("frame/beds/bed", "yz", "yz");
+/* 206 */     digester.addSetNext("frame/beds/bed", "add");
+/* 207 */     digester.addSetNext("frame/beds", "setBeds");
+/*     */ 
+/* 209 */     digester.addObjectCreate("frame/doors", FDoors.class);
+/* 210 */     digester.addSetProperties("frame/doors", "count", "count");
+/* 211 */     digester.addSetProperties("frame/doors", "offline", "offline");
+/* 212 */     digester.addObjectCreate("frame/doors/door", FDoor.class);
+/* 213 */     digester.addSetProperties("frame/doors/door", "id", "id");
+/* 214 */     digester.addSetProperties("frame/doors/door", "time", "time");
+/* 215 */     digester.addSetProperties("frame/doors/door", "status", "status");
+/* 216 */     digester.addSetProperties("frame/doors/door", "type", "type");
+/* 217 */     digester.addSetProperties("frame/doors/door", "start", "start");
+/* 218 */     digester.addSetProperties("frame/doors/door", "end", "end");
+/* 219 */     digester.addSetProperties("frame/doors/door", "yz", "yz");
+/* 220 */     digester.addSetNext("frame/doors/door", "add");
+/* 221 */     digester.addSetNext("frame/doors", "setDoors");
+/*     */ 
+/* 223 */     digester.addObjectCreate("frame/quickalarms", FQuickAlarms.class);
+/* 224 */     digester.addSetProperties("frame/quickalarms", "count", "count");
+/* 225 */     digester.addSetProperties("frame/quickalarms", "offline", "offline");
+/* 226 */     digester.addObjectCreate("frame/quickalarms/quickalarm", FQuickAlarm.class);
+/* 227 */     digester.addSetProperties("frame/quickalarms/quickalarm", "id", "id");
+/* 228 */     digester.addSetProperties("frame/quickalarms/quickalarm", "time", "time");
+/* 229 */     digester.addSetProperties("frame/quickalarms/quickalarm", "status", "status");
+/* 230 */     digester.addSetProperties("frame/quickalarms/quickalarm", "type", "type");
+/* 231 */     digester.addSetProperties("frame/quickalarms/quickalarm", "start", "start");
+/* 232 */     digester.addSetProperties("frame/quickalarms/quickalarm", "end", "end");
+/* 233 */     digester.addSetProperties("frame/quickalarms/quickalarm", "yz", "yz");
+/* 234 */     digester.addSetNext("frame/quickalarms/quickalarm", "add");
+/* 235 */     digester.addSetNext("frame/quickalarms", "setQuickAlarms");
+/*     */ 
+/* 237 */     digester.addObjectCreate("frame/urinedetects", FUrinedetects.class);
+/* 238 */     digester.addObjectCreate("frame/urinedetects/urinedetect", FUrinedetect.class);
+/* 239 */     digester.addSetProperties("frame/urinedetects/urinedetect", "id", "id");
+/* 240 */     digester.addSetProperties("frame/urinedetects/urinedetect", "time", "time");
+/* 241 */     digester.addSetProperties("frame/urinedetects/urinedetect", "status", "status");
+/* 242 */     digester.addSetProperties("frame/urinedetects/urinedetect", "type", "type");
+/* 243 */     digester.addSetProperties("frame/urinedetects/urinedetect", "normal", "normal");
+/* 244 */     digester.addSetNext("frame/urinedetects/urinedetect", "add");
+/* 245 */     digester.addSetNext("frame/urinedetects", "setUrinedetects");
+/*     */ 
+/* 247 */     digester.addObjectCreate("frame/locals", FLocals.class);
+/* 248 */     digester.addSetProperties("frame/locals", "count", "count");
+/* 249 */     digester.addObjectCreate("frame/locals/local", FLocal.class);
+/* 250 */     digester.addSetProperties("frame/locals/local", "id", "id");
+/* 251 */     digester.addSetProperties("frame/locals/local", "longitude", "longitude");
+/* 252 */     digester.addSetProperties("frame/locals/local", "latitude", "latitude");
+/* 253 */     digester.addSetProperties("frame/locals/local", "room", "room");
+/* 254 */     digester.addSetProperties("frame/locals/local", "floor", "floor");
+/* 255 */     digester.addSetNext("frame/locals/local", "add");
+/* 256 */     digester.addSetNext("frame/locals", "setLocals");
+/*     */ 
+/* 258 */     digester.addObjectCreate("frame/wristbands", FWristbands.class);
+/* 259 */     digester.addSetProperties("frame/wristbands", "count", "count");
+/* 260 */     digester.addObjectCreate("frame/wristbands/wristband", FWristband.class);
+/* 261 */     digester.addSetProperties("frame/wristbands/wristband", "id", "id");
+/* 262 */     digester.addSetProperties("frame/wristbands/wristband", "time", "time");
+/* 263 */     digester.addSetProperties("frame/wristbands/wristband", "status", "status");
+/* 264 */     digester.addSetProperties("frame/wristbands/wristband", "type", "type");
+/* 265 */     digester.addSetProperties("frame/wristbands/wristband", "normal", "normal");
+/* 266 */     digester.addSetProperties("frame/wristbands/wristband", "alarm", "alarm");
+/* 267 */     digester.addSetProperties("frame/wristbands/wristband", "mode", "mode");
+/* 268 */     digester.addSetProperties("frame/wristbands/wristband", "voltage", "voltage");
+/* 269 */     digester.addSetNext("frame/wristbands/wristband", "add");
+/* 270 */     digester.addSetNext("frame/wristbands", "setWristbands");
+/*     */ 
+/* 272 */     digester.addObjectCreate("frame/infrareds", FInfrareds.class);
+/* 273 */     digester.addSetProperties("frame/infrareds", "count", "count");
+/* 274 */     digester.addObjectCreate("frame/infrareds/infrared", FInfrared.class);
+/* 275 */     digester.addSetProperties("frame/infrareds/infrared", "id", "id");
+/* 276 */     digester.addSetProperties("frame/infrareds/infrared", "time", "time");
+/* 277 */     digester.addSetProperties("frame/infrareds/infrared", "status", "status");
+/* 278 */     digester.addSetProperties("frame/infrareds/infrared", "type", "type");
+/* 279 */     digester.addSetProperties("frame/infrareds/infrared", "normal", "normal");
+/* 280 */     digester.addSetProperties("frame/infrareds/infrared", "alarm", "alarm");
+/* 281 */     digester.addSetProperties("frame/infrareds/infrared", "mode", "mode");
+/* 282 */     digester.addSetProperties("frame/wristbands/wristband", "voltage", "voltage");
+/* 283 */     digester.addSetNext("frame/infrareds/infrared", "add");
+/* 284 */     digester.addSetNext("frame/infrareds", "setInfrareds");
+/*     */   }
+/*     */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.handler.parse.GateWayXmlParse
+ * JD-Core Version:    0.6.1
+ */

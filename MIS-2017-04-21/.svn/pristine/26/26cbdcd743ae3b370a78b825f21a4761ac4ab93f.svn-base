@@ -1,0 +1,142 @@
+package fsk.handler.nutrition;
+
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import fsk.entity.nutrition.NutritionEntity;
+import fsk.pack.nutrition.NutritionPack;
+import fsk.parse.nutrition.NutritionParse;
+import fsk.service.nutrition.NutritionService;
+import com.framework.system.common.service.SystemService;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.db.query.OrderVO;
+
+ /**   
+ * @Title: Handler
+ * @Description: 营养风险评估量表业务处理器
+ * @author feng.gu
+ * @date 2016-06-30 16:10:40
+ * @version V1.0   
+ *
+ */
+public class NutritionHandler extends BaseHandler{
+	private static Logger logger = Logger.getLogger(NutritionService.class);
+	/**
+	 * 解析器
+	 */
+	private NutritionParse nutritionParse = NutritionParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private NutritionService nutritionService = NutritionService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private NutritionPack nutritionPack = NutritionPack.getInstance();
+
+	private static NutritionHandler nutritionHandler;
+	
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static NutritionHandler getInstance() {
+		if (nutritionHandler == null) {
+			nutritionHandler = new NutritionHandler();
+		}
+		return nutritionHandler;
+	}
+
+	/**
+	 * 
+	 * @param type 1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type,String command,String reqStr, HttpServletRequest request,
+			HttpServletResponse response) {	
+		logger.debug("请求消息："+reqStr);
+		String resultStr="";
+		try {
+			// 解析
+			Map<String, Object> parseMap = nutritionParse.parse(type,command,reqStr,request);		
+			String action = (String) parseMap.get("action");
+			NutritionEntity nutrition = (NutritionEntity) parseMap.get("nutrition");
+			List<NutritionEntity> nutritionList = (List<NutritionEntity>) parseMap.get("nutritionList");
+			Integer id = (Integer) parseMap.get("id");			
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+			
+						
+			// 业务处理
+			Object result=null;
+			if ("save".equals(action)) {
+				result = nutritionService.save(nutrition);
+			} else if ("saveList".equals(action)) {
+				result = nutritionService.saveList(nutritionList);
+			} else if ("getById".equals(action)) {
+				result = nutritionService.getById(id);
+			} else if ("getListByCondition".equals(action)) {
+			    //根据数据权限 增加查询条件
+				queryMap = systemService.addDataRule("NutritionEntity",queryMap,request);
+				result = nutritionService.getListByCondition(queryMap,orderList, pageno,
+						pagesize);
+			} else if ("del".equals(action)) {
+				result = nutritionService.del(id);
+			} else if ("delList".equals(action)) {
+				result = nutritionService.delList(queryMap);
+			}
+			// 封装
+			Map<String, Object> packMap = nutritionPack.pack(type,action,result,nutrition);
+			String actionBack = (String)packMap.get("action");
+			String resultBack = (String)packMap.get("result");
+			String desBack = (String)packMap.get("des");
+			JSONObject pageBack = (JSONObject)packMap.get("page");
+			JSONObject contentBack = (JSONObject)packMap.get("content");
+			
+			JSONObject repJson = new JSONObject();
+			if(actionBack!=null&&!"".equals(actionBack)){
+				repJson.put("action", actionBack);
+			}
+			if(resultBack!=null&&!"".equals(resultBack)){
+				repJson.put("result", resultBack);
+			}
+			if(desBack!=null&&!"".equals(desBack)){
+				repJson.put("des", desBack);
+			}
+			if(pageBack!=null){
+				repJson.put("page", pageBack);
+			}
+			if(contentBack!=null&&!"".equals(contentBack)){
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息："+repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

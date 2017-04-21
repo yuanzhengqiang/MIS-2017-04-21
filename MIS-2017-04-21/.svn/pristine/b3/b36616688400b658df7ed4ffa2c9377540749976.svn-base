@@ -1,0 +1,125 @@
+/*     */ package fsk.entity.vo.gateway;
+/*     */ 
+/*     */ public class Frame
+/*     */ {
+/*     */   private String id;
+/*     */   private String action;
+/*     */   private FAlarms alarms;
+/*     */   private FWsds wsds;
+/*     */   private FOlders olders;
+/*     */   private FLocals locals;
+/*     */   private FBeds beds;
+/*     */   private FDoors doors;
+/*     */   private FQuickAlarms quickAlarms;
+/*     */   private FUrinedetects urinedetects;
+/*     */   private FWristbands wristbands;
+/*     */   private FInfrareds infrareds;
+/*     */ 
+/*     */   public String getId()
+/*     */   {
+/*  44 */     return this.id;
+/*     */   }
+/*     */ 
+/*     */   public void setId(String id) {
+/*  48 */     String temp = "";
+/*     */     try {
+/*  50 */       temp = String.valueOf(Integer.parseInt(id, 16));
+/*     */     } catch (Exception e) {
+/*  52 */       e.printStackTrace();
+/*     */     }
+/*  54 */     this.id = temp;
+/*     */   }
+/*     */ 
+/*     */   public String getAction() {
+/*  58 */     return this.action;
+/*     */   }
+/*     */ 
+/*     */   public void setAction(String action) {
+/*  62 */     this.action = action;
+/*     */   }
+/*     */ 
+/*     */   public FBeds getBeds() {
+/*  66 */     return this.beds;
+/*     */   }
+/*     */ 
+/*     */   public void setBeds(FBeds beds) {
+/*  70 */     this.beds = beds;
+/*     */   }
+/*     */ 
+/*     */   public FWsds getWsds() {
+/*  74 */     return this.wsds;
+/*     */   }
+/*     */ 
+/*     */   public void setWsds(FWsds wsds) {
+/*  78 */     this.wsds = wsds;
+/*     */   }
+/*     */ 
+/*     */   public FOlders getOlders() {
+/*  82 */     return this.olders;
+/*     */   }
+/*     */ 
+/*     */   public void setOlders(FOlders olders) {
+/*  86 */     this.olders = olders;
+/*     */   }
+/*     */ 
+/*     */   public FAlarms getAlarms() {
+/*  90 */     return this.alarms;
+/*     */   }
+/*     */ 
+/*     */   public void setAlarms(FAlarms alarms) {
+/*  94 */     this.alarms = alarms;
+/*     */   }
+/*     */ 
+/*     */   public FDoors getDoors() {
+/*  98 */     return this.doors;
+/*     */   }
+/*     */ 
+/*     */   public void setDoors(FDoors doors) {
+/* 102 */     this.doors = doors;
+/*     */   }
+/*     */ 
+/*     */   public FLocals getLocals() {
+/* 106 */     return this.locals;
+/*     */   }
+/*     */ 
+/*     */   public void setLocals(FLocals locals) {
+/* 110 */     this.locals = locals;
+/*     */   }
+/*     */ 
+/*     */   public FQuickAlarms getQuickAlarms() {
+/* 114 */     return this.quickAlarms;
+/*     */   }
+/*     */ 
+/*     */   public void setQuickAlarms(FQuickAlarms quickAlarms) {
+/* 118 */     this.quickAlarms = quickAlarms;
+/*     */   }
+/*     */ 
+/*     */   public FUrinedetects getUrinedetects() {
+/* 122 */     return this.urinedetects;
+/*     */   }
+/*     */ 
+/*     */   public void setUrinedetects(FUrinedetects urinedetects) {
+/* 126 */     this.urinedetects = urinedetects;
+/*     */   }
+/*     */ 
+/*     */   public FWristbands getWristbands() {
+/* 130 */     return this.wristbands;
+/*     */   }
+/*     */ 
+/*     */   public void setWristbands(FWristbands wristbands) {
+/* 134 */     this.wristbands = wristbands;
+/*     */   }
+/*     */ 
+/*     */   public FInfrareds getInfrareds() {
+/* 138 */     return this.infrareds;
+/*     */   }
+/*     */ 
+/*     */   public void setInfrareds(FInfrareds infrareds) {
+/* 142 */     this.infrareds = infrareds;
+/*     */   }
+/*     */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.entity.vo.gateway.Frame
+ * JD-Core Version:    0.6.1
+ */

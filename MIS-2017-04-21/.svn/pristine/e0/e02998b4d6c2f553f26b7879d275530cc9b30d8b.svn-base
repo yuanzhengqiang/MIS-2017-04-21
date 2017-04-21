@@ -1,0 +1,251 @@
+package fsk.handler.chat;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import weixin.servlet.pushMessage;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.db.query.OrderVO;
+
+import fsk.entity.chat.ChatEntity;
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.older.OlderEntity;
+import fsk.entity.olderWechat.OlderWechatEntity;
+import fsk.entity.wechat.WechatEntity;
+import fsk.pack.chat.ChatPack;
+import fsk.parse.chat.ChatParse;
+import fsk.service.chat.ChatService;
+import fsk.service.employee.EmployeeService;
+import fsk.service.older.OlderService;
+import fsk.service.olderWechat.OlderWechatService;
+import fsk.service.wechat.WechatService;
+import fsk.util.RandomUtil;
+
+/**
+ * @Title: Handler
+ * @Description: 聊天记录业务处理器
+ * @author feng.gu
+ * @date 2016-10-20 09:07:31
+ * @version V1.0
+ * 
+ */
+public class ChatHandler extends BaseHandler {
+	private static Logger logger = Logger.getLogger(ChatService.class);
+	/**
+	 * 解析器
+	 */
+	private ChatParse chatParse = ChatParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private ChatService chatService = ChatService.getInstance();
+	private static OlderWechatService olderWechatService = OlderWechatService.getInstance();
+	private static WechatService wechatService = WechatService.getInstance();
+	private static OlderService olderService = OlderService.getInstance();
+	private static EmployeeService employeeService = EmployeeService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private ChatPack chatPack = ChatPack.getInstance();
+
+	private static ChatHandler chatHandler;
+
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+	private static SimpleDateFormat formater = new SimpleDateFormat("yyyyMMddHHmmss");
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static ChatHandler getInstance() {
+		if (chatHandler == null) {
+			chatHandler = new ChatHandler();
+		}
+		return chatHandler;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type, String command, String reqStr, HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("请求消息：" + reqStr);
+		String resultStr = "";
+		try {
+			// 解析
+			Map<String, Object> parseMap = chatParse.parse(type, command, reqStr, request);
+			String action = (String) parseMap.get("action");
+			ChatEntity chat = (ChatEntity) parseMap.get("chat");
+			List<ChatEntity> chatList = (List<ChatEntity>) parseMap.get("chatList");
+			Integer id = (Integer) parseMap.get("id");
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			Integer pageno = (Integer) parseMap.get("pageno");
+			Integer pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+
+			Boolean olderShow = (Boolean) parseMap.get("olderShow");
+			Boolean delOlder = (Boolean) parseMap.get("delOlder");
+
+			// 业务处理
+			Object result = null;
+			if ("save".equals(action)) {
+				OlderEntity older = null;// 老人信息
+				if (chat.getOlderId() != null) {
+					older = olderService.getById(chat.getOlderId());
+				}
+				if (chat.getId() == null) {// 生成记录编号
+					String recordCode = createRecordCode();
+					chat.setRecordCode(recordCode);
+				}
+				if (chat.getSpokesmanId() != null) {
+					// 根据发言人的id塞入头像地址
+					if (chat.getSpokesmanPhoto() == null) {
+						EmployeeEntity emp = employeeService.getById(chat.getSpokesmanId());
+						if (emp != null) {
+							chat.setSpokesmanPhoto(emp.getMainPhoto());
+						}
+					}
+				} else {
+					Integer employeeId = (Integer) request.getSession().getAttribute("employeeId");
+					if (employeeId.intValue() == 0) {// 管理员发言
+						chat.setSpokesmanId(0);
+						chat.setSpokesmanName("管理员");
+						chat.setSpokesmanPhoto("http://fortune.mordo-care.com:82/photos/av.jpg");
+					} else {// 员工发言
+						EmployeeEntity emp = employeeService.getById(employeeId);
+						if (emp != null) {
+							chat.setSpokesmanPhoto(emp.getMainPhoto());
+							chat.setSpokesmanName(emp.getName());
+							chat.setSpokesmanId(employeeId);
+						}
+					}
+				}
+				if (older != null) {// 塞入老人的姓名和会员号
+					chat.setOlderName(older.getName());
+					chat.setOlderMemberNum(older.getMemberNum());
+				}
+				result = chatService.save(chat);
+				if (result.equals(true)) {// 保存成功时判断是否推送
+					if (chat.getSpokesType() != null && chat.getSpokesType() == 1) {// 发言类型为解答时进行微信推送
+						String openId = null;// openId
+						String nickName = null;// 微信昵称
+						String olderName = chat.getOlderName();// 老人名字
+						Integer spokenType = 1;
+						String spokenManName = chat.getSpokesmanName();
+						String spokenContent = chat.getChatContent();
+						Integer olderId = chat.getOlderId();
+						if (olderId != null) {
+							Map<String, Object> queryOlderWechat = new HashMap<String, Object>();
+							queryOlderWechat.put("olderId", olderId);
+							List<OlderWechatEntity> olderWechatList = olderWechatService.getListByCondition(queryOlderWechat);
+							if (olderWechatList != null && olderWechatList.size() > 0) {
+								OlderWechatEntity olderWechat = olderWechatList.get(0);
+								Integer wechatId = olderWechat.getWechatId();
+								if (wechatId != null) {
+									WechatEntity wechat = wechatService.getById(wechatId);
+									if (wechat != null) {
+										openId = wechat.getOpenid();
+										nickName = wechat.getNickname();
+									}
+								}
+							}
+						}
+						if (openId != null && nickName != null && olderId != null && olderName != null && spokenType != null && spokenManName != null
+								&& spokenContent != null) {
+							pushMessage.sendHealthConsultation(openId, nickName, olderId, olderName, spokenType, spokenManName, spokenContent);
+							logger.debug("健康咨询微信推送:" + "openId:" + openId + " nickName:" + nickName + " olderId:" + olderId + " olderName:" + olderName
+									+ " spokenType:" + spokenType + " spokenManName:" + spokenManName + " spokenContent:" + spokenContent);
+						}
+						// 将老人表改为无最新信息
+						if (older != null) {
+							older.setLastChatContent(chat.getChatContent());
+							older.setLastChatTime(chat.getChatTime());
+							older.setHasNewNotice("N");
+							olderService.save(older);
+						}
+
+					}
+					if (chat.getSpokesType() != null && chat.getSpokesType() == 2) {// 发言类型为咨询时保存到老人表
+						if (older != null) {
+							older.setLastChatContent(chat.getChatContent());
+							older.setLastChatTime(chat.getChatTime());
+							older.setHasNewNotice("Y");
+							olderService.save(older);
+						}
+					}
+				}
+			} else if ("saveList".equals(action)) {
+				result = chatService.saveList(chatList);
+			} else if ("getById".equals(action)) {
+				result = chatService.getById(id, olderShow);
+			} else if ("getListByCondition".equals(action)) {
+				// 根据数据权限 增加查询条件
+				queryMap = systemService.addDataRuleByRoles("ChatEntity", queryMap, request);
+				result = chatService.getListByCondition(queryMap, orderList, pageno, pagesize, olderShow);
+			} else if ("del".equals(action)) {
+				result = chatService.del(id, delOlder);
+			} else if ("delList".equals(action)) {
+				result = chatService.delList(queryMap, delOlder);
+			}
+			// 封装
+			Map<String, Object> packMap = chatPack.pack(type, action, result, chat);
+			String actionBack = (String) packMap.get("action");
+			String resultBack = (String) packMap.get("result");
+			String desBack = (String) packMap.get("des");
+			JSONObject pageBack = (JSONObject) packMap.get("page");
+			JSONObject contentBack = (JSONObject) packMap.get("content");
+
+			JSONObject repJson = new JSONObject();
+			if (actionBack != null && !"".equals(actionBack)) {
+				repJson.put("action", actionBack);
+			}
+			if (resultBack != null && !"".equals(resultBack)) {
+				repJson.put("result", resultBack);
+			}
+			if (desBack != null && !"".equals(desBack)) {
+				repJson.put("des", desBack);
+			}
+			if (pageBack != null) {
+				repJson.put("page", pageBack);
+			}
+			if (contentBack != null && !"".equals(contentBack)) {
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息：" + repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+
+	// 生成记录编号
+	private String createRecordCode() {
+		String code = "HQR" + formater.format(new Date()) + RandomUtil.generateNumString(5);
+		return code;
+	}
+}

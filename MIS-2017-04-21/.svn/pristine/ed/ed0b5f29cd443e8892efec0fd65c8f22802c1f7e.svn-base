@@ -1,0 +1,383 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="images/logo.png">
+    <title>心电图</title>
+  
+    <!-- Bootstrap core CSS -->
+    <link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+    
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.js"></script>
+    <![endif]-->
+    
+    <!-- Custom styles for this template -->
+    <link href="css/style.css" rel="stylesheet" />
+<style>
+.content{background:#eee;}
+
+</style>
+  </head>
+
+  <body>
+	 
+   
+       <div id="cl-wrapper" class="fixed-menu"  style="padding-top:0">
+      <!-- 页面主体 -->
+      <div class="container-fluid" id="pcont">
+        
+        <div class="cl-mcont">  
+        	<div class="row" >
+				<div class="col-xs-12 col-sm-12   ">
+					<select id="selectpage" class="form-control" onchange="getchart();">
+						<option></option>
+					</select>
+				</div>				
+			</div>
+			<div class="row" id="ecgs">
+				<div class="col-xs-12 col-sm-12  col-md-6 ">
+					<div class="block">
+						<div class="header no-border" >
+							<h4 id="createTime1">1 (0~6s)</h4>
+						</div>
+						<div class="content " >
+							<div id="ecgwave1" style="height:250px;"></div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-12  col-md-6 ">
+					<div class="block">
+						<div class="header no-border" >
+							<h4 id="createTime1">2 (6~12s)</h4>
+						</div>
+						<div class="content " >
+							<div id="ecgwave2" style="height:250px;"></div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-12  col-md-6 ">
+					<div class="block">
+						<div class="header no-border" >
+							<h4 id="createTime1">3 (12~18s)</h4>
+						</div>
+						<div class="content " >
+							<div id="ecgwave3" style="height:250px;"></div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-12  col-md-6 ">
+					<div class="block">
+						<div class="header no-border" >
+							<h4 id="createTime1">4 (18~24s)</h4>
+						</div>
+						<div class="content " >
+							<div id="ecgwave4" style="height:250px;"></div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-12  col-md-6 ">
+					<div class="block">
+						<div class="header no-border" >
+							<h4 id="createTime1">5 (24~30s)</h4>
+						</div>
+						<div class="content " >
+							<div id="ecgwave5" style="height:250px;"></div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-12  col-md-6 ">
+					<div class="block">
+						<div class="header no-border" >
+							<h4 id="createTime1">6 (30~36s)</h4>
+						</div>
+						<div class="content " >
+							<div id="ecgwave6" style="height:250px;"></div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-12  col-md-6 ">
+					<div class="block">
+						<div class="header no-border" >
+							<h4 id="createTime1">7 (36~42s)</h4>
+						</div>
+						<div class="content " >
+							<div id="ecgwave7" style="height:250px;"></div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-12  col-md-6 ">
+					<div class="block">
+						<div class="header no-border" >
+							<h4 id="createTime1">8 (42~48s)</h4>
+						</div>
+						<div class="content " >
+							<div id="ecgwave8" style="height:250px;"></div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-12  col-md-6 ">
+					<div class="block">
+						<div class="header no-border" >
+							<h4 id="createTime1">9 (48~54s)</h4>
+						</div>
+						<div class="content " >
+							<div id="ecgwave9" style="height:250px;"></div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-12  col-md-6 ">
+					<div class="block">
+						<div class="header no-border" >
+							<h4 id="createTime1">10 (54~60s)</h4>
+						</div>
+						<div class="content " >
+							<div id="ecgwave10" style="height:250px;"></div>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+ </div>
+ </div>
+
+  
+	
+
+    
+    <script src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/behaviour/general.js"></script>
+      <script type="text/javascript" src="js/highcharts.js"></script>
+    <script type="text/javascript">
+
+
+	$(document).ready(function(){
+		Highcharts.theme = { //折线图主题设置
+				colors: ["#000000", "#f7a35c", "#90ee7e", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee"],
+				chart: {
+					backgroundColor: null,
+					zoomType: 'x'
+				},
+				lang: {
+			        resetZoom: '重置',
+			        resetZoomTitle:"重置缩放比例"
+				},
+				title: {
+					text: '',            
+				},
+				tooltip: {
+					borderWidth: 0,
+					backgroundColor: 'rgba(219,219,216,0.8)',
+					shadow: false
+				},
+
+				xAxis: {
+					gridLineWidth: 1,
+					labels: {
+						enabled: false
+					}
+				},
+				yAxis: {
+					minorTickInterval: 'auto',
+					labels: {
+						enabled: false
+					},
+					title: {
+		                text: ' '
+		            }
+				},
+				credits:{
+					enabled:false // 禁用版权信息
+				},
+				legend:{
+					enabled: false
+				},
+				plotOptions: {
+					candlestick: {
+						lineColor: '#404048'
+					}
+				},
+				// General
+				background2: '#F0F0EA'			
+			};
+			// Apply the theme
+			Highcharts.setOptions(Highcharts.theme);
+			getStartAndEndTime();
+			
+		
+	});
+	
+	
+	var startTime = 0;
+	var endTime = 0 ;
+	var interval = 0;
+	var picId="<%=request.getAttribute("picId")%>";
+	
+	function getStartAndEndTime(){		
+		var reqmsg1="{'action':'QUERY_ECG_STICK_LIST_REQUEST',";
+		reqmsg1 += "'page':{'pageno':'1','pagesize':'10'},";
+		reqmsg1 += "'order':[{'column':'createTime','type':'desc'}],";
+	    reqmsg1 += "'content':{\"physiologicalParametersHistoryId\":" + picId + "";	    
+		reqmsg1 += "}}";		  
+		jQuery.ajax({
+	        type : "post",
+	        async:true,
+	        url : "ecgStick.do?handler",
+	        dataType : "json",
+	        data: {
+	             "reqmsg":reqmsg1
+	        },
+	        success : function(data){
+	            if(data.des=="success"){
+	          	  if (data.content != null) {
+	          		endTime = data.content.ecgStickList[0].createTime;
+	          		//console.log(endTime);
+	              }
+	            }
+	        },
+	        error:function(){
+		           alert("获取结束时间失败");
+	        }
+	   });
+		var reqmsg2="{'action':'QUERY_ECG_STICK_LIST_REQUEST',";
+		reqmsg2 += "'page':{'pageno':'1','pagesize':'10'},";
+		reqmsg2 += "'order':[{'column':'createTime','type':'asc'}],";
+	    reqmsg2 += "'content':{\"physiologicalParametersHistoryId\":" + picId + "";	    
+		reqmsg2 += "}}";		  
+		jQuery.ajax({
+	        type : "post",
+	        async:true,
+	        url : "ecgStick.do?handler",
+	        dataType : "json",
+	        data: {
+	             "reqmsg":reqmsg2
+	        },
+	        success : function(data){
+	            if(data.des=="success"){
+	          	  if (data.content != null) {
+	          		startTime = data.content.ecgStickList[0].createTime;
+	          		//console.log(startTime);
+	          		if((endTime - startTime) > 0){
+	          			interval = endTime - startTime;   		
+		        		changeSelect(interval);
+	          		}	          		
+	              }
+	            }
+	        },
+	        error:function(){
+		           alert("获取开始时间失败");
+	        }
+	   });		
+
+	}
+	
+function changeSelect(interval){
+	if(interval > 0){
+		var page = Math.ceil(interval/60000);
+	}
+	var html = "";
+	for(i=0; i<page; i++){
+		html += "<option value=\""+(i+1)+"\">";
+		html += "第"+(i+1)+"分钟";
+		html += "</option>";
+	}
+	$("#selectpage").html(html);
+	getchart();
+}
+
+function getchart(){
+	 var pagenum = $("#selectpage").val();
+	 if(!pagenum){
+		 pagenum = 1 ;
+	 }
+	 for(i=1;i<11;i++){
+		 var time1 = parseInt(startTime) + (parseInt(pagenum) - 1)*60000 + 6000*(i-1);
+		 var time2 = parseInt(startTime) + (parseInt(pagenum) - 1)*60000 + 6000*(i);
+			var reqmsg1="{'action':'QUERY_ECG_STICK_LIST_REQUEST',";
+			reqmsg1 += "'page':{'pageno':'1','pagesize':'9999999'},";
+			reqmsg1 += "'order':[{'column':'createTime','type':'asc'}],";
+		    reqmsg1 += "'content':{\"physiologicalParametersHistoryId\":" + picId + ",";	    
+		    reqmsg1 += "\"createTime_ge\":\"" + time1 + "\",";	    
+		    reqmsg1 += "\"createTime_lt\":\"" + time2 + "\",";	    
+			reqmsg1 += "}}";
+			jQuery.ajax({
+		        type : "post",
+		        async: false,
+		        url : "ecgStick.do?handler",
+		        dataType : "json",
+		        data: {
+		             "reqmsg":reqmsg1
+		        },
+		        success : function(data){
+		            if(data.des=="success"){
+		          	  if (data.content != null) {
+		          		chart(data,i);
+		              }
+		            }
+		        },
+		        error:function(){
+			           alert("error");
+		        }
+		   }); 
+	 }
+}
+function chart(data,j){ //作折线图	
+	var datas1 = "";
+	jQuery.each(data.content.ecgStickList, function(i, item) {
+		 var datas = JSON.stringify(item.data);//获取到的对象转为字符串			
+		 datas = datas.substr(1,datas.length-2);//去除前后引号""
+		 datas1+=datas+","
+	})
+	strs = datas1.split(",");  
+	if(strs.length < 2500){//该条数据可能测量时间不足6s，后面补0
+		for(i=strs.length; i<3000; i++){
+			datas1 += "0,";
+		}
+	}
+	 if(datas1.charAt(datas1.length - 1) == ","){//最后位有,
+		 datas1 = "[" + datas1.substr(0,datas1.length-1) + "]";
+	 }else{
+		 datas1 = "[" + datas1 + "]";
+	 }
+	
+	datas1 = JSON.parse(datas1);
+	//console.log(datas1);
+	 $("#ecgwave"+j).highcharts({
+			series: [{
+	            name: "心电图",
+	            data: datas1
+	        }],
+	        title:[{
+	        	text:null
+	        }]
+	    });	 
+}
+
+
+	
+function formateTime(time) {
+	if (time != null && time.length == 8) {
+		return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8);
+	} else if(time != null && time.length == 14){
+		return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8) + " " + time.substring(8, 10) + ":" + time.substring(10, 12) + ":" + time.substring(12, 14);
+	} else {	
+		return time;
+	}
+}
+</script> 
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    
+    <script src="js/behaviour/voice-commands.js"></script>
+    <script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+
+  </body>
+  </html>
+

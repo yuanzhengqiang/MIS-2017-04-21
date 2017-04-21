@@ -1,0 +1,95 @@
+package fsk.entity.siteServiceArea;
+
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+import fsk.entity.site.SiteEntity;
+
+/**   
+ * @Title: Entity
+ * @Description: 站点服务区域关联表
+ * @author feng.gu
+ * @date 2016-06-21 08:39:49
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "R_SITE_SERVICE_AREA")
+public class SiteServiceAreaEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String SITE_ID = "SITE_ID";
+    public final static String SERVICE_STREET_ID = "SERVICE_STREET_ID";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * siteId
+	 */
+	@ColumnDescription(name = "SITE_ID")
+	private Integer siteId;
+    /**
+	 * serviceStreetId
+	 */
+	@ColumnDescription(name = "SERVICE_STREET_ID")
+	private Integer serviceStreetId;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getSiteId() {
+		return siteId;
+	}
+
+	public void setSiteId(Integer siteId) {
+		this.siteId = siteId;
+	}
+    public Integer getServiceStreetId() {
+		return serviceStreetId;
+	}
+
+	public void setServiceStreetId(Integer serviceStreetId) {
+		this.serviceStreetId = serviceStreetId;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="SiteEntity"	,joinColumn="ID"	)
+			
+			
+		private SiteEntity site;
+	        
+	public SiteEntity getSite() {
+		return site;
+    }
+	
+	public void setSite(SiteEntity site) {
+		this.site = site;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="DataDicEntity"	,joinColumn="ID"	)
+			
+			
+		private DataDicEntity serviceStreet;
+	        
+	public DataDicEntity getServiceStreet() {
+		return serviceStreet;
+    }
+	
+	public void setServiceStreet(DataDicEntity serviceStreet) {
+		this.serviceStreet = serviceStreet;
+	}
+			
+}

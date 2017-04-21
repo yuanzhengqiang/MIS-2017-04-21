@@ -1,0 +1,92 @@
+package fsk.entity.olderSite;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 老人站点关联表
+ * @author feng.gu
+ * @date 2017-03-06 10:53:04
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_OLDER_SITE")
+public class OlderSiteEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String OLDER_ID = "OLDER_ID";
+    public final static String OLDER_NAME = "OLDER_NAME";
+    public final static String SITE_ID = "SITE_ID";
+    public final static String SITE_NAME = "SITE_NAME";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 老人主键ID
+	 */
+	@ColumnDescription(name = "OLDER_ID")
+	private Integer olderId;
+    /**
+	 * 老人姓名
+	 */
+	@ColumnDescription(name = "OLDER_NAME")
+	private String olderName;
+    /**
+	 * 站点主键ID
+	 */
+	@ColumnDescription(name = "SITE_ID")
+	private Integer siteId;
+    /**
+	 * 站点名称
+	 */
+	@ColumnDescription(name = "SITE_NAME")
+	private String siteName;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getOlderId() {
+		return olderId;
+	}
+
+	public void setOlderId(Integer olderId) {
+		this.olderId = olderId;
+	}
+    public String getOlderName() {
+		return olderName;
+	}
+
+	public void setOlderName(String olderName) {
+		this.olderName = olderName;
+	}
+    public Integer getSiteId() {
+		return siteId;
+	}
+
+	public void setSiteId(Integer siteId) {
+		this.siteId = siteId;
+	}
+    public String getSiteName() {
+		return siteName;
+	}
+
+	public void setSiteName(String siteName) {
+		this.siteName = siteName;
+	}
+        
+    	
+}

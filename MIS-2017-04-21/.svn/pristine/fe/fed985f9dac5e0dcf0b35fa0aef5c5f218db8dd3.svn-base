@@ -1,0 +1,970 @@
+package fsk.handler.serviceTask;
+
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.util.JsonUtil;
+
+import fsk.entity.physiologicalParametersCurrent.PhysiologicalParametersCurrentEntity;
+import fsk.entity.physiologicalParametersHistory.PhysiologicalParametersHistoryEntity;
+import fsk.entity.serviceEmployee.ServiceEmployeeEntity;
+import fsk.entity.serviceLog.ServiceLogEntity;
+import fsk.entity.serviceTask.ServiceTaskEntity;
+import fsk.entity.serviceTaskPhoto.ServiceTaskPhotoEntity;
+import fsk.entity.serviceTaskPhysiologicalParametersHistory.ServiceTaskPhysiologicalParametersHistoryEntity;
+import fsk.pack.serviceTask.ServiceTaskPack;
+import fsk.parse.serviceTask.ServiceTaskParse;
+import fsk.service.edemaCondition.EdemaConditionService;
+import fsk.service.physiologicalParametersCurrent.PhysiologicalParametersCurrentService;
+import fsk.service.physiologicalParametersHistory.PhysiologicalParametersHistoryService;
+import fsk.service.serviceEmployee.ServiceEmployeeService;
+import fsk.service.serviceLog.ServiceLogService;
+import fsk.service.serviceTask.ServiceTaskService;
+import fsk.service.serviceTaskPhoto.ServiceTaskPhotoService;
+import fsk.service.serviceTaskPhysiologicalParametersHistory.ServiceTaskPhysiologicalParametersHistoryService;
+import fsk.service.situationObservation.SituationObservationService;
+
+/**
+ * @Title: Handler
+ * @Description: 服务工单业务处理器
+ * @author feng.gu
+ * @date 2016-10-19 09:54:40
+ * @version V1.0
+ * 
+ */
+public class ServiceTaskHandler extends BaseHandler {
+	private static Logger logger = Logger.getLogger(ServiceTaskService.class);
+	/**
+	 * 解析器
+	 */
+	private ServiceTaskParse serviceTaskParse = ServiceTaskParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private ServiceTaskService serviceTaskService = ServiceTaskService.getInstance();
+	private static ServiceTaskPhotoService serviceTaskPhotoService = ServiceTaskPhotoService.getInstance();
+	private static ServiceEmployeeService serviceEmployeeService = ServiceEmployeeService.getInstance();
+	private static EdemaConditionService edemaConditionService = EdemaConditionService.getInstance();
+	private static ServiceTaskPhysiologicalParametersHistoryService serviceTaskPhysiologicalParametersHistoryService = ServiceTaskPhysiologicalParametersHistoryService
+			.getInstance();
+	private static PhysiologicalParametersHistoryService physiologicalParametersHistoryService = PhysiologicalParametersHistoryService.getInstance();
+	private static PhysiologicalParametersCurrentService physiologicalParametersCurrentService = PhysiologicalParametersCurrentService.getInstance();
+	private static ServiceLogService serviceLogService = ServiceLogService.getInstance();
+	private static SituationObservationService situationObservationService = SituationObservationService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private ServiceTaskPack serviceTaskPack = ServiceTaskPack.getInstance();
+
+	private static ServiceTaskHandler serviceTaskHandler;
+
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+	private static SimpleDateFormat formater2 = new SimpleDateFormat("yyyyMMdd");
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static ServiceTaskHandler getInstance() {
+		if (serviceTaskHandler == null) {
+			serviceTaskHandler = new ServiceTaskHandler();
+		}
+		return serviceTaskHandler;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type, String command, String reqStr, HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("请求消息：" + reqStr);
+		String resultStr = "";
+		try {
+			// 解析
+			Map<String, Object> parseMap = serviceTaskParse.parse(type, command, reqStr, request);
+			String action = (String) parseMap.get("action");
+			ServiceTaskEntity serviceTask = (ServiceTaskEntity) parseMap.get("serviceTask");
+			List<ServiceTaskEntity> serviceTaskList = (List<ServiceTaskEntity>) parseMap.get("serviceTaskList");
+			Integer id = (Integer) parseMap.get("id");
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			Integer pageno = (Integer) parseMap.get("pageno");
+			Integer pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+
+			Boolean olderShow = (Boolean) parseMap.get("olderShow");
+			Boolean delOlder = (Boolean) parseMap.get("delOlder");
+			Boolean addPersonWechatShow = (Boolean) parseMap.get("addPersonWechatShow");
+			Boolean delAddPersonWechat = (Boolean) parseMap.get("delAddPersonWechat");
+			Boolean siteShow = (Boolean) parseMap.get("siteShow");
+			Boolean delSite = (Boolean) parseMap.get("delSite");
+			Boolean serviceAreaShow = (Boolean) parseMap.get("serviceAreaShow");
+			Boolean delServiceArea = (Boolean) parseMap.get("delServiceArea");
+			Boolean serviceStreetShow = (Boolean) parseMap.get("serviceStreetShow");
+			Boolean delServiceStreet = (Boolean) parseMap.get("delServiceStreet");
+			Boolean serviceTaskPhotoListShow = (Boolean) parseMap.get("serviceTaskPhotoListShow");
+			Boolean delServiceTaskPhotoList = (Boolean) parseMap.get("delServiceTaskPhotoList");
+			Boolean edemaConditionListShow = (Boolean) parseMap.get("edemaConditionListShow");
+			Boolean delEdemaConditionList = (Boolean) parseMap.get("delEdemaConditionList");
+			Boolean situationObservationListShow = (Boolean) parseMap.get("situationObservationListShow");
+			Boolean delSituationObservationList = (Boolean) parseMap.get("delSituationObservationList");
+			Boolean serviceLogListShow = (Boolean) parseMap.get("serviceLogListShow");
+			Boolean delServiceLogList = (Boolean) parseMap.get("delServiceLogList");
+			Boolean dailyLifeAskListShow = (Boolean) parseMap.get("dailyLifeAskListShow");
+			Boolean delDailyLifeAskList = (Boolean) parseMap.get("delDailyLifeAskList");
+			Boolean serviceEmployeeListShow = (Boolean) parseMap.get("serviceEmployeeListShow");
+			Boolean delServiceEmployeeList = (Boolean) parseMap.get("delServiceEmployeeList");
+			Boolean serviceListShow = (Boolean) parseMap.get("serviceListShow");
+			Boolean delServiceTaskServiceList = (Boolean) parseMap.get("delServiceTaskServiceList");
+			Boolean physiologicalParametersHistoryListShow = (Boolean) parseMap.get("physiologicalParametersHistoryListShow");
+			Boolean delServiceTaskPhysiologicalParametersHistoryList = (Boolean) parseMap.get("delServiceTaskPhysiologicalParametersHistoryList");
+
+			/* 条件查询 pei */
+			JSONObject reqStrjson = JSONObject.fromObject(reqStr);
+			JSONObject conjson = (JSONObject) reqStrjson.get("content");
+			Integer fzrId = (Integer) conjson.get("fzrId");
+			String fzrName_like = (String) conjson.get("fzrName_like");
+			/* timeChange修改， */
+			String timeChange = (String) conjson.get("timeChange");
+
+			/* app批量修改工单 */
+			String massChangeIds = (String) conjson.get("massChangeIds");
+			String changeTime = (String) conjson.get("changeTime");
+			Integer changeStatus = (Integer) conjson.get("changeStatus");
+
+			/* 批量修改 */
+			String timeStart = (String) conjson.get("timeStart");
+			String timeEnd = (String) conjson.get("timeEnd");
+			Integer statuschan = (Integer) conjson.get("status");
+			boolean flag2 = false;
+			if (timeStart != null && timeEnd != null && statuschan != null) {
+				flag2 = true;
+			}
+			String ids2del = (String) conjson.get("ids2del");
+			boolean flagdel = false;
+			if (ids2del != null) {
+				flagdel = true;
+			}
+			/* App历史生理参数 */
+			JSONArray phyhisjson = null;
+			try {
+				phyhisjson = (JSONArray) conjson.get("physiologicalParametersHistoryList");
+			} catch (Exception e) {
+				logger.debug(e);
+			}
+			// 业务处理
+			Object result = null;
+			if ("save".equals(action)) {
+				/* app批量修改工单 */
+				if (massChangeIds != null && !"".equals(massChangeIds)) {
+					try {
+						List<ServiceTaskEntity> changeAppServiceTaskList = new ArrayList<ServiceTaskEntity>();
+						Map<String, Object> queryServiceTaskMap = new HashMap<String, Object>();
+						queryServiceTaskMap.put("id_in", massChangeIds);
+						List<ServiceTaskEntity> appServiceTaskList = serviceTaskService.getListByCondition(queryServiceTaskMap);
+						if (appServiceTaskList != null && appServiceTaskList.size() > 0) {
+							for (ServiceTaskEntity appServiceTask : appServiceTaskList) {
+								// 取出原来的预计服务时间，截取年月日
+								String expectTime = appServiceTask.getServiceExpectTime();
+								if (expectTime != null && expectTime.length() > 8) {
+									expectTime = expectTime.substring(0, 8);
+								}
+								// 拼成新的预计服务时间
+								if (changeTime != null) {
+									String newTime = expectTime + changeTime;
+									appServiceTask.setServiceExpectTime(newTime);
+								}
+								// 改变状态
+								if (changeStatus != null) {
+									appServiceTask.setStatus(changeStatus);
+								}
+								changeAppServiceTaskList.add(appServiceTask);
+							}
+						}
+						serviceTaskService.saveList(changeAppServiceTaskList);
+						resultStr = "{\"action\":\"ADD_SERVICE_TASK_INFO_RESPONSE\",\"result\":\"100\",\"des\":\"success\"}";
+					} catch (Exception e) {
+						resultStr = "{\"action\":\"ADD_SERVICE_TASK_INFO_RESPONSE\",\"result\":\"200\",\"des\":\"failure\"}";
+					}
+					return resultStr;
+				}
+
+				/* 批量修改pei */
+				if (flag2) {
+					boolean flag3 = true;
+					Map<String, Object> Mapxiugai = new HashMap<String, Object>();
+					Mapxiugai.put("serviceExpectTime_ge", timeStart);
+					Mapxiugai.put("serviceExpectTime_le", timeEnd);
+					List<ServiceTaskEntity> ServiceTaskList = serviceTaskService.getListByCondition(Mapxiugai);
+					if (ServiceTaskList != null && ServiceTaskList.size() > 0) {
+						for (ServiceTaskEntity entity : ServiceTaskList) {
+							Integer status = entity.getStatus();
+							if (status == 3) {
+								entity.setStatus(statuschan);
+								boolean flag4 = serviceTaskService.save(entity);
+								if (!flag4) {
+									flag3 = false;
+								}
+								ServiceLogEntity serviceLog = new ServiceLogEntity();
+								ServiceLogEntity serviceLogTemp = serviceTask.getServiceLogList().get(0);
+								serviceLog.setServiceTaskId(entity.getId());
+								serviceLog.setCreateTime(serviceLogTemp.getCreateTime());
+								serviceLog.setCreatePerson(serviceLogTemp.getCreatePerson());
+								serviceLog.setLog(serviceLogTemp.getLog());
+								serviceLog.setType(serviceLogTemp.getType());
+								boolean flag5 = serviceLogService.save(serviceLog);
+								if (!flag5) {
+									flag3 = false;
+								}
+							}
+						}
+					}
+					if (flag3) {
+						resultStr = "{\"action\":\"ADD_SERVICE_TASK_INFO_RESPONSE\",\"result\":\"100\",\"des\":\"批量修改工单成功！\"}";
+					}
+					if (!flag3) {
+						resultStr = "{\"action\":\"ADD_SERVICE_TASK_INFO_RESPONSE\",\"result\":\"200\",\"des\":\"批量修改工单失败！\"}";
+					}
+					return resultStr;
+				}
+				if (flagdel) {
+					boolean flagpil = true;
+					Map<String, Object> Mapxiugai = new HashMap<String, Object>();
+					Mapxiugai.put("id_in", ids2del);
+					List<ServiceTaskEntity> serviceTaskListdel = serviceTaskService.getListByCondition(Mapxiugai);
+					if (serviceTaskListdel != null && serviceTaskListdel.size() > 0) {
+						Integer status = (Integer) conjson.get("status");
+						boolean flagcha = true;
+						for (ServiceTaskEntity entity : serviceTaskListdel) {
+							entity.setStatus(status);
+							flagcha = serviceTaskService.save(entity);
+							if (flagcha) {
+								ServiceLogEntity serviceLog = new ServiceLogEntity();
+								ServiceLogEntity serviceLogTemp = serviceTask.getServiceLogList().get(0);
+								serviceLog.setServiceTaskId(entity.getId());
+								serviceLog.setCreateTime(serviceLogTemp.getCreateTime());
+								serviceLog.setCreatePerson(serviceLogTemp.getCreatePerson());
+								serviceLog.setLog(serviceLogTemp.getLog());
+								serviceLog.setType(serviceLogTemp.getType());
+								flagpil = serviceLogService.save(serviceLog);
+							}
+						}
+					}
+					if (flagpil) {
+						resultStr = "{\"action\":\"ADD_SERVICE_TASK_INFO_RESPONSE\",\"result\":\"100\",\"des\":\"批量修改工单成功！\"}";
+					}
+					if (!flagpil) {
+						resultStr = "{\"action\":\"ADD_SERVICE_TASK_INFO_RESPONSE\",\"result\":\"200\",\"des\":\"批量修改工单失败！\"}";
+					}
+					return resultStr;
+				}
+
+				/* 新增时生成服务工单编号 */
+				if (serviceTask.getId() == null) {
+					String serviceCode = createNum();
+					serviceTask.setServiceCode(serviceCode);
+				}
+				/* 删除原来的照片 */
+				boolean delphoto = false;
+				if (serviceTask.getId() != null) {
+					if (serviceTask.getServiceTaskPhotoList() != null && serviceTask.getServiceTaskPhotoList().size() > 0) {
+						ServiceTaskPhotoEntity entity = serviceTask.getServiceTaskPhotoList().get(0);
+						if (entity.getId() != null && entity.getId().intValue() == -1) {
+							// 不操作
+							serviceTask.setServiceTaskPhotoList(null);
+						} else {
+							// 无值要删
+							delphoto = true;
+						}
+					}
+				}
+				if (delphoto) {
+					Map<String, Object> delMap = new HashMap<String, Object>();
+					delMap.put("serviceTaskId", serviceTask.getId());
+					serviceTaskPhotoService.delList(delMap, false);
+				}
+				//
+				if (serviceTask.getId() != null) {
+					if (serviceTask.getEdemaConditionList() != null && serviceTask.getEdemaConditionList().size() > 0) {
+						Map<String, Object> delMap = new HashMap<String, Object>();
+						delMap.put("serviceTaskId", serviceTask.getId());
+						edemaConditionService.delList(delMap, false);
+					}
+				}
+				// 删除原来的负责人
+				boolean delEmp = false;
+				if (serviceTask.getId() != null) {
+					if (serviceTask.getServiceEmployeeList() != null && serviceTask.getServiceEmployeeList().size() > 0) {
+						delEmp = true;
+					}
+				}
+				if (delEmp) {
+					Map<String, Object> delMap = new HashMap<String, Object>();
+					delMap.put("serviceTaskId", serviceTask.getId());
+					serviceEmployeeService.delList(delMap, false, false);
+				}
+				/* 修改timeChange%%pei */
+				if (timeChange != null) {
+					if (serviceTask.getId() != null) {
+						ServiceTaskEntity entity = serviceTaskService.getById(serviceTask.getId());
+						if (entity != null) {
+							String serviceExpectTime = entity.getServiceExpectTime();
+							if (serviceExpectTime == null || "".equals(serviceExpectTime)) {
+								serviceTask.setServiceExpectTime(timeChange);
+							} else {
+								serviceExpectTime = timeChange.substring(0, 8) + serviceExpectTime.substring(8, serviceExpectTime.length());
+								serviceTask.setServiceExpectTime(serviceExpectTime);
+							}
+						}
+					}
+				}
+				//
+
+				/* App新增phyhis列表 pei */
+				if (phyhisjson != null && phyhisjson.size() > 0) {
+					// 删除原来的关联表
+					String idstt = "";
+					Map<String, Object> queryMapSer = new HashMap<String, Object>();
+					queryMapSer.put("serviceTaskId", serviceTask.getId());
+					List<ServiceTaskPhysiologicalParametersHistoryEntity> entitytyList = serviceTaskPhysiologicalParametersHistoryService
+							.getListByCondition(queryMapSer);
+					if (entitytyList != null && entitytyList.size() > 0) {
+						for (ServiceTaskPhysiologicalParametersHistoryEntity entity : entitytyList) {
+							idstt = idstt + entity.getPhysiologicalParametersHistoryId() + ",";
+						}
+						if (!"".equals(idstt)) {
+							String idspp = "";
+							idstt = idstt.replaceAll(",,", ",");
+							idstt = idstt.substring(0, idstt.length() - 1);
+							Map<String, Object> queryMapPhy = new HashMap<String, Object>();
+							queryMapPhy.put("id_in", idstt);
+							// queryMapPhy.put("type", typephy);
+							List<PhysiologicalParametersHistoryEntity> phyHIstList = physiologicalParametersHistoryService.getListByCondition(queryMapPhy);
+							if (phyHIstList != null && phyHIstList.size() > 0) {
+								for (PhysiologicalParametersHistoryEntity entitygsd : phyHIstList) {
+									idspp = idspp + entitygsd.getId() + ",";
+								}
+								if (!"".equals(idspp)) {
+									idspp = idspp.replaceAll(",,", ",");
+									idspp = idspp.substring(0, idspp.length() - 1);
+									Map<String, Object> queryMapDel = new HashMap<String, Object>();
+									queryMapDel.put("physiologicalParametersHistoryId_in", idspp);
+									serviceTaskPhysiologicalParametersHistoryService.delList(queryMapDel, false, false);
+								}
+							}
+						}
+					}
+					for (int i = 0; i < phyhisjson.size(); i++) {
+						// 解析生理参数
+						JSONObject jsonphy = phyhisjson.getJSONObject(i);
+						Integer olderId = (Integer) jsonphy.get("olderId");
+						;
+						Integer typephy = (Integer) jsonphy.get("type");
+						;
+						Double value = null;
+						try {
+							value = JsonUtil.getJSONDouble(jsonphy, "value");
+						} catch (Exception e) {
+						}
+						String unit = (String) jsonphy.get("unit");
+						;
+						Integer status = null;
+						if (olderId != null && typephy != null && value != null) {
+							status = statusResult(olderId, typephy, value);
+						}
+						String measurePerson = (String) jsonphy.get("measurePerson");
+						;
+						String createTime = null;
+						try {
+							createTime = jsonphy.getString("createTime");
+						} catch (Exception e) {
+						}
+						Double value2 = null;
+						try {
+							value2 = JsonUtil.getJSONDouble(jsonphy, "value2");
+						} catch (Exception e) {
+						}
+						Integer status2 = null;
+						if (value2 != null && olderId != null) {
+							status2 = statusResult(olderId, 2, value2);
+						}
+
+						// 保存到历史数据表里面
+						PhysiologicalParametersHistoryEntity physiologicalParametersHistory = new PhysiologicalParametersHistoryEntity();
+						if (olderId != null) {
+							physiologicalParametersHistory.setOlderId(olderId);
+						}
+						if (typephy != null) {
+							physiologicalParametersHistory.setType(typephy);
+						}
+						if (value != null) {
+							physiologicalParametersHistory.setValue(BigDecimal.valueOf(value));
+						}
+						if (unit != null) {
+							physiologicalParametersHistory.setUnit(unit);
+						}
+						if (status != null) {
+							physiologicalParametersHistory.setStatus(status);
+						}
+						if (measurePerson != null) {
+							physiologicalParametersHistory.setMeasurePerson(measurePerson);
+						}
+						if (createTime != null) {
+							physiologicalParametersHistory.setCreateTime(createTime);
+						}
+						if (value2 != null) {
+							physiologicalParametersHistory.setValue2(BigDecimal.valueOf(value2));
+						}
+						if (status2 != null) {
+							physiologicalParametersHistory.setStatus2(status2);
+						}
+						boolean flag = false;
+						if (olderId != null) {
+							flag = physiologicalParametersHistoryService.save(physiologicalParametersHistory);
+						}
+						// 保存成功后，保存到关联表。并更新当前表
+						if (flag) {
+							// 保存关联表
+							ServiceTaskPhysiologicalParametersHistoryEntity entyti = new ServiceTaskPhysiologicalParametersHistoryEntity();
+							entyti.setPhysiologicalParametersHistoryId(physiologicalParametersHistory.getId());
+							entyti.setServiceTaskId(serviceTask.getId());
+							serviceTaskPhysiologicalParametersHistoryService.save(entyti);
+							// 更新当前表
+							Map<String, Object> queryMapDAdd = new HashMap<String, Object>();
+							queryMapDAdd.put("olderId", olderId);
+							queryMapDAdd.put("type", typephy);
+							List<PhysiologicalParametersCurrentEntity> phycurList = physiologicalParametersCurrentService.getListByCondition(queryMapDAdd);
+
+							if (phycurList != null && phycurList.size() > 0) {
+								PhysiologicalParametersCurrentEntity entity = phycurList.get(0);
+								String curTime = entity.getCreateTime();
+								String hisTime = physiologicalParametersHistory.getCreateTime();
+								if (curTime != null && hisTime != null) {
+									// 如果是新的数据就更新
+									if (timeCom(curTime, hisTime)) {
+										entity.setValue(physiologicalParametersHistory.getValue());
+										entity.setValue2(physiologicalParametersHistory.getValue2());
+										entity.setStatus(physiologicalParametersHistory.getStatus());
+										entity.setStatus2(physiologicalParametersHistory.getStatus2());
+										entity.setMeasurePerson(physiologicalParametersHistory.getMeasurePerson());
+										entity.setCreateTime(physiologicalParametersHistory.getCreateTime());
+										physiologicalParametersCurrentService.save(entity);
+									}
+								}
+							}
+							// 当前表没有的，就新建
+							else {
+								PhysiologicalParametersCurrentEntity curentityTemp = new PhysiologicalParametersCurrentEntity();
+								curentityTemp.setOlderId(olderId);
+								curentityTemp.setType(typephy);
+								curentityTemp.setValue(physiologicalParametersHistory.getValue());
+								curentityTemp.setStatus(physiologicalParametersHistory.getStatus());
+								curentityTemp.setUnit(unit);
+								curentityTemp.setCreateTime(physiologicalParametersHistory.getCreateTime());
+								curentityTemp.setMeasurePerson(measurePerson);
+								if (value2 != null) {
+									curentityTemp.setValue2(BigDecimal.valueOf(value2));
+								}
+								if (physiologicalParametersHistory.getStatus2() != null) {
+									curentityTemp.setStatus2(physiologicalParametersHistory.getStatus2());
+								}
+
+								if (typephy == 1 || typephy == 2) {
+									curentityTemp.setMaxValue(BigDecimal.valueOf(140));
+									curentityTemp.setMinValue(BigDecimal.valueOf(90));
+									curentityTemp.setMaxValue2(BigDecimal.valueOf(90));
+									curentityTemp.setMinValue2(BigDecimal.valueOf(60));
+									curentityTemp.setThresholdPerson(measurePerson);
+									curentityTemp.setThresholdPerson2(measurePerson);
+									curentityTemp.setThresholdTime(physiologicalParametersHistory.getCreateTime());
+									curentityTemp.setThresholdTime2(physiologicalParametersHistory.getCreateTime());
+								} else if (typephy == 3) {
+									curentityTemp.setMaxValue(BigDecimal.valueOf(6.1));
+									curentityTemp.setMinValue(BigDecimal.valueOf(4));
+									curentityTemp.setThresholdPerson(measurePerson);
+									curentityTemp.setThresholdTime(physiologicalParametersHistory.getCreateTime());
+								} else if (typephy == 4) {
+									curentityTemp.setMaxValue(BigDecimal.valueOf(7.8));
+									curentityTemp.setMinValue(BigDecimal.valueOf(4));
+									curentityTemp.setThresholdPerson(measurePerson);
+									curentityTemp.setThresholdTime(physiologicalParametersHistory.getCreateTime());
+								} else if (typephy == 5) {
+									curentityTemp.setMaxValue(BigDecimal.valueOf(100));
+									curentityTemp.setMinValue(BigDecimal.valueOf(60));
+									curentityTemp.setThresholdPerson(measurePerson);
+									curentityTemp.setThresholdTime(physiologicalParametersHistory.getCreateTime());
+								} else if (typephy == 6) {
+									curentityTemp.setMaxValue(BigDecimal.valueOf(37.4));
+									curentityTemp.setMinValue(BigDecimal.valueOf(36));
+									curentityTemp.setThresholdPerson(measurePerson);
+									curentityTemp.setThresholdTime(physiologicalParametersHistory.getCreateTime());
+								} else if (typephy == 7) {
+									curentityTemp.setMaxValue(BigDecimal.valueOf(80));
+									curentityTemp.setMinValue(BigDecimal.valueOf(67));
+									curentityTemp.setThresholdPerson(measurePerson);
+									curentityTemp.setThresholdTime(physiologicalParametersHistory.getCreateTime());
+								} else if (typephy == 8) {
+									curentityTemp.setMaxValue(BigDecimal.valueOf(100));
+									curentityTemp.setMinValue(BigDecimal.valueOf(95));
+									curentityTemp.setThresholdPerson(measurePerson);
+									curentityTemp.setThresholdTime(physiologicalParametersHistory.getCreateTime());
+								} else if (typephy == 9) {
+									curentityTemp.setMaxValue(BigDecimal.valueOf(1));
+									curentityTemp.setMinValue(BigDecimal.valueOf(-1));
+									curentityTemp.setThresholdPerson(measurePerson);
+									curentityTemp.setThresholdTime(physiologicalParametersHistory.getCreateTime());
+								}
+								//
+								result = physiologicalParametersCurrentService.save(curentityTemp);
+							}
+						}
+					}
+
+				}
+				// /////
+				// 保存服务时间 pei
+				if (serviceTask.getId() != null && serviceTask.getStatus() == 6) {
+					if (serviceTask.getServiceEndTime() != null) {
+						// 获取数据库的服务开始时间
+						ServiceTaskEntity serviceTask2 = serviceTaskService.getById(serviceTask.getId());
+						if (serviceTask2 != null && serviceTask2.getServiceStartTime() != null) {
+							String serviceTime = timeDis(serviceTask.getServiceEndTime(), serviceTask2.getServiceStartTime());
+							if (serviceTime != null) {
+								serviceTask.setServiceTimeCount(Integer.parseInt(serviceTime));
+							}
+						}
+					}
+				}
+				if (serviceTask.getId() != null) {
+					if (serviceTask.getSituationObservationList() != null) {
+						Map<String, Object> delMap = new HashMap<String, Object>();
+						delMap.put("serviceTaskId", serviceTask.getId());
+						situationObservationService.delList(delMap, false);
+					}
+				}
+				result = serviceTaskService.save(serviceTask);
+				// 保存成功后微信推送并判断扣款
+
+				// 增加负责人pei
+				if (result.equals(true)) {
+					Integer serviceTaskId = serviceTask.getId();
+					Map<String, Object> queryMapServiceEmp = new HashMap<String, Object>();
+					queryMapServiceEmp.put("serviceTaskId", serviceTaskId);
+					queryMapServiceEmp.put("type", 1);
+					List<ServiceEmployeeEntity> serviceEmployeeList = serviceEmployeeService.getListByCondition(queryMapServiceEmp);
+					if (serviceEmployeeList != null && serviceEmployeeList.size() > 0) {
+						ServiceEmployeeEntity entity = serviceEmployeeList.get(0);
+						Integer employeeId = entity.getEmployeeId();
+						serviceTask.setChargeEmployeeId(employeeId);
+						serviceTaskService.save(serviceTask);
+					}
+				}
+
+			} else if ("saveList".equals(action)) {
+				result = serviceTaskService.saveList(serviceTaskList);
+			} else if ("getById".equals(action)) {
+				result = serviceTaskService.getById(id, olderShow, addPersonWechatShow, siteShow, serviceAreaShow, serviceStreetShow, serviceTaskPhotoListShow,
+						edemaConditionListShow, situationObservationListShow, serviceLogListShow, dailyLifeAskListShow, serviceEmployeeListShow,
+						serviceListShow, physiologicalParametersHistoryListShow);
+			} else if ("getListByCondition".equals(action)) {
+
+				// 根据数据权限 增加查询条件
+				Map<String, Object> queryMapEmp = new HashMap<String, Object>();
+				queryMapEmp.put("type", 1);
+				String serviceIds = "";
+				/* 新增员工Id条件查询pei */
+				if (fzrId != null || fzrName_like != null) {
+					if (fzrId != null) {
+						queryMapEmp.put("employeeId", fzrId);
+					}
+					if (fzrName_like != null) {
+						queryMapEmp.put("name_like", fzrName_like);
+					}
+					List<ServiceEmployeeEntity> serviceEmpList = serviceEmployeeService.getListByCondition(queryMapEmp);
+					if (serviceEmpList != null && serviceEmpList.size() > 0) {
+						for (ServiceEmployeeEntity entity : serviceEmpList) {
+							serviceIds = serviceIds + entity.getServiceTaskId() + ",";
+						}
+						if (!"".equals(serviceIds)) {
+							serviceIds = serviceIds.replaceAll(",,", ",");
+							serviceIds = serviceIds.substring(0, serviceIds.length() - 1);
+
+						} else {
+							serviceIds = "0";
+						}
+					} else {
+						serviceIds = "0";
+					}
+					queryMap.put("id_in", serviceIds);
+				}
+
+				// ///////
+				queryMap = systemService.addDataRuleByRoles("ServiceTaskEntity", queryMap, request);
+
+				// gufeng 微信工单列表 增加chargeEmployeeId_in操作
+				Object source = queryMap.get("source");
+				if (source != null && String.valueOf(source) != null && "微信".equals(String.valueOf(source))) {
+					List<Map<String, Object>> dataRuleMapList = (List<Map<String, Object>>) queryMap.get("dataRuleMapList");
+					if (dataRuleMapList != null && dataRuleMapList.size() > 0) {
+						for (Map<String, Object> dataRuleMap : dataRuleMapList) {
+							Object chargeEmployeeId_in_obj = dataRuleMap.get("chargeEmployeeId_in");
+							if (chargeEmployeeId_in_obj != null && String.valueOf(chargeEmployeeId_in_obj) != null
+									&& !"".equals(String.valueOf(chargeEmployeeId_in_obj))) {
+								String value = "0," + String.valueOf(chargeEmployeeId_in_obj);
+								dataRuleMap.put("chargeEmployeeId_in", value);
+							}
+							Object chargeEmployeeId_obj = dataRuleMap.get("chargeEmployeeId");
+							if (chargeEmployeeId_obj != null && String.valueOf(chargeEmployeeId_obj) != null
+									&& !"".equals(String.valueOf(chargeEmployeeId_obj))) {
+								String value = "0," + String.valueOf(chargeEmployeeId_obj);
+								dataRuleMap.put("chargeEmployeeId_in", value);
+							}
+						}
+					}
+
+				}
+				// gufeng end
+				result = serviceTaskService.getListByCondition(queryMap, orderList, pageno, pagesize, olderShow, addPersonWechatShow, siteShow,
+						serviceAreaShow, serviceStreetShow, serviceTaskPhotoListShow, edemaConditionListShow, situationObservationListShow, serviceLogListShow,
+						dailyLifeAskListShow, serviceEmployeeListShow, serviceListShow, physiologicalParametersHistoryListShow);
+			} else if ("del".equals(action)) {
+				result = serviceTaskService.del(id, delOlder, delAddPersonWechat, delSite, delServiceArea, delServiceStreet, delServiceTaskPhotoList,
+						delEdemaConditionList, delSituationObservationList, delServiceLogList, delDailyLifeAskList, delServiceEmployeeList,
+						delServiceTaskServiceList, delServiceTaskPhysiologicalParametersHistoryList);
+			} else if ("delList".equals(action)) {
+				result = serviceTaskService.delList(queryMap, delOlder, delAddPersonWechat, delSite, delServiceArea, delServiceStreet, delServiceTaskPhotoList,
+						delEdemaConditionList, delSituationObservationList, delServiceLogList, delDailyLifeAskList, delServiceEmployeeList,
+						delServiceTaskServiceList, delServiceTaskPhysiologicalParametersHistoryList);
+			}
+			// 封装
+			Map<String, Object> packMap = serviceTaskPack.pack(type, action, result, serviceTask);
+			String actionBack = (String) packMap.get("action");
+			String resultBack = (String) packMap.get("result");
+			String desBack = (String) packMap.get("des");
+			JSONObject pageBack = (JSONObject) packMap.get("page");
+			JSONObject contentBack = (JSONObject) packMap.get("content");
+
+			JSONObject repJson = new JSONObject();
+			if (actionBack != null && !"".equals(actionBack)) {
+				repJson.put("action", actionBack);
+			}
+			if (resultBack != null && !"".equals(resultBack)) {
+				repJson.put("result", resultBack);
+			}
+			if (desBack != null && !"".equals(desBack)) {
+				repJson.put("des", desBack);
+			}
+			if (pageBack != null) {
+				repJson.put("page", pageBack);
+			}
+			if (contentBack != null && !"".equals(contentBack)) {
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息：" + repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+
+	/* 生成服务工单编号 */
+	public String createNum() {
+		String numTemp = "FW" + formater2.format(new Date());
+		String num = "";
+		Map<String, Object> mapVlue = new HashMap<String, Object>();
+
+		Map<String, Object> queryMapService = new HashMap<String, Object>();
+		queryMapService.put("serviceCode_like", numTemp);
+		List<ServiceTaskEntity> serviceTasklist = serviceTaskService.getListByCondition(queryMapService);
+		if (serviceTasklist != null && serviceTasklist.size() > 0) {
+			for (ServiceTaskEntity entiry : serviceTasklist) {
+				String code = entiry.getServiceCode();
+				code = code.substring(10, 14);
+				mapVlue.put(code, "yes");
+			}
+		}
+		for (int i = 1; i < 9999; i++) {
+			if (i < 10) {
+				num = "000" + String.valueOf(i);
+			} else if (i >= 10 && i < 100) {
+				num = "00" + String.valueOf(i);
+			} else if (i >= 100 && i < 1000) {
+				num = "0" + String.valueOf(i);
+			} else {
+				num = String.valueOf(i);
+			}
+			if (mapVlue.get(num) == null) {
+				numTemp = numTemp + num;
+				break;
+			}
+		}
+		return numTemp;
+	}
+
+	//
+
+	public static String timeDis(String time1, String time2) {
+		SimpleDateFormat dfs = new SimpleDateFormat("yyyyMMddHHmmss");
+		Date begin = null;
+		Date end = null;
+		try {
+			begin = dfs.parse(time1);
+			end = dfs.parse(time2);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		long between = (begin.getTime() - end.getTime()) / 1000;// 除以1000是为了转换成秒
+		long minute = between / 60;
+		if (between % 60 != 0) {
+			minute = minute + 1;
+		}
+		String minutestr = String.valueOf(minute);
+		return minutestr;
+	}
+
+	// 比较时间前后，小于返回true
+	public static Boolean timeCom(String time1, String time2) {
+		Boolean result = false;
+		SimpleDateFormat dfs = new SimpleDateFormat("yyyyMMddHHmmss");
+		Date begin = null;
+		Date end = null;
+		try {
+			begin = dfs.parse(time1);
+			end = dfs.parse(time2);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		long between = (begin.getTime() - end.getTime());// 除以1000是为了转换成秒
+		if (between < 0) {
+			result = true;
+		}
+		return result;
+	}
+
+	// 根据生理参数值判断状态
+	public static int statusResult(int olderId, int type, Double value) {
+		// 阈值-最高值（默认阈值：收缩压（90-140）、舒张压（60-90）、空腹血糖（4-6.1）、
+		// 餐后血糖（4-7.8）、脉搏（60-100）、体温（36-37.4）、呼吸（67-80）)
+		int result = 1;
+		if (type == 1) {
+			Map<String, Object> queryMapCur = new HashMap<String, Object>();
+			queryMapCur.put("olderId", queryMapCur);
+			queryMapCur.put("type", queryMapCur);
+			List<PhysiologicalParametersCurrentEntity> curList = physiologicalParametersCurrentService.getListByCondition(queryMapCur);
+			if (curList != null && curList.size() > 0) {
+				PhysiologicalParametersCurrentEntity enyity = curList.get(0);
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == -1) {
+					result = 3;
+				}
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == 1) {
+					result = 2;
+				}
+			} else {
+				if (value < 90.0) {
+					result = 3;
+				} else if (value > 140.0) {
+					result = 2;
+				}
+			}
+		} else if (type == 2) {
+			Map<String, Object> queryMapCur = new HashMap<String, Object>();
+			queryMapCur.put("olderId", queryMapCur);
+			queryMapCur.put("type", 1);
+			List<PhysiologicalParametersCurrentEntity> curList = physiologicalParametersCurrentService.getListByCondition(queryMapCur);
+			if (curList != null && curList.size() > 0) {
+				PhysiologicalParametersCurrentEntity enyity = curList.get(0);
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue2()) == -1) {
+					result = 3;
+				}
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue2()) == 1) {
+					result = 2;
+				}
+			} else {
+				if (value < 60.0) {
+					result = 3;
+				} else if (value > 90.0) {
+					result = 2;
+				}
+			}
+
+		} else if (type == 3) {
+			Map<String, Object> queryMapCur = new HashMap<String, Object>();
+			queryMapCur.put("olderId", queryMapCur);
+			queryMapCur.put("type", queryMapCur);
+			List<PhysiologicalParametersCurrentEntity> curList = physiologicalParametersCurrentService.getListByCondition(queryMapCur);
+			if (curList != null && curList.size() > 0) {
+				PhysiologicalParametersCurrentEntity enyity = curList.get(0);
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == -1) {
+					result = 3;
+				}
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == 1) {
+					result = 2;
+				}
+			} else {
+				if (value < 4.0) {
+					result = 3;
+				} else if (value > 6.1) {
+					result = 2;
+				}
+			}
+
+		} else if (type == 4) {
+			Map<String, Object> queryMapCur = new HashMap<String, Object>();
+			queryMapCur.put("olderId", queryMapCur);
+			queryMapCur.put("type", queryMapCur);
+			List<PhysiologicalParametersCurrentEntity> curList = physiologicalParametersCurrentService.getListByCondition(queryMapCur);
+			if (curList != null && curList.size() > 0) {
+				PhysiologicalParametersCurrentEntity enyity = curList.get(0);
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == -1) {
+					result = 3;
+				}
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == 1) {
+					result = 2;
+				}
+			} else {
+				if (value < 4.0) {
+					result = 3;
+				} else if (value > 7.8) {
+					result = 2;
+				}
+			}
+
+		} else if (type == 5) {
+			Map<String, Object> queryMapCur = new HashMap<String, Object>();
+			queryMapCur.put("olderId", queryMapCur);
+			queryMapCur.put("type", queryMapCur);
+			List<PhysiologicalParametersCurrentEntity> curList = physiologicalParametersCurrentService.getListByCondition(queryMapCur);
+			if (curList != null && curList.size() > 0) {
+				PhysiologicalParametersCurrentEntity enyity = curList.get(0);
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == -1) {
+					result = 3;
+				}
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == 1) {
+					result = 2;
+				}
+			} else {
+				if (value < 60) {
+					result = 3;
+				} else if (value > 100) {
+					result = 2;
+				}
+			}
+
+		} else if (type == 6) {
+			Map<String, Object> queryMapCur = new HashMap<String, Object>();
+			queryMapCur.put("olderId", queryMapCur);
+			queryMapCur.put("type", queryMapCur);
+			List<PhysiologicalParametersCurrentEntity> curList = physiologicalParametersCurrentService.getListByCondition(queryMapCur);
+			if (curList != null && curList.size() > 0) {
+				PhysiologicalParametersCurrentEntity enyity = curList.get(0);
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == -1) {
+					result = 3;
+				}
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == 1) {
+					result = 2;
+				}
+			} else {
+				if (value < 36.0) {
+					result = 3;
+				} else if (value > 37.4) {
+					result = 2;
+				}
+			}
+
+		} else if (type == 7) {
+			Map<String, Object> queryMapCur = new HashMap<String, Object>();
+			queryMapCur.put("olderId", queryMapCur);
+			queryMapCur.put("type", queryMapCur);
+			List<PhysiologicalParametersCurrentEntity> curList = physiologicalParametersCurrentService.getListByCondition(queryMapCur);
+			if (curList != null && curList.size() > 0) {
+				PhysiologicalParametersCurrentEntity enyity = curList.get(0);
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == -1) {
+					result = 3;
+				}
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == 1) {
+					result = 2;
+				}
+			} else {
+				if (value < 67.0) {
+					result = 3;
+				} else if (value > 80.0) {
+					result = 2;
+				}
+			}
+
+		} else if (type == 8) {
+			Map<String, Object> queryMapCur = new HashMap<String, Object>();
+			queryMapCur.put("olderId", queryMapCur);
+			queryMapCur.put("type", queryMapCur);
+			List<PhysiologicalParametersCurrentEntity> curList = physiologicalParametersCurrentService.getListByCondition(queryMapCur);
+			if (curList != null && curList.size() > 0) {
+				PhysiologicalParametersCurrentEntity enyity = curList.get(0);
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == -1) {
+					result = 3;
+				}
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == 1) {
+					result = 2;
+				}
+			} else {
+				if (value < 95.0) {
+					result = 3;
+				} else if (value > 100.0) {
+					result = 2;
+				}
+			}
+
+		} else if (type == 9) {
+			Map<String, Object> queryMapCur = new HashMap<String, Object>();
+			queryMapCur.put("olderId", queryMapCur);
+			queryMapCur.put("type", queryMapCur);
+			List<PhysiologicalParametersCurrentEntity> curList = physiologicalParametersCurrentService.getListByCondition(queryMapCur);
+			if (curList != null && curList.size() > 0) {
+				PhysiologicalParametersCurrentEntity enyity = curList.get(0);
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == -1) {
+					result = 3;
+				}
+				if (BigDecimal.valueOf(value).compareTo(enyity.getMinValue()) == 1) {
+					result = 2;
+				}
+			} else {
+				if (value < -1) {
+					result = 3;
+				} else if (value > 1.0) {
+					result = 2;
+				}
+			}
+
+		}
+
+		return result;
+	}
+}

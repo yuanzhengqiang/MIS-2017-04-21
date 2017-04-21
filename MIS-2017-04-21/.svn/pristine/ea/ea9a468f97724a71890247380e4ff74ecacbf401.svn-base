@@ -1,0 +1,630 @@
+package fsk.service.serviceChild;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+
+
+import fsk.entity.service.ServiceEntity;
+
+import fsk.entity.serviceChild.ServiceChildEntity;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+
+
+/**   
+ * @Title: Service
+ * @Description: 服务子项服务类
+ * @author feng.gu
+ * @date 2016-07-25 14:30:38
+ * @version V1.0   
+ *
+ */
+public class ServiceChildService {
+	   private static Logger logger = Logger.getLogger(ServiceChildService.class);
+	   private DBManager dbManager = DBManager.getInstance();
+    		
+	   private static ServiceChildService serviceChildService;
+	   /**
+	    * 获取实例	
+	    * @return
+	    */
+	   public static ServiceChildService getInstance(){
+		if(serviceChildService==null){
+			serviceChildService = new ServiceChildService();
+		}
+		return serviceChildService;
+	   }
+	                 	                 				     				     				     				     
+				     	 
+	   /**
+		 * 保存记录
+		 * 
+		 * @param obj
+		 */
+		public boolean save(ServiceChildEntity serviceChild) {			
+			boolean result =false;
+			if(serviceChild!=null){
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					 tx.beginTransaction();					 					 
+					 					 				     				     					     //关联信息保存
+					     ServiceEntity service = serviceChild.getService();
+						 if(service!=null){						   
+							 dbManager.saveNoTransaction(service);
+							 serviceChild.setServiceId(service.getId());
+						 }						 
+				     				     				     					 					 result=dbManager.saveNoTransaction(serviceChild);	
+					 tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {				    
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  			
+			}	
+			return result;
+		}
+		
+		/**
+		 * 批量保存记录
+		 * 
+		 * @param list
+		 */
+		public boolean saveList(List<ServiceChildEntity> serviceChildList) {
+			boolean result = false;
+			if (serviceChildList != null && serviceChildList.size() > 0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 
+					for(ServiceChildEntity serviceChild:serviceChildList){
+						if(serviceChild!=null){												  								 
+								 									 					                 								     								         //关联信息保存
+									     ServiceEntity service = serviceChild.getService();
+										 if(service!=null){						   
+											 dbManager.saveNoTransaction(service);
+											 serviceChild.setServiceId(service.getId());
+										 }									 
+								     								     								     								 								 result=dbManager.saveNoTransaction(serviceChild);								 			
+						}	
+					}
+				    tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+				/**
+		 * 根据id读取记录
+		 * 
+		 * @param id
+		 *            主键
+		 * @param obj
+		 */
+		public ServiceChildEntity getById(Integer id) {
+			ServiceChildEntity obj = null;
+			if (id != null) {
+				obj = (ServiceChildEntity) dbManager.getById(id, ServiceChildEntity.class);			
+			}
+			return obj;
+		}
+				
+		
+		/**
+		 * 根据id读取记录
+		 * @param id 主键
+		 		             	                 				     		 * @param serviceShow 是否查询关联信息
+				     				     				     		 		 * @param obj
+		 */
+		public ServiceChildEntity getById(Integer id,Boolean serviceShow) {
+			ServiceChildEntity obj = null;
+			if (id!=null) {
+				obj = (ServiceChildEntity)dbManager.getById(id, ServiceChildEntity.class);
+									 	                 				     				        //查询关联内容
+						if(serviceShow!=null&&serviceShow.booleanValue()&&obj!=null&&obj.getServiceId()!=null&&obj.getServiceId()>0){
+							ServiceEntity service = (ServiceEntity)dbManager.getById(obj.getServiceId(), ServiceEntity.class);
+							obj.setService(service);        	  	  
+						}
+				     				     				     				   			}
+			return obj;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合		
+		 * @return
+		 */
+		public List<ServiceChildEntity> getListByCondition(Map<String,Object> queryMap) {
+		    List<ServiceChildEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+																					Object serviceId=queryMap.get("serviceId");
+					Object serviceId_gt=queryMap.get("serviceId_gt");
+					Object serviceId_ge=queryMap.get("serviceId_ge");
+					Object serviceId_lt=queryMap.get("serviceId_lt");
+					Object serviceId_le=queryMap.get("serviceId_le");
+					Object serviceId_in=queryMap.get("serviceId_in");
+							
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(ServiceChildEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.in, name_in));}
+				  																if(serviceId!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.eq, serviceId));}
+					if(serviceId_gt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.gt, serviceId_gt));}
+					if(serviceId_ge!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.ge, serviceId_ge));}
+					if(serviceId_lt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.lt, serviceId_lt));}
+					if(serviceId_le!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.le, serviceId_le));}
+					if(serviceId_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.in, serviceId_in));}
+										
+						  			            list = dbManager.queryByCondition(ServiceChildEntity.class,qc);    
+            if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<ServiceChildEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((ServiceChildEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		
+		/**
+		 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 		             	                 				     		 * @param serviceShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		 * @return
+		 */
+		public List<ServiceChildEntity> getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,Boolean serviceShow) {
+			List<ServiceChildEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+																					Object serviceId=queryMap.get("serviceId");
+					Object serviceId_gt=queryMap.get("serviceId_gt");
+					Object serviceId_ge=queryMap.get("serviceId_ge");
+					Object serviceId_lt=queryMap.get("serviceId_lt");
+					Object serviceId_le=queryMap.get("serviceId_le");
+					Object serviceId_in=queryMap.get("serviceId_in");
+							
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(ServiceChildEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.in, name_in));}
+				  																if(serviceId!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.eq, serviceId));}
+					if(serviceId_gt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.gt, serviceId_gt));}
+					if(serviceId_ge!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.ge, serviceId_ge));}
+					if(serviceId_lt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.lt, serviceId_lt));}
+					if(serviceId_le!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.le, serviceId_le));}
+					if(serviceId_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.in, serviceId_in));}
+										
+						  						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}			
+            list = dbManager.queryByConditions(ServiceChildEntity.class,qc,oc);
+                                    int a=0;
+            					             	                 				     				     if(serviceShow!=null&&serviceShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		                if(a>0&&list!=null&&list.size()>0){
+				List<Object> result = new ArrayList<Object>();
+				for(int i=0;i<list.size();i++){
+					ServiceChildEntity obj = (ServiceChildEntity)list.get(i);
+										 	                 				     				        //查询关联内容
+						if(serviceShow!=null&&serviceShow.booleanValue()&&obj!=null&&obj.getServiceId()!=null&&obj.getServiceId()>0){
+							ServiceEntity service = (ServiceEntity)dbManager.getById(obj.getServiceId(), ServiceEntity.class);
+							obj.setService(service);        	  	  
+						}
+				     				     				     				    					result.add(obj);					
+				}
+				list=result;			
+		}	
+					if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<ServiceChildEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((ServiceChildEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数		
+		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,int pageno,int pagesize) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+															  					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+				   																Object serviceId=queryMap.get("serviceId");
+					Object serviceId_gt=queryMap.get("serviceId_gt");
+					Object serviceId_ge=queryMap.get("serviceId_ge");
+					Object serviceId_lt=queryMap.get("serviceId_lt");
+					Object serviceId_le=queryMap.get("serviceId_le");
+					Object serviceId_in=queryMap.get("serviceId_in");
+							
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(ServiceChildEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.in, name_in));}
+				  																if(serviceId!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.eq, serviceId));}
+					if(serviceId_gt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.gt, serviceId_gt));}
+					if(serviceId_ge!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.ge, serviceId_ge));}
+					if(serviceId_lt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.lt, serviceId_lt));}
+					if(serviceId_le!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.le, serviceId_le));}
+					if(serviceId_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.in, serviceId_in));}
+										
+						  			            pagelist = dbManager.queryByCondition(ServiceChildEntity.class,qc,pageno,pagesize);	                      			
+			return pagelist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数
+		 		             	                 				     		 * @param serviceShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,int pageno,int pagesize,Boolean serviceShow) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+															  					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+				   																Object serviceId=queryMap.get("serviceId");
+					Object serviceId_gt=queryMap.get("serviceId_gt");
+					Object serviceId_ge=queryMap.get("serviceId_ge");
+					Object serviceId_lt=queryMap.get("serviceId_lt");
+					Object serviceId_le=queryMap.get("serviceId_le");
+					Object serviceId_in=queryMap.get("serviceId_in");
+							
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(ServiceChildEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.in, name_in));}
+				  																if(serviceId!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.eq, serviceId));}
+					if(serviceId_gt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.gt, serviceId_gt));}
+					if(serviceId_ge!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.ge, serviceId_ge));}
+					if(serviceId_lt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.lt, serviceId_lt));}
+					if(serviceId_le!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.le, serviceId_le));}
+					if(serviceId_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.in, serviceId_in));}
+										
+						  						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}		
+            pagelist = dbManager.queryByConditions(ServiceChildEntity.class,qc,oc,pageno,pagesize);	           
+                                    int a=0;
+            					             	                 				     				     if(serviceShow!=null&&serviceShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		                if(a>0&&pagelist!=null&&pagelist.getResultList()!=null&&pagelist.getResultList().size()>0){
+				List<Object> result = new ArrayList<Object>();
+				for(int i=0;i<pagelist.getResultList().size();i++){
+					ServiceChildEntity obj = (ServiceChildEntity)pagelist.getResultList().get(i);
+										 	                 				     				        //查询关联内容
+						if(serviceShow!=null&&serviceShow.booleanValue()&&obj!=null&&obj.getServiceId()!=null&&obj.getServiceId()>0){
+							ServiceEntity service = (ServiceEntity)dbManager.getById(obj.getServiceId(), ServiceEntity.class);
+							obj.setService(service);        	  	  
+						}
+				     				     				     				    					result.add(obj);					
+				}
+				pagelist.setResultList(result);			
+		}	
+					return pagelist;
+		}
+		
+		/**
+		 * 删除记录
+		 * 
+		 * @param id 主键
+		 * @param obj
+		 */
+		public boolean del(Integer id,Boolean delService) {
+			boolean result = false;
+			if (id !=null&&id>0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 					
+										 	                 				     					    //删除关联信息
+						if(delService!=null&&delService.booleanValue()){	
+							ServiceChildEntity serviceChild = (ServiceChildEntity)dbManager.getById(id, ServiceChildEntity.class);
+							if(serviceChild!=null&&serviceChild.getServiceId()!=null){
+								dbManager.delNoTransaction(serviceChild.getServiceId(), ServiceEntity.class);
+							}						
+						}
+				     				     				     										result = dbManager.delNoTransaction(id, ServiceChildEntity.class);
+					tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		/**
+		 * 批量删除记录
+		 * 
+		 * @param ids
+		 *            主键 英文逗号间隔
+		 * @param obj
+		 */
+		public boolean del(String ids) {
+			boolean result = false;
+			if (ids != null && !"".equals(ids.trim())) {
+				TransactionManager tx = DbUtils.getTranManager();
+				try {
+					tx.beginTransaction();
+					QueryCondition qc = new QueryCondition(ServiceChildEntity.ID,QueryCondition.in, ids);
+					result = dbManager.delByConditionsNoTransaction(ServiceChildEntity.class, qc);
+					tx.commitAndClose();
+				} catch (Exception e) {
+					logger.error("数据库提交失败！");
+					logger.error(e);
+					result = false;
+					try {
+						tx.rollbackAndClose();
+					} catch (Exception ex) {
+						logger.error("数据库回滚失败！");
+						logger.error(ex);
+					}
+				}
+			}
+			return result;
+		}
+
+		/**
+		 * 批量条件删除记录
+		 * @param queryMap 查询条件集合
+		 */
+		public boolean delList(Map<String,Object> queryMap,Boolean delService) {
+			boolean result = false;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+															  					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+				  																Object serviceId=queryMap.get("serviceId");
+					Object serviceId_gt=queryMap.get("serviceId_gt");
+					Object serviceId_ge=queryMap.get("serviceId_ge");
+					Object serviceId_lt=queryMap.get("serviceId_lt");
+					Object serviceId_le=queryMap.get("serviceId_le");
+					Object serviceId_in=queryMap.get("serviceId_in");
+																				
+			QueryCondition qc = new QueryCondition(ServiceChildEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.NAME, QueryCondition.in, name_in));}
+				  																if(serviceId!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.eq, serviceId));}
+					if(serviceId_gt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.gt, serviceId_gt));}
+					if(serviceId_ge!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.ge, serviceId_ge));}
+					if(serviceId_lt!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.lt, serviceId_lt));}
+					if(serviceId_le!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.le, serviceId_le));}
+					if(serviceId_in!=null){qc.andCondition(new QueryCondition(ServiceChildEntity.SERVICE_ID, QueryCondition.in, serviceId_in));}
+										
+				            						if (qc.getQueryNextCondition()!=null) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 						
+										 	                 				     					     //删除关联信息
+						if(delService!=null&&delService.booleanValue()){
+							List<Object> list=dbManager.queryByConditionNoTransaction(ServiceChildEntity.class,qc);
+							String strIds="";
+							if(list!=null&&list.size()>0){
+								for(Object obj:list){
+									ServiceChildEntity entity=(ServiceChildEntity)obj;
+									strIds += entity.getServiceId()+",";
+								}
+								strIds = strIds.substring(0, strIds.length()-1);
+							}
+							if(strIds!=null&&!"".equals(strIds)){
+								QueryCondition qc1 = new QueryCondition(ServiceEntity.ID, QueryCondition.in, strIds);
+								dbManager.delByConditionsNoTransaction(ServiceEntity.class, qc1);
+							}
+							
+						}
+				     				     				     										result = dbManager.delByConditionsNoTransaction(ServiceChildEntity.class,qc);				
+					tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		
+}

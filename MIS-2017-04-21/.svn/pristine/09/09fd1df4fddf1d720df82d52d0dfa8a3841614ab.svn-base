@@ -1,0 +1,98 @@
+package fsk.thread;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
+import fsk.entity.older.OlderEntity;
+import fsk.service.older.OlderService;
+
+public class ReadMemberStatusThread extends Thread {
+	private static Logger logger = Logger.getLogger(ReadMemberStatusThread.class);
+	private static SimpleDateFormat formater = new SimpleDateFormat("yyyyMMddHHmmss");
+	private static OlderService olderService = OlderService.getInstance();
+
+	public void run() {
+		// 休眠180秒，减小系统重启时的cpu开支
+		try {
+			Thread.sleep(3 * 60 * 1000);
+		} catch (InterruptedException e1) {
+			logger.debug(e1);
+		}
+		logger.debug("定时更新老人评估状态线程开启");
+		while (true) {
+			try {
+				logger.debug("更新老人评估状态");
+				Map<String, Object> queryMap = new HashMap<String, Object>();
+				List<OlderEntity> olderList = olderService.getListByCondition(queryMap);
+				if (olderList != null && olderList.size() > 0) {
+					for (int i = 0; i < olderList.size(); i++) {
+						OlderEntity olderEntityinfo = (OlderEntity) olderList.get(i);
+						Integer cycle = olderEntityinfo.getAssessmentCycle();
+						String curTime = formater.format(new Date());
+						String lastAssessmentTime = olderEntityinfo.getLastAssessmentDate();
+						if (lastAssessmentTime != null && cycle != null) {
+							lastAssessmentTime = reformDate(lastAssessmentTime);
+							int monthSpace = getMonthSpace(curTime, lastAssessmentTime);
+							// 0-正常,1-停用,2-待评估
+							int menberStatus = olderEntityinfo.getMemberStatus();
+							if (menberStatus != 1) {
+								if (monthSpace <= cycle && menberStatus == 2) {
+									olderEntityinfo.setMemberStatus(0);
+									//olderService.save(olderEntityinfo);
+								}
+								if (monthSpace >= cycle && menberStatus == 0) {
+									olderEntityinfo.setMemberStatus(2);
+									//olderService.save(olderEntityinfo);
+								}
+							}
+						}
+					}
+				}
+				// 每小时执行一次
+				Thread.sleep(60 * 60 * 1000);
+			} catch (Exception e) {
+				logger.debug(e);
+			}
+
+		}
+	}
+
+	// 计算上次评估时间距今的时间差
+	public static int getMonthSpace(String date1, String date2) {
+		int year = 0;
+		int month = 0;
+		int day = 0;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+		Calendar c1 = Calendar.getInstance();
+		Calendar c2 = Calendar.getInstance();
+		try {
+			c1.setTime(sdf.parse(date1));
+			c2.setTime(sdf.parse(date2));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		year = c2.get(Calendar.YEAR) - c1.get(Calendar.YEAR);
+		year = Math.abs(year);
+		day = c2.get(Calendar.DAY_OF_YEAR) - c1.get(Calendar.DAY_OF_YEAR);
+		day = Math.abs(day);
+		day = day + year * 365;
+		month = day / 30;
+		return month;
+	}
+
+	public static String reformDate(String date) {
+		int length = 14 - date.length();
+		if (date.length() < 14) {
+			for (int i = 0; i < length; i++)
+				date = date + "0";
+		}
+		return date;
+	}
+}

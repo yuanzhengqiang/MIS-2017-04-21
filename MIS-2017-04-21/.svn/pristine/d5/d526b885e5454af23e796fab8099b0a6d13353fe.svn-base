@@ -1,0 +1,830 @@
+package fsk.service.medicalHistory;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+
+
+import fsk.entity.caseRecord.CaseRecordEntity;
+
+import fsk.entity.medicalHistory.MedicalHistoryEntity;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+
+
+/**   
+ * @Title: Service
+ * @Description: 既往病史服务类
+ * @author feng.gu
+ * @date 2016-07-19 11:09:36
+ * @version V1.0   
+ *
+ */
+public class MedicalHistoryService {
+	   private static Logger logger = Logger.getLogger(MedicalHistoryService.class);
+	   private DBManager dbManager = DBManager.getInstance();
+    		
+	   private static MedicalHistoryService medicalHistoryService;
+	   /**
+	    * 获取实例	
+	    * @return
+	    */
+	   public static MedicalHistoryService getInstance(){
+		if(medicalHistoryService==null){
+			medicalHistoryService = new MedicalHistoryService();
+		}
+		return medicalHistoryService;
+	   }
+	                 	                 				     				     				     				     
+				     	 
+	   /**
+		 * 保存记录
+		 * 
+		 * @param obj
+		 */
+		public boolean save(MedicalHistoryEntity medicalHistory) {			
+			boolean result =false;
+			if(medicalHistory!=null){
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					 tx.beginTransaction();					 					 
+					 					 				     				     					     //关联信息保存
+					     CaseRecordEntity caseRecord = medicalHistory.getCaseRecord();
+						 if(caseRecord!=null){						   
+							 dbManager.saveNoTransaction(caseRecord);
+							 medicalHistory.setCaseRecordId(caseRecord.getId());
+						 }						 
+				     				     				     					 					 result=dbManager.saveNoTransaction(medicalHistory);	
+					 tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {				    
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  			
+			}	
+			return result;
+		}
+		
+		/**
+		 * 批量保存记录
+		 * 
+		 * @param list
+		 */
+		public boolean saveList(List<MedicalHistoryEntity> medicalHistoryList) {
+			boolean result = false;
+			if (medicalHistoryList != null && medicalHistoryList.size() > 0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 
+					for(MedicalHistoryEntity medicalHistory:medicalHistoryList){
+						if(medicalHistory!=null){												  								 
+								 									 					                 								     								         //关联信息保存
+									     CaseRecordEntity caseRecord = medicalHistory.getCaseRecord();
+										 if(caseRecord!=null){						   
+											 dbManager.saveNoTransaction(caseRecord);
+											 medicalHistory.setCaseRecordId(caseRecord.getId());
+										 }									 
+								     								     								     								 								 result=dbManager.saveNoTransaction(medicalHistory);								 			
+						}	
+					}
+				    tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+				/**
+		 * 根据id读取记录
+		 * 
+		 * @param id
+		 *            主键
+		 * @param obj
+		 */
+		public MedicalHistoryEntity getById(Integer id) {
+			MedicalHistoryEntity obj = null;
+			if (id != null) {
+				obj = (MedicalHistoryEntity) dbManager.getById(id, MedicalHistoryEntity.class);			
+			}
+			return obj;
+		}
+				
+		
+		/**
+		 * 根据id读取记录
+		 * @param id 主键
+		 		             	                 				     		 * @param caseRecordShow 是否查询关联信息
+				     				     				     		 		 * @param obj
+		 */
+		public MedicalHistoryEntity getById(Integer id,Boolean caseRecordShow) {
+			MedicalHistoryEntity obj = null;
+			if (id!=null) {
+				obj = (MedicalHistoryEntity)dbManager.getById(id, MedicalHistoryEntity.class);
+									 	                 				     				        //查询关联内容
+						if(caseRecordShow!=null&&caseRecordShow.booleanValue()&&obj!=null&&obj.getCaseRecordId()!=null&&obj.getCaseRecordId()>0){
+							CaseRecordEntity caseRecord = (CaseRecordEntity)dbManager.getById(obj.getCaseRecordId(), CaseRecordEntity.class);
+							obj.setCaseRecord(caseRecord);        	  	  
+						}
+				     				     				     				   			}
+			return obj;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合		
+		 * @return
+		 */
+		public List<MedicalHistoryEntity> getListByCondition(Map<String,Object> queryMap) {
+		    List<MedicalHistoryEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object caseRecordId=queryMap.get("caseRecordId");
+					Object caseRecordId_gt=queryMap.get("caseRecordId_gt");
+					Object caseRecordId_ge=queryMap.get("caseRecordId_ge");
+					Object caseRecordId_lt=queryMap.get("caseRecordId_lt");
+					Object caseRecordId_le=queryMap.get("caseRecordId_le");
+					Object caseRecordId_in=queryMap.get("caseRecordId_in");
+																					Object disease=queryMap.get("disease");
+					Object disease_like=queryMap.get("disease_like");
+					Object disease_isNull=queryMap.get("disease_isNull");
+					Object disease_isNotNull=queryMap.get("disease_isNotNull");
+					Object disease_in=queryMap.get("disease_in");
+																										Object diseaseCourse=queryMap.get("diseaseCourse");
+					Object diseaseCourse_like=queryMap.get("diseaseCourse_like");
+					Object diseaseCourse_isNull=queryMap.get("diseaseCourse_isNull");
+					Object diseaseCourse_isNotNull=queryMap.get("diseaseCourse_isNotNull");
+					Object diseaseCourse_in=queryMap.get("diseaseCourse_in");
+																										Object mainTreatment=queryMap.get("mainTreatment");
+					Object mainTreatment_like=queryMap.get("mainTreatment_like");
+					Object mainTreatment_isNull=queryMap.get("mainTreatment_isNull");
+					Object mainTreatment_isNotNull=queryMap.get("mainTreatment_isNotNull");
+					Object mainTreatment_in=queryMap.get("mainTreatment_in");
+																										Object diseaseControl=queryMap.get("diseaseControl");
+					Object diseaseControl_like=queryMap.get("diseaseControl_like");
+					Object diseaseControl_isNull=queryMap.get("diseaseControl_isNull");
+					Object diseaseControl_isNotNull=queryMap.get("diseaseControl_isNotNull");
+					Object diseaseControl_in=queryMap.get("diseaseControl_in");
+																										Object other=queryMap.get("other");
+					Object other_like=queryMap.get("other_like");
+					Object other_isNull=queryMap.get("other_isNull");
+					Object other_isNotNull=queryMap.get("other_isNotNull");
+					Object other_in=queryMap.get("other_in");
+												
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.in, id_in));}
+																if(caseRecordId!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.eq, caseRecordId));}
+					if(caseRecordId_gt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.gt, caseRecordId_gt));}
+					if(caseRecordId_ge!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.ge, caseRecordId_ge));}
+					if(caseRecordId_lt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.lt, caseRecordId_lt));}
+					if(caseRecordId_le!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.le, caseRecordId_le));}
+					if(caseRecordId_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.in, caseRecordId_in));}
+															  					if(disease!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.eq, disease));}
+		            if(disease_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.like, disease_like));}
+		            if(disease_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.isNull, disease_isNull));}
+		            if(disease_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.isNotNull, disease_isNotNull));}
+				    if(disease_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.in, disease_in));}
+				  															  					if(diseaseCourse!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.eq, diseaseCourse));}
+		            if(diseaseCourse_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.like, diseaseCourse_like));}
+		            if(diseaseCourse_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.isNull, diseaseCourse_isNull));}
+		            if(diseaseCourse_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.isNotNull, diseaseCourse_isNotNull));}
+				    if(diseaseCourse_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.in, diseaseCourse_in));}
+				  															  					if(mainTreatment!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.eq, mainTreatment));}
+		            if(mainTreatment_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.like, mainTreatment_like));}
+		            if(mainTreatment_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.isNull, mainTreatment_isNull));}
+		            if(mainTreatment_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.isNotNull, mainTreatment_isNotNull));}
+				    if(mainTreatment_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.in, mainTreatment_in));}
+				  															  					if(diseaseControl!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.eq, diseaseControl));}
+		            if(diseaseControl_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.like, diseaseControl_like));}
+		            if(diseaseControl_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.isNull, diseaseControl_isNull));}
+		            if(diseaseControl_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.isNotNull, diseaseControl_isNotNull));}
+				    if(diseaseControl_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.in, diseaseControl_in));}
+				  															  					if(other!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.eq, other));}
+		            if(other_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.like, other_like));}
+		            if(other_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.isNull, other_isNull));}
+		            if(other_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.isNotNull, other_isNotNull));}
+				    if(other_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.in, other_in));}
+				  										
+						  			            list = dbManager.queryByCondition(MedicalHistoryEntity.class,qc);    
+            if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<MedicalHistoryEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((MedicalHistoryEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		
+		/**
+		 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 		             	                 				     		 * @param caseRecordShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		 * @return
+		 */
+		public List<MedicalHistoryEntity> getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,Boolean caseRecordShow) {
+			List<MedicalHistoryEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object caseRecordId=queryMap.get("caseRecordId");
+					Object caseRecordId_gt=queryMap.get("caseRecordId_gt");
+					Object caseRecordId_ge=queryMap.get("caseRecordId_ge");
+					Object caseRecordId_lt=queryMap.get("caseRecordId_lt");
+					Object caseRecordId_le=queryMap.get("caseRecordId_le");
+					Object caseRecordId_in=queryMap.get("caseRecordId_in");
+																					Object disease=queryMap.get("disease");
+					Object disease_like=queryMap.get("disease_like");
+					Object disease_isNull=queryMap.get("disease_isNull");
+					Object disease_isNotNull=queryMap.get("disease_isNotNull");
+					Object disease_in=queryMap.get("disease_in");
+																										Object diseaseCourse=queryMap.get("diseaseCourse");
+					Object diseaseCourse_like=queryMap.get("diseaseCourse_like");
+					Object diseaseCourse_isNull=queryMap.get("diseaseCourse_isNull");
+					Object diseaseCourse_isNotNull=queryMap.get("diseaseCourse_isNotNull");
+					Object diseaseCourse_in=queryMap.get("diseaseCourse_in");
+																										Object mainTreatment=queryMap.get("mainTreatment");
+					Object mainTreatment_like=queryMap.get("mainTreatment_like");
+					Object mainTreatment_isNull=queryMap.get("mainTreatment_isNull");
+					Object mainTreatment_isNotNull=queryMap.get("mainTreatment_isNotNull");
+					Object mainTreatment_in=queryMap.get("mainTreatment_in");
+																										Object diseaseControl=queryMap.get("diseaseControl");
+					Object diseaseControl_like=queryMap.get("diseaseControl_like");
+					Object diseaseControl_isNull=queryMap.get("diseaseControl_isNull");
+					Object diseaseControl_isNotNull=queryMap.get("diseaseControl_isNotNull");
+					Object diseaseControl_in=queryMap.get("diseaseControl_in");
+																										Object other=queryMap.get("other");
+					Object other_like=queryMap.get("other_like");
+					Object other_isNull=queryMap.get("other_isNull");
+					Object other_isNotNull=queryMap.get("other_isNotNull");
+					Object other_in=queryMap.get("other_in");
+												
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.in, id_in));}
+																if(caseRecordId!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.eq, caseRecordId));}
+					if(caseRecordId_gt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.gt, caseRecordId_gt));}
+					if(caseRecordId_ge!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.ge, caseRecordId_ge));}
+					if(caseRecordId_lt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.lt, caseRecordId_lt));}
+					if(caseRecordId_le!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.le, caseRecordId_le));}
+					if(caseRecordId_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.in, caseRecordId_in));}
+															  					if(disease!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.eq, disease));}
+		            if(disease_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.like, disease_like));}
+		            if(disease_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.isNull, disease_isNull));}
+		            if(disease_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.isNotNull, disease_isNotNull));}
+				    if(disease_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.in, disease_in));}
+				  															  					if(diseaseCourse!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.eq, diseaseCourse));}
+		            if(diseaseCourse_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.like, diseaseCourse_like));}
+		            if(diseaseCourse_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.isNull, diseaseCourse_isNull));}
+		            if(diseaseCourse_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.isNotNull, diseaseCourse_isNotNull));}
+				    if(diseaseCourse_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.in, diseaseCourse_in));}
+				  															  					if(mainTreatment!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.eq, mainTreatment));}
+		            if(mainTreatment_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.like, mainTreatment_like));}
+		            if(mainTreatment_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.isNull, mainTreatment_isNull));}
+		            if(mainTreatment_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.isNotNull, mainTreatment_isNotNull));}
+				    if(mainTreatment_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.in, mainTreatment_in));}
+				  															  					if(diseaseControl!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.eq, diseaseControl));}
+		            if(diseaseControl_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.like, diseaseControl_like));}
+		            if(diseaseControl_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.isNull, diseaseControl_isNull));}
+		            if(diseaseControl_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.isNotNull, diseaseControl_isNotNull));}
+				    if(diseaseControl_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.in, diseaseControl_in));}
+				  															  					if(other!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.eq, other));}
+		            if(other_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.like, other_like));}
+		            if(other_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.isNull, other_isNull));}
+		            if(other_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.isNotNull, other_isNotNull));}
+				    if(other_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.in, other_in));}
+				  										
+						  						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}			
+            list = dbManager.queryByConditions(MedicalHistoryEntity.class,qc,oc);
+                                    int a=0;
+            					             	                 				     				     if(caseRecordShow!=null&&caseRecordShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		                if(a>0&&list!=null&&list.size()>0){
+				List<Object> result = new ArrayList<Object>();
+				for(int i=0;i<list.size();i++){
+					MedicalHistoryEntity obj = (MedicalHistoryEntity)list.get(i);
+										 	                 				     				        //查询关联内容
+						if(caseRecordShow!=null&&caseRecordShow.booleanValue()&&obj!=null&&obj.getCaseRecordId()!=null&&obj.getCaseRecordId()>0){
+							CaseRecordEntity caseRecord = (CaseRecordEntity)dbManager.getById(obj.getCaseRecordId(), CaseRecordEntity.class);
+							obj.setCaseRecord(caseRecord);        	  	  
+						}
+				     				     				     				    					result.add(obj);					
+				}
+				list=result;			
+		}	
+					if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<MedicalHistoryEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((MedicalHistoryEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数		
+		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,int pageno,int pagesize) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object caseRecordId=queryMap.get("caseRecordId");
+					Object caseRecordId_gt=queryMap.get("caseRecordId_gt");
+					Object caseRecordId_ge=queryMap.get("caseRecordId_ge");
+					Object caseRecordId_lt=queryMap.get("caseRecordId_lt");
+					Object caseRecordId_le=queryMap.get("caseRecordId_le");
+					Object caseRecordId_in=queryMap.get("caseRecordId_in");
+															  					Object disease=queryMap.get("disease");
+					Object disease_like=queryMap.get("disease_like");
+					Object disease_isNull=queryMap.get("disease_isNull");
+					Object disease_isNotNull=queryMap.get("disease_isNotNull");
+					Object disease_in=queryMap.get("disease_in");
+				   															  					Object diseaseCourse=queryMap.get("diseaseCourse");
+					Object diseaseCourse_like=queryMap.get("diseaseCourse_like");
+					Object diseaseCourse_isNull=queryMap.get("diseaseCourse_isNull");
+					Object diseaseCourse_isNotNull=queryMap.get("diseaseCourse_isNotNull");
+					Object diseaseCourse_in=queryMap.get("diseaseCourse_in");
+				   															  					Object mainTreatment=queryMap.get("mainTreatment");
+					Object mainTreatment_like=queryMap.get("mainTreatment_like");
+					Object mainTreatment_isNull=queryMap.get("mainTreatment_isNull");
+					Object mainTreatment_isNotNull=queryMap.get("mainTreatment_isNotNull");
+					Object mainTreatment_in=queryMap.get("mainTreatment_in");
+				   															  					Object diseaseControl=queryMap.get("diseaseControl");
+					Object diseaseControl_like=queryMap.get("diseaseControl_like");
+					Object diseaseControl_isNull=queryMap.get("diseaseControl_isNull");
+					Object diseaseControl_isNotNull=queryMap.get("diseaseControl_isNotNull");
+					Object diseaseControl_in=queryMap.get("diseaseControl_in");
+				   															  					Object other=queryMap.get("other");
+					Object other_like=queryMap.get("other_like");
+					Object other_isNull=queryMap.get("other_isNull");
+					Object other_isNotNull=queryMap.get("other_isNotNull");
+					Object other_in=queryMap.get("other_in");
+				   							
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.in, id_in));}
+																if(caseRecordId!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.eq, caseRecordId));}
+					if(caseRecordId_gt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.gt, caseRecordId_gt));}
+					if(caseRecordId_ge!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.ge, caseRecordId_ge));}
+					if(caseRecordId_lt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.lt, caseRecordId_lt));}
+					if(caseRecordId_le!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.le, caseRecordId_le));}
+					if(caseRecordId_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.in, caseRecordId_in));}
+															  					if(disease!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.eq, disease));}
+		            if(disease_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.like, disease_like));}
+		            if(disease_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.isNull, disease_isNull));}
+		            if(disease_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.isNotNull, disease_isNotNull));}
+				    if(disease_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.in, disease_in));}
+				  															  					if(diseaseCourse!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.eq, diseaseCourse));}
+		            if(diseaseCourse_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.like, diseaseCourse_like));}
+		            if(diseaseCourse_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.isNull, diseaseCourse_isNull));}
+		            if(diseaseCourse_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.isNotNull, diseaseCourse_isNotNull));}
+				    if(diseaseCourse_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.in, diseaseCourse_in));}
+				  															  					if(mainTreatment!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.eq, mainTreatment));}
+		            if(mainTreatment_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.like, mainTreatment_like));}
+		            if(mainTreatment_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.isNull, mainTreatment_isNull));}
+		            if(mainTreatment_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.isNotNull, mainTreatment_isNotNull));}
+				    if(mainTreatment_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.in, mainTreatment_in));}
+				  															  					if(diseaseControl!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.eq, diseaseControl));}
+		            if(diseaseControl_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.like, diseaseControl_like));}
+		            if(diseaseControl_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.isNull, diseaseControl_isNull));}
+		            if(diseaseControl_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.isNotNull, diseaseControl_isNotNull));}
+				    if(diseaseControl_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.in, diseaseControl_in));}
+				  															  					if(other!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.eq, other));}
+		            if(other_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.like, other_like));}
+		            if(other_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.isNull, other_isNull));}
+		            if(other_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.isNotNull, other_isNotNull));}
+				    if(other_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.in, other_in));}
+				  										
+						  			            pagelist = dbManager.queryByCondition(MedicalHistoryEntity.class,qc,pageno,pagesize);	                      			
+			return pagelist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数
+		 		             	                 				     		 * @param caseRecordShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,int pageno,int pagesize,Boolean caseRecordShow) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object caseRecordId=queryMap.get("caseRecordId");
+					Object caseRecordId_gt=queryMap.get("caseRecordId_gt");
+					Object caseRecordId_ge=queryMap.get("caseRecordId_ge");
+					Object caseRecordId_lt=queryMap.get("caseRecordId_lt");
+					Object caseRecordId_le=queryMap.get("caseRecordId_le");
+					Object caseRecordId_in=queryMap.get("caseRecordId_in");
+															  					Object disease=queryMap.get("disease");
+					Object disease_like=queryMap.get("disease_like");
+					Object disease_isNull=queryMap.get("disease_isNull");
+					Object disease_isNotNull=queryMap.get("disease_isNotNull");
+					Object disease_in=queryMap.get("disease_in");
+				   															  					Object diseaseCourse=queryMap.get("diseaseCourse");
+					Object diseaseCourse_like=queryMap.get("diseaseCourse_like");
+					Object diseaseCourse_isNull=queryMap.get("diseaseCourse_isNull");
+					Object diseaseCourse_isNotNull=queryMap.get("diseaseCourse_isNotNull");
+					Object diseaseCourse_in=queryMap.get("diseaseCourse_in");
+				   															  					Object mainTreatment=queryMap.get("mainTreatment");
+					Object mainTreatment_like=queryMap.get("mainTreatment_like");
+					Object mainTreatment_isNull=queryMap.get("mainTreatment_isNull");
+					Object mainTreatment_isNotNull=queryMap.get("mainTreatment_isNotNull");
+					Object mainTreatment_in=queryMap.get("mainTreatment_in");
+				   															  					Object diseaseControl=queryMap.get("diseaseControl");
+					Object diseaseControl_like=queryMap.get("diseaseControl_like");
+					Object diseaseControl_isNull=queryMap.get("diseaseControl_isNull");
+					Object diseaseControl_isNotNull=queryMap.get("diseaseControl_isNotNull");
+					Object diseaseControl_in=queryMap.get("diseaseControl_in");
+				   															  					Object other=queryMap.get("other");
+					Object other_like=queryMap.get("other_like");
+					Object other_isNull=queryMap.get("other_isNull");
+					Object other_isNotNull=queryMap.get("other_isNotNull");
+					Object other_in=queryMap.get("other_in");
+				   							
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.in, id_in));}
+																if(caseRecordId!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.eq, caseRecordId));}
+					if(caseRecordId_gt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.gt, caseRecordId_gt));}
+					if(caseRecordId_ge!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.ge, caseRecordId_ge));}
+					if(caseRecordId_lt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.lt, caseRecordId_lt));}
+					if(caseRecordId_le!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.le, caseRecordId_le));}
+					if(caseRecordId_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.in, caseRecordId_in));}
+															  					if(disease!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.eq, disease));}
+		            if(disease_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.like, disease_like));}
+		            if(disease_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.isNull, disease_isNull));}
+		            if(disease_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.isNotNull, disease_isNotNull));}
+				    if(disease_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.in, disease_in));}
+				  															  					if(diseaseCourse!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.eq, diseaseCourse));}
+		            if(diseaseCourse_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.like, diseaseCourse_like));}
+		            if(diseaseCourse_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.isNull, diseaseCourse_isNull));}
+		            if(diseaseCourse_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.isNotNull, diseaseCourse_isNotNull));}
+				    if(diseaseCourse_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.in, diseaseCourse_in));}
+				  															  					if(mainTreatment!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.eq, mainTreatment));}
+		            if(mainTreatment_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.like, mainTreatment_like));}
+		            if(mainTreatment_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.isNull, mainTreatment_isNull));}
+		            if(mainTreatment_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.isNotNull, mainTreatment_isNotNull));}
+				    if(mainTreatment_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.in, mainTreatment_in));}
+				  															  					if(diseaseControl!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.eq, diseaseControl));}
+		            if(diseaseControl_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.like, diseaseControl_like));}
+		            if(diseaseControl_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.isNull, diseaseControl_isNull));}
+		            if(diseaseControl_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.isNotNull, diseaseControl_isNotNull));}
+				    if(diseaseControl_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.in, diseaseControl_in));}
+				  															  					if(other!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.eq, other));}
+		            if(other_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.like, other_like));}
+		            if(other_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.isNull, other_isNull));}
+		            if(other_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.isNotNull, other_isNotNull));}
+				    if(other_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.in, other_in));}
+				  										
+						  						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}		
+            pagelist = dbManager.queryByConditions(MedicalHistoryEntity.class,qc,oc,pageno,pagesize);	           
+                                    int a=0;
+            					             	                 				     				     if(caseRecordShow!=null&&caseRecordShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		                if(a>0&&pagelist!=null&&pagelist.getResultList()!=null&&pagelist.getResultList().size()>0){
+				List<Object> result = new ArrayList<Object>();
+				for(int i=0;i<pagelist.getResultList().size();i++){
+					MedicalHistoryEntity obj = (MedicalHistoryEntity)pagelist.getResultList().get(i);
+										 	                 				     				        //查询关联内容
+						if(caseRecordShow!=null&&caseRecordShow.booleanValue()&&obj!=null&&obj.getCaseRecordId()!=null&&obj.getCaseRecordId()>0){
+							CaseRecordEntity caseRecord = (CaseRecordEntity)dbManager.getById(obj.getCaseRecordId(), CaseRecordEntity.class);
+							obj.setCaseRecord(caseRecord);        	  	  
+						}
+				     				     				     				    					result.add(obj);					
+				}
+				pagelist.setResultList(result);			
+		}	
+					return pagelist;
+		}
+		
+		/**
+		 * 删除记录
+		 * 
+		 * @param id 主键
+		 * @param obj
+		 */
+		public boolean del(Integer id,Boolean delCaseRecord) {
+			boolean result = false;
+			if (id !=null&&id>0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 					
+										 	                 				     					    //删除关联信息
+						if(delCaseRecord!=null&&delCaseRecord.booleanValue()){	
+							MedicalHistoryEntity medicalHistory = (MedicalHistoryEntity)dbManager.getById(id, MedicalHistoryEntity.class);
+							if(medicalHistory!=null&&medicalHistory.getCaseRecordId()!=null){
+								dbManager.delNoTransaction(medicalHistory.getCaseRecordId(), CaseRecordEntity.class);
+							}						
+						}
+				     				     				     										result = dbManager.delNoTransaction(id, MedicalHistoryEntity.class);
+					tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		/**
+		 * 批量删除记录
+		 * 
+		 * @param ids
+		 *            主键 英文逗号间隔
+		 * @param obj
+		 */
+		public boolean del(String ids) {
+			boolean result = false;
+			if (ids != null && !"".equals(ids.trim())) {
+				TransactionManager tx = DbUtils.getTranManager();
+				try {
+					tx.beginTransaction();
+					QueryCondition qc = new QueryCondition(MedicalHistoryEntity.ID,QueryCondition.in, ids);
+					result = dbManager.delByConditionsNoTransaction(MedicalHistoryEntity.class, qc);
+					tx.commitAndClose();
+				} catch (Exception e) {
+					logger.error("数据库提交失败！");
+					logger.error(e);
+					result = false;
+					try {
+						tx.rollbackAndClose();
+					} catch (Exception ex) {
+						logger.error("数据库回滚失败！");
+						logger.error(ex);
+					}
+				}
+			}
+			return result;
+		}
+
+		/**
+		 * 批量条件删除记录
+		 * @param queryMap 查询条件集合
+		 */
+		public boolean delList(Map<String,Object> queryMap,Boolean delCaseRecord) {
+			boolean result = false;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object caseRecordId=queryMap.get("caseRecordId");
+					Object caseRecordId_gt=queryMap.get("caseRecordId_gt");
+					Object caseRecordId_ge=queryMap.get("caseRecordId_ge");
+					Object caseRecordId_lt=queryMap.get("caseRecordId_lt");
+					Object caseRecordId_le=queryMap.get("caseRecordId_le");
+					Object caseRecordId_in=queryMap.get("caseRecordId_in");
+															  					Object disease=queryMap.get("disease");
+					Object disease_like=queryMap.get("disease_like");
+					Object disease_isNull=queryMap.get("disease_isNull");
+					Object disease_isNotNull=queryMap.get("disease_isNotNull");
+					Object disease_in=queryMap.get("disease_in");
+				  															  					Object diseaseCourse=queryMap.get("diseaseCourse");
+					Object diseaseCourse_like=queryMap.get("diseaseCourse_like");
+					Object diseaseCourse_isNull=queryMap.get("diseaseCourse_isNull");
+					Object diseaseCourse_isNotNull=queryMap.get("diseaseCourse_isNotNull");
+					Object diseaseCourse_in=queryMap.get("diseaseCourse_in");
+				  															  					Object mainTreatment=queryMap.get("mainTreatment");
+					Object mainTreatment_like=queryMap.get("mainTreatment_like");
+					Object mainTreatment_isNull=queryMap.get("mainTreatment_isNull");
+					Object mainTreatment_isNotNull=queryMap.get("mainTreatment_isNotNull");
+					Object mainTreatment_in=queryMap.get("mainTreatment_in");
+				  															  					Object diseaseControl=queryMap.get("diseaseControl");
+					Object diseaseControl_like=queryMap.get("diseaseControl_like");
+					Object diseaseControl_isNull=queryMap.get("diseaseControl_isNull");
+					Object diseaseControl_isNotNull=queryMap.get("diseaseControl_isNotNull");
+					Object diseaseControl_in=queryMap.get("diseaseControl_in");
+				  															  					Object other=queryMap.get("other");
+					Object other_like=queryMap.get("other_like");
+					Object other_isNull=queryMap.get("other_isNull");
+					Object other_isNotNull=queryMap.get("other_isNotNull");
+					Object other_in=queryMap.get("other_in");
+				  																				
+			QueryCondition qc = new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.ID, QueryCondition.in, id_in));}
+																if(caseRecordId!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.eq, caseRecordId));}
+					if(caseRecordId_gt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.gt, caseRecordId_gt));}
+					if(caseRecordId_ge!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.ge, caseRecordId_ge));}
+					if(caseRecordId_lt!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.lt, caseRecordId_lt));}
+					if(caseRecordId_le!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.le, caseRecordId_le));}
+					if(caseRecordId_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.CASE_RECORD_ID, QueryCondition.in, caseRecordId_in));}
+															  					if(disease!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.eq, disease));}
+		            if(disease_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.like, disease_like));}
+		            if(disease_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.isNull, disease_isNull));}
+		            if(disease_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.isNotNull, disease_isNotNull));}
+				    if(disease_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE, QueryCondition.in, disease_in));}
+				  															  					if(diseaseCourse!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.eq, diseaseCourse));}
+		            if(diseaseCourse_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.like, diseaseCourse_like));}
+		            if(diseaseCourse_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.isNull, diseaseCourse_isNull));}
+		            if(diseaseCourse_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.isNotNull, diseaseCourse_isNotNull));}
+				    if(diseaseCourse_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_COURSE, QueryCondition.in, diseaseCourse_in));}
+				  															  					if(mainTreatment!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.eq, mainTreatment));}
+		            if(mainTreatment_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.like, mainTreatment_like));}
+		            if(mainTreatment_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.isNull, mainTreatment_isNull));}
+		            if(mainTreatment_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.isNotNull, mainTreatment_isNotNull));}
+				    if(mainTreatment_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.MAIN_TREATMENT, QueryCondition.in, mainTreatment_in));}
+				  															  					if(diseaseControl!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.eq, diseaseControl));}
+		            if(diseaseControl_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.like, diseaseControl_like));}
+		            if(diseaseControl_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.isNull, diseaseControl_isNull));}
+		            if(diseaseControl_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.isNotNull, diseaseControl_isNotNull));}
+				    if(diseaseControl_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.DISEASE_CONTROL, QueryCondition.in, diseaseControl_in));}
+				  															  					if(other!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.eq, other));}
+		            if(other_like!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.like, other_like));}
+		            if(other_isNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.isNull, other_isNull));}
+		            if(other_isNotNull!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.isNotNull, other_isNotNull));}
+				    if(other_in!=null){qc.andCondition(new QueryCondition(MedicalHistoryEntity.OTHER, QueryCondition.in, other_in));}
+				  										
+				            						if (qc.getQueryNextCondition()!=null) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 						
+										 	                 				     					     //删除关联信息
+						if(delCaseRecord!=null&&delCaseRecord.booleanValue()){
+							List<Object> list=dbManager.queryByConditionNoTransaction(MedicalHistoryEntity.class,qc);
+							String strIds="";
+							if(list!=null&&list.size()>0){
+								for(Object obj:list){
+									MedicalHistoryEntity entity=(MedicalHistoryEntity)obj;
+									strIds += entity.getCaseRecordId()+",";
+								}
+								strIds = strIds.substring(0, strIds.length()-1);
+							}
+							if(strIds!=null&&!"".equals(strIds)){
+								QueryCondition qc1 = new QueryCondition(CaseRecordEntity.ID, QueryCondition.in, strIds);
+								dbManager.delByConditionsNoTransaction(CaseRecordEntity.class, qc1);
+							}
+							
+						}
+				     				     				     										result = dbManager.delByConditionsNoTransaction(MedicalHistoryEntity.class,qc);				
+					tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		
+}

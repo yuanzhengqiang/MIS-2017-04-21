@@ -1,0 +1,946 @@
+package fsk.service.nursingPlan;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.employeeDistribution.EmployeeDistributionEntity;
+import fsk.entity.nursingPlan.NursingPlanEntity;
+import fsk.entity.nursingPlanService.NursingPlanServiceEntity;
+import fsk.entity.older.OlderEntity;
+
+/**
+ * @Title: Service
+ * @Description: 护理计划服务类
+ * @author feng.gu
+ * @date 2016-12-28 14:27:43
+ * @version V1.0
+ * 
+ */
+public class NursingPlanService {
+	private static Logger logger = Logger.getLogger(NursingPlanService.class);
+	private DBManager dbManager = DBManager.getInstance();
+
+	private static NursingPlanService nursingPlanService;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static NursingPlanService getInstance() {
+		if (nursingPlanService == null) {
+			nursingPlanService = new NursingPlanService();
+		}
+		return nursingPlanService;
+	}
+
+	/**
+	 * 保存记录
+	 * 
+	 * @param obj
+	 */
+	public boolean save(NursingPlanEntity nursingPlan) {
+		boolean result = false;
+		if (nursingPlan != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 关联信息保存
+				OlderEntity older = nursingPlan.getOlder();
+				if (older != null) {
+					dbManager.saveNoTransaction(older);
+					nursingPlan.setOlderId(older.getId());
+				}
+				// 关联信息保存
+				EmployeeEntity addEmployee = nursingPlan.getAddEmployee();
+				if (addEmployee != null) {
+					dbManager.saveNoTransaction(addEmployee);
+					nursingPlan.setAddEmployeeId(addEmployee.getId());
+				}
+				if (nursingPlan.getNursingPlanServiceList() != null && nursingPlan.getNursingPlanServiceList().size() > 0) {
+					dbManager.saveNoTransaction(nursingPlan);
+					for (NursingPlanServiceEntity nursingPlanServiceEntity : nursingPlan.getNursingPlanServiceList()) {
+						nursingPlanServiceEntity.setNursingPlanId(nursingPlan.getId());
+						dbManager.saveNoTransaction(nursingPlanServiceEntity);
+						// 保存employeeDistributionList
+						if (nursingPlanServiceEntity.getEmployeeDistributionList() != null && nursingPlanServiceEntity.getEmployeeDistributionList().size() > 0) {
+							for (EmployeeDistributionEntity entity : nursingPlanServiceEntity.getEmployeeDistributionList()) {
+								entity.setNursingPlanServiceId(nursingPlanServiceEntity.getId());
+								dbManager.saveNoTransaction(entity);
+							}
+						}
+					}
+				}
+				result = dbManager.saveNoTransaction(nursingPlan);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量保存记录
+	 * 
+	 * @param list
+	 */
+	public boolean saveList(List<NursingPlanEntity> nursingPlanList) {
+		boolean result = false;
+		if (nursingPlanList != null && nursingPlanList.size() > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				for (NursingPlanEntity nursingPlan : nursingPlanList) {
+					if (nursingPlan != null) {
+						// 关联信息保存
+						OlderEntity older = nursingPlan.getOlder();
+						if (older != null) {
+							dbManager.saveNoTransaction(older);
+							nursingPlan.setOlderId(older.getId());
+						}
+						// 关联信息保存
+						EmployeeEntity addEmployee = nursingPlan.getAddEmployee();
+						if (addEmployee != null) {
+							dbManager.saveNoTransaction(addEmployee);
+							nursingPlan.setAddEmployeeId(addEmployee.getId());
+						}
+						// 关联信息保存
+						if (nursingPlan.getNursingPlanServiceList() != null && nursingPlan.getNursingPlanServiceList().size() > 0) {
+							if (nursingPlan.getId() == null) {
+								dbManager.saveNoTransaction(nursingPlan);
+							}
+							for (NursingPlanServiceEntity nursingPlanServiceEntity : nursingPlan.getNursingPlanServiceList()) {
+								nursingPlanServiceEntity.setNursingPlanId(nursingPlan.getId());
+								dbManager.saveNoTransaction(nursingPlanServiceEntity);
+							}
+						}
+						result = dbManager.saveNoTransaction(nursingPlan);
+					}
+				}
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public NursingPlanEntity getById(Integer id) {
+		NursingPlanEntity obj = null;
+		if (id != null) {
+			obj = (NursingPlanEntity) dbManager.getById(id, NursingPlanEntity.class);
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param olderShow
+	 *            是否查询关联信息
+	 * @param addEmployeeShow
+	 *            是否查询关联信息
+	 * @param nursingPlanServiceListShow
+	 *            是否查询关联信息
+	 * @param obj
+	 */
+	public NursingPlanEntity getById(Integer id, Boolean olderShow, Boolean addEmployeeShow, Boolean nursingPlanServiceListShow) {
+		NursingPlanEntity obj = null;
+		if (id != null) {
+			obj = (NursingPlanEntity) dbManager.getById(id, NursingPlanEntity.class);
+			// 查询关联内容
+			if (olderShow != null && olderShow.booleanValue() && obj != null && obj.getOlderId() != null && obj.getOlderId() > 0) {
+				OlderEntity older = (OlderEntity) dbManager.getById(obj.getOlderId(), OlderEntity.class);
+				obj.setOlder(older);
+			}
+			// 查询关联内容
+			if (addEmployeeShow != null && addEmployeeShow.booleanValue() && obj != null && obj.getAddEmployeeId() != null && obj.getAddEmployeeId() > 0) {
+				EmployeeEntity addEmployee = (EmployeeEntity) dbManager.getById(obj.getAddEmployeeId(), EmployeeEntity.class);
+				obj.setAddEmployee(addEmployee);
+			}
+			// 查询关联内容
+			if (nursingPlanServiceListShow != null && nursingPlanServiceListShow.booleanValue() && obj != null && obj.getId() != null && obj.getId() > 0) {
+				List<Object> list = dbManager.searchListByColumn(NursingPlanServiceEntity.class, NursingPlanServiceEntity.NURSING_PLAN_ID, String.valueOf(id));
+				if (list != null && list.size() > 0) {
+					List<NursingPlanServiceEntity> nursingPlanServiceList = new ArrayList<NursingPlanServiceEntity>();
+					for (Object o : list) {
+						nursingPlanServiceList.add((NursingPlanServiceEntity) o);
+					}
+					obj.setNursingPlanServiceList(nursingPlanServiceList);
+				}
+			}
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @return
+	 */
+	public List<NursingPlanEntity> getListByCondition(Map<String, Object> queryMap) {
+		List<NursingPlanEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		list = dbManager.queryByCondition(NursingPlanEntity.class, qc);
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<NursingPlanEntity>();
+			for (Object obj : list) {
+				returnlist.add((NursingPlanEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param olderShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param addEmployeeShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param nursingPlanServiceListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public List<NursingPlanEntity> getListByCondition(Map<String, Object> queryMap, List<OrderVO> orderList, Boolean olderShow, Boolean addEmployeeShow,
+			Boolean nursingPlanServiceListShow) {
+		List<NursingPlanEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt, orderType));
+					}
+				}
+
+			}
+		}
+		list = dbManager.queryByConditions(NursingPlanEntity.class, qc, oc);
+		int a = 0;
+		if (olderShow != null && olderShow.booleanValue()) {
+			a++;
+		}
+		if (addEmployeeShow != null && addEmployeeShow.booleanValue()) {
+			a++;
+		}
+		if (nursingPlanServiceListShow != null && nursingPlanServiceListShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && list != null && list.size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < list.size(); i++) {
+				NursingPlanEntity obj = (NursingPlanEntity) list.get(i);
+				// 查询关联内容
+				if (olderShow != null && olderShow.booleanValue() && obj != null && obj.getOlderId() != null && obj.getOlderId() > 0) {
+					OlderEntity older = (OlderEntity) dbManager.getById(obj.getOlderId(), OlderEntity.class);
+					obj.setOlder(older);
+				}
+				// 查询关联内容
+				if (addEmployeeShow != null && addEmployeeShow.booleanValue() && obj != null && obj.getAddEmployeeId() != null && obj.getAddEmployeeId() > 0) {
+					EmployeeEntity addEmployee = (EmployeeEntity) dbManager.getById(obj.getAddEmployeeId(), EmployeeEntity.class);
+					obj.setAddEmployee(addEmployee);
+				}
+				// 查询关联内容
+				if (nursingPlanServiceListShow != null && nursingPlanServiceListShow.booleanValue() && obj != null && obj.getId() != null && obj.getId() > 0) {
+					List<Object> objList = dbManager.searchListByColumn(NursingPlanServiceEntity.class, NursingPlanServiceEntity.NURSING_PLAN_ID,
+							String.valueOf(obj.getId()));
+					if (objList != null && objList.size() > 0) {
+						List<NursingPlanServiceEntity> nursingPlanServiceList = new ArrayList<NursingPlanServiceEntity>();
+						for (Object o : objList) {
+							nursingPlanServiceList.add((NursingPlanServiceEntity) o);
+						}
+						obj.setNursingPlanServiceList(nursingPlanServiceList);
+					}
+				}
+				result.add(obj);
+			}
+			list = result;
+		}
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<NursingPlanEntity>();
+			for (Object obj : list) {
+				returnlist.add((NursingPlanEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap, int pageno, int pagesize) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		pagelist = dbManager.queryByCondition(NursingPlanEntity.class, qc, pageno, pagesize);
+		return pagelist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @param olderShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param addEmployeeShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param nursingPlanServiceListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap, List<OrderVO> orderList, int pageno, int pagesize, Boolean olderShow,
+			Boolean addEmployeeShow, Boolean nursingPlanServiceListShow) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt, orderType));
+					}
+				}
+
+			}
+		}
+		// 数据权限
+		List<QueryCondition> dataRuleQclist = null;
+		List<Map<String, Object>> dataRuleMapList = (List<Map<String, Object>>) queryMap.get("dataRuleMapList");
+		if (dataRuleMapList != null && dataRuleMapList.size() > 0) {
+			dataRuleQclist = new ArrayList<QueryCondition>();
+			for (Map<String, Object> dataRuleMap : dataRuleMapList) {
+				QueryCondition dataRuleQc = changeMapToQc(dataRuleMap);
+				dataRuleQclist.add(dataRuleQc);
+			}
+		}
+		pagelist = dbManager.queryByConditions(NursingPlanEntity.class, qc, dataRuleQclist, oc, pageno, pagesize);
+		int a = 0;
+		if (olderShow != null && olderShow.booleanValue()) {
+			a++;
+		}
+		if (addEmployeeShow != null && addEmployeeShow.booleanValue()) {
+			a++;
+		}
+		if (nursingPlanServiceListShow != null && nursingPlanServiceListShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && pagelist != null && pagelist.getResultList() != null && pagelist.getResultList().size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < pagelist.getResultList().size(); i++) {
+				NursingPlanEntity obj = (NursingPlanEntity) pagelist.getResultList().get(i);
+				// 查询关联内容
+				if (olderShow != null && olderShow.booleanValue() && obj != null && obj.getOlderId() != null && obj.getOlderId() > 0) {
+					OlderEntity older = (OlderEntity) dbManager.getById(obj.getOlderId(), OlderEntity.class);
+					obj.setOlder(older);
+				}
+				// 查询关联内容
+				if (addEmployeeShow != null && addEmployeeShow.booleanValue() && obj != null && obj.getAddEmployeeId() != null && obj.getAddEmployeeId() > 0) {
+					EmployeeEntity addEmployee = (EmployeeEntity) dbManager.getById(obj.getAddEmployeeId(), EmployeeEntity.class);
+					obj.setAddEmployee(addEmployee);
+				}
+				// 查询关联内容
+				if (nursingPlanServiceListShow != null && nursingPlanServiceListShow.booleanValue() && obj != null && obj.getId() != null && obj.getId() > 0) {
+					List<Object> objList = dbManager.searchListByColumn(NursingPlanServiceEntity.class, NursingPlanServiceEntity.NURSING_PLAN_ID,
+							String.valueOf(obj.getId()));
+					if (objList != null && objList.size() > 0) {
+						List<NursingPlanServiceEntity> nursingPlanServiceList = new ArrayList<NursingPlanServiceEntity>();
+						for (Object o : objList) {
+							nursingPlanServiceList.add((NursingPlanServiceEntity) o);
+						}
+						obj.setNursingPlanServiceList(nursingPlanServiceList);
+					}
+				}
+				result.add(obj);
+			}
+			pagelist.setResultList(result);
+		}
+		return pagelist;
+	}
+
+	/**
+	 * 删除记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public boolean del(Integer id, Boolean delOlder, Boolean delAddEmployee, Boolean delNursingPlanServiceList) {
+		boolean result = false;
+		if (id != null && id > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delOlder != null && delOlder.booleanValue()) {
+					NursingPlanEntity nursingPlan = (NursingPlanEntity) dbManager.getById(id, NursingPlanEntity.class);
+					if (nursingPlan != null && nursingPlan.getOlderId() != null) {
+						dbManager.delNoTransaction(nursingPlan.getOlderId(), OlderEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delAddEmployee != null && delAddEmployee.booleanValue()) {
+					NursingPlanEntity nursingPlan = (NursingPlanEntity) dbManager.getById(id, NursingPlanEntity.class);
+					if (nursingPlan != null && nursingPlan.getAddEmployeeId() != null) {
+						dbManager.delNoTransaction(nursingPlan.getAddEmployeeId(), EmployeeEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delNursingPlanServiceList != null && delNursingPlanServiceList.booleanValue()) {
+					QueryCondition qc = new QueryCondition(NursingPlanServiceEntity.NURSING_PLAN_ID, QueryCondition.eq, id);
+					dbManager.delByConditionsNoTransaction(NursingPlanServiceEntity.class, qc);
+				}
+				result = dbManager.delNoTransaction(id, NursingPlanEntity.class);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量删除记录
+	 * 
+	 * @param ids
+	 *            主键 英文逗号间隔
+	 * @param obj
+	 */
+	public boolean del(String ids) {
+		boolean result = false;
+		if (ids != null && !"".equals(ids.trim())) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				QueryCondition qc = new QueryCondition(NursingPlanEntity.ID, QueryCondition.in, ids);
+				result = dbManager.delByConditionsNoTransaction(NursingPlanEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量条件删除记录
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 */
+	public boolean delList(Map<String, Object> queryMap, Boolean delOlder, Boolean delAddEmployee, Boolean delNursingPlanServiceList) {
+		boolean result = false;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		if (qc.getQueryNextCondition() != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delOlder != null && delOlder.booleanValue()) {
+					List<Object> list = dbManager.queryByConditionNoTransaction(NursingPlanEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							NursingPlanEntity entity = (NursingPlanEntity) obj;
+							strIds += entity.getOlderId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(OlderEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(OlderEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delAddEmployee != null && delAddEmployee.booleanValue()) {
+					List<Object> list = dbManager.queryByConditionNoTransaction(NursingPlanEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							NursingPlanEntity entity = (NursingPlanEntity) obj;
+							strIds += entity.getAddEmployeeId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(EmployeeEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(EmployeeEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delNursingPlanServiceList != null && delNursingPlanServiceList.booleanValue()) {
+					List<Object> list = dbManager.queryByConditionNoTransaction(NursingPlanEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							NursingPlanEntity entity = (NursingPlanEntity) obj;
+							strIds += entity.getId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(NursingPlanServiceEntity.NURSING_PLAN_ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(NursingPlanServiceEntity.class, qc1);
+					}
+
+				}
+				result = dbManager.delByConditionsNoTransaction(NursingPlanEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	private QueryCondition changeMapToQc(Map<String, Object> queryMap) {
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object olderId = queryMap.get("olderId");
+		Object olderId_gt = queryMap.get("olderId_gt");
+		Object olderId_ge = queryMap.get("olderId_ge");
+		Object olderId_lt = queryMap.get("olderId_lt");
+		Object olderId_le = queryMap.get("olderId_le");
+		Object olderId_in = queryMap.get("olderId_in");
+		Object code = queryMap.get("code");
+		Object code_like = queryMap.get("code_like");
+		Object code_isNull = queryMap.get("code_isNull");
+		Object code_isNotNull = queryMap.get("code_isNotNull");
+		Object code_in = queryMap.get("code_in");
+		Object olderName = queryMap.get("olderName");
+		Object olderName_like = queryMap.get("olderName_like");
+		Object olderName_isNull = queryMap.get("olderName_isNull");
+		Object olderName_isNotNull = queryMap.get("olderName_isNotNull");
+		Object olderName_in = queryMap.get("olderName_in");
+		Object contactName = queryMap.get("contactName");
+		Object contactName_like = queryMap.get("contactName_like");
+		Object contactName_isNull = queryMap.get("contactName_isNull");
+		Object contactName_isNotNull = queryMap.get("contactName_isNotNull");
+		Object contactName_in = queryMap.get("contactName_in");
+		Object contactTel = queryMap.get("contactTel");
+		Object contactTel_like = queryMap.get("contactTel_like");
+		Object contactTel_isNull = queryMap.get("contactTel_isNull");
+		Object contactTel_isNotNull = queryMap.get("contactTel_isNotNull");
+		Object contactTel_in = queryMap.get("contactTel_in");
+		Object serviceAddress = queryMap.get("serviceAddress");
+		Object serviceAddress_like = queryMap.get("serviceAddress_like");
+		Object serviceAddress_isNull = queryMap.get("serviceAddress_isNull");
+		Object serviceAddress_isNotNull = queryMap.get("serviceAddress_isNotNull");
+		Object serviceAddress_in = queryMap.get("serviceAddress_in");
+		Object startDate_gt = queryMap.get("startDate_gt");
+		Object startDate_ge = queryMap.get("startDate_ge");
+		Object startDate_lt = queryMap.get("startDate_lt");
+		Object startDate_le = queryMap.get("startDate_le");
+		Object endDate_gt = queryMap.get("endDate_gt");
+		Object endDate_ge = queryMap.get("endDate_ge");
+		Object endDate_lt = queryMap.get("endDate_lt");
+		Object endDate_le = queryMap.get("endDate_le");
+		Object status = queryMap.get("status");
+		Object status_gt = queryMap.get("status_gt");
+		Object status_ge = queryMap.get("status_ge");
+		Object status_lt = queryMap.get("status_lt");
+		Object status_le = queryMap.get("status_le");
+		Object status_in = queryMap.get("status_in");
+		Object des = queryMap.get("des");
+		Object des_like = queryMap.get("des_like");
+		Object des_isNull = queryMap.get("des_isNull");
+		Object des_isNotNull = queryMap.get("des_isNotNull");
+		Object des_in = queryMap.get("des_in");
+		Object addEmployeeId = queryMap.get("addEmployeeId");
+		Object addEmployeeId_gt = queryMap.get("addEmployeeId_gt");
+		Object addEmployeeId_ge = queryMap.get("addEmployeeId_ge");
+		Object addEmployeeId_lt = queryMap.get("addEmployeeId_lt");
+		Object addEmployeeId_le = queryMap.get("addEmployeeId_le");
+		Object addEmployeeId_in = queryMap.get("addEmployeeId_in");
+		Object addEmployeeName = queryMap.get("addEmployeeName");
+		Object addEmployeeName_like = queryMap.get("addEmployeeName_like");
+		Object addEmployeeName_isNull = queryMap.get("addEmployeeName_isNull");
+		Object addEmployeeName_isNotNull = queryMap.get("addEmployeeName_isNotNull");
+		Object addEmployeeName_in = queryMap.get("addEmployeeName_in");
+		Object addTime_gt = queryMap.get("addTime_gt");
+		Object addTime_ge = queryMap.get("addTime_ge");
+		Object addTime_lt = queryMap.get("addTime_lt");
+		Object addTime_le = queryMap.get("addTime_le");
+		Object lastCreateMonth = queryMap.get("lastCreateMonth");
+		Object lastCreateMonth_like = queryMap.get("lastCreateMonth_like");
+		Object lastCreateMonth_isNull = queryMap.get("lastCreateMonth_isNull");
+		Object lastCreateMonth_isNotNull = queryMap.get("lastCreateMonth_isNotNull");
+		Object lastCreateMonth_in = queryMap.get("lastCreateMonth_in");
+		Object checkTime_gt = queryMap.get("checkTime_gt");
+		Object checkTime_ge = queryMap.get("checkTime_ge");
+		Object checkTime_lt = queryMap.get("checkTime_lt");
+		Object checkTime_le = queryMap.get("checkTime_le");
+
+		QueryCondition qc = new QueryCondition(NursingPlanEntity.ID, QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ID, QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ID, QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ID, QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ID, QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ID, QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ID, QueryCondition.in, id_in));
+		}
+		if (olderId != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.OLDER_ID, QueryCondition.eq, olderId));
+		}
+		if (olderId_gt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.OLDER_ID, QueryCondition.gt, olderId_gt));
+		}
+		if (olderId_ge != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.OLDER_ID, QueryCondition.ge, olderId_ge));
+		}
+		if (olderId_lt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.OLDER_ID, QueryCondition.lt, olderId_lt));
+		}
+		if (olderId_le != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.OLDER_ID, QueryCondition.le, olderId_le));
+		}
+		if (olderId_in != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.OLDER_ID, QueryCondition.in, olderId_in));
+		}
+		if (code != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CODE, QueryCondition.eq, code));
+		}
+		if (code_like != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CODE, QueryCondition.like, code_like));
+		}
+		if (code_isNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CODE, QueryCondition.isNull, code_isNull));
+		}
+		if (code_isNotNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CODE, QueryCondition.isNotNull, code_isNotNull));
+		}
+		if (code_in != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CODE, QueryCondition.in, code_in));
+		}
+		if (olderName != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.OLDER_NAME, QueryCondition.eq, olderName));
+		}
+		if (olderName_like != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.OLDER_NAME, QueryCondition.like, olderName_like));
+		}
+		if (olderName_isNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.OLDER_NAME, QueryCondition.isNull, olderName_isNull));
+		}
+		if (olderName_isNotNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.OLDER_NAME, QueryCondition.isNotNull, olderName_isNotNull));
+		}
+		if (olderName_in != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.OLDER_NAME, QueryCondition.in, olderName_in));
+		}
+		if (contactName != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CONTACT_NAME, QueryCondition.eq, contactName));
+		}
+		if (contactName_like != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CONTACT_NAME, QueryCondition.like, contactName_like));
+		}
+		if (contactName_isNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CONTACT_NAME, QueryCondition.isNull, contactName_isNull));
+		}
+		if (contactName_isNotNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CONTACT_NAME, QueryCondition.isNotNull, contactName_isNotNull));
+		}
+		if (contactName_in != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CONTACT_NAME, QueryCondition.in, contactName_in));
+		}
+		if (contactTel != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CONTACT_TEL, QueryCondition.eq, contactTel));
+		}
+		if (contactTel_like != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CONTACT_TEL, QueryCondition.like, contactTel_like));
+		}
+		if (contactTel_isNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CONTACT_TEL, QueryCondition.isNull, contactTel_isNull));
+		}
+		if (contactTel_isNotNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CONTACT_TEL, QueryCondition.isNotNull, contactTel_isNotNull));
+		}
+		if (contactTel_in != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CONTACT_TEL, QueryCondition.in, contactTel_in));
+		}
+		if (serviceAddress != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.SERVICE_ADDRESS, QueryCondition.eq, serviceAddress));
+		}
+		if (serviceAddress_like != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.SERVICE_ADDRESS, QueryCondition.like, serviceAddress_like));
+		}
+		if (serviceAddress_isNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.SERVICE_ADDRESS, QueryCondition.isNull, serviceAddress_isNull));
+		}
+		if (serviceAddress_isNotNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.SERVICE_ADDRESS, QueryCondition.isNotNull, serviceAddress_isNotNull));
+		}
+		if (serviceAddress_in != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.SERVICE_ADDRESS, QueryCondition.in, serviceAddress_in));
+		}
+		if (startDate_gt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.START_DATE, QueryCondition.gt, startDate_gt));
+		}
+		if (startDate_ge != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.START_DATE, QueryCondition.ge, startDate_ge));
+		}
+		if (startDate_lt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.START_DATE, QueryCondition.lt, startDate_lt));
+		}
+		if (startDate_le != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.START_DATE, QueryCondition.le, startDate_le));
+		}
+		if (endDate_gt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.END_DATE, QueryCondition.gt, endDate_gt));
+		}
+		if (endDate_ge != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.END_DATE, QueryCondition.ge, endDate_ge));
+		}
+		if (endDate_lt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.END_DATE, QueryCondition.lt, endDate_lt));
+		}
+		if (endDate_le != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.END_DATE, QueryCondition.le, endDate_le));
+		}
+		if (status != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.STATUS, QueryCondition.eq, status));
+		}
+		if (status_gt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.STATUS, QueryCondition.gt, status_gt));
+		}
+		if (status_ge != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.STATUS, QueryCondition.ge, status_ge));
+		}
+		if (status_lt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.STATUS, QueryCondition.lt, status_lt));
+		}
+		if (status_le != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.STATUS, QueryCondition.le, status_le));
+		}
+		if (status_in != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.STATUS, QueryCondition.in, status_in));
+		}
+		if (des != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.DES, QueryCondition.eq, des));
+		}
+		if (des_like != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.DES, QueryCondition.like, des_like));
+		}
+		if (des_isNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.DES, QueryCondition.isNull, des_isNull));
+		}
+		if (des_isNotNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.DES, QueryCondition.isNotNull, des_isNotNull));
+		}
+		if (des_in != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.DES, QueryCondition.in, des_in));
+		}
+		if (addEmployeeId != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_EMPLOYEE_ID, QueryCondition.eq, addEmployeeId));
+		}
+		if (addEmployeeId_gt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_EMPLOYEE_ID, QueryCondition.gt, addEmployeeId_gt));
+		}
+		if (addEmployeeId_ge != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_EMPLOYEE_ID, QueryCondition.ge, addEmployeeId_ge));
+		}
+		if (addEmployeeId_lt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_EMPLOYEE_ID, QueryCondition.lt, addEmployeeId_lt));
+		}
+		if (addEmployeeId_le != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_EMPLOYEE_ID, QueryCondition.le, addEmployeeId_le));
+		}
+		if (addEmployeeId_in != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_EMPLOYEE_ID, QueryCondition.in, addEmployeeId_in));
+		}
+		if (addEmployeeName != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_EMPLOYEE_NAME, QueryCondition.eq, addEmployeeName));
+		}
+		if (addEmployeeName_like != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_EMPLOYEE_NAME, QueryCondition.like, addEmployeeName_like));
+		}
+		if (addEmployeeName_isNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_EMPLOYEE_NAME, QueryCondition.isNull, addEmployeeName_isNull));
+		}
+		if (addEmployeeName_isNotNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_EMPLOYEE_NAME, QueryCondition.isNotNull, addEmployeeName_isNotNull));
+		}
+		if (addEmployeeName_in != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_EMPLOYEE_NAME, QueryCondition.in, addEmployeeName_in));
+		}
+		if (addTime_gt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_TIME, QueryCondition.gt, addTime_gt));
+		}
+		if (addTime_ge != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_TIME, QueryCondition.ge, addTime_ge));
+		}
+		if (addTime_lt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_TIME, QueryCondition.lt, addTime_lt));
+		}
+		if (addTime_le != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.ADD_TIME, QueryCondition.le, addTime_le));
+		}
+		if (lastCreateMonth != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.LAST_CREATE_MONTH, QueryCondition.eq, lastCreateMonth));
+		}
+		if (lastCreateMonth_like != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.LAST_CREATE_MONTH, QueryCondition.like, lastCreateMonth_like));
+		}
+		if (lastCreateMonth_isNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.LAST_CREATE_MONTH, QueryCondition.isNull, lastCreateMonth_isNull));
+		}
+		if (lastCreateMonth_isNotNull != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.LAST_CREATE_MONTH, QueryCondition.isNotNull, lastCreateMonth_isNotNull));
+		}
+		if (lastCreateMonth_in != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.LAST_CREATE_MONTH, QueryCondition.in, lastCreateMonth_in));
+		}
+		if (checkTime_gt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CHECK_TIME, QueryCondition.gt, checkTime_gt));
+		}
+		if (checkTime_ge != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CHECK_TIME, QueryCondition.ge, checkTime_ge));
+		}
+		if (checkTime_lt != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CHECK_TIME, QueryCondition.lt, checkTime_lt));
+		}
+		if (checkTime_le != null) {
+			qc.andCondition(new QueryCondition(NursingPlanEntity.CHECK_TIME, QueryCondition.le, checkTime_le));
+		}
+		return qc;
+	}
+
+}

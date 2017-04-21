@@ -1,0 +1,4755 @@
+﻿
+<%@ page contentType="text/html;charset=UTF-8" language="java"%> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<title>生理参数详情</title>
+	
+	<link rel="shortcut icon" href="images/logo.png">
+	<!-- Bootstrap core CSS -->
+	<link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+
+	<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+	  <script src="../../assets/js/html5shiv.js"></script>
+	  <script src="../../assets/js/respond.min.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
+  	<link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
+  	<link href="js/jquery.icheck/skins/square/blue.css" rel="stylesheet">
+  	<link rel="stylesheet" href="js/jquery.crop/css/jquery.Jcrop.css" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" />	
+	<style>
+	#olderPhysiological .myheader {background:#4D90FD;color:#fff;overflow:hidden;margin-bottom:15px}
+	#olderPhysiological .myheader button{background:transparent;color:#fff;float:right;border-color:#fff}
+	#olderPhysiological .myheader i{margin-left:5px;margin-right:20px}
+	#olderPhysiological .myrow div{text-indent:15px}
+	#olderPhysiological .panel-heading{border:1px solid #ccc}
+	#olderPhysiological .panel-heading a{padding:10px 16px}
+	#olderPhysiological .panel-default{margin-top:15px;margin-bottom:40px}
+	#olderPhysiological #piliang .form-group{margin-bottom:10px}
+	#olderPhysiological .panel-body{padding-left:0;padding-right:0}
+	#olderPhysiological .modal-body > div{font-size:13px}
+	#olderPhysiological .block{box-shadow:none}
+	.hideInfo{display:none}
+	</style>
+</head>
+<body>
+	<div id="cl-wrapper" style="padding-top:40px">
+		<div class="container-fluid" style="background:#fff;">
+			<div class="cl-mcont block-flat" style="border:0px;box-shadow:0px;">
+				<div class="row" style="margin-top:20px;margin-bottom:20px">
+					<div class="col-md-6">
+						<lable style="font-size:25px;margin-right:20px">老人姓名:</lable>
+						<span id="olderName" style="font-size:25px;;"></span>
+					</div>
+					<div class="col-md-6">
+						<lable style="font-size:25px;margin-right:20px">生理参数:</lable>
+						<span id="olderPhysiologicalInfo" style="font-size:25px;"></span>
+					</div>
+				</div>
+
+				<!-- 血压 -->
+				<div class="row hideInfo">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-sm-12" style="margin-top:10px">
+								<input type="hidden" id="xueya_leftTJ" value="一周">
+								<button type="button" class="btn btn-default " onclick="query_xueya('一周','1')">最近一周</button>
+								<button type="button" class="btn btn-default " onclick="query_xueya('一月','1')">最近一月</button>
+								<button type="button" class="btn btn-default " id="xueya_leftzidinyi" onclick="$(this).parent().next().toggle();$(this).next().toggleClass('hideInfo');">自定义</button>
+								<button type="button" class="btn btn-primary hideInfo" onclick="query_xueya('自定义','1')">查询</button>
+								<select class="form-control" id="xueya_rightXS" style="float:right;width:auto;margin-left:10px" onchange="tableORline('xueya',this)">
+									<option value="1" selected="selected">列表</option>
+									<option value="0">图表</option>
+								</select> <select class="form-control" id="xueya_rightZT" style="float:right;width:auto" onchange="query_xueya('','1')">
+									<option value="" selected="selected">全部</option>
+									<option value="1">正常</option>
+									<option value="2,3">异常</option>
+								</select>
+							</div>
+							<div class="col-sm-6 col-lg-4" style="display:none;">
+								<div class="input-group">
+									<input class="datetime form-control" size="10" id="xueya_leftTimeStart" type="text" value="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_xueya('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span> 
+									<span class="input-group-addon" style="border:0;background:#fff">~</span> 
+									<input class="datetime form-control" size="10" type="text" value="" id="xueya_leftTimeEnd" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_xueya('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-12" id="xueya1">
+								<table class="table table-bordered dataTable hover" id="" style="margin-bottom:0;margin-top:10px">
+									<thead>
+										<tr>
+											<th><strong>时间</strong></th>
+											<th><strong>测量值</strong></th>
+											<th><strong>状态</strong></th>
+											<th><strong>添加人</strong></th>
+										</tr>
+									</thead>
+									<tbody id="datacontainer_xueya" role="alert" aria-live="polite" aria-relevant="all">
+									</tbody>
+								</table>
+								<div class="col-sm-4">
+									<div class="dataTables_length" id="">
+										<label style="margin-top:18px;">每页 
+											<select id="pageSizeSelector_xueya" size="1" onchange="query_xueya('','1')">
+												<option selected="selected" value="10">10</option>
+												<option value="25">25</option>
+												<option value="50">50</option>
+												<option value="100">100</option>
+											</select> 条
+										</label>
+									</div>
+								</div>
+								<div class="col-sm-8">
+									<div class="pull-right">
+										<div class="dataTables_paginate paging_bs_normal">
+											<ul id="paginationArea_xueya" class="pagination">
+												<li class="prev disabled"><a href="###"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+												<li class="active"><a href="###">1</a></li>
+												<li class="next"><a href="###">下一页&nbsp;<span class="fa fa-angle-right"></span> </a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-sm-12" id="xueya0" style="display:none;margin-top:20px">
+								<input id="hide_xueya_ssy_zhexian" type="hidden" value=""> 
+								<input id="hide_xueya_szy_zhexian" type="hidden" value="">
+								<div id="xueya_zhexian" style="width:90%"></div>
+							</div>
+
+							<div class="col-sm-12">
+								<table class="no-border" style="margin-top:20px">
+									<tbody class="no-border-x no-border-y">
+										<tr>
+											<td style="width:70px">统计区间</td>
+											<td id="xueya_tongji_timeRange">无</td>
+											<td style="width:70px">统计笔数</td>
+											<td id="xueya_tongji_totalCount">0</td>
+											<td style="width:70px">异常笔数</td>
+											<td id="xueya_tongji_inCount">0</td>
+										</tr>
+										<tr style="background:#fff">
+											<td style="width:70px">正常比例</td>
+											<td id="xueya_tongji_nomalPercent">0%</td>
+											<td style="width:70px">偏高比例</td>
+											<td id="xueya_tongji_highPercent">0%</td>
+											<td style="width:70px">偏低比例</td>
+											<td id="xueya_tongji_lowPercent">0%</td>
+										</tr>
+										<tr>
+											<td style="width:70px">最高值</td>
+											<td id="xueya_tongji_highValue">无</td>
+											<td style="width:70px">最低值</td>
+											<td colspan="3" id="xueya_tongji_lowValue">无</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 血糖 -->
+				<div class="row hideInfo">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-sm-12" style="margin-top:10px">
+								<input type="hidden" id="xuetang_leftTJ" value="一周">
+								<button type="button" class="btn btn-default " onclick="query_xuetang('一周','1')">最近一周</button>
+								<button type="button" class="btn btn-default " onclick="query_xuetang('一月','1')">最近一月</button>
+								<button type="button" class="btn btn-default " id="xuetang_leftzidinyi" onclick="$(this).parent().next().toggle();$(this).next().toggleClass('hideInfo');">自定义</button>
+								<button type="button" class="btn btn-primary hideInfo" onclick="query_xuetang('自定义','1')">查询</button>
+								<select class="form-control" id="xuetang_rightXS" style="float:right;width:auto;margin-left:10px" onchange="tableORline('xuetang',this)">
+									<option value="1" selected="selected">列表</option>
+									<option value="0">图表</option>
+								</select> <select class="form-control" id="xuetang_rightZT" style="float:right;width:auto" onchange="query_xuetang('','1')">
+									<option value="" selected="selected">全部</option>
+									<option value="1">正常</option>
+									<option value="2,3">异常</option>
+								</select>
+							</div>
+							<div class="col-sm-6 col-lg-4" style="display:none;">
+								<div class="input-group">
+									<input class="datetime form-control" size="10" id="xuetang_leftTimeStart" type="text" value="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_xuetang('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span> 
+									<span class="input-group-addon" style="border:0;background:#fff">~</span> 
+									<input class="datetime form-control" size="10" type="text" value="" id="xuetang_leftTimeEnd" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_xuetang('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-12" id="xuetang1">
+								<table class="table table-bordered dataTable hover" id="" style="margin-bottom:0;margin-top:10px">
+									<thead>
+										<tr>
+											<th><strong>时间</strong></th>
+											<th><strong>测量值</strong></th>
+											<th><strong>状态</strong></th>
+											<th><strong>添加人</strong></th>
+										</tr>
+									</thead>
+									<tbody id="datacontainer_xuetang" role="alert" aria-live="polite" aria-relevant="all">
+									</tbody>
+								</table>
+
+								<div class="col-sm-4">
+									<div class="dataTables_length" id="">
+										<label style="margin-top:18px;">每页 
+											<select id="pageSizeSelector_xuetang" size="1" onchange="query_xuetang('','1')">
+												<option selected="selected" value="10">10</option>
+												<option value="25">25</option>
+												<option value="50">50</option>
+												<option value="100">100</option>
+											</select> 条
+										</label>
+									</div>
+								</div>
+								<div class="col-sm-8">
+									<div class="pull-right">
+										<div class="dataTables_paginate paging_bs_normal">
+											<ul id="paginationArea_xuetang" class="pagination">
+												<li class="prev disabled"><a href="###"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+												<li class="active"><a href="###">1</a></li>
+												<li class="next"><a href="###">下一页&nbsp;<span class="fa fa-angle-right"></span> </a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-sm-12" id="xuetang0" style="display:none;margin-top:20px">
+								<input id="hide_xuetang_kf_zhexian" type="hidden" value=""> 
+								<input id="hide_xuetang_ch_zhexian" type="hidden" value="">
+								<div id="xuetang_zhexian" style="width:90%"></div>
+							</div>
+							<div class="col-sm-12">
+								<table class="no-border" style="margin-top:20px">
+									<tbody class="no-border-x no-border-y">
+										<tr>
+											<td style="width:70px">统计区间</td>
+											<td id="xuetang_tongji_timeRange">无</td>
+											<td style="width:70px">统计笔数</td>
+											<td id="xuetang_tongji_totalCount">0</td>
+											<td style="width:70px">异常笔数</td>
+											<td id="xuetang_tongji_inCount">0</td>
+										</tr>
+										<tr style="background:#fff">
+											<td style="width:70px">正常比例</td>
+											<td id="xuetang_tongji_nomalPercent">0%</td>
+											<td style="width:70px">偏高比例</td>
+											<td id="xuetang_tongji_highPercent">0%</td>
+											<td style="width:70px">偏低比例</td>
+											<td id="xuetang_tongji_lowPercent">0%</td>
+										</tr>
+										<tr>
+											<td style="width:70px">最高值</td>
+											<td id="xuetang_tongji_highValue">无</td>
+											<td style="width:70px">最低值</td>
+											<td colspan="3" id="xuetang_tongji_lowValue">无</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 血氧 -->
+				<div class="row hideInfo">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-sm-12" style="margin-top:10px">
+								<input type="hidden" id="xueyang_leftTJ" value="一周">
+								<button type="button" class="btn btn-default " onclick="query_xueyang('一周','1')">最近一周</button>
+								<button type="button" class="btn btn-default " onclick="query_xueyang('一月','1')">最近一月</button>
+								<button type="button" class="btn btn-default " id="xueyang_leftzidinyi" onclick="$(this).parent().next().toggle();$(this).next().toggleClass('hideInfo');">自定义</button>
+								<button type="button" class="btn btn-primary hideInfo" onclick="query_xueyang('自定义','1')">查询</button>
+								<select class="form-control" id="xueyang_rightXS" style="float:right;width:auto;margin-left:10px" onchange="tableORline('xueyang',this)">
+									<option value="1" selected="selected">列表</option>
+									<option value="0">图表</option>
+								</select> <select class="form-control" id="xueyang_rightZT" style="float:right;width:auto" onchange="query_xueyang('','1')">
+									<option value="" selected="selected">全部</option>
+									<option value="1">正常</option>
+									<option value="2,3">异常</option>
+								</select>
+							</div>
+							<div class="col-sm-6 col-lg-4" style="display:none;">
+								<div class="input-group">
+									<input class="datetime form-control" size="10" id="xueyang_leftTimeStart" type="text" value="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_xueyang('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span> 
+									<span class="input-group-addon" style="border:0;background:#fff">~</span> 
+									<input class="datetime form-control" size="10" type="text" value="" id="xueyang_leftTimeEnd" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_xueyang('自定义','1')" /> 
+										<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-12" id="xueyang1">
+								<table class="table table-bordered dataTable hover" id="" style="margin-bottom:0;margin-top:10px">
+									<thead>
+										<tr>
+											<th><strong>时间</strong></th>
+											<th><strong>测量值</strong></th>
+											<th><strong>状态</strong></th>
+											<th><strong>添加人</strong></th>
+										</tr>
+									</thead>
+									<tbody id="datacontainer_xueyang" role="alert" aria-live="polite" aria-relevant="all">
+									</tbody>
+								</table>
+								<div class="col-sm-4">
+									<div class="dataTables_length" id="">
+										<label style="margin-top:18px;">每页 
+											<select id="pageSizeSelector_xueyang" size="1" onchange="query_xueyang('','1')">
+												<option selected="selected" value="10">10</option>
+												<option value="25">25</option>
+												<option value="50">50</option>
+												<option value="100">100</option>
+											</select> 条
+										</label>
+									</div>
+								</div>
+								<div class="col-sm-8">
+									<div class="pull-right">
+										<div class="dataTables_paginate paging_bs_normal">
+											<ul id="paginationArea_xueyang" class="pagination">
+												<li class="prev disabled"><a href="###"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+												<li class="active"><a href="###">1</a></li>
+												<li class="next"><a href="###">下一页&nbsp;<span class="fa fa-angle-right"></span> </a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-12" id="xueyang0" style="display:none;margin-top:20px">
+								<input id="hide_xueyang_zhexian" type="hidden" value=""> 
+								<input id="hide_xueyang_zhexian" type="hidden" value="">
+								<div id="xueyang_zhexian" style="width:90%"></div>
+							</div>
+							<div class="col-sm-12">
+								<table class="no-border" style="margin-top:20px">
+									<tbody class="no-border-x no-border-y">
+										<tr>
+											<td style="width:70px">统计区间</td>
+											<td id="xueyang_tongji_timeRange">无</td>
+											<td style="width:70px">统计笔数</td>
+											<td id="xueyang_tongji_totalCount">0</td>
+											<td style="width:70px">异常笔数</td>
+											<td id="xueyang_tongji_inCount">0</td>
+										</tr>
+										<tr style="background:#fff">
+											<td style="width:70px">正常比例</td>
+											<td id="xueyang_tongji_nomalPercent">0%</td>
+											<td style="width:70px">偏高比例</td>
+											<td id="xueyang_tongji_highPercent">0%</td>
+											<td style="width:70px">偏低比例</td>
+											<td id="xueyang_tongji_lowPercent">0%</td>
+										</tr>
+										<tr>
+											<td style="width:70px">最高值</td>
+											<td id="xueyang_tongji_highValue">无</td>
+											<td style="width:70px">最低值</td>
+											<td colspan="3" id="xueyang_tongji_lowValue">无</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- BMI-->
+				<div class="row hideInfo">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-sm-12" style="margin-top:10px">
+								<input type="hidden" id="BMI_leftTJ" value="一周">
+								<button type="button" class="btn btn-default " onclick="query_BMI('一周','1')">最近一周</button>
+								<button type="button" class="btn btn-default " onclick="query_BMI('一月','1')">最近一月</button>
+								<button type="button" class="btn btn-default " id="BMI_leftzidinyi" onclick="$(this).parent().next().toggle();$(this).next().toggleClass('hideInfo');">自定义</button>
+								<button type="button" class="btn btn-primary hideInfo" onclick="query_BMI('自定义','1')">查询</button>
+								<select class="form-control" id="BMI_rightXS" style="float:right;width:auto;margin-left:10px" onchange="tableORline('BMI',this)">
+									<option value="1" selected="selected">列表</option>
+									<option value="0">图表</option>
+								</select> <select class="form-control" id="BMI_rightZT" style="float:right;width:auto" onchange="query_BMI('','1')">
+									<option value="" selected="selected">全部</option>
+									<option value="1">正常</option>
+									<option value="2,3">异常</option>
+								</select>
+							</div>
+							<div class="col-sm-6 col-lg-4" style="display:none;">
+								<div class="input-group">
+									<input class="datetime form-control" size="10" id="BMI_leftTimeStart" type="text" value="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_BMI('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span> 
+									<span class="input-group-addon" style="border:0;background:#fff">~</span> 
+									<input class="datetime form-control" size="10" type="text" value="" id="BMI_leftTimeEnd" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_BMI('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-12" id="BMI1">
+								<table class="table table-bordered dataTable hover" id="" style="margin-bottom:0;margin-top:10px">
+									<thead>
+										<tr>
+											<th><strong>时间</strong></th>
+											<th><strong>测量值</strong></th>
+											<th><strong>状态</strong></th>
+											<th><strong>添加人</strong></th>
+										</tr>
+									</thead>
+									<tbody id="datacontainer_BMI" role="alert" aria-live="polite" aria-relevant="all">
+									</tbody>
+								</table>
+								<div class="col-sm-4">
+									<div class="dataTables_length" id="">
+										<label style="margin-top:18px;">每页 
+											<select id="pageSizeSelector_BMI" size="1" onchange="query_BMI('','1')">
+												<option selected="selected" value="10">10</option>
+												<option value="25">25</option>
+												<option value="50">50</option>
+												<option value="100">100</option>
+											</select> 条
+										</label>
+									</div>
+								</div>
+								<div class="col-sm-8">
+									<div class="pull-right">
+										<div class="dataTables_paginate paging_bs_normal">
+											<ul id="paginationArea_BMI" class="pagination">
+												<li class="prev disabled"><a href="###"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+												<li class="active"><a href="###">1</a></li>
+												<li class="next"><a href="###">下一页&nbsp;<span class="fa fa-angle-right"></span> </a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-sm-12" id="BMI0" style="display:none;margin-top:20px">
+								<input id="hide_BMI_zhexian" type="hidden" value=""> 
+								<input id="hide_BMI_zhexian" type="hidden" value="">
+								<div id="BMI_zhexian" style="width:90%"></div>
+							</div>
+							<div class="col-sm-12">
+								<table class="no-border" style="margin-top:20px">
+									<tbody class="no-border-x no-border-y">
+										<tr>
+											<td style="width:70px">统计区间</td>
+											<td id="BMI_tongji_timeRange">无</td>
+											<td style="width:70px">统计笔数</td>
+											<td id="BMI_tongji_totalCount">0</td>
+											<td style="width:70px">异常笔数</td>
+											<td id="BMI_tongji_inCount">0</td>
+										</tr>
+										<tr style="background:#fff">
+											<td style="width:70px">正常比例</td>
+											<td id="BMI_tongji_nomalPercent">0%</td>
+											<td style="width:70px">偏高比例</td>
+											<td id="BMI_tongji_highPercent">0%</td>
+											<td style="width:70px">偏低比例</td>
+											<td id="BMI_tongji_lowPercent">0%</td>
+										</tr>
+										<tr>
+											<td style="width:70px">最高值</td>
+											<td id="BMI_tongji_highValue">无</td>
+											<td style="width:70px">最低值</td>
+											<td colspan="3" id="BMI_tongji_lowValue">无</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 体温 -->
+				<div class="row hideInfo">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-sm-12" style="margin-top:10px">
+								<input type="hidden" id="tiwen_leftTJ" value="一周">
+								<button type="button" class="btn btn-default " onclick="query_tiwen('一周','1')">最近一周</button>
+								<button type="button" class="btn btn-default " onclick="query_tiwen('一月','1')">最近一月</button>
+								<button type="button" class="btn btn-default " id="tiwen_leftzidinyi" onclick="$(this).parent().next().toggle();$(this).next().toggleClass('hideInfo');">自定义</button>
+								<button type="button" class="btn btn-primary hideInfo" onclick="query_tiwen('自定义','1')">查询</button>
+								<select class="form-control" id="tiwen_rightXS" style="float:right;width:auto;margin-left:10px" onchange="tableORline('tiwen',this)">
+									<option value="1" selected="selected">列表</option>
+									<option value="0">图表</option>
+								</select> <select class="form-control" id="tiwen_rightZT" style="float:right;width:auto" onchange="query_tiwen('','1')">
+									<option value="" selected="selected">全部</option>
+									<option value="1">正常</option>
+									<option value="2,3">异常</option>
+								</select>
+							</div>
+							<div class="col-sm-6 col-lg-4" style="display:none;">
+								<div class="input-group">
+									<input class="datetime form-control" size="10" id="tiwen_leftTimeStart" type="text" value="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_tiwen('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span> 
+									<span class="input-group-addon" style="border:0;background:#fff">~</span> 
+									<input class="datetime form-control" size="10" type="text" value="" id="tiwen_leftTimeEnd" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_tiwen('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-12" id="tiwen1">
+								<table class="table table-bordered dataTable hover" id="" style="margin-bottom:0;margin-top:10px">
+									<thead>
+										<tr>
+											<th><strong>时间</strong></th>
+											<th><strong>测量值</strong></th>
+											<th><strong>状态</strong></th>
+											<th><strong>添加人</strong></th>
+										</tr>
+									</thead>
+									<tbody id="datacontainer_tiwen" role="alert" aria-live="polite" aria-relevant="all">
+									</tbody>
+								</table>
+								<div class="col-sm-4">
+									<div class="dataTables_length" id="">
+										<label style="margin-top:18px;">每页 
+											<select id="pageSizeSelector_tiwen" size="1" onchange="query_tiwen('','1')">
+												<option selected="selected" value="10">10</option>
+												<option value="25">25</option>
+												<option value="50">50</option>
+												<option value="100">100</option>
+											</select> 条
+										</label>
+									</div>
+								</div>
+								<div class="col-sm-8">
+									<div class="pull-right">
+										<div class="dataTables_paginate paging_bs_normal">
+											<ul id="paginationArea_tiwen" class="pagination">
+												<li class="prev disabled"><a href="###"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+												<li class="active"><a href="###">1</a></li>
+												<li class="next"><a href="###">下一页&nbsp;<span class="fa fa-angle-right"></span> </a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-sm-12" id="tiwen0" style="display:none;margin-top:20px">
+								<input id="hide_tiwen_zhexian" type="hidden" value=""> 
+								<input id="hide_tiwen_zhexian" type="hidden" value="">
+								<div id="tiwen_zhexian" style="width:90%"></div>
+							</div>
+							<div class="col-sm-12">
+								<table class="no-border" style="margin-top:20px">
+									<tbody class="no-border-x no-border-y">
+										<tr>
+											<td style="width:70px">统计区间</td>
+											<td id="tiwen_tongji_timeRange">无</td>
+											<td style="width:70px">统计笔数</td>
+											<td id="tiwen_tongji_totalCount">0</td>
+											<td style="width:70px">异常笔数</td>
+											<td id="tiwen_tongji_inCount">0</td>
+										</tr>
+										<tr style="background:#fff">
+											<td style="width:70px">正常比例</td>
+											<td id="tiwen_tongji_nomalPercent">0%</td>
+											<td style="width:70px">偏高比例</td>
+											<td id="tiwen_tongji_highPercent">0%</td>
+											<td style="width:70px">偏低比例</td>
+											<td id="tiwen_tongji_lowPercent">0%</td>
+										</tr>
+										<tr>
+											<td style="width:70px">最高值</td>
+											<td id="tiwen_tongji_highValue">无</td>
+											<td style="width:70px">最低值</td>
+											<td colspan="3" id="tiwen_tongji_lowValue">无</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 血红蛋白 -->
+				<div class="row hideInfo">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-sm-12" style="margin-top:10px">
+								<input type="hidden" id="xuehongdanbai_leftTJ" value="一周">
+								<button type="button" class="btn btn-default " onclick="query_xuehongdanbai('一周','1')">最近一周</button>
+								<button type="button" class="btn btn-default " onclick="query_xuehongdanbai('一月','1')">最近一月</button>
+								<button type="button" class="btn btn-default " id="xuehongdanbai_leftzidinyi" onclick="$(this).parent().next().toggle();$(this).next().toggleClass('hideInfo');">自定义</button>
+								<button type="button" class="btn btn-primary hideInfo" onclick="query_xuehongdanbai('自定义','1')">查询</button>
+								<select class="form-control" id="xuehongdanbai_rightXS" style="float:right;width:auto;margin-left:10px" onchange="tableORline('xuehongdanbai',this)">
+									<option value="1" selected="selected">列表</option>
+									<option value="0">图表</option>
+								</select> 
+								<select class="form-control" id="xuehongdanbai_rightZT" style="float:right;width:auto" onchange="query_xuehongdanbai('','1')">
+									<option value="" selected="selected">全部</option>
+									<option value="1">正常</option>
+									<option value="2,3">异常</option>
+								</select>
+							</div>
+							<div class="col-sm-6 col-lg-4" style="display:none;">
+								<div class="input-group">
+									<input class="datetime form-control" size="10" id="xuehongdanbai_leftTimeStart" type="text" value="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_xuehongdanbai('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span> 
+									<span class="input-group-addon" style="border:0;background:#fff">~</span> 
+									<input class="datetime form-control" size="10" type="text" value="" id="xuehongdanbai_leftTimeEnd" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_xuehongdanbai('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-12" id="xuehongdanbai1">
+								<table class="table table-bordered dataTable hover" id="" style="margin-bottom:0;margin-top:10px">
+									<thead>
+										<tr>
+											<th><strong>时间</strong></th>
+											<th><strong>测量值</strong></th>
+											<th><strong>状态</strong></th>
+											<th><strong>添加人</strong></th>
+										</tr>
+									</thead>
+									<tbody id="datacontainer_xuehongdanbai" role="alert" aria-live="polite" aria-relevant="all">
+									</tbody>
+								</table>
+								<div class="col-sm-4">
+									<div class="dataTables_length" id="">
+										<label style="margin-top:18px;">每页 
+											<select id="pageSizeSelector_xuehongdanbai" size="1" onchange="query_xuehongdanbai('','1')">
+												<option selected="selected" value="10">10</option>
+												<option value="25">25</option>
+												<option value="50">50</option>
+												<option value="100">100</option>
+											</select> 条
+										</label>
+									</div>
+								</div>
+								<div class="col-sm-8">
+									<div class="pull-right">
+										<div class="dataTables_paginate paging_bs_normal">
+											<ul id="paginationArea_xuehongdanbai" class="pagination">
+												<li class="prev disabled"><a href="###"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+												<li class="active"><a href="###">1</a></li>
+												<li class="next"><a href="###">下一页&nbsp;<span class="fa fa-angle-right"></span> </a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-12" id="xuehongdanbai0" style="display:none;margin-top:20px">
+								<input id="hide_xuehongdanbai_zhexian" type="hidden" value=""> 
+								<input id="hide_xuehongdanbai_zhexian" type="hidden" value="">
+								<div id="xuehongdanbai_zhexian" style="width:90%"></div>
+							</div>
+							<div class="col-sm-12">
+								<table class="no-border" style="margin-top:20px">
+									<tbody class="no-border-x no-border-y">
+										<tr>
+											<td style="width:70px">统计区间</td>
+											<td id="xuehongdanbai_tongji_timeRange">无</td>
+											<td style="width:70px">统计笔数</td>
+											<td id="xuehongdanbai_tongji_totalCount">0</td>
+											<td style="width:70px">异常笔数</td>
+											<td id="xuehongdanbai_tongji_inCount">0</td>
+										</tr>
+										<tr style="background:#fff">
+											<td style="width:70px">正常比例</td>
+											<td id="xuehongdanbai_tongji_nomalPercent">0%</td>
+											<td style="width:70px">偏高比例</td>
+											<td id="xuehongdanbai_tongji_highPercent">0%</td>
+											<td style="width:70px">偏低比例</td>
+											<td id="xuehongdanbai_tongji_lowPercent">0%</td>
+										</tr>
+										<tr>
+											<td style="width:70px">最高值</td>
+											<td id="xuehongdanbai_tongji_highValue">无</td>
+											<td style="width:70px">最低值</td>
+											<td colspan="3" id="xuehongdanbai_tongji_lowValue">无</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 尿酸 -->
+				<div class="row hideInfo">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-sm-12" style="margin-top:10px">
+								<input type="hidden" id="niaosuan_leftTJ" value="一周">
+								<button type="button" class="btn btn-default " onclick="query_niaosuan('一周','1')">最近一周</button>
+								<button type="button" class="btn btn-default " onclick="query_niaosuan('一月','1')">最近一月</button>
+								<button type="button" class="btn btn-default " id="niaosuan_leftzidinyi" onclick="$(this).parent().next().toggle();$(this).next().toggleClass('hideInfo');">自定义</button>
+								<button type="button" class="btn btn-primary hideInfo" onclick="query_niaosuan('自定义','1')">查询</button>
+								<select class="form-control" id="niaosuan_rightXS" style="float:right;width:auto;margin-left:10px" onchange="tableORline('niaosuan',this)">
+									<option value="1" selected="selected">列表</option>
+									<option value="0">图表</option>
+								</select> 
+								<select class="form-control" id="niaosuan_rightZT" style="float:right;width:auto" onchange="query_niaosuan('','1')">
+									<option value="" selected="selected">全部</option>
+									<option value="1">正常</option>
+									<option value="2,3">异常</option>
+								</select>
+							</div>
+							<div class="col-sm-6 col-lg-4" style="display:none;">
+								<div class="input-group">
+									<input class="datetime form-control" size="10" id="niaosuan_leftTimeStart" type="text" value="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_niaosuan('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span> 
+									<span class="input-group-addon" style="border:0;background:#fff">~</span> 
+									<input class="datetime form-control" size="10" type="text" value="" id="niaosuan_leftTimeEnd" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_niaosuan('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button>
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-12" id="niaosuan1">
+								<table class="table table-bordered dataTable hover" id="" style="margin-bottom:0;margin-top:10px">
+									<thead>
+										<tr>
+											<th><strong>时间</strong></th>
+											<th><strong>测量值</strong></th>
+											<th><strong>状态</strong></th>
+											<th><strong>添加人</strong></th>
+										</tr>
+									</thead>
+									<tbody id="datacontainer_niaosuan" role="alert" aria-live="polite" aria-relevant="all">
+									</tbody>
+								</table>
+								<div class="col-sm-4">
+									<div class="dataTables_length" id="">
+										<label style="margin-top:18px;">每页 
+											<select id="pageSizeSelector_niaosuan" size="1" onchange="query_niaosuan('','1')">
+												<option selected="selected" value="10">10</option>
+												<option value="25">25</option>
+												<option value="50">50</option>
+												<option value="100">100</option>
+											</select> 条
+										</label>
+									</div>
+								</div>
+								<div class="col-sm-8">
+									<div class="pull-right">
+										<div class="dataTables_paginate paging_bs_normal">
+											<ul id="paginationArea_niaosuan" class="pagination">
+												<li class="prev disabled"><a href="###"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+												<li class="active"><a href="###">1</a></li>
+												<li class="next"><a href="###">下一页&nbsp;<span class="fa fa-angle-right"></span> </a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-sm-12" id="niaosuan0" style="display:none;margin-top:20px">
+								<input id="hide_niaosuan_zhexian" type="hidden" value=""> 
+								<input id="hide_niaosuan_zhexian" type="hidden" value="">
+								<div id="niaosuan_zhexian" style="width:90%"></div>
+							</div>
+							<div class="col-sm-12">
+								<table class="no-border" style="margin-top:20px">
+									<tbody class="no-border-x no-border-y">
+										<tr>
+											<td style="width:70px">统计区间</td>
+											<td id="niaosuan_tongji_timeRange">无</td>
+											<td style="width:70px">统计笔数</td>
+											<td id="niaosuan_tongji_totalCount">0</td>
+											<td style="width:70px">异常笔数</td>
+											<td id="niaosuan_tongji_inCount">0</td>
+										</tr>
+										<tr style="background:#fff">
+											<td style="width:70px">正常比例</td>
+											<td id="niaosuan_tongji_nomalPercent">0%</td>
+											<td style="width:70px">偏高比例</td>
+											<td id="niaosuan_tongji_highPercent">0%</td>
+											<td style="width:70px">偏低比例</td>
+											<td id="niaosuan_tongji_lowPercent">0%</td>
+										</tr>
+										<tr>
+											<td style="width:70px">最高值</td>
+											<td id="niaosuan_tongji_highValue">无</td>
+											<td style="width:70px">最低值</td>
+											<td colspan="3" id="niaosuan_tongji_lowValue">无</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 胆固醇 -->
+				<div class="row hideInfo">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-sm-12" style="margin-top:10px">
+								<input type="hidden" id="danguchun_leftTJ" value="一周">
+								<button type="button" class="btn btn-default " onclick="query_danguchun('一周','1')">最近一周</button>
+								<button type="button" class="btn btn-default " onclick="query_danguchun('一月','1')">最近一月</button>
+								<button type="button" class="btn btn-default " id="danguchun_leftzidinyi" onclick="$(this).parent().next().toggle();$(this).next().toggleClass('hideInfo');">自定义</button>
+								<button type="button" class="btn btn-primary hideInfo" onclick="query_danguchun('自定义','1')">查询</button>
+								<select class="form-control" id="danguchun_rightXS" style="float:right;width:auto;margin-left:10px" onchange="tableORline('danguchun',this)">
+									<option value="1" selected="selected">列表</option>
+									<option value="0">图表</option>
+								</select> 
+								<select class="form-control" id="danguchun_rightZT" style="float:right;width:auto" onchange="query_danguchun('','1')">
+									<option value="" selected="selected">全部</option>
+									<option value="1">正常</option>
+									<option value="2,3">异常</option>
+								</select>
+							</div>
+							<div class="col-sm-6 col-lg-4" style="display:none;">
+								<div class="input-group">
+									<input class="datetime form-control" size="10" id="danguchun_leftTimeStart" type="text" value="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_danguchun('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span> 
+									<span class="input-group-addon" style="border:0;background:#fff">~</span> 
+									<input class="datetime form-control" size="10" type="text" value="" id="danguchun_leftTimeEnd" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_danguchun('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button>
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-12" id="danguchun1">
+								<table class="table table-bordered dataTable hover" id="" style="margin-bottom:0;margin-top:10px">
+									<thead>
+										<tr>
+											<th><strong>时间</strong></th>
+											<th><strong>测量值</strong></th>
+											<th><strong>状态</strong></th>
+											<th><strong>添加人</strong></th>
+										</tr>
+									</thead>
+									<tbody id="datacontainer_danguchun" role="alert" aria-live="polite" aria-relevant="all">
+									</tbody>
+								</table>
+								<div class="col-sm-4">
+									<div class="dataTables_length" id="">
+										<label style="margin-top:18px;">每页 
+											<select id="pageSizeSelector_danguchun" size="1" onchange="query_danguchun('','1')">
+												<option selected="selected" value="10">10</option>
+												<option value="25">25</option>
+												<option value="50">50</option>
+												<option value="100">100</option>
+											</select> 条
+										</label>
+									</div>
+								</div>
+								<div class="col-sm-8">
+									<div class="pull-right">
+										<div class="dataTables_paginate paging_bs_normal">
+											<ul id="paginationArea_danguchun" class="pagination">
+												<li class="prev disabled"><a href="###"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+												<li class="active"><a href="###">1</a></li>
+												<li class="next"><a href="###">下一页&nbsp;<span class="fa fa-angle-right"></span> </a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-sm-12" id="danguchun0" style="display:none;margin-top:20px">
+								<input id="hide_danguchun_zhexian" type="hidden" value=""> 
+								<input id="hide_danguchun_zhexian" type="hidden" value="">
+								<div id="danguchun_zhexian" style="width:90%"></div>
+							</div>
+							<div class="col-sm-12">
+								<table class="no-border" style="margin-top:20px">
+									<tbody class="no-border-x no-border-y">
+										<tr>
+											<td style="width:70px">统计区间</td>
+											<td id="danguchun_tongji_timeRange">无</td>
+											<td style="width:70px">统计笔数</td>
+											<td id="danguchun_tongji_totalCount">0</td>
+											<td style="width:70px">异常笔数</td>
+											<td id="danguchun_tongji_inCount">0</td>
+										</tr>
+										<tr style="background:#fff">
+											<td style="width:70px">正常比例</td>
+											<td id="danguchun_tongji_nomalPercent">0%</td>
+											<td style="width:70px">偏高比例</td>
+											<td id="danguchun_tongji_highPercent">0%</td>
+											<td style="width:70px">偏低比例</td>
+											<td id="danguchun_tongji_lowPercent">0%</td>
+										</tr>
+										<tr>
+											<td style="width:70px">最高值</td>
+											<td id="danguchun_tongji_highValue">无</td>
+											<td style="width:70px">最低值</td>
+											<td colspan="3" id="danguchun_tongji_lowValue">无</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 脉率 -->
+				<div class="row hideInfo">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-sm-12" style="margin-top:10px">
+								<input type="hidden" id="mailv_leftTJ" value="一周">
+								<button type="button" class="btn btn-default " onclick="query_mailv('一周','1')">最近一周</button>
+								<button type="button" class="btn btn-default " onclick="query_mailv('一月','1')">最近一月</button>
+								<button type="button" class="btn btn-default " id="mailv_leftzidinyi" onclick="$(this).parent().next().toggle();$(this).next().toggleClass('hideInfo');">自定义</button>
+								<button type="button" class="btn btn-primary hideInfo" onclick="query_mailv('自定义','1')">查询</button>
+								<select class="form-control" id="mailv_rightXS" style="float:right;width:auto;margin-left:10px" onchange="tableORline('mailv',this)">
+									<option value="1" selected="selected">列表</option>
+									<option value="0">图表</option>
+								</select> 
+								<select class="form-control" id="mailv_rightZT" style="float:right;width:auto" onchange="query_mailv('','1')">
+									<option value="" selected="selected">全部</option>
+									<option value="1">正常</option>
+									<option value="2,3">异常</option>
+								</select>
+							</div>
+							<div class="col-sm-6 col-lg-4" style="display:none;">
+								<div class="input-group">
+									<input class="datetime form-control" size="10" id="mailv_leftTimeStart" type="text" value="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_mailv('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span> 
+									<span class="input-group-addon" style="border:0;background:#fff">~</span> 
+									<input class="datetime form-control" size="10" type="text" value="" id="mailv_leftTimeEnd" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_mailv('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-12" id="mailv1">
+								<table class="table table-bordered dataTable hover" id="" style="margin-bottom:0;margin-top:10px">
+									<thead>
+										<tr>
+											<th><strong>时间</strong></th>
+											<th><strong>测量值</strong></th>
+											<th><strong>状态</strong></th>
+											<th><strong>添加人</strong></th>
+										</tr>
+									</thead>
+									<tbody id="datacontainer_mailv" role="alert" aria-live="polite" aria-relevant="all">
+									</tbody>
+								</table>
+								<div class="col-sm-4">
+									<div class="dataTables_length" id="">
+										<label style="margin-top:18px;">每页 
+											<select id="pageSizeSelector_mailv" size="1" onchange="query_mailv('','1')">
+												<option selected="selected" value="10">10</option>
+												<option value="25">25</option>
+												<option value="50">50</option>
+												<option value="100">100</option>
+											</select> 条
+										</label>
+									</div>
+								</div>
+								<div class="col-sm-8">
+									<div class="pull-right">
+										<div class="dataTables_paginate paging_bs_normal">
+											<ul id="paginationArea_mailv" class="pagination">
+												<li class="prev disabled"><a href="###"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+												<li class="active"><a href="###">1</a></li>
+												<li class="next"><a href="###">下一页&nbsp;<span class="fa fa-angle-right"></span> </a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-sm-12" id="mailv0" style="display:none;margin-top:20px">
+								<input id="hide_mailv_zhexian" type="hidden" value=""> 
+								<input id="hide_mailv_zhexian" type="hidden" value="">
+								<div id="mailv_zhexian" style="width:90%"></div>
+							</div>
+							<div class="col-sm-12">
+								<table class="no-border" style="margin-top:20px">
+									<tbody class="no-border-x no-border-y">
+										<tr>
+											<td style="width:70px">统计区间</td>
+											<td id="mailv_tongji_timeRange">无</td>
+											<td style="width:70px">统计笔数</td>
+											<td id="mailv_tongji_totalCount">0</td>
+											<td style="width:70px">异常笔数</td>
+											<td id="mailv_tongji_inCount">0</td>
+										</tr>
+										<tr style="background:#fff">
+											<td style="width:70px">正常比例</td>
+											<td id="mailv_tongji_nomalPercent">0%</td>
+											<td style="width:70px">偏高比例</td>
+											<td id="mailv_tongji_highPercent">0%</td>
+											<td style="width:70px">偏低比例</td>
+											<td id="mailv_tongji_lowPercent">0%</td>
+										</tr>
+										<tr>
+											<td style="width:70px">最高值</td>
+											<td id="mailv_tongji_highValue">无</td>
+											<td style="width:70px">最低值</td>
+											<td colspan="3" id="mailv_tongji_lowValue">无</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 尿常规 -->
+				<div class="row hideInfo">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-sm-12" style="margin-top:10px">
+								<input type="hidden" id="niaochanggui_leftTJ" value="一周">
+								<button type="button" class="btn btn-default " onclick="query_niaochanggui('一周','1')">最近一周</button>
+								<button type="button" class="btn btn-default " onclick="query_niaochanggui('一月','1')">最近一月</button>
+								<button type="button" class="btn btn-default " id="niaochanggui_leftzidinyi" onclick="$(this).parent().next().toggle();$(this).next().toggleClass('hideInfo');">自定义</button>
+								<button type="button" class="btn btn-primary hideInfo" onclick="query_niaochanggui('自定义','1')">查询</button>
+							</div>
+							<div class="col-sm-6 col-lg-4" style="display:none;">
+								<div class="input-group">
+									<input class="datetime form-control" size="10" id="niaochanggui_leftTimeStart" type="text" value="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_niaochanggui('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span> 
+									<span class="input-group-addon" style="border:0;background:#fff">~</span> 
+									<input class="datetime form-control" size="10" type="text" value="" id="niaochanggui_leftTimeEnd" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_niaochanggui('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-12" id="niaochanggui1">
+								<table class="table table-bordered dataTable hover" id="" style="margin-bottom:0;margin-top:10px">
+									<thead>
+										<tr>
+											<th><strong>时间</strong></th>
+											<th><strong>测量值</strong></th>
+											<th><strong>添加人</strong></th>
+										</tr>
+									</thead>
+									<tbody id="datacontainer_niaochanggui" role="alert" aria-live="polite" aria-relevant="all">
+									</tbody>
+									<input id="niaochangguiInfo" class="hideInfo">
+								</table>
+								<div class="col-sm-4">
+									<div class="dataTables_length" id="">
+										<label style="margin-top:18px;">每页 
+											<select id="pageSizeSelector_niaochanggui" size="1" onchange="query_niaochanggui('','1')">
+												<option selected="selected" value="10">10</option>
+												<option value="25">25</option>
+												<option value="50">50</option>
+												<option value="100">100</option>
+											</select> 条
+										</label>
+									</div>
+								</div>
+								<div class="col-sm-8">
+									<div class="pull-right">
+										<div class="dataTables_paginate paging_bs_normal">
+											<ul id="paginationArea_niaochanggui" class="pagination">
+												<li class="prev disabled"><a href="###"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+												<li class="active"><a href="###">1</a></li>
+												<li class="next"><a href="###">下一页&nbsp;<span class="fa fa-angle-right"></span> </a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 心电数据 -->
+				<div class="row hideInfo">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-sm-12" style="margin-top:10px">
+								<input type="hidden" id="xindianshuju_leftTJ" value="一周">
+								<button type="button" class="btn btn-default " onclick="query_xindianshuju('一周','1')">最近一周</button>
+								<button type="button" class="btn btn-default " onclick="query_xindianshuju('一月','1')">最近一月</button>
+								<button type="button" class="btn btn-default " id="xindianshuju_leftzidinyi" onclick="$(this).parent().next().toggle();$(this).next().toggleClass('hideInfo');">自定义</button>
+								<button type="button" class="btn btn-primary hideInfo" onclick="query_xindianshuju('自定义','1')">查询</button>
+							</div>
+							<div class="col-sm-6 col-lg-4" style="display:none;">
+								<div class="input-group">
+									<input class="datetime form-control" size="10" id="xindianshuju_leftTimeStart" type="text" value="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_xindianshuju('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span> 
+									<span class="input-group-addon" style="border:0;background:#fff">~</span> 
+									<input class="datetime form-control" size="10" type="text" value="" id="xindianshuju_leftTimeEnd" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_xindianshuju('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-12" id="xindianshuju1">
+								<table class="table table-bordered dataTable hover" id="" style="margin-bottom:0;margin-top:10px">
+									<thead>
+										<tr>
+											<th><strong>时间</strong></th>
+											<th><strong>测量值</strong></th>
+											<th><strong>添加人</strong></th>
+										</tr>
+									</thead>
+									<tbody id="datacontainer_xindianshuju" role="alert" aria-live="polite" aria-relevant="all">
+									</tbody>
+									<input id="xindianshujuInfo" class="hideInfo">
+								</table>
+								<div class="col-sm-4">
+									<div class="dataTables_length" id="">
+										<label style="margin-top:18px;">每页
+											<select id="pageSizeSelector_xindianshuju" size="1" onchange="query_xindianshuju('','1')">
+									 			<option selected="selected" value="10">10</option>
+												<option value="25">25</option>
+												<option value="50">50</option>
+												<option value="100">100</option>
+											</select> 条
+										</label>
+									</div>
+								</div>
+								<div class="col-sm-8">
+									<div class="pull-right">
+										<div class="dataTables_paginate paging_bs_normal">
+											<ul id="paginationArea_xindianshuju" class="pagination">
+												<li class="prev disabled"><a href="###"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+												<li class="active"><a href="###">1</a></li>
+												<li class="next"><a href="###">下一页&nbsp;<span class="fa fa-angle-right"></span> </a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 心电图-->
+				<a href="###" target="_blank" class="hideInfo" id="tiaozhuanA"><span id="tiaozhuanA2">跳转</span> </a>
+				<div class="row hideInfo">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-sm-12" style="margin-top:10px">
+								<input type="hidden" id="xindiantu_leftTJ" value="一周">
+								<button type="button" class="btn btn-default " onclick="query_xindiantu('一周','1')">最近一周</button>
+								<button type="button" class="btn btn-default " onclick="query_xindiantu('一月','1')">最近一月</button>
+								<button type="button" class="btn btn-default " id="xindiantu_leftzidinyi" onclick="$(this).parent().next().toggle();$(this).next().toggleClass('hideInfo');">自定义</button>
+								<button type="button" class="btn btn-primary hideInfo" onclick="query_xindiantu('自定义','1')">查询</button>
+							</div>
+							<div class="col-sm-6 col-lg-4" style="display:none;">
+								<div class="input-group">
+									<input class="datetime form-control" size="10" id="xindiantu_leftTimeStart" type="text" value="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_xindiantu('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span> 
+									<span class="input-group-addon" style="border:0;background:#fff">~</span>
+									<input class="datetime form-control" size="10" type="text" value="" id="xindiantu_leftTimeEnd" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="格式：YYYY-MM-DD" readonly="readonly" onchange="query_xindiantu('自定义','1')" /> 
+									<span class="input-group-btn">
+										<button class="btn btn-danger deleteThisTime" type="button">
+											<span class="fa fa-times"></span>
+										</button> 
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-12" id="xindiantu1">
+								<table class="table table-bordered dataTable hover" id="" style="margin-bottom:0;margin-top:10px">
+									<thead>
+										<tr>
+											<th><strong>时间</strong></th>
+											<th><strong>心电图</strong></th>
+											<th><strong>添加人</strong></th>
+										</tr>
+									</thead>
+									<tbody id="datacontainer_xindiantu" role="alert" aria-live="polite" aria-relevant="all">
+									</tbody>
+									<input id="xindiantuInfo" class="hideInfo">
+								</table>
+								<div class="col-sm-4">
+									<div class="dataTables_length" id="">
+										<label style="margin-top:18px;">每页 
+											<select id="pageSizeSelector_xindiantu" size="1" onchange="query_xindiantu('','1')">
+												<option selected="selected" value="10">10</option>
+												<option value="25">25</option>
+												<option value="50">50</option>
+												<option value="100">100</option>
+											</select> 条
+										</label>
+									</div>
+								</div>
+								<div class="col-sm-8">
+									<div class="pull-right">
+										<div class="dataTables_paginate paging_bs_normal">
+											<ul id="paginationArea_xindiantu" class="pagination">
+												<li class="prev disabled"><a href="###"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+												<li class="active"><a href="###">1</a></li>
+												<li class="next"><a href="###">下一页&nbsp;<span class="fa fa-angle-right"></span> </a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="md-modal md-effect-1 colored-header" id="md-viewECG">
+		<div class="md-content">
+			<div class="modal-header">
+				<h3>心电数据(分析结果)</h3>
+				<button type="button" class="close md-close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+			<div class="modal-body ">
+				<table class="no-border">
+					<tbody class="no-border-y no-border-x">
+						<tr>
+							<td style="width:25%;" class="text-right">R-R:</td>
+							<td style="width:25%;" class="text-left" id="ECG01"></td>
+							<td style="width:25%;" class="text-right">P-R:</td>
+							<td style="width:25%;" class="text-left" id="ECG02"></td>
+						</tr>
+						<tr>
+							<td style="width:25%;" class="text-right">QRS:</td>
+							<td style="width:25%;" class="text-left" id="ECG03"></td>
+							<td style="width:25%;" class="text-right">QT:</td>
+							<td style="width:25%;" class="text-left" id="ECG04"></td>
+						</tr>
+						<tr>
+							<td style="width:25%;" class="text-right">QTC:</td>
+							<td style="width:25%;" class="text-left" id="ECG05"></td>
+							<td style="width:25%;" class="text-right">P轴:</td>
+							<td style="width:25%;" class="text-left" id="ECG06"></td>
+						</tr>
+						<tr>
+							<td style="width:25%;" class="text-right">QRS轴:</td>
+							<td style="width:25%;" class="text-left" id="ECG07"></td>
+							<td style="width:25%;" class="text-right">T轴:</td>
+							<td style="width:25%;" class="text-left" id="ECG08"></td>
+						</tr>
+						<tr>
+							<td style="width:25%;" class="text-right">PV5:</td>
+							<td style="width:25%;" class="text-left" id="ECG09"></td>
+							<td style="width:25%;" class="text-right">SVI:</td>
+							<td style="width:25%;" class="text-left" id="ECG10"></td>
+						</tr>
+						<tr>
+							<td style="width:25%;" class="text-right">PV5+SVI:</td>
+							<td style="width:25%;" class="text-left" id="ECG11"></td>
+							<td style="width:25%;" class="text-right">HR:</td>
+							<td style="width:25%;" class="text-left" id="ECG12"></td>
+						</tr>
+					</tbody>
+				</table>
+				<p style="margin:10px 20px">
+					<strong>分析结果:</strong><span style="margin-left:5px;" id="ECG13"></span>
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- 模态框假按钮 -->
+	<input type="hidden" value="心电波形假按钮" id="viewECG" class="md-trigger" data-modal="md-viewECG">
+	<input type="hidden" value="尿常规假按钮" id="viewncg" class="md-trigger" data-modal="md-viewpee">
+
+	<div class="md-modal md-effect-1 colored-header" id="md-viewpee">
+		<div class="md-content">
+			<div class="modal-header">
+				<h3>尿常规结果</h3>
+				<button type="button" class="close md-close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+			<div class="modal-body ">
+				<table class="no-border">
+					<tbody class="no-border-y no-border-x">
+						<tr>
+							<td style="width:25%;" class="text-right">BIL:</td>
+							<td style="width:25%;" class="text-left" id="pee1"></td>
+							<td style="width:25%;" class="text-right">BLD:</td>
+							<td style="width:25%;" class="text-left" id="pee2"></td>
+						</tr>
+						<tr>
+							<td style="width:25%;" class="text-right">GLU:</td>
+							<td style="width:25%;" class="text-left" id="pee3"></td>
+							<td style="width:25%;" class="text-right">KET:</td>
+							<td style="width:25%;" class="text-left" id="pee4"></td>
+						</tr>
+						<tr>
+							<td style="width:25%;" class="text-right">LEU:</td>
+							<td style="width:25%;" class="text-left" id="pee5"></td>
+							<td style="width:25%;" class="text-right">NIT:</td>
+							<td style="width:25%;" class="text-left" id="pee6"></td>
+						</tr>
+						<tr>
+							<td style="width:25%;" class="text-right">PH:</td>
+							<td style="width:25%;" class="text-left" id="pee7"></td>
+							<td style="width:25%;" class="text-right">PRO:</td>
+							<td style="width:25%;" class="text-left" id="pee8"></td>
+						</tr>
+						<tr>
+							<td style="width:25%;" class="text-right">SG:</td>
+							<td style="width:25%;" class="text-left" id="pee9"></td>
+							<td style="width:25%;" class="text-right">UBG:</td>
+							<td style="width:25%;" class="text-left" id="pee10"></td>
+						</tr>
+						<tr>
+							<td style="width:25%;" class="text-right">VC:</td>
+							<td style="width:25%;" class="text-left" id="pee11"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div class="md-overlay"></div>
+
+	<script src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/addressJS.js"></script>
+	<script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+	<script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+  	<script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
+	<script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
+	<script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+	<script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>   
+	<script type="text/javascript" src="js/masonry.js"></script>
+	<script type="text/javascript" src="js/jquery.crop/js/jquery.Jcrop.js"></script>
+  	<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+  	<script src="js/jquery.upload/js/jquery.iframe-transport.js"></script>
+  	<!-- The basic File Upload plugin -->
+  	<script src="js/jquery.upload/js/jquery.fileupload.js"></script>
+	<script type="text/javascript" src="js/behaviour/general.js"></script>
+	<script type="text/javascript" src="js/jquery.icheck/icheck.min.js"></script>
+	<script type="text/javascript" src="js/highcharts.js"></script>
+    <script type="text/javascript" src="js/mordo.tools/mordo.timeProcessing.js"></script>
+    <script type="text/javascript">
+     
+	$(document).ready(function(){
+       //initialize the javascript
+		queryType();//获取信息并判断查询
+		queryOlder();//查询老人信息
+	   	$(".deleteThisTime").click(function(){               //清除日期框中的值
+	       $(this).parent().prev()[0].value = "";
+	    });
+	    App.init();
+		$('div[class="icheckbox_square-blue checkbox checked disabled"]').removeClass("disabled");//美化checkbox框
+		var userId_login = "<%=request.getAttribute("userId")%>";
+		if (userId_login == null) {
+			userId_login = "";
+		}
+	});
+	
+	//跳转到心电图页面
+    function turnPic(id){
+        var url = "olderParEcg.do?main&picId=" + id;
+        var headUrl ="<%=request.getContextPath()%>/" + url;
+        $("#tiaozhuanA").attr("href",headUrl);
+        $("#tiaozhuanA2").click();
+    }
+	
+      //查询老人信息
+    function queryOlder(){
+  		var olderId="<%=request.getAttribute("olderId")%>";
+  		var reqmsg = "{'action':'QUERY_OLDER_INFO_REQUEST','content':{\"id\":" + olderId + "";
+  		reqmsg += "}}";
+		jQuery.ajax({
+			type : "post",
+			async : false,
+			url : "daeOlder.do?handler",
+			dataType : "json",
+			data : {
+				"reqmsg" : reqmsg
+			},
+            success : function(data){
+                if (data.des=="success"){
+              	 $("#olderName").text(data.content.name);
+                }else if (data.des=="failure"){
+                   alert("查询失败");
+                };
+            },
+            error:function(){
+  	           alert("error");
+            }
+       	});
+  	}
+	
+	//生理参数页签--par1为1~16，num为1默认表格,0为折线图
+	function tableORline(par1,par){ 
+		var func = "query_" + par1 + "()";
+		eval(func);
+		var num = $(par).val();
+		num = num %2;
+		$("#"+par1+num).show();
+		num = (num+1) %2;
+		$("#"+par1+num).hide();
+		
+	}
+
+	//生理参数////////////////////////////////////////////
+	//测量时间转化 yyyymmddhhmm
+	function changeTime(time){
+		time = time.split("-")[0] + time.split("-")[1] + time.split("-")[2];
+		time = time.split(":")[0] + time.split(":")[1];
+		time = time.replace(/\ +/g,"");
+		return time;
+	}
+	
+	//改变测量状态
+	function changeceliangStste(state){
+     	var name = "";
+     	switch (state)
+		{
+			case 1:
+  			name = "正常";
+  			break;
+  			
+			case 2:
+  			name = "偏高";
+  			break;
+
+			case 3:
+  			name = "偏低";
+  			break;
+  			
+  			default:
+  			break;
+		}
+		return name;
+    }
+    
+	//血压列表
+	function query_xueya(flag,pagenumber){
+		var showStatu = $("#xueya_rightXS").val();//获取当前显示的是列表还是图表
+		var pagesize = $("#pageSizeSelector_xueya option:selected").val();
+		var olderId="<%=request.getAttribute("olderId")%>";	
+		var reqmsg="";
+		if(showStatu == 0){
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'1','pagesize':'100000'},'content':{";
+		}else{
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+		}
+		
+		reqmsg += "\"olderId\":" + olderId + ",";
+		reqmsg += "\"type_in\":\"1,2\",";
+		var time = "";
+		var leftTJ = "";
+		if (flag == ""){
+			leftTJ = $("#xueya_leftTJ").val();
+		}else{
+			leftTJ = flag;
+			$("#xueya_leftTJ").val(flag);
+		}
+		if (leftTJ == "一周"){
+			time = lastweekTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#xueya_leftTimeStart").val("");
+			$("#xueya_leftTimeEnd").val("");
+		}
+		if (leftTJ == "一月"){
+			time = lastmonthTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#xueya_leftTimeStart").val("");
+			$("#xueya_leftTimeEnd").val("");
+		}
+		if (leftTJ == "自定义"){
+			var starttime = $("#xueya_leftTimeStart").val();
+			var endtime = $("#xueya_leftTimeEnd").val();
+			if ((starttime == null || starttime == "") && (endtime == null || endtime == "")){
+				alert("请选择自定义时间");
+				return;
+			}else{
+				if (starttime != null && starttime != ""){
+					reqmsg += "\"createTime_ge\":\"" + starttime.split("-")[0] + starttime.split("-")[1] + starttime.split("-")[2] + "000000" + "\",";
+				}
+				if (endtime != null && endtime != ""){
+					reqmsg += "\"createTime_le\":\"" + endtime.split("-")[0] + endtime.split("-")[1] + endtime.split("-")[2] + "235959" + "\",";
+				};
+				if(starttime != null && starttime != ""&& endtime != null && endtime != ""){
+					if(starttime > endtime){
+						alert("开始时间不能大于结束时间");
+						$("#xueya_leftTimeEnd").val("");
+						return;
+					}
+				}
+			};
+		}
+		var xueya_rightZT = $("#xueya_rightZT").val();
+		if (xueya_rightZT != null && xueya_rightZT != ""){
+			reqmsg += "\"status_in\":\"" + xueya_rightZT + "\",";
+			reqmsg += "\"status2_in\":\"" + xueya_rightZT + "\"";
+		}
+		
+		reqmsg += "}}";
+	
+	    jQuery.ajax({
+	        type : "post",
+	        async:true,
+	        url : "daeOlder.do?handler_Historyslcs", 
+	        dataType : "json",
+	        data: {
+	             "reqmsg":reqmsg
+	        },
+	        success : function(data){
+	            if (data.des=="success"){
+	          		changeData_xueya(data);
+	            }else if (data.des=="failure"){
+	            	alert("查询失败");
+	            }
+	        },
+	        error:function(){
+	        	alert("error");
+	        }
+	    });
+	}
+	
+	function changeData_xueya(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			var ssy_zhexian = "[";
+			var szy_zhexian = "[";
+			var time = "";
+			if (data.content.physiologicalParametersHistoryList != null && data.content.physiologicalParametersHistoryList.length >0){
+			jQuery.each(data.content.physiologicalParametersHistoryList, function(i, item) {
+				time = formateTime(item.createTime);
+				htmlcode += "<tr>";		
+			    htmlcode += "<td>" + time + "</td>";	
+			    htmlcode += "<td>" + item.value2 + "/" + item.value + "</td>";
+			    htmlcode += "<td>" + changeceliangStste(item.status2) + "/" + changeceliangStste(item.status) + "</td>";
+			    htmlcode += "<td>" + item.measurePerson + "</td>";
+				htmlcode += "</tr>";
+				time = formateTime4(item.createTime);
+				ssy_zhexian += "[" + changeTimeToTimeStamp(time) + "," + item.value + "],"
+				szy_zhexian += "[" + changeTimeToTimeStamp(time) + "," + item.value2 + "],"
+			});
+			}
+			if (ssy_zhexian != "["){
+				ssy_zhexian = ssy_zhexian.substr(0,ssy_zhexian.length-1);
+			}
+			if (szy_zhexian != "["){
+				szy_zhexian = szy_zhexian.substr(0,szy_zhexian.length-1);
+			}
+			ssy_zhexian += "]";
+			szy_zhexian += "]";
+			$("#hide_xueya_ssy_zhexian").val(ssy_zhexian);
+			$("#hide_xueya_szy_zhexian").val(szy_zhexian);
+			if (data.content.tongji != null){
+				$("#xueya_tongji_timeRange").html(data.content.tongji.timeRange);
+				$("#xueya_tongji_totalCount").html(data.content.tongji.totalCount);
+				$("#xueya_tongji_inCount").html(data.content.tongji.inCount);
+				$("#xueya_tongji_nomalPercent").html(data.content.tongji.nomalPercent);
+				$("#xueya_tongji_highPercent").html(data.content.tongji.highPercent);
+				$("#xueya_tongji_lowPercent").html(data.content.tongji.lowPercent);
+				$("#xueya_tongji_highValue").html(data.content.tongji.highValue1 + "</br>" + data.content.tongji.highValue2);
+				$("#xueya_tongji_lowValue").html(data.content.tongji.lowValue1 + "</br>" + data.content.tongji.lowValue2);
+			}
+		}else{
+			$("#hide_xueya_ssy_zhexian").val("[]");
+			$("#hide_xueya_szy_zhexian").val("[]");
+			$("#xueya_tongji_timeRange").html("");
+			$("#xueya_tongji_totalCount").html("");
+			$("#xueya_tongji_inCount").html("");
+			$("#xueya_tongji_nomalPercent").html("");
+			$("#xueya_tongji_highPercent").html("");
+			$("#xueya_tongji_lowPercent").html("");
+			$("#xueya_tongji_highValue").html("");
+			$("#xueya_tongji_lowValue").html("");
+		}
+		xueya_zhexiantu();
+		$("#datacontainer_xueya").html(htmlcode);
+		if (data.page != null) {
+			genaratePaginateHtml_xueya(data.page.pageno, data.page.pageCount);
+		} else {
+			genaratePaginateHtml_xueya(1, 1);
+		}
+	}
+	/**
+	 * 生成分页信息
+	 * @method genaratePaginateHtml_xueya
+	 * @param {Number} currentpage 当前页
+	 * @param {Number} totalpage 总页数
+	 */
+	function genaratePaginateHtml_xueya(currentpage, totalpage, pagesize) {
+		var htmlcode = "";
+		
+		//上一页
+		if (currentpage > 1) {
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_xueya('','1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_xueya('','" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		} else {
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		}
+		
+		//具体页码
+		if (totalpage <= 5) {
+			for (var i = 1; i <= totalpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_xueya('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		} else {
+			var startpage = currentpage;
+			var endpage = currentpage;
+			while (true) {
+				if (endpage - startpage >= 4) {
+					break;
+				} else {
+					if (startpage > 1) {
+						startpage = startpage - 1;
+					}
+					if (endpage < totalpage) {
+						endpage = endpage - (-1);
+					}
+				}
+			}
+			
+			for (var i = startpage; i <= endpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_xueya('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		}
+		
+		//下一页
+		if (totalpage > currentpage) {
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_xueya('','" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_xueya('','" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		} else {
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		}
+		$("#paginationArea_xueya").html(htmlcode);
+		$("#paginationArea_xueya").parents(".hideInfo").show();
+	}
+	
+	//血糖列表
+	function query_xuetang(flag,pagenumber){
+		var showStatu = $("#xuetang_rightXS").val();//获取当前显示的是列表还是图表
+		var pagesize = $("#pageSizeSelector_xueya option:selected").val();
+		var olderId="<%=request.getAttribute("olderId")%>";	
+		var reqmsg="";
+		if(showStatu == 0){
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'1','pagesize':'100000'},'content':{";
+		}else{
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+		}
+		reqmsg += "\"olderId\":" + olderId + ",";
+		reqmsg += "\"type_in\":\"3,4\",";
+		var time = "";
+		var leftTJ = "";
+		if (flag == ""){
+			leftTJ = $("#xuetang_leftTJ").val();
+		}else{
+			leftTJ = flag;
+			$("#xuetang_leftTJ").val(flag);
+		}
+		if (leftTJ == "一周"){
+			time = lastweekTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#xuetang_leftTimeStart").val("");
+			$("#xuetang_leftTimeEnd").val("");
+		}
+		if (leftTJ == "一月"){
+			time = lastmonthTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#xuetang_leftTimeStart").val("");
+			$("#xuetang_leftTimeEnd").val("");
+		}
+		if (leftTJ == "自定义"){
+			var starttime = $("#xuetang_leftTimeStart").val();
+			var endtime = $("#xuetang_leftTimeEnd").val();
+			if ((starttime == null || starttime == "") && (endtime == null || endtime == "")){
+				alert("请选择自定义时间");
+				return;
+			}else{
+				if (starttime != null && starttime != ""){
+					reqmsg += "\"createTime_ge\":\"" + starttime.split("-")[0] + starttime.split("-")[1] + starttime.split("-")[2] + "000000" + "\",";
+				}
+				if (endtime != null && endtime != ""){
+					reqmsg += "\"createTime_le\":\"" + endtime.split("-")[0] + endtime.split("-")[1] + endtime.split("-")[2] + "235959" + "\",";
+				}
+				if(starttime != null && starttime != ""&& endtime != null && endtime != ""){
+					if(starttime > endtime){
+						alert("开始时间不能大于结束时间");
+						$("#xuetang_leftTimeEnd").val("");
+						return;
+					}
+				}
+			}
+		}
+		var xuetang_rightZT = $("#xuetang_rightZT").val();
+		if (xuetang_rightZT != null && xuetang_rightZT != ""){
+			reqmsg += "\"status_in\":\"" + xuetang_rightZT + "\"";
+		}
+		
+		reqmsg += "}}";
+	
+	    jQuery.ajax({
+	        type : "post",
+	        async:true,
+	        url : "daeOlder.do?handler_Historyslcs", 
+	        dataType : "json",
+	        data: {
+	             "reqmsg":reqmsg
+	        },
+	        success : function(data){
+	            if (data.des=="success"){
+	          		changeData_xuetang(data);
+	            }else if (data.des=="failure"){
+	            	alert("查询失败");
+	            }
+	        },
+	        error:function(){
+	        	alert("error");
+	        }
+	    });
+	}
+		
+	function changeData_xuetang(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			var kf_zhexian = "[";
+			var ch_zhexian = "[";
+			var time = "";
+			if (data.content.physiologicalParametersHistoryList != null && data.content.physiologicalParametersHistoryList.length >0){
+			jQuery.each(data.content.physiologicalParametersHistoryList, function(i, item) {
+				time = formateTime(item.createTime);
+				htmlcode += "<tr>";		
+			    htmlcode += "<td>" + time + "</td>";	
+			    if (item.type == 3){
+			    	 htmlcode += "<td>" + "空腹血糖  " + item.value + "</td>";
+			    }
+			    if (item.type == 4){
+			    	 htmlcode += "<td>" + "餐后血糖  " + item.value + "</td>";
+			    }
+			   
+			    htmlcode += "<td>" + changeceliangStste(item.status) + "</td>";
+			    htmlcode += "<td>" + item.measurePerson + "</td>";
+				htmlcode += "</tr>";
+				time = formateTime4(item.createTime);
+				if (item.type == "3"){
+					kf_zhexian += "[" + changeTimeToTimeStamp(time) + "," + item.value + "],";
+				}
+				if (item.type == "4"){
+					ch_zhexian += "[" + changeTimeToTimeStamp(time) + "," + item.value + "],";
+				}
+			});
+			}
+			if (kf_zhexian != "["){
+				kf_zhexian = kf_zhexian.substr(0,kf_zhexian.length-1);
+			}
+			if (ch_zhexian != "["){
+				ch_zhexian = ch_zhexian.substr(0,ch_zhexian.length-1);
+			}
+			kf_zhexian += "]";
+			ch_zhexian += "]";
+			$("#hide_xuetang_kf_zhexian").val(kf_zhexian);
+			$("#hide_xuetang_ch_zhexian").val(ch_zhexian);
+			if (data.content.tongji != null){
+				$("#xuetang_tongji_timeRange").html(data.content.tongji.timeRange);
+				$("#xuetang_tongji_totalCount").html(data.content.tongji.totalCount);
+				$("#xuetang_tongji_inCount").html(data.content.tongji.inCount);
+				$("#xuetang_tongji_nomalPercent").html(data.content.tongji.nomalPercent);
+				$("#xuetang_tongji_highPercent").html(data.content.tongji.highPercent);
+				$("#xuetang_tongji_lowPercent").html(data.content.tongji.lowPercent);
+				$("#xuetang_tongji_highValue").html(data.content.tongji.highValue1 + "</br>" + data.content.tongji.highValue2);
+				$("#xuetang_tongji_lowValue").html(data.content.tongji.lowValue1 + "</br>" + data.content.tongji.lowValue2);
+			}
+		}else{
+			$("#hide_xuetang_kf_zhexian").val("[]");
+			$("#hide_xuetang_ch_zhexian").val("[]");
+			$("#xuetang_tongji_timeRange").html("");
+			$("#xuetang_tongji_totalCount").html("");
+			$("#xuetang_tongji_inCount").html("");
+			$("#xuetang_tongji_nomalPercent").html("");
+			$("#xuetang_tongji_highPercent").html("");
+			$("#xuetang_tongji_lowPercent").html("");
+			$("#xuetang_tongji_highValue").html("");
+			$("#xuetang_tongji_lowValue").html("");
+		}
+		xuetang_zhexiantu();
+		$("#datacontainer_xuetang").html(htmlcode);
+		if (data.page != null) {
+			genaratePaginateHtml_xuetang(data.page.pageno, data.page.pageCount);
+		} else {
+			genaratePaginateHtml_xuetang(1, 1);
+		}
+	}
+	/**
+	 * 生成分页信息
+	 * @method genaratePaginateHtml_xuetang
+	 * @param {Number} currentpage 当前页
+	 * @param {Number} totalpage 总页数
+	 */
+	function genaratePaginateHtml_xuetang(currentpage, totalpage, pagesize) {
+		var htmlcode = "";
+		
+		//上一页
+		if (currentpage > 1) {
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_xuetang('','1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_xuetang('','" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		} else {
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		}
+		
+		//具体页码
+		if (totalpage <= 5) {
+			for (var i = 1; i <= totalpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_xuetang('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		} else {
+			var startpage = currentpage;
+			var endpage = currentpage;
+			while (true) {
+				if (endpage - startpage >= 4) {
+					break;
+				} else {
+					if (startpage > 1) {
+						startpage = startpage - 1;
+					}
+					if (endpage < totalpage) {
+						endpage = endpage - (-1);
+					}
+				}
+			}
+			
+			for (var i = startpage; i <= endpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_xuetang('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		}
+		
+		//下一页
+		if (totalpage > currentpage) {
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_xuetang('','" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_xuetang('','" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		} else {
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		}
+		$("#paginationArea_xuetang").html(htmlcode);
+		$("#paginationArea_xuetang").parents(".hideInfo").show();
+	}
+	
+	//脉率列表
+	function query_mailv(flag,pagenumber){
+		var showStatu = $("#mailv_rightXS").val();//获取当前显示的是列表还是图表
+		var pagesize = $("#pageSizeSelector_xueya option:selected").val();
+		var olderId="<%=request.getAttribute("olderId")%>";	
+		var reqmsg="";
+		if(showStatu == 0){
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'1','pagesize':'100000'},'content':{";
+		}else{
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+		}
+		reqmsg += "\"olderId\":" + olderId + ",";
+		reqmsg += "\"type_in\":\"5\",";
+		var time = "";
+		var leftTJ = "";
+		if (flag == ""){
+			leftTJ = $("#mailv_leftTJ").val();
+		}else{
+			leftTJ = flag;
+			$("#mailv_leftTJ").val(flag);
+		}
+		if (leftTJ == "一周"){
+			time = lastweekTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#mailv_leftTimeStart").val("");
+			$("#mailv_leftTimeEnd").val("");
+		}
+		if (leftTJ == "一月"){
+			time = lastmonthTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#mailv_leftTimeStart").val("");
+			$("#mailv_leftTimeEnd").val("");
+		}
+		if (leftTJ == "自定义"){
+			var starttime = $("#mailv_leftTimeStart").val();
+			var endtime = $("#mailv_leftTimeEnd").val();
+			if ((starttime == null || starttime == "") && (endtime == null || endtime == "")){
+				alert("请选择自定义时间");
+				return;
+			}else{
+				if (starttime != null && starttime != ""){
+					reqmsg += "\"createTime_ge\":\"" + starttime.split("-")[0] + starttime.split("-")[1] + starttime.split("-")[2] + "000000" + "\",";
+				}
+				if (endtime != null && endtime != ""){
+					reqmsg += "\"createTime_le\":\"" + endtime.split("-")[0] + endtime.split("-")[1] + endtime.split("-")[2] + "235959" + "\",";
+				}
+				if(starttime != null && starttime != ""&& endtime != null && endtime != ""){
+					if(starttime > endtime){
+						alert("开始时间不能大于结束时间");
+						$("#mailv_leftTimeEnd").val("");
+						return;
+					}
+				}
+			}
+		}
+		var mailv_rightZT = $("#mailv_rightZT").val();
+		if (mailv_rightZT != null && mailv_rightZT != ""){
+			reqmsg += "\"status_in\":\"" + mailv_rightZT + "\",";
+		}
+		
+		reqmsg += "}}";
+	
+	    jQuery.ajax({
+	        type : "post",
+	        async:true,
+	        url : "daeOlder.do?handler_Historyslcs", 
+	        dataType : "json",
+	        data: {
+	             "reqmsg":reqmsg
+	        },
+	        success : function(data){
+	            if (data.des=="success"){
+	          		changeData_mailv(data);
+	            }else if (data.des=="failure"){
+	            	alert("查询失败");
+	            }
+	        },
+	        error:function(){
+	        	alert("error");
+	        }
+	    });
+	}
+	function changeData_mailv(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			var mailv_zhexian = "[";
+			var time = "";
+			if (data.content.physiologicalParametersHistoryList != null && data.content.physiologicalParametersHistoryList.length >0){
+			jQuery.each(data.content.physiologicalParametersHistoryList, function(i, item) {
+				time = formateTime(item.createTime);
+				htmlcode += "<tr>";		
+			    htmlcode += "<td>" + time + "</td>";	
+			    htmlcode += "<td>" + item.value + "</td>";
+			    htmlcode += "<td>" + changeceliangStste(item.status) + "</td>";
+			    htmlcode += "<td>" + item.measurePerson + "</td>";
+				htmlcode += "</tr>";
+				time = formateTime4(item.createTime);
+				mailv_zhexian += "[" + changeTimeToTimeStamp(time) + "," + item.value + "],";
+			});
+			}
+			if (mailv_zhexian != "["){
+				mailv_zhexian = mailv_zhexian.substr(0,mailv_zhexian.length-1);
+			}
+			mailv_zhexian += "]";
+			$("#hide_mailv_zhexian").val(mailv_zhexian);
+			if (data.content.tongji != null){
+				$("#mailv_tongji_timeRange").html(data.content.tongji.timeRange);
+				$("#mailv_tongji_totalCount").html(data.content.tongji.totalCount);
+				$("#mailv_tongji_inCount").html(data.content.tongji.inCount);
+				$("#mailv_tongji_nomalPercent").html(data.content.tongji.nomalPercent);
+				$("#mailv_tongji_highPercent").html(data.content.tongji.highPercent);
+				$("#mailv_tongji_lowPercent").html(data.content.tongji.lowPercent);
+				$("#mailv_tongji_highValue").html(data.content.tongji.highValue1);
+				$("#mailv_tongji_lowValue").html(data.content.tongji.lowValue1);
+			}
+		}else{
+			$("#hide_mailv_zhexian").val("[]");
+			$("#mailv_tongji_timeRange").html("");
+			$("#mailv_tongji_totalCount").html("");
+			$("#mailv_tongji_inCount").html("");
+			$("#mailv_tongji_nomalPercent").html("");
+			$("#mailv_tongji_highPercent").html("");
+			$("#mailv_tongji_lowPercent").html("");
+			$("#mailv_tongji_highValue").html("");
+			$("#mailv_tongji_lowValue").html("");
+		}
+		mailv_zhexiantu();
+		$("#datacontainer_mailv").html(htmlcode);
+		if (data.page != null) {
+			genaratePaginateHtml_mailv(data.page.pageno, data.page.pageCount);
+		} else {
+			genaratePaginateHtml_mailv(1, 1);
+		}
+	}
+	/**
+	 * 生成分页信息
+	 * @method genaratePaginateHtml_mailv
+	 * @param {Number} currentpage 当前页
+	 * @param {Number} totalpage 总页数
+	 */
+	function genaratePaginateHtml_mailv(currentpage, totalpage, pagesize) {
+		var htmlcode = "";
+		
+		//上一页
+		if (currentpage > 1) {
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_mailv('','1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_mailv('','" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		} else {
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		}
+		
+		//具体页码
+		if (totalpage <= 5) {
+			for (var i = 1; i <= totalpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_mailv('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		} else {
+			var startpage = currentpage;
+			var endpage = currentpage;
+			while (true) {
+				if (endpage - startpage >= 4) {
+					break;
+				} else {
+					if (startpage > 1) {
+						startpage = startpage - 1;
+					}
+					if (endpage < totalpage) {
+						endpage = endpage - (-1);
+					}
+				}
+			}
+			
+			for (var i = startpage; i <= endpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_mailv('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		}
+		
+		//下一页
+		if (totalpage > currentpage) {
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_mailv('','" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_mailv('','" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		} else {
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		}
+		$("#paginationArea_mailv").html(htmlcode);
+		$("#paginationArea_mailv").parents(".hideInfo").show();
+	}
+
+	//体温列表
+	function query_tiwen(flag,pagenumber){
+		var showStatu = $("#tiwen_rightXS").val();//获取当前显示的是列表还是图表
+		var pagesize = $("#pageSizeSelector_xueya option:selected").val();
+		var olderId="<%=request.getAttribute("olderId")%>";	
+		var reqmsg="";
+		if(showStatu == 0){
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'1','pagesize':'100000'},'content':{";
+		}else{
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+		}
+		reqmsg += "\"olderId\":" + olderId + ",";
+		reqmsg += "\"type_in\":\"6\",";
+		var time = "";
+		var leftTJ = "";
+		if (flag == ""){
+			leftTJ = $("#tiwen_leftTJ").val();
+		}else{
+			leftTJ = flag;
+			$("#tiwen_leftTJ").val(flag);
+		}
+		if (leftTJ == "一周"){
+			time = lastweekTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#tiwen_leftTimeStart").val("");
+			$("#tiwen_leftTimeEnd").val("");
+		}
+		if (leftTJ == "一月"){
+			time = lastmonthTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#tiwen_leftTimeStart").val("");
+			$("#tiwen_leftTimeEnd").val("");
+		}
+		if (leftTJ == "自定义"){
+			var starttime = $("#tiwen_leftTimeStart").val();
+			var endtime = $("#tiwen_leftTimeEnd").val();
+			if ((starttime == null || starttime == "") && (endtime == null || endtime == "")){
+				alert("请选择自定义时间");
+				return;
+			}else{
+				if (starttime != null && starttime != ""){
+					reqmsg += "\"createTime_ge\":\"" + starttime.split("-")[0] + starttime.split("-")[1] + starttime.split("-")[2] + "000000" + "\",";
+				}
+				if (endtime != null && endtime != ""){
+					reqmsg += "\"createTime_le\":\"" + endtime.split("-")[0] + endtime.split("-")[1] + endtime.split("-")[2] + "235959" + "\",";
+				}
+				if(starttime != null && starttime != ""&& endtime != null && endtime != ""){
+					if(starttime > endtime){
+						alert("开始时间不能大于结束时间");
+						$("#tiwen_leftTimeEnd").val("");
+						return;
+					}
+				}
+			}
+		}
+		var tiwen_rightZT = $("#tiwen_rightZT").val();
+		if (tiwen_rightZT != null && tiwen_rightZT != ""){
+			reqmsg += "\"status_in\":\"" + tiwen_rightZT + "\",";
+		}
+		
+		reqmsg += "}}";
+	
+	    jQuery.ajax({
+	        type : "post",
+	        async:true,
+	        url : "daeOlder.do?handler_Historyslcs", 
+	        dataType : "json",
+	        data: {
+	             "reqmsg":reqmsg
+	        },
+	        success : function(data){
+	            if (data.des=="success"){
+	          		changeData_tiwen(data);
+	            }else if (data.des=="failure"){
+	            	alert("查询失败");
+	            }
+	        },
+	        error:function(){
+	        	alert("error");
+	        }
+	    });
+	}
+	
+	function changeData_tiwen(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			var tiwen_zhexian = "[";
+			var time = "";
+			if (data.content.physiologicalParametersHistoryList != null && data.content.physiologicalParametersHistoryList.length >0){
+			jQuery.each(data.content.physiologicalParametersHistoryList, function(i, item) {
+				time = formateTime(item.createTime);
+				htmlcode += "<tr>";		
+			    htmlcode += "<td>" + time + "</td>";	
+			    htmlcode += "<td>" + item.value + "</td>";
+			    htmlcode += "<td>" + changeceliangStste(item.status) + "</td>";
+			    htmlcode += "<td>" + item.measurePerson + "</td>";
+				htmlcode += "</tr>";
+				time = formateTime4(item.createTime);
+				tiwen_zhexian += "[" + changeTimeToTimeStamp(time) + "," + item.value + "],";
+			});
+			}
+			if (tiwen_zhexian != "["){
+				tiwen_zhexian = tiwen_zhexian.substr(0,tiwen_zhexian.length-1);
+			}
+			tiwen_zhexian += "]";
+			$("#hide_tiwen_zhexian").val(tiwen_zhexian);
+			if (data.content.tongji != null){
+				$("#tiwen_tongji_timeRange").html(data.content.tongji.timeRange);
+				$("#tiwen_tongji_totalCount").html(data.content.tongji.totalCount);
+				$("#tiwen_tongji_inCount").html(data.content.tongji.inCount);
+				$("#tiwen_tongji_nomalPercent").html(data.content.tongji.nomalPercent);
+				$("#tiwen_tongji_highPercent").html(data.content.tongji.highPercent);
+				$("#tiwen_tongji_lowPercent").html(data.content.tongji.lowPercent);
+				$("#tiwen_tongji_highValue").html(data.content.tongji.highValue1);
+				$("#tiwen_tongji_lowValue").html(data.content.tongji.lowValue1);
+			}
+		}else{
+			$("#hide_tiwen_zhexian").val("[]");
+			$("#tiwen_tongji_timeRange").html("");
+			$("#tiwen_tongji_totalCount").html("");
+			$("#tiwen_tongji_inCount").html("");
+			$("#tiwen_tongji_nomalPercent").html("");
+			$("#tiwen_tongji_highPercent").html("");
+			$("#tiwen_tongji_lowPercent").html("");
+			$("#tiwen_tongji_highValue").html("");
+			$("#tiwen_tongji_lowValue").html("");
+		}
+		tiwen_zhexiantu();
+		$("#datacontainer_tiwen").html(htmlcode);
+		if (data.page != null) {
+			genaratePaginateHtml_tiwen(data.page.pageno, data.page.pageCount);
+		} else {
+			genaratePaginateHtml_tiwen(1, 1);
+		}
+	}
+	/**
+	 * 生成分页信息
+	 * @method genaratePaginateHtml_tiwen
+	 * @param {Number} currentpage 当前页
+	 * @param {Number} totalpage 总页数
+	 */
+	function genaratePaginateHtml_tiwen(currentpage, totalpage, pagesize) {
+		var htmlcode = "";
+		
+		//上一页
+		if (currentpage > 1) {
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_tiwen('','1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_tiwen('','" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		} else {
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		}
+		
+		//具体页码
+		if (totalpage <= 5) {
+			for (var i = 1; i <= totalpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_tiwen('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		} else {
+			var startpage = currentpage;
+			var endpage = currentpage;
+			while (true) {
+				if (endpage - startpage >= 4) {
+					break;
+				} else {
+					if (startpage > 1) {
+						startpage = startpage - 1;
+					}
+					if (endpage < totalpage) {
+						endpage = endpage - (-1);
+					}
+				}
+			}
+			
+			for (var i = startpage; i <= endpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_tiwen('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		}
+		
+		//下一页
+		if (totalpage > currentpage) {
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_tiwen('','" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_tiwen('','" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		} else {
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		}
+		$("#paginationArea_tiwen").html(htmlcode);
+		$("#paginationArea_tiwen").parents(".hideInfo").show();
+	}
+		
+		//血氧列表
+	function query_xueyang(flag,pagenumber){
+		var showStatu = $("#xueyang_rightXS").val();//获取当前显示的是列表还是图表
+		var pagesize = $("#pageSizeSelector_xueya option:selected").val();
+		var olderId="<%=request.getAttribute("olderId")%>";	
+		var reqmsg="";
+		if(showStatu == 0){
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'1','pagesize':'100000'},'content':{";
+		}else{
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+		}
+		reqmsg += "\"olderId\":" + olderId + ",";
+		reqmsg += "\"type_in\":\"8\",";
+		var time = "";
+		var leftTJ = "";
+		if (flag == ""){
+			leftTJ = $("#xueyang_leftTJ").val();
+		}else{
+			leftTJ = flag;
+			$("#xueyang_leftTJ").val(flag);
+		}
+		if (leftTJ == "一周"){
+			time = lastweekTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#xueyang_leftTimeStart").val("");
+			$("#xueyang_leftTimeEnd").val("");
+		}
+		if (leftTJ == "一月"){
+			time = lastmonthTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#xueyang_leftTimeStart").val("");
+			$("#xueyang_leftTimeEnd").val("");
+		}
+		if (leftTJ == "自定义"){
+			var starttime = $("#xueyang_leftTimeStart").val();
+			var endtime = $("#xueyang_leftTimeEnd").val();
+			if ((starttime == null || starttime == "") && (endtime == null || endtime == "")){
+				alert("请选择自定义时间");
+				return;
+			}else{
+				if (starttime != null && starttime != ""){
+					reqmsg += "\"createTime_ge\":\"" + starttime.split("-")[0] + starttime.split("-")[1] + starttime.split("-")[2] + "000000" + "\",";
+				}
+				if (endtime != null && endtime != ""){
+					reqmsg += "\"createTime_le\":\"" + endtime.split("-")[0] + endtime.split("-")[1] + endtime.split("-")[2] + "235959" + "\",";
+				}
+				if(starttime != null && starttime != ""&& endtime != null && endtime != ""){
+					if(starttime > endtime){
+						alert("开始时间不能大于结束时间");
+						$("#xueyang_leftTimeEnd").val("");
+						return;
+					}
+				}
+			}
+		}
+		var xueyang_rightZT = $("#xueyang_rightZT").val();
+		if (xueyang_rightZT != null && xueyang_rightZT != ""){
+			reqmsg += "\"status_in\":\"" + xueyang_rightZT + "\",";
+		}
+		
+		reqmsg += "}}";
+	
+	    jQuery.ajax({
+	        type : "post",
+	        async:true,
+	        url : "daeOlder.do?handler_Historyslcs", 
+	        dataType : "json",
+	        data: {
+	             "reqmsg":reqmsg
+	        },
+	        success : function(data){
+	            if (data.des=="success"){
+	          		changeData_xueyang(data);
+	            }else if (data.des=="failure"){
+	            	alert("查询失败");
+	            }
+	        },
+	        error:function(){
+	        	alert("error");
+	        }
+	    });
+	}
+	function changeData_xueyang(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			var xueyang_zhexian = "[";
+			var time = "";
+			if (data.content.physiologicalParametersHistoryList != null && data.content.physiologicalParametersHistoryList.length >0){
+			jQuery.each(data.content.physiologicalParametersHistoryList, function(i, item) {
+				time = formateTime(item.createTime);
+				htmlcode += "<tr>";		
+			    htmlcode += "<td>" + time + "</td>";	
+			    htmlcode += "<td>" + item.value + "</td>";
+			    htmlcode += "<td>" + changeceliangStste(item.status) + "</td>";
+			    htmlcode += "<td>" + item.measurePerson + "</td>";
+				htmlcode += "</tr>";
+				time = formateTime4(item.createTime);
+				xueyang_zhexian += "[" + changeTimeToTimeStamp(time) + "," + item.value + "],";
+			});
+			}
+			if (xueyang_zhexian != "["){
+				xueyang_zhexian = xueyang_zhexian.substr(0,xueyang_zhexian.length-1);
+			}
+			xueyang_zhexian += "]";
+			$("#hide_xueyang_zhexian").val(xueyang_zhexian);
+			if (data.content.tongji != null){
+				$("#xueyang_tongji_timeRange").html(data.content.tongji.timeRange);
+				$("#xueyang_tongji_totalCount").html(data.content.tongji.totalCount);
+				$("#xueyang_tongji_inCount").html(data.content.tongji.inCount);
+				$("#xueyang_tongji_nomalPercent").html(data.content.tongji.nomalPercent);
+				$("#xueyang_tongji_highPercent").html(data.content.tongji.highPercent);
+				$("#xueyang_tongji_lowPercent").html(data.content.tongji.lowPercent);
+				$("#xueyang_tongji_highValue").html(data.content.tongji.highValue1);
+				$("#xueyang_tongji_lowValue").html(data.content.tongji.lowValue1);
+			}
+		}else{
+			$("#hide_xueyang_zhexian").val("[]");
+			$("#xueyang_tongji_timeRange").html("");
+			$("#xueyang_tongji_totalCount").html("");
+			$("#xueyang_tongji_inCount").html("");
+			$("#xueyang_tongji_nomalPercent").html("");
+			$("#xueyang_tongji_highPercent").html("");
+			$("#xueyang_tongji_lowPercent").html("");
+			$("#xueyang_tongji_highValue").html("");
+			$("#xueyang_tongji_lowValue").html("");
+		}
+		xueyang_zhexiantu();
+		$("#datacontainer_xueyang").html(htmlcode);
+		if (data.page != null) {
+			genaratePaginateHtml_xueyang(data.page.pageno, data.page.pageCount);
+		} else {
+			genaratePaginateHtml_xueyang(1, 1);
+		}
+	}
+	/**
+	 * 生成分页信息
+	 * @method genaratePaginateHtml_xueyang
+	 * @param {Number} currentpage 当前页
+	 * @param {Number} totalpage 总页数
+	 */
+	function genaratePaginateHtml_xueyang(currentpage, totalpage, pagesize) {
+		var htmlcode = "";
+	
+		//上一页
+		if (currentpage > 1) {
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_xueyang('','1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_xueyang('','" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		} else {
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		}
+		
+		//具体页码
+		if (totalpage <= 5) {
+			for (var i = 1; i <= totalpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_xueyang('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		} else {
+			var startpage = currentpage;
+			var endpage = currentpage;
+			while (true) {
+				if (endpage - startpage >= 4) {
+					break;
+				} else {
+					if (startpage > 1) {
+						startpage = startpage - 1;
+					}
+					if (endpage < totalpage) {
+						endpage = endpage - (-1);
+					}
+				}
+			}
+			
+			for (var i = startpage; i <= endpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_xueyang('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		}
+		
+		//下一页
+		if (totalpage > currentpage) {
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_xueyang('','" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_xueyang('','" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		} else {
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		}
+		$("#paginationArea_xueyang").html(htmlcode);
+		$("#paginationArea_xueyang").parents(".hideInfo").show();
+	}
+	
+	//BMI列表
+	function query_BMI(flag,pagenumber){
+		var showStatu = $("#BMI_rightXS").val();//获取当前显示的是列表还是图表
+		var pagesize = $("#pageSizeSelector_xueya option:selected").val();
+		var olderId="<%=request.getAttribute("olderId")%>";	
+		var reqmsg="";
+		if(showStatu == 0){
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'1','pagesize':'100000'},'content':{";
+		}else{
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+		}
+		reqmsg += "\"olderId\":" + olderId + ",";
+		reqmsg += "\"type_in\":\"10\",";
+		var time = "";
+		var leftTJ = "";
+		if (flag == ""){
+			leftTJ = $("#BMI_leftTJ").val();
+		}else{
+			leftTJ = flag;
+			$("#BMI_leftTJ").val(flag);
+		}
+		if (leftTJ == "一周"){
+			time = lastweekTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#BMI_leftTimeStart").val("");
+			$("#BMI_leftTimeEnd").val("");
+		}
+		if (leftTJ == "一月"){
+			time = lastmonthTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#BMI_leftTimeStart").val("");
+			$("#BMI_leftTimeEnd").val("");
+		}
+		if (leftTJ == "自定义"){
+			var starttime = $("#BMI_leftTimeStart").val();
+			var endtime = $("#BMI_leftTimeEnd").val();
+			if ((starttime == null || starttime == "") && (endtime == null || endtime == "")){
+				alert("请选择自定义时间");
+				return;
+			}else{
+				if (starttime != null && starttime != ""){
+					reqmsg += "\"createTime_ge\":\"" + starttime.split("-")[0] + starttime.split("-")[1] + starttime.split("-")[2] + "000000" + "\",";
+				}
+				if (endtime != null && endtime != ""){
+					reqmsg += "\"createTime_le\":\"" + endtime.split("-")[0] + endtime.split("-")[1] + endtime.split("-")[2] + "235959" + "\",";
+				}
+				if(starttime != null && starttime != ""&& endtime != null && endtime != ""){
+					if(starttime > endtime){
+						alert("开始时间不能大于结束时间");
+						$("#BMI_leftTimeEnd").val("");
+						return;
+					}
+				}
+			}
+		}
+		var BMI_rightZT = $("#BMI_rightZT").val();
+		if (BMI_rightZT != null && BMI_rightZT != ""){
+			reqmsg += "\"status_in\":\"" + BMI_rightZT + "\",";
+		}
+		
+		reqmsg += "}}";
+	
+	    jQuery.ajax({
+	        type : "post",
+	        async:true,
+	        url : "daeOlder.do?handler_Historyslcs", 
+	        dataType : "json",
+	        data: {
+	             "reqmsg":reqmsg
+	        },
+	        success : function(data){
+	            if (data.des=="success"){
+	          		changeData_BMI(data);
+	            }else if (data.des=="failure"){
+	            	alert("查询失败");
+	            }
+	        },
+	        error:function(){
+	        	alert("error");
+	        }
+	    });
+	}
+	
+	function changeData_BMI(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			var BMI_zhexian = "[";
+			var time = "";
+			if (data.content.physiologicalParametersHistoryList != null && data.content.physiologicalParametersHistoryList.length >0){
+			jQuery.each(data.content.physiologicalParametersHistoryList, function(i, item) {
+				time = formateTime(item.createTime);
+				htmlcode += "<tr>";		
+			    htmlcode += "<td>" + time + "</td>";	
+			    htmlcode += "<td>" + item.value + "</td>";
+			    htmlcode += "<td>" + changeceliangStste(item.status) + "</td>";
+			    htmlcode += "<td>" + item.measurePerson + "</td>";
+				htmlcode += "</tr>";
+				time = formateTime4(item.createTime);
+				BMI_zhexian += "[" + changeTimeToTimeStamp(time) + "," + item.value + "],";
+			});
+			}
+			if (BMI_zhexian != "["){
+				BMI_zhexian = BMI_zhexian.substr(0,BMI_zhexian.length-1);
+			}
+			BMI_zhexian += "]";
+			$("#hide_BMI_zhexian").val(BMI_zhexian);
+			if (data.content.tongji != null){
+				$("#BMI_tongji_timeRange").html(data.content.tongji.timeRange);
+				$("#BMI_tongji_totalCount").html(data.content.tongji.totalCount);
+				$("#BMI_tongji_inCount").html(data.content.tongji.inCount);
+				$("#BMI_tongji_nomalPercent").html(data.content.tongji.nomalPercent);
+				$("#BMI_tongji_highPercent").html(data.content.tongji.highPercent);
+				$("#BMI_tongji_lowPercent").html(data.content.tongji.lowPercent);
+				$("#BMI_tongji_highValue").html(data.content.tongji.highValue1);
+				$("#BMI_tongji_lowValue").html(data.content.tongji.lowValue1);
+			}
+		}else{
+			$("#hide_BMI_zhexian").val("[]");
+			$("#BMI_tongji_timeRange").html("");
+			$("#BMI_tongji_totalCount").html("");
+			$("#BMI_tongji_inCount").html("");
+			$("#BMI_tongji_nomalPercent").html("");
+			$("#BMI_tongji_highPercent").html("");
+			$("#BMI_tongji_lowPercent").html("");
+			$("#BMI_tongji_highValue").html("");
+			$("#BMI_tongji_lowValue").html("");
+		}
+		BMI_zhexiantu();
+		$("#datacontainer_BMI").html(htmlcode);
+		if (data.page != null) {
+			genaratePaginateHtml_BMI(data.page.pageno, data.page.pageCount);
+		} else {
+			genaratePaginateHtml_BMI(1, 1);
+		}
+	}
+	/**
+	 * 生成分页信息
+	 * @method genaratePaginateHtml_BMI
+	 * @param {Number} currentpage 当前页
+	 * @param {Number} totalpage 总页数
+	 */
+	function genaratePaginateHtml_BMI(currentpage, totalpage, pagesize) {
+		var htmlcode = "";
+		
+		//上一页
+		if (currentpage > 1) {
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_BMI('','1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_BMI('','" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		} else {
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		}
+		
+		//具体页码
+		if (totalpage <= 5) {
+			for (var i = 1; i <= totalpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_BMI('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		} else {
+			var startpage = currentpage;
+			var endpage = currentpage;
+			while (true) {
+				if (endpage - startpage >= 4) {
+					break;
+				} else {
+					if (startpage > 1) {
+						startpage = startpage - 1;
+					}
+					if (endpage < totalpage) {
+						endpage = endpage - (-1);
+					}
+				}
+			}
+			
+			for (var i = startpage; i <= endpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_BMI('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		}
+		
+		//下一页
+		if (totalpage > currentpage) {
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_BMI('','" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_BMI('','" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		} else {
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		}
+		$("#paginationArea_BMI").html(htmlcode);
+		$("#paginationArea_BMI").parents(".hideInfo").show();
+	}
+	
+	//血红蛋白列表
+	function query_xuehongdanbai(flag,pagenumber){
+		var showStatu = $("#xuehongdanbai_rightXS").val();//获取当前显示的是列表还是图表
+		var pagesize = $("#pageSizeSelector_xueya option:selected").val();
+		var olderId="<%=request.getAttribute("olderId")%>";	
+		var reqmsg="";
+		if(showStatu == 0){
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'1','pagesize':'100000'},'content':{";
+		}else{
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+		}
+		reqmsg += "\"olderId\":" + olderId + ",";
+		reqmsg += "\"type_in\":\"12\",";
+		var time = "";
+		var leftTJ = "";
+		if (flag == ""){
+			leftTJ = $("#xuehongdanbai_leftTJ").val();
+		}else{
+			leftTJ = flag;
+			$("#xuehongdanbai_leftTJ").val(flag);
+		}
+		if (leftTJ == "一周"){
+			time = lastweekTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#xuehongdanbai_leftTimeStart").val("");
+			$("#xuehongdanbai_leftTimeEnd").val("");
+		}
+		if (leftTJ == "一月"){
+			time = lastmonthTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#xuehongdanbai_leftTimeStart").val("");
+			$("#xuehongdanbai_leftTimeEnd").val("");
+		}
+		if (leftTJ == "自定义"){
+			var starttime = $("#xuehongdanbai_leftTimeStart").val();
+			var endtime = $("#xuehongdanbai_leftTimeEnd").val();
+			if ((starttime == null || starttime == "") && (endtime == null || endtime == "")){
+				alert("请选择自定义时间");
+				return;
+			}else{
+				if (starttime != null && starttime != ""){
+					reqmsg += "\"createTime_ge\":\"" + starttime.split("-")[0] + starttime.split("-")[1] + starttime.split("-")[2] + "000000" + "\",";
+				}
+				if (endtime != null && endtime != ""){
+					reqmsg += "\"createTime_le\":\"" + endtime.split("-")[0] + endtime.split("-")[1] + endtime.split("-")[2] + "235959" + "\",";
+				}
+				if(starttime != null && starttime != ""&& endtime != null && endtime != ""){
+					if(starttime > endtime){
+						alert("开始时间不能大于结束时间");
+						$("#xuehongdanbai_leftTimeEnd").val("");
+						return;
+					}
+				}
+			}
+		}
+		var xuehongdanbai_rightZT = $("#xuehongdanbai_rightZT").val();
+		if (xuehongdanbai_rightZT != null && xuehongdanbai_rightZT != ""){
+			reqmsg += "\"status_in\":\"" + xuehongdanbai_rightZT + "\",";
+		}
+		
+		reqmsg += "}}";
+	
+	    jQuery.ajax({
+	        type : "post",
+	        async:true,
+	        url : "daeOlder.do?handler_Historyslcs", 
+	        dataType : "json",
+	        data: {
+	             "reqmsg":reqmsg
+	        },
+	        success : function(data){
+	            if (data.des=="success"){
+	          		changeData_xuehongdanbai(data);
+	            }else if (data.des=="failure"){
+	            	alert("查询失败");
+	            }
+	        },
+	        error:function(){
+	        	alert("error");
+	        }
+	    });
+	}
+	function changeData_xuehongdanbai(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			var xuehongdanbai_zhexian = "[";
+			var time = "";
+			if (data.content.physiologicalParametersHistoryList != null && data.content.physiologicalParametersHistoryList.length >0){
+			jQuery.each(data.content.physiologicalParametersHistoryList, function(i, item) {
+				time = formateTime(item.createTime);
+				htmlcode += "<tr>";		
+			    htmlcode += "<td>" + time + "</td>";	
+			    htmlcode += "<td>" + item.value + "</td>";
+			    htmlcode += "<td>" + changeceliangStste(item.status) + "</td>";
+			    htmlcode += "<td>" + item.measurePerson + "</td>";
+				htmlcode += "</tr>";
+				time = formateTime4(item.createTime);
+				xuehongdanbai_zhexian += "[" + changeTimeToTimeStamp(time) + "," + item.value + "],";
+			});
+			}
+			if (xuehongdanbai_zhexian != "["){
+				xuehongdanbai_zhexian = xuehongdanbai_zhexian.substr(0,xuehongdanbai_zhexian.length-1);
+			}
+			xuehongdanbai_zhexian += "]";
+			$("#hide_xuehongdanbai_zhexian").val(xuehongdanbai_zhexian);
+			if (data.content.tongji != null){
+				$("#xuehongdanbai_tongji_timeRange").html(data.content.tongji.timeRange);
+				$("#xuehongdanbai_tongji_totalCount").html(data.content.tongji.totalCount);
+				$("#xuehongdanbai_tongji_inCount").html(data.content.tongji.inCount);
+				$("#xuehongdanbai_tongji_nomalPercent").html(data.content.tongji.nomalPercent);
+				$("#xuehongdanbai_tongji_highPercent").html(data.content.tongji.highPercent);
+				$("#xuehongdanbai_tongji_lowPercent").html(data.content.tongji.lowPercent);
+				$("#xuehongdanbai_tongji_highValue").html(data.content.tongji.highValue1);
+				$("#xuehongdanbai_tongji_lowValue").html(data.content.tongji.lowValue1);
+			}
+		}else{
+			$("#hide_xuehongdanbai_zhexian").val("[]");
+			$("#xuehongdanbai_tongji_timeRange").html("");
+			$("#xuehongdanbai_tongji_totalCount").html("");
+			$("#xuehongdanbai_tongji_inCount").html("");
+			$("#xuehongdanbai_tongji_nomalPercent").html("");
+			$("#xuehongdanbai_tongji_highPercent").html("");
+			$("#xuehongdanbai_tongji_lowPercent").html("");
+			$("#xuehongdanbai_tongji_highValue").html("");
+			$("#xuehongdanbai_tongji_lowValue").html("");
+		}
+		xuehongdanbai_zhexiantu();
+		$("#datacontainer_xuehongdanbai").html(htmlcode);
+		if (data.page != null) {
+			genaratePaginateHtml_xuehongdanbai(data.page.pageno, data.page.pageCount);
+		} else {
+			genaratePaginateHtml_xuehongdanbai(1, 1);
+		}
+	}
+	/**
+	 * 生成分页信息
+	 * @method genaratePaginateHtml_xuehongdanbai
+	 * @param {Number} currentpage 当前页
+	 * @param {Number} totalpage 总页数
+	 */
+	function genaratePaginateHtml_xuehongdanbai(currentpage, totalpage, pagesize) {
+		var htmlcode = "";
+		
+		//上一页
+		if (currentpage > 1) {
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_xuehongdanbai('','1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_xuehongdanbai('','" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		} else {
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		}
+		
+		//具体页码
+		if (totalpage <= 5) {
+			for (var i = 1; i <= totalpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_xuehongdanbai('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		} else {
+			var startpage = currentpage;
+			var endpage = currentpage;
+			while (true) {
+				if (endpage - startpage >= 4) {
+					break;
+				} else {
+					if (startpage > 1) {
+						startpage = startpage - 1;
+					}
+					if (endpage < totalpage) {
+						endpage = endpage - (-1);
+					}
+				}
+			}
+			
+			for (var i = startpage; i <= endpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_xuehongdanbai('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		}
+		
+		//下一页
+		if (totalpage > currentpage) {
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_xuehongdanbai('','" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_xuehongdanbai('','" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		} else {
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		}
+		$("#paginationArea_xuehongdanbai").html(htmlcode);
+		$("#paginationArea_xuehongdanbai").parents(".hideInfo").show();
+	}
+	
+	//尿酸列表
+	function query_niaosuan(flag,pagenumber){
+		var showStatu = $("#niaosuan_rightXS").val();//获取当前显示的是列表还是图表
+		var pagesize = $("#pageSizeSelector_xueya option:selected").val();
+		var olderId="<%=request.getAttribute("olderId")%>";	
+		var reqmsg="";
+		if(showStatu == 0){
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'1','pagesize':'100000'},'content':{";
+		}else{
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+		}
+		reqmsg += "\"olderId\":" + olderId + ",";
+		reqmsg += "\"type_in\":\"13\",";
+		var time = "";
+		var leftTJ = "";
+		if (flag == ""){
+			leftTJ = $("#niaosuan_leftTJ").val();
+		}else{
+			leftTJ = flag;
+			$("#niaosuan_leftTJ").val(flag);
+		}
+		if (leftTJ == "一周"){
+			time = lastweekTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#niaosuan_leftTimeStart").val("");
+			$("#niaosuan_leftTimeEnd").val("");
+		}
+		if (leftTJ == "一月"){
+			time = lastmonthTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#niaosuan_leftTimeStart").val("");
+			$("#niaosuan_leftTimeEnd").val("");
+		}
+		if (leftTJ == "自定义"){
+			var starttime = $("#niaosuan_leftTimeStart").val();
+			var endtime = $("#niaosuan_leftTimeEnd").val();
+			if ((starttime == null || starttime == "") && (endtime == null || endtime == "")){
+				alert("请选择自定义时间");
+				return;
+			}else{
+				if (starttime != null && starttime != ""){
+					reqmsg += "\"createTime_ge\":\"" + starttime.split("-")[0] + starttime.split("-")[1] + starttime.split("-")[2] + "000000" + "\",";
+				}
+				if (endtime != null && endtime != ""){
+					reqmsg += "\"createTime_le\":\"" + endtime.split("-")[0] + endtime.split("-")[1] + endtime.split("-")[2] + "235959" + "\",";
+				}
+				if(starttime != null && starttime != ""&& endtime != null && endtime != ""){
+					if(starttime > endtime){
+						alert("开始时间不能大于结束时间");
+						$("#niaosuan_leftTimeEnd").val("");
+						return;
+					}
+				}
+			}
+		}
+		
+		var niaosuan_rightZT = $("#niaosuan_rightZT").val();
+		if (niaosuan_rightZT != null && niaosuan_rightZT != ""){
+			reqmsg += "\"status_in\":\"" + niaosuan_rightZT + "\",";
+		}
+		reqmsg += "}}";
+	
+	    jQuery.ajax({
+		    type : "post",
+		    async:true,
+		    url : "daeOlder.do?handler_Historyslcs", 
+		    dataType : "json",
+		    data: {
+		         "reqmsg":reqmsg
+		    },
+		    success : function(data){
+		        if (data.des=="success"){
+		      		changeData_niaosuan(data);
+		        }else if (data.des=="failure"){
+		        	alert("查询失败");
+		        }
+		    },
+		    error:function(){
+		    	alert("error");
+		    }
+	    });
+	}
+	
+	function changeData_niaosuan(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			var niaosuan_zhexian = "[";
+			var time = "";
+			if (data.content.physiologicalParametersHistoryList != null && data.content.physiologicalParametersHistoryList.length >0){
+			jQuery.each(data.content.physiologicalParametersHistoryList, function(i, item) {
+				time = formateTime(item.createTime);
+				htmlcode += "<tr>";		
+			    htmlcode += "<td>" + time + "</td>";	
+			    htmlcode += "<td>" + item.value + "</td>";
+			    htmlcode += "<td>" + changeceliangStste(item.status) + "</td>";
+			    htmlcode += "<td>" + item.measurePerson + "</td>";
+				htmlcode += "</tr>";
+				time = formateTime4(item.createTime);
+				niaosuan_zhexian += "[" + changeTimeToTimeStamp(time) + "," + item.value + "],";
+			});
+			}
+			if (niaosuan_zhexian != "["){
+				niaosuan_zhexian = niaosuan_zhexian.substr(0,niaosuan_zhexian.length-1);
+			}
+			niaosuan_zhexian += "]";
+			$("#hide_niaosuan_zhexian").val(niaosuan_zhexian);
+			if (data.content.tongji != null){
+				$("#niaosuan_tongji_timeRange").html(data.content.tongji.timeRange);
+				$("#niaosuan_tongji_totalCount").html(data.content.tongji.totalCount);
+				$("#niaosuan_tongji_inCount").html(data.content.tongji.inCount);
+				$("#niaosuan_tongji_nomalPercent").html(data.content.tongji.nomalPercent);
+				$("#niaosuan_tongji_highPercent").html(data.content.tongji.highPercent);
+				$("#niaosuan_tongji_lowPercent").html(data.content.tongji.lowPercent);
+				$("#niaosuan_tongji_highValue").html(data.content.tongji.highValue1);
+				$("#niaosuan_tongji_lowValue").html(data.content.tongji.lowValue1);
+			}
+		}else{
+			$("#hide_niaosuan_zhexian").val("[]");
+			$("#niaosuan_tongji_timeRange").html("");
+			$("#niaosuan_tongji_totalCount").html("");
+			$("#niaosuan_tongji_inCount").html("");
+			$("#niaosuan_tongji_nomalPercent").html("");
+			$("#niaosuan_tongji_highPercent").html("");
+			$("#niaosuan_tongji_lowPercent").html("");
+			$("#niaosuan_tongji_highValue").html("");
+			$("#niaosuan_tongji_lowValue").html("");
+		}
+		niaosuan_zhexiantu();
+		$("#datacontainer_niaosuan").html(htmlcode);
+		if (data.page != null) {
+			genaratePaginateHtml_niaosuan(data.page.pageno, data.page.pageCount);
+		} else {
+			genaratePaginateHtml_niaosuan(1, 1);
+		}
+	}
+	/**
+	 * 生成分页信息
+	 * @method genaratePaginateHtml_niaosuan
+	 * @param {Number} currentpage 当前页
+	 * @param {Number} totalpage 总页数
+	 */
+	function genaratePaginateHtml_niaosuan(currentpage, totalpage, pagesize) {
+		var htmlcode = "";
+		
+		//上一页
+		if (currentpage > 1) {
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_niaosuan('','1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_niaosuan('','" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		} else {
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		}
+		
+		//具体页码
+		if (totalpage <= 5) {
+			for (var i = 1; i <= totalpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_niaosuan('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		} else {
+			var startpage = currentpage;
+			var endpage = currentpage;
+			while (true) {
+				if (endpage - startpage >= 4) {
+					break;
+				} else {
+					if (startpage > 1) {
+						startpage = startpage - 1;
+					}
+					if (endpage < totalpage) {
+						endpage = endpage - (-1);
+					}
+				}
+			}
+			
+			for (var i = startpage; i <= endpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_niaosuan('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		}
+		
+		//下一页
+		if (totalpage > currentpage) {
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_niaosuan('','" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_niaosuan('','" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		} else {
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		}
+		$("#paginationArea_niaosuan").html(htmlcode);
+		$("#paginationArea_niaosuan").parents(".hideInfo").show();
+	}
+	
+	//胆固醇列表
+	function query_danguchun(flag,pagenumber){
+		var showStatu = $("#danguchun_rightXS").val();//获取当前显示的是列表还是图表
+		var pagesize = $("#pageSizeSelector_xueya option:selected").val();
+		var olderId="<%=request.getAttribute("olderId")%>";	
+		var reqmsg="";
+		if(showStatu == 0){
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'1','pagesize':'100000'},'content':{";
+		}else{
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+		}
+		reqmsg += "\"olderId\":" + olderId + ",";
+		reqmsg += "\"type_in\":\"14\",";
+		var time = "";
+		var leftTJ = "";
+		if (flag == ""){
+			leftTJ = $("#danguchun_leftTJ").val();
+		}else{
+			leftTJ = flag;
+			$("#danguchun_leftTJ").val(flag);
+		}
+		if (leftTJ == "一周"){
+			time = lastweekTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#danguchun_leftTimeStart").val("");
+			$("#danguchun_leftTimeEnd").val("");
+		}
+		if (leftTJ == "一月"){
+			time = lastmonthTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#danguchun_leftTimeStart").val("");
+			$("#danguchun_leftTimeEnd").val("");
+		}
+		if (leftTJ == "自定义"){
+			var starttime = $("#danguchun_leftTimeStart").val();
+			var endtime = $("#danguchun_leftTimeEnd").val();
+			if ((starttime == null || starttime == "") && (endtime == null || endtime == "")){
+				alert("请选择自定义时间");
+				return;
+			}else{
+				if (starttime != null && starttime != ""){
+					reqmsg += "\"createTime_ge\":\"" + starttime.split("-")[0] + starttime.split("-")[1] + starttime.split("-")[2] + "000000" + "\",";
+				}
+				if (endtime != null && endtime != ""){
+					reqmsg += "\"createTime_le\":\"" + endtime.split("-")[0] + endtime.split("-")[1] + endtime.split("-")[2] + "235959" + "\",";
+				}
+				if(starttime != null && starttime != ""&& endtime != null && endtime != ""){
+					if(starttime > endtime){
+						alert("开始时间不能大于结束时间");
+						$("#danguchun_leftTimeEnd").val("");
+						return;
+					}
+				}
+			}
+		}
+		var danguchun_rightZT = $("#danguchun_rightZT").val();
+		if (danguchun_rightZT != null && danguchun_rightZT != ""){
+			reqmsg += "\"status_in\":\"" + danguchun_rightZT + "\",";
+		}
+		
+		reqmsg += "}}";
+	
+	    jQuery.ajax({
+	          type : "post",
+	          async:true,
+	          url : "daeOlder.do?handler_Historyslcs", 
+	          dataType : "json",
+	          data: {
+	               "reqmsg":reqmsg
+	          },
+	          success : function(data){
+	              if (data.des=="success"){
+	            	  changeData_danguchun(data);
+	              }else if (data.des=="failure"){
+	                 alert("查询失败");
+	              }
+	          },
+	          error:function(){
+		           alert("error");
+	          }
+	     });
+	}
+	function changeData_danguchun(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			var danguchun_zhexian = "[";
+			var time = "";
+			if (data.content.physiologicalParametersHistoryList != null && data.content.physiologicalParametersHistoryList.length >0){
+			jQuery.each(data.content.physiologicalParametersHistoryList, function(i, item) {
+				time = formateTime(item.createTime);
+				htmlcode += "<tr>";		
+			    htmlcode += "<td>" + time + "</td>";	
+			    htmlcode += "<td>" + item.value + "</td>";
+			    htmlcode += "<td>" + changeceliangStste(item.status) + "</td>";
+			    htmlcode += "<td>" + item.measurePerson + "</td>";
+				htmlcode += "</tr>";
+				time = formateTime4(item.createTime);
+				danguchun_zhexian += "[" + changeTimeToTimeStamp(time) + "," + item.value + "],";
+			});
+			}
+			if (danguchun_zhexian != "["){
+				danguchun_zhexian = danguchun_zhexian.substr(0,danguchun_zhexian.length-1);
+			}
+			danguchun_zhexian += "]";
+			$("#hide_danguchun_zhexian").val(danguchun_zhexian);
+			if (data.content.tongji != null){
+				$("#danguchun_tongji_timeRange").html(data.content.tongji.timeRange);
+				$("#danguchun_tongji_totalCount").html(data.content.tongji.totalCount);
+				$("#danguchun_tongji_inCount").html(data.content.tongji.inCount);
+				$("#danguchun_tongji_nomalPercent").html(data.content.tongji.nomalPercent);
+				$("#danguchun_tongji_highPercent").html(data.content.tongji.highPercent);
+				$("#danguchun_tongji_lowPercent").html(data.content.tongji.lowPercent);
+				$("#danguchun_tongji_highValue").html(data.content.tongji.highValue1);
+				$("#danguchun_tongji_lowValue").html(data.content.tongji.lowValue1);
+			}
+		}else{
+			$("#hide_danguchun_zhexian").val("[]");
+			$("#danguchun_tongji_timeRange").html("");
+			$("#danguchun_tongji_totalCount").html("");
+			$("#danguchun_tongji_inCount").html("");
+			$("#danguchun_tongji_nomalPercent").html("");
+			$("#danguchun_tongji_highPercent").html("");
+			$("#danguchun_tongji_lowPercent").html("");
+			$("#danguchun_tongji_highValue").html("");
+			$("#danguchun_tongji_lowValue").html("");
+		}
+		danguchun_zhexiantu();
+		$("#datacontainer_danguchun").html(htmlcode);
+		if (data.page != null) {
+			genaratePaginateHtml_danguchun(data.page.pageno, data.page.pageCount);
+		} else {
+			genaratePaginateHtml_danguchun(1, 1);
+		}
+	}
+	/**
+	 * 生成分页信息
+	 * @method genaratePaginateHtml_danguchun
+	 * @param {Number} currentpage 当前页
+	 * @param {Number} totalpage 总页数
+	 */
+	function genaratePaginateHtml_danguchun(currentpage, totalpage, pagesize) {
+		var htmlcode = "";
+		
+		//上一页
+		if (currentpage > 1) {
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_danguchun('','1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_danguchun('','" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		} else {
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		}
+		
+		//具体页码
+		if (totalpage <= 5) {
+			for (var i = 1; i <= totalpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_danguchun('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		} else {
+			var startpage = currentpage;
+			var endpage = currentpage;
+			while (true) {
+				if (endpage - startpage >= 4) {
+					break;
+				} else {
+					if (startpage > 1) {
+						startpage = startpage - 1;
+					}
+					if (endpage < totalpage) {
+						endpage = endpage - (-1);
+					}
+				}
+			}
+			
+			for (var i = startpage; i <= endpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_danguchun('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		}
+		
+		//下一页
+		if (totalpage > currentpage) {
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_danguchun('','" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_danguchun('','" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		} else {
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		}
+		$("#paginationArea_danguchun").html(htmlcode);
+		$("#paginationArea_danguchun").parents(".hideInfo").show();
+	}
+	
+	//尿常规列表
+	function query_niaochanggui(flag,pagenumber){
+		var showStatu = $("#niaochanggui_rightXS").val();//获取当前显示的是列表还是图表
+		var pagesize = $("#pageSizeSelector_xueya option:selected").val();
+		var olderId="<%=request.getAttribute("olderId")%>";	
+		var reqmsg="";
+		if(showStatu == 0){
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'1','pagesize':'100000'},'content':{";
+		}else{
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+		}
+		reqmsg += "\"olderId\":" + olderId + ",";
+		reqmsg += "\"type_in\":\"11\",";
+		var time = "";
+		var leftTJ = "";
+		if (flag == ""){
+			leftTJ = $("#niaochanggui_leftTJ").val();
+		}else{
+			leftTJ = flag;
+			$("#niaochanggui_leftTJ").val(flag);
+		}
+		if (leftTJ == "一周"){
+			time = lastweekTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#niaochanggui_leftTimeStart").val("");
+			$("#niaochanggui_leftTimeEnd").val("");
+		}
+		if (leftTJ == "一月"){
+			time = lastmonthTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#niaochanggui_leftTimeStart").val("");
+			$("#niaochanggui_leftTimeEnd").val("");
+		}
+		if (leftTJ == "自定义"){
+			var starttime = $("#niaochanggui_leftTimeStart").val();
+			var endtime = $("#niaochanggui_leftTimeEnd").val();
+			if ((starttime == null || starttime == "") && (endtime == null || endtime == "")){
+				alert("请选择自定义时间");
+				return;
+			}else{
+				if (starttime != null && starttime != ""){
+					reqmsg += "\"createTime_ge\":\"" + starttime.split("-")[0] + starttime.split("-")[1] + starttime.split("-")[2] + "000000" + "\",";
+				}
+				if (endtime != null && endtime != ""){
+					reqmsg += "\"createTime_le\":\"" + endtime.split("-")[0] + endtime.split("-")[1] + endtime.split("-")[2] + "235959" + "\",";
+				}
+				if(starttime != null && starttime != ""&& endtime != null && endtime != ""){
+					if(starttime > endtime){
+						alert("开始时间不能大于结束时间");
+						$("#niaochanggui_leftTimeEnd").val("");
+						return;
+					}
+				}
+			}
+		}
+		
+		reqmsg += "}}";
+	
+	 jQuery.ajax({
+	       type : "post",
+	       async:true,
+	       url : "daeOlder.do?handler_Historyslcs", 
+	       dataType : "json",
+	       data: {
+	            "reqmsg":reqmsg
+	       },
+	       success : function(data){
+	           if (data.des=="success"){
+	         	  changeData_niaochanggui(data);
+	           }else if (data.des=="failure"){
+	              alert("查询失败");
+	           }
+	       },
+	       error:function(){
+		           alert("error");
+	       }
+	  });
+	}
+	
+	function changeData_niaochanggui(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			var time = "";
+			if (data.content.physiologicalParametersHistoryList != null && data.content.physiologicalParametersHistoryList.length >0){
+			jQuery.each(data.content.physiologicalParametersHistoryList, function(i, item) {
+				time = formateTime(item.createTime);
+				htmlcode += "<tr>";		
+			    htmlcode += "<td>" + time + "</td>";	
+			    htmlcode += "<td title=\'" +JSON.stringify(item.unit)+ "\' onclick=\"viewncg(this);\"><a href=\"###\" id =\"ncg\">点击查看详情</a></td>";
+			    htmlcode += "<td>" + item.measurePerson + "</td>";
+				htmlcode += "</tr>";
+			});
+			}
+		}
+		
+		$("#datacontainer_niaochanggui").html(htmlcode);
+		if (data.page != null) {
+			genaratePaginateHtml_niaochanggui(data.page.pageno, data.page.pageCount);
+		} else {
+			genaratePaginateHtml_niaochanggui(1, 1);
+		}
+	}
+	/**
+	* 生成分页信息
+	* @method genaratePaginateHtml_niaochanggui
+	* @param {Number} currentpage 当前页
+	* @param {Number} totalpage 总页数
+	*/
+	function genaratePaginateHtml_niaochanggui(currentpage, totalpage, pagesize) {
+		var htmlcode = "";
+		
+		//上一页
+		if (currentpage > 1) {
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_niaochanggui('','1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_niaochanggui('','" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		} else {
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		}
+		
+		//具体页码
+		if (totalpage <= 5) {
+			for (var i = 1; i <= totalpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_niaochanggui('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		} else {
+			var startpage = currentpage;
+			var endpage = currentpage;
+			while (true) {
+				if (endpage - startpage >= 4) {
+					break;
+				} else {
+					if (startpage > 1) {
+						startpage = startpage - 1;
+					}
+					if (endpage < totalpage) {
+						endpage = endpage - (-1);
+					}
+				}
+			}
+			
+			for (var i = startpage; i <= endpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_niaochanggui('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		}
+		
+		//下一页
+		if (totalpage > currentpage) {
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_niaochanggui('','" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_niaochanggui('','" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		} else {
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		}
+		$("#paginationArea_niaochanggui").html(htmlcode);
+		$("#paginationArea_niaochanggui").parents(".hideInfo").show();
+	}
+	
+	//心电数据列表
+	function query_xindianshuju(flag,pagenumber){
+		var showStatu = $("#xindianshuju_rightXS").val();//获取当前显示的是列表还是图表
+		var pagesize = $("#pageSizeSelector_xueya option:selected").val();
+		var olderId="<%=request.getAttribute("olderId")%>";	
+		var reqmsg="";
+		if(showStatu == 0){
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'1','pagesize':'100000'},'content':{";
+		}else{
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+		}
+		reqmsg += "\"olderId\":" + olderId + ",";
+		reqmsg += "\"type_in\":\"15\",";
+		var time = "";
+		var leftTJ = "";
+		if (flag == ""){
+			leftTJ = $("#xindianshuju_leftTJ").val();
+		}else{
+			leftTJ = flag;
+			$("#xindianshuju_leftTJ").val(flag);
+		}
+		if (leftTJ == "一周"){
+			time = lastweekTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#xindianshuju_leftTimeStart").val("");
+			$("#xindianshuju_leftTimeEnd").val("");
+		}
+		if (leftTJ == "一月"){
+			time = lastmonthTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#xindianshuju_leftTimeStart").val("");
+			$("#xindianshuju_leftTimeEnd").val("");
+		}
+		if (leftTJ == "自定义"){
+			var starttime = $("#xindianshuju_leftTimeStart").val();
+			var endtime = $("#xindianshuju_leftTimeEnd").val();
+			if ((starttime == null || starttime == "") && (endtime == null || endtime == "")){
+				alert("请选择自定义时间");
+				return;
+			}else{
+				if (starttime != null && starttime != ""){
+					reqmsg += "\"createTime_ge\":\"" + starttime.split("-")[0] + starttime.split("-")[1] + starttime.split("-")[2] + "000000" + "\",";
+				}
+				if (endtime != null && endtime != ""){
+					reqmsg += "\"createTime_le\":\"" + endtime.split("-")[0] + endtime.split("-")[1] + endtime.split("-")[2] + "235959" + "\",";
+				}
+				if(starttime != null && starttime != ""&& endtime != null && endtime != ""){
+					if(starttime > endtime){
+						alert("开始时间不能大于结束时间");
+						$("#xindianshuju_leftTimeEnd").val("");
+						return;
+					}
+				}
+			}
+		}
+		
+		reqmsg += "}}";
+		
+		jQuery.ajax({
+		    type : "post",
+		    async:true,
+		    url : "daeOlder.do?handler_Historyslcs", 
+		    dataType : "json",
+		    data: {
+		         "reqmsg":reqmsg
+		    },
+		    success : function(data){
+		        if (data.des=="success"){
+		      	  changeData_xindianshuju(data);
+		        }else if (data.des=="failure"){
+		           alert("查询失败");
+		        }
+		    },
+		    error:function(){
+		         alert("error");
+		    }
+		});
+	}
+	function changeData_xindianshuju(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			var time = "";
+			if (data.content.physiologicalParametersHistoryList != null && data.content.physiologicalParametersHistoryList.length >0){
+			jQuery.each(data.content.physiologicalParametersHistoryList, function(i, item) {
+				time = formateTime(item.createTime);
+				htmlcode += "<tr>";		
+			    htmlcode += "<td>" + time + "</td>";
+			    htmlcode += "<td title=\'" +JSON.stringify(item.unit)+ "\' onclick=\"viewECG(this);\"><a href=\"###\">点击查看详情</a></td>";
+			    htmlcode += "<td>" + item.measurePerson + "</td>";
+				htmlcode += "</tr>";
+			});
+			}
+		}
+		$("#datacontainer_xindianshuju").html(htmlcode);
+		if (data.page != null) {
+			genaratePaginateHtml_xindianshuju(data.page.pageno, data.page.pageCount);
+		} else {
+			genaratePaginateHtml_xindianshuju(1, 1);
+		}
+		}
+		/**
+		* 生成分页信息
+		* @method genaratePaginateHtml_xindianshuju
+		* @param {Number} currentpage 当前页
+		* @param {Number} totalpage 总页数
+		*/
+		function genaratePaginateHtml_xindianshuju(currentpage, totalpage, pagesize) {
+		var htmlcode = "";
+		
+		//上一页
+		if (currentpage > 1) {
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_xindianshuju('','1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_xindianshuju('','" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		} else {
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		}
+		
+		//具体页码
+		if (totalpage <= 5) {
+			for (var i = 1; i <= totalpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_xindianshuju('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		} else {
+			var startpage = currentpage;
+			var endpage = currentpage;
+			while (true) {
+				if (endpage - startpage >= 4) {
+					break;
+				} else {
+					if (startpage > 1) {
+						startpage = startpage - 1;
+					}
+					if (endpage < totalpage) {
+						endpage = endpage - (-1);
+					}
+				}
+			}
+			
+			for (var i = startpage; i <= endpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_xindianshuju('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		}
+		
+		//下一页
+		if (totalpage > currentpage) {
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_xindianshuju('','" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_xindianshuju('','" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		} else {
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		}
+		$("#paginationArea_xindianshuju").html(htmlcode);
+		$("#paginationArea_xindianshuju").parents(".hideInfo").show();
+	}
+	
+	//心电图列表
+	function query_xindiantu(flag,pagenumber){
+		var showStatu = $("#xindiantu_rightXS").val();//获取当前显示的是列表还是图表
+		var pagesize = $("#pageSizeSelector_xueya option:selected").val();
+		var olderId="<%=request.getAttribute("olderId")%>";	
+		var reqmsg="";
+		if(showStatu == 0){
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'1','pagesize':'100000'},'content':{";
+		}else{
+			reqmsg="{'action':'QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_REQUEST', 'order':[{'column':'createTime','type':'desc'}],'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+		}
+		reqmsg += "\"olderId\":" + olderId + ",";
+		reqmsg += "\"type_in\":\"16\",";
+		var time = "";
+		var leftTJ = "";
+		if (flag == ""){
+			leftTJ = $("#xindiantu_leftTJ").val();
+		}else{
+			leftTJ = flag;
+			$("#xindiantu_leftTJ").val(flag);
+		}
+		if (leftTJ == "一周"){
+			time = lastweekTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#xindiantu_leftTimeStart").val("");
+			$("#xindiantu_leftTimeEnd").val("");
+		}
+		if (leftTJ == "一月"){
+			time = lastmonthTime();
+			reqmsg += "\"createTime_ge\":\"" + time + "\",";
+			$("#xindiantu_leftTimeStart").val("");
+			$("#xindiantu_leftTimeEnd").val("");
+		}
+		if (leftTJ == "自定义"){
+			var starttime = $("#xindiantu_leftTimeStart").val();
+			var endtime = $("#xindiantu_leftTimeEnd").val();
+			if ((starttime == null || starttime == "") && (endtime == null || endtime == "")){
+				alert("请选择自定义时间");
+				return;
+			}else{
+				if (starttime != null && starttime != ""){
+					reqmsg += "\"createTime_ge\":\"" + starttime.split("-")[0] + starttime.split("-")[1] + starttime.split("-")[2] + "000000" + "\",";
+				}
+				if (endtime != null && endtime != ""){
+					reqmsg += "\"createTime_le\":\"" + endtime.split("-")[0] + endtime.split("-")[1] + endtime.split("-")[2] + "235959" + "\",";
+				}
+				if(starttime != null && starttime != ""&& endtime != null && endtime != ""){
+					if(starttime > endtime){
+						alert("开始时间不能大于结束时间");
+						$("#xindiantu_leftTimeEnd").val("");
+						return;
+					}
+				}
+			}
+		}
+		
+		reqmsg += "}}";
+	
+	 jQuery.ajax({
+	       type : "post",
+	       async:true,
+	       url : "daeOlder.do?handler_Historyslcs", 
+	       dataType : "json",
+	       data: {
+	            "reqmsg":reqmsg
+	       },
+	       success : function(data){
+	           if (data.des=="success"){
+	         	  changeData_xindiantu(data);
+	           }else if (data.des=="failure"){
+	              alert("查询失败");
+	           }
+	       },
+	       error:function(){
+		           alert("error");
+	       }
+	  });
+	}
+	function changeData_xindiantu(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			var time = "";
+			if (data.content.physiologicalParametersHistoryList != null && data.content.physiologicalParametersHistoryList.length >0){
+				jQuery.each(data.content.physiologicalParametersHistoryList, function(i, item) {
+					if(item.value == 1){
+						time = formateTime11(item.createTime);
+						htmlcode += "<tr>";		
+					    htmlcode += "<td>" + time + "</td>";	
+					    htmlcode += "<td onclick=\"turnPic(" + item.id + ")\"><a href=\"###\" >点击查看详情</a></td>";
+					    htmlcode += "<td>" + item.measurePerson + "</td>";
+						htmlcode += "</tr>";
+					}
+				});
+			}
+		}
+		
+		$("#datacontainer_xindiantu").html(htmlcode);
+		if (data.page != null) {
+			genaratePaginateHtml_xindiantu(data.page.pageno, data.page.pageCount);
+		} else {
+			genaratePaginateHtml_xindiantu(1, 1);
+		}
+	}
+	/**
+	* 生成分页信息
+	* @method genaratePaginateHtml_xindiantu
+	* @param {Number} currentpage 当前页
+	* @param {Number} totalpage 总页数
+	*/
+	function genaratePaginateHtml_xindiantu(currentpage, totalpage, pagesize) {
+		var htmlcode = "";
+		
+		//上一页
+		if (currentpage > 1) {
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_xindiantu('','1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre\"><a href=\"###\" onclick=\"query_xindiantu('','" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		} else {
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+			htmlcode += "<li class=\"pre disabled\"><a href=\"###\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+		}
+		
+		//具体页码
+		if (totalpage <= 5) {
+			for (var i = 1; i <= totalpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_xindiantu('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		} else {
+			var startpage = currentpage;
+			var endpage = currentpage;
+			while (true) {
+				if (endpage - startpage >= 4) {
+					break;
+				} else {
+					if (startpage > 1) {
+						startpage = startpage - 1;
+					}
+					if (endpage < totalpage) {
+						endpage = endpage - (-1);
+					}
+				}
+			}
+			
+			for (var i = startpage; i <= endpage; i++) {
+				if (currentpage == i) {
+					htmlcode += "<li class=\"active\"><a href=\"###\">" + i + "</a></li>";
+				} else {
+					htmlcode += "<li><a href=\"###\" onclick=\"query_xindiantu('','" + i + "')\">" + i + "</a></li>";
+				}
+			}
+		}
+		
+		//下一页
+		if (totalpage > currentpage) {
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_xindiantu('','" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next\"><a href=\"###\" onclick=\"query_xindiantu('','" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		} else {
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+			htmlcode += "<li class=\"next disabled\"><a href=\"###\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		}
+		$("#paginationArea_xindiantu").html(htmlcode);
+		$("#paginationArea_xindiantu").parents(".hideInfo").show();
+	}
+	
+	
+	//血压折线图
+	function xueya_zhexiantu(){
+	    var datas1 = document.getElementById("hide_xueya_ssy_zhexian").value;
+	    var datas2 = document.getElementById("hide_xueya_szy_zhexian").value; 
+	    datas1 = JSON.parse(datas1);
+	    datas2 = JSON.parse(datas2);
+	
+	    var yuzhi1_xiao = "<%=request.getAttribute("minValue")%>";
+		var yuzhi1_da = "<%=request.getAttribute("maxValue")%>";
+		var yuzhi2_xiao = "<%=request.getAttribute("minValue2")%>";
+		var yuzhi2_da = "<%=request.getAttribute("maxValue2")%>";
+	 
+		$('#xueya_zhexian').highcharts({
+	      chart: {
+	          type: 'spline',
+	          zoomType: 'xy'
+	      },
+	      title: {
+	          text: ''
+	      },
+	      credits: {
+	            enabled: false
+	        },
+	      xAxis: {
+	          type: 'datetime',
+	          endOnTick: true,
+	          showLastLabel: false,
+	
+	          dateTimeLabelFormats: {
+	          millisecond: '%Y-%m-%d %H:%M',
+	          	millisecond: '%Y-%m-%d %H:%M',
+				second: '%Y-%m-%d %H:%M',  
+	            minute: '%Y-%m-%d %H:%M',  
+	            hour: '%Y-%m-%d %H:%M',  
+	            day: '%Y-%m-%d',  
+	            week: '%Y-%m-%d',  
+	            month: '%Y-%m-%d',  
+	            year: '%Y-%m-%d'
+				}
+	      },
+	      yAxis: {
+	          title: {
+	              text: '血压(mmHg)'
+	          },  
+	          plotBands: [{ // 
+	              from: yuzhi2_xiao,
+	              to: yuzhi2_da,
+	              color: 'rgba(68, 170, 213, 0.1)',
+	              label: {
+	                  text: '正常舒张压参考范围',
+	                  style: {
+	                      color: '#606060'
+	                  }
+	              }
+	          }, { // Fresh breeze
+	              from: yuzhi1_xiao,
+	              to: yuzhi1_da,
+	              color: 'rgba(68, 70, 213, 0.1)',
+	              label: {
+	                  text: '正常收缩压参考范围',
+	                  style: {
+	                      color: '#606060'
+	                  }
+	              }
+	          }]
+	      },
+	      tooltip: {
+	    	  formatter:function(){ 
+	          	var s = Highcharts.dateFormat('%Y-%m-%d %H:%M', this.x);
+	          	$.each(this.points, function(){
+	          		s += '<br/><span style="color:'+this.series.color+'">' + this.series.name + ': <b>' + this.y +'</b> mmHg</span>';
+	          	}); 
+	          	return s;          
+	          },
+	            crosshairs: true,
+	            shared: true,
+	            
+	      },
+	       plotOptions: {
+	          spline: {
+	              lineWidth: 3,
+	              states: {
+	                  hover: {
+	                      lineWidth: 4
+	                  }
+	              },
+	              marker: {
+	                  enabled: true
+	              },
+	              //pointInterval: 1000, // one hour
+	             // pointStart: Date.UTC(2009, 9, 6, 0, 0, 0)
+	          }
+	      },
+	      series: [{
+	          name: '收缩压',
+	          data: datas1
+	
+	      }, {
+	          name: '舒张压',
+	          data: datas2
+	      }]
+	   });
+	}
+	
+	//血糖折线图
+	function xuetang_zhexiantu(){
+	    var datas1 = document.getElementById("hide_xuetang_kf_zhexian").value; 
+	    var datas2 = document.getElementById("hide_xuetang_ch_zhexian").value; 
+	    datas1 = JSON.parse(datas1);
+	    datas2 = JSON.parse(datas2);
+	
+		var yuzhi1_xiao = "<%=request.getAttribute("minValue")%>";
+	    var yuzhi1_da = "<%=request.getAttribute("maxValue")%>";
+		var yuzhi2_xiao = "<%=request.getAttribute("minValue2")%>";
+	    var yuzhi2_da = "<%=request.getAttribute("maxValue2")%>";
+	 
+		$('#xuetang_zhexian').highcharts({
+	      chart: {
+	          type: 'spline',
+	          zoomType: 'xy'
+	      },
+	      title: {
+	          text: ''
+	      },
+	      credits: {
+	            enabled: false
+	        },
+	      xAxis: {
+	          type: 'datetime',
+	          endOnTick: true,
+	          showLastLabel: false,
+	          dateTimeLabelFormats: {
+	          millisecond: '%Y-%m-%d %H:%M',
+				second: '%Y-%m-%d %H:%M',  
+	            minute: '%Y-%m-%d %H:%M',  
+	            hour: '%Y-%m-%d %H:%M',  
+	            day: '%Y-%m-%d',  
+	            week: '%Y-%m-%d',  
+	            month: '%Y-%m-%d',  
+	            year: '%Y-%m-%d'
+				}
+	      },
+	      yAxis: {
+	          title: {
+	              text: '血糖(mmol/L)'
+	          },  
+	          plotBands: [{ // 
+	              from: yuzhi1_xiao,
+	              to: yuzhi1_da,
+	              color: 'rgba(68, 170, 213, 0.1)',
+	              label: {
+	                  text: '正常空腹血糖参考范围',
+	                  style: {
+	                      color: '#606060'
+	                  }
+	              }
+	          }, { // Fresh breeze
+	              from: yuzhi2_xiao,
+	              to: yuzhi2_da,
+	              color: 'rgba(68, 70, 213, 0.1)',
+	              label: {
+	                  text: '正常餐后血糖参考范围',
+	                  style: {
+	                      color: '#606060'
+	                  }
+	              }
+	          }]
+	      },
+	      tooltip: {
+	    	  formatter:function(){ 
+	          	var s = Highcharts.dateFormat('%Y-%m-%d %H:%M', this.x);
+	          	$.each(this.points, function(){
+	          		s += '<br/><span style="color:'+this.series.color+'">' + this.series.name + ': <b>' + this.y +'</b> mmol/L</span>';
+	          	}); 
+	          	return s;          
+	          },
+	            crosshairs: true,
+	            shared: true,
+	            
+	      },
+	      plotOptions: {
+	          spline: {
+	              lineWidth: 3,
+	              states: {
+	                  hover: {
+	                      lineWidth: 4
+	                  }
+	              },
+	              marker: {
+	                  enabled: true
+	              },
+	              //pointInterval: 1000, // one hour
+	             // pointStart: Date.UTC(2009, 9, 6, 0, 0, 0)
+	          }
+	      },
+	      series: [{
+	          name: '空腹血糖',
+	          data: datas1
+	
+	      }, {
+	          name: '餐后血糖',
+	          data: datas2
+	      }]
+	   });
+	}
+	
+	//脉率折线图
+	function mailv_zhexiantu(){
+	    var datas1 = document.getElementById("hide_mailv_zhexian").value; 
+	    datas1 = JSON.parse(datas1);
+	
+	    var yuzhi1_xiao = "<%=request.getAttribute("minValue")%>";
+	    var yuzhi1_da = "<%=request.getAttribute("maxValue")%>";
+	 
+		$('#mailv_zhexian').highcharts({
+	      chart: {
+	          type: 'spline',
+	          zoomType: 'xy'
+	      },
+	      title: {
+	          text: ''
+	      },
+	      credits: {
+	            enabled: false
+	        },
+	      xAxis: {
+	          type: 'datetime',
+	          endOnTick: true,
+	          showLastLabel: false,
+	          dateTimeLabelFormats: {	
+	          millisecond: '%Y-%m-%d %H:%M',			
+				second: '%Y-%m-%d %H:%M',  
+	            minute: '%Y-%m-%d %H:%M',  
+	            hour: '%Y-%m-%d %H:%M',  
+	            day: '%Y-%m-%d',  
+	            week: '%Y-%m-%d',  
+	            month: '%Y-%m-%d',  
+	            year: '%Y-%m-%d'
+				}
+	      },
+	      yAxis: {
+	          title: {
+	              text: '脉率(次/分)'
+	          },  
+	          plotBands: [{ // 
+	              from: yuzhi1_xiao,
+	              to: yuzhi1_da,
+	              color: 'rgba(68, 170, 213, 0.1)',
+	              label: {
+	                  text: '正常脉率参考范围',
+	                  style: {
+	                      color: '#606060'
+	                  }
+	              }
+	          }]
+	      },
+	      tooltip: {
+	    	  formatter:function(){ 
+	          	var s = Highcharts.dateFormat('%Y-%m-%d %H:%M', this.x);
+	          	$.each(this.points, function(){
+	          		s += '<br/><span style="color:'+this.series.color+'">' + this.series.name + ': <b>' + this.y +'</b> 次/分</span>';
+	          	}); 
+	          	return s;          
+	          },
+	            crosshairs: true,
+	            shared: true,
+	            
+	      },
+	      plotOptions: {
+	          spline: {
+	              lineWidth: 3,
+	              states: {
+	                  hover: {
+	                      lineWidth: 4
+	                  }
+	              },
+	              marker: {
+	                  enabled: true
+	              },
+	              //pointInterval: 1000, // one hour
+	             // pointStart: Date.UTC(2009, 9, 6, 0, 0, 0)
+	          }
+	      },
+	      series: [{
+	          name: '脉率',
+	          data: datas1
+	
+	      }]
+	   });
+	}
+	
+	//体温折线图
+	function tiwen_zhexiantu(){
+	    var datas1 = document.getElementById("hide_tiwen_zhexian").value; 
+	    datas1 = JSON.parse(datas1);
+	
+	    var yuzhi1_xiao = "<%=request.getAttribute("minValue")%>";
+	    var yuzhi1_da = "<%=request.getAttribute("maxValue")%>";
+	 
+		$('#tiwen_zhexian').highcharts({
+	      chart: {
+	          type: 'spline',
+	          zoomType: 'xy'
+	      },
+	      title: {
+	          text: ''
+	      },
+	      credits: {
+	            enabled: false
+	        },
+	      xAxis: {
+	          type: 'datetime',
+	          endOnTick: true,
+	          showLastLabel: false,
+	          dateTimeLabelFormats: {
+	          millisecond: '%Y-%m-%d %H:%M',				
+				second: '%Y-%m-%d %H:%M',  
+	            minute: '%Y-%m-%d %H:%M',  
+	            hour: '%Y-%m-%d %H:%M',  
+	            day: '%Y-%m-%d',  
+	            week: '%Y-%m-%d',  
+	            month: '%Y-%m-%d',  
+	            year: '%Y-%m-%d'
+				}
+	      },
+	      yAxis: {
+	          title: {
+	              text: '体温(℃)'
+	          },  
+	          plotBands: [{ // 
+	              from: yuzhi1_xiao,
+	              to: yuzhi1_da,
+	              color: 'rgba(68, 170, 213, 0.1)',
+	              label: {
+	                  text: '正常体温参考范围',
+	                  style: {
+	                      color: '#606060'
+	                  }
+	              }
+	          }]
+	      },
+	      tooltip: {
+	    	  formatter:function(){ 
+	          	var s = Highcharts.dateFormat('%Y-%m-%d %H:%M', this.x);
+	          	$.each(this.points, function(){
+	          		s += '<br/><span style="color:'+this.series.color+'">' + this.series.name + ': <b>' + this.y +'</b> ℃</span>';
+	          	}); 
+	          	return s;          
+	          },
+	            crosshairs: true,
+	            shared: true,
+	            
+	      },
+	      plotOptions: {
+	          spline: {
+	              lineWidth: 3,
+	              states: {
+	                  hover: {
+	                      lineWidth: 4
+	                  }
+	              },
+	              marker: {
+	                  enabled: true
+	              },
+	              //pointInterval: 1000, // one hour
+	             // pointStart: Date.UTC(2009, 9, 6, 0, 0, 0)
+	          }
+	      },
+	      series: [{
+	          name: '体温',
+	          data: datas1
+	
+	      }]
+	   });
+	}
+	
+	//BMI折线图
+	function BMI_zhexiantu(){
+	    var datas1 = document.getElementById("hide_BMI_zhexian").value; 
+	    datas1 = JSON.parse(datas1);
+	
+	    var yuzhi1_xiao = "<%=request.getAttribute("minValue")%>";
+	    var yuzhi1_da = "<%=request.getAttribute("maxValue")%>";
+	 
+		$('#BMI_zhexian').highcharts({
+	      chart: {
+	          type: 'spline',
+	          zoomType: 'xy'
+	      },
+	      title: {
+	          text: ''
+	      },
+	      credits: {
+	            enabled: false
+	        },
+	      xAxis: {
+	          type: 'datetime',
+	          endOnTick: true,
+	          showLastLabel: false,
+	          dateTimeLabelFormats: {	
+	          millisecond: '%Y-%m-%d %H:%M',			
+				second: '%Y-%m-%d %H:%M',  
+	            minute: '%Y-%m-%d %H:%M',  
+	            hour: '%Y-%m-%d %H:%M',  
+	            day: '%Y-%m-%d',  
+	            week: '%Y-%m-%d',  
+	            month: '%Y-%m-%d',  
+	            year: '%Y-%m-%d'
+				}
+	      },
+	      yAxis: {
+	          title: {
+	              text: 'BMI'
+	          },  
+	          plotBands: [{ // 
+	              from: yuzhi1_xiao,
+	              to: yuzhi1_da,
+	              color: 'rgba(68, 170, 213, 0.1)',
+	              label: {
+	                  text: '正常BMI参考范围',
+	                  style: {
+	                      color: '#606060'
+	                  }
+	              }
+	          }]
+	      },
+	      tooltip: {
+	    	  formatter:function(){ 
+	          	var s = Highcharts.dateFormat('%Y-%m-%d %H:%M', this.x);
+	          	$.each(this.points, function(){
+	          		s += '<br/><span style="color:'+this.series.color+'">' + this.series.name + ': <b>' + this.y +'</b> </span>';
+	          	}); 
+	          	return s;          
+	          },
+	            crosshairs: true,
+	            shared: true,
+	            
+	      },
+	      plotOptions: {
+	          spline: {
+	              lineWidth: 3,
+	              states: {
+	                  hover: {
+	                      lineWidth: 4
+	                  }
+	              },
+	              marker: {
+	                  enabled: true
+	              },
+	              //pointInterval: 1000, // one hour
+	             // pointStart: Date.UTC(2009, 9, 6, 0, 0, 0)
+	          }
+	      },
+	      series: [{
+	          name: 'BMI',
+	          data: datas1
+	
+	      }]
+	   });
+	}
+	
+	//血氧折线图
+	function xueyang_zhexiantu(){
+	    var datas1 = document.getElementById("hide_xueyang_zhexian").value; 
+	    datas1 = JSON.parse(datas1);
+	
+	    var yuzhi1_xiao = "<%=request.getAttribute("minValue")%>";
+	    var yuzhi1_da = "<%=request.getAttribute("maxValue")%>";
+	 
+		$('#xueyang_zhexian').highcharts({
+	      chart: {
+	          type: 'spline',
+	          zoomType: 'xy'
+	      },
+	      title: {
+	          text: ''
+	      },
+	      credits: {
+	            enabled: false
+	        },
+	      xAxis: {
+	          type: 'datetime',
+	          endOnTick: true,
+	          showLastLabel: false,
+	          dateTimeLabelFormats: {	
+	          millisecond: '%Y-%m-%d %H:%M',			
+				second: '%Y-%m-%d %H:%M',  
+	            minute: '%Y-%m-%d %H:%M',  
+	            hour: '%Y-%m-%d %H:%M',  
+	            day: '%Y-%m-%d',  
+	            week: '%Y-%m-%d',  
+	            month: '%Y-%m-%d',  
+	            year: '%Y-%m-%d'
+				}
+	      },
+	      yAxis: {
+	          title: {
+	              text: '血氧(%)'
+	          },  
+	          plotBands: [{ // 
+	              from: yuzhi1_xiao,
+	              to: yuzhi1_da,
+	              color: 'rgba(68, 170, 213, 0.1)',
+	              label: {
+	                  text: '正常血氧参考范围',
+	                  style: {
+	                      color: '#606060'
+	                  }
+	              }
+	          }]
+	      },
+	      tooltip: {
+	    	  formatter:function(){ 
+	          	var s = Highcharts.dateFormat('%Y-%m-%d %H:%M', this.x);
+	          	$.each(this.points, function(){
+	          		s += '<br/><span style="color:'+this.series.color+'">' + this.series.name + ': <b>' + this.y +'</b> %</span>';
+	          	}); 
+	          	return s;          
+	          },
+	            crosshairs: true,
+	            shared: true,
+	            
+	      },
+	      plotOptions: {
+	          spline: {
+	              lineWidth: 3,
+	              states: {
+	                  hover: {
+	                      lineWidth: 4
+	                  }
+	              },
+	              marker: {
+	                  enabled: true
+	              },
+	              //pointInterval: 1000, // one hour
+	             // pointStart: Date.UTC(2009, 9, 6, 0, 0, 0)
+	          }
+	      },
+	      series: [{
+	          name: '血氧',
+	          data: datas1
+	
+	      }]
+	   });
+	}
+	//血红蛋白折线图
+	function xuehongdanbai_zhexiantu(){
+	    var datas1 = document.getElementById("hide_xuehongdanbai_zhexian").value; 
+	    datas1 = JSON.parse(datas1);
+	
+	    var yuzhi1_xiao = "<%=request.getAttribute("minValue")%>";
+	    var yuzhi1_da = "<%=request.getAttribute("maxValue")%>";
+	 
+		$('#xuehongdanbai_zhexian').highcharts({
+	      chart: {
+	          type: 'spline',
+	          zoomType: 'xy'
+	      },
+	      title: {
+	          text: ''
+	      },
+	      credits: {
+	            enabled: false
+	        },
+	      xAxis: {
+	          type: 'datetime',
+	          endOnTick: true,
+	          showLastLabel: false,
+	          dateTimeLabelFormats: {	
+	          millisecond: '%Y-%m-%d %H:%M',			
+				second: '%Y-%m-%d %H:%M',  
+	            minute: '%Y-%m-%d %H:%M',  
+	            hour: '%Y-%m-%d %H:%M',  
+	            day: '%Y-%m-%d',  
+	            week: '%Y-%m-%d',  
+	            month: '%Y-%m-%d',  
+	            year: '%Y-%m-%d'
+				}
+	      },
+	      yAxis: {
+	          title: {
+	              text: '血红蛋白(g/L)'
+	          },  
+	          plotBands: [{ // 
+	              from: yuzhi1_xiao,
+	              to: yuzhi1_da,
+	              color: 'rgba(68, 170, 213, 0.1)',
+	              label: {
+	                  text: '正常血红蛋白参考范围',
+	                  style: {
+	                      color: '#606060'
+	                  }
+	              }
+	          }]
+	      },
+	      tooltip: {
+	    	  formatter:function(){ 
+	          	var s = Highcharts.dateFormat('%Y-%m-%d %H:%M', this.x);
+	          	$.each(this.points, function(){
+	          		s += '<br/><span style="color:'+this.series.color+'">' + this.series.name + ': <b>' + this.y +'</b> g/L</span>';
+	          	}); 
+	          	return s;          
+	          },
+	            crosshairs: true,
+	            shared: true,
+	            
+	      },
+	      plotOptions: {
+	          spline: {
+	              lineWidth: 3,
+	              states: {
+	                  hover: {
+	                      lineWidth: 4
+	                  }
+	              },
+	              marker: {
+	                  enabled: true
+	              },
+	              //pointInterval: 1000, // one hour
+	             // pointStart: Date.UTC(2009, 9, 6, 0, 0, 0)
+	          }
+	      },
+	      series: [{
+	          name: '血红蛋白',
+	          data: datas1
+	
+	      }]
+	   });
+	}
+	
+	//尿酸折线图
+	function niaosuan_zhexiantu(){
+	    var datas1 = document.getElementById("hide_niaosuan_zhexian").value; 
+	    datas1 = JSON.parse(datas1);
+	
+	    var yuzhi1_xiao = "<%=request.getAttribute("minValue")%>";
+	    var yuzhi1_da = "<%=request.getAttribute("maxValue")%>";
+	 
+		$('#niaosuan_zhexian').highcharts({
+	      chart: {
+	          type: 'spline',
+	          zoomType: 'xy'
+	      },
+	      title: {
+	          text: ''
+	      },
+	      credits: {
+	            enabled: false
+	        },
+	      xAxis: {
+	          type: 'datetime',
+	          endOnTick: true,
+	          showLastLabel: false,
+	          dateTimeLabelFormats: {	
+	          millisecond: '%Y-%m-%d %H:%M',			
+				second: '%Y-%m-%d %H:%M',  
+	            minute: '%Y-%m-%d %H:%M',  
+	            hour: '%Y-%m-%d %H:%M',  
+	            day: '%Y-%m-%d',  
+	            week: '%Y-%m-%d',  
+	            month: '%Y-%m-%d',  
+	            year: '%Y-%m-%d'
+				}
+	      },
+	      yAxis: {
+	          title: {
+	              text: '尿酸(umol/L)'
+	          },  
+	          plotBands: [{ // 
+	              from: yuzhi1_xiao,
+	              to: yuzhi1_da,
+	              color: 'rgba(68, 170, 213, 0.1)',
+	              label: {
+	                  text: '正常尿酸参考范围',
+	                  style: {
+	                      color: '#606060'
+	                  }
+	              }
+	          }]
+	      },
+	      tooltip: {
+	    	  formatter:function(){ 
+	          	var s = Highcharts.dateFormat('%Y-%m-%d %H:%M', this.x);
+	          	$.each(this.points, function(){
+	          		s += '<br/><span style="color:'+this.series.color+'">' + this.series.name + ': <b>' + this.y +'</b> umol/L</span>';
+	          	}); 
+	          	return s;          
+	          },
+	            crosshairs: true,
+	            shared: true,
+	            
+	      },
+	      plotOptions: {
+	          spline: {
+	              lineWidth: 3,
+	              states: {
+	                  hover: {
+	                      lineWidth: 4
+	                  }
+	              },
+	              marker: {
+	                  enabled: true
+	              },
+	              //pointInterval: 1000, // one hour
+	             // pointStart: Date.UTC(2009, 9, 6, 0, 0, 0)
+	          }
+	      },
+	      series: [{
+	          name: '尿酸',
+	          data: datas1
+	
+	      }]
+ 	   });
+	}
+	//胆固醇折线图
+	function danguchun_zhexiantu(){
+	    var datas1 = document.getElementById("hide_danguchun_zhexian").value; 
+	    datas1 = JSON.parse(datas1);
+	
+	    var yuzhi1_xiao = "<%=request.getAttribute("minValue")%>";
+	    var yuzhi1_da = "<%=request.getAttribute("maxValue")%>";
+	 
+		$('#danguchun_zhexian').highcharts({
+	      chart: {
+	          type: 'spline',
+	          zoomType: 'xy'
+	      },
+	      title: {
+	          text: ''
+	      },
+	      credits: {
+	            enabled: false
+	        },
+	      xAxis: {
+	          type: 'datetime',
+	          endOnTick: true,
+	          showLastLabel: false,
+	          dateTimeLabelFormats: {	
+	          millisecond: '%Y-%m-%d %H:%M',			
+				second: '%Y-%m-%d %H:%M',  
+	            minute: '%Y-%m-%d %H:%M',  
+	            hour: '%Y-%m-%d %H:%M',  
+	            day: '%Y-%m-%d',  
+	            week: '%Y-%m-%d',  
+	            month: '%Y-%m-%d',  
+	            year: '%Y-%m-%d'
+				}
+	      },
+	      yAxis: {
+	          title: {
+	              text: '胆固醇(mmol/L)'
+	          },  
+	          plotBands: [{ // 
+	              from: yuzhi1_xiao,
+	              to: yuzhi1_da,
+	              color: 'rgba(68, 170, 213, 0.1)',
+	              label: {
+	                  text: '正常胆固醇参考范围',
+	                  style: {
+	                      color: '#606060'
+	                  }
+	              }
+	          }]
+	      },
+	      tooltip: {
+	    	  formatter:function(){ 
+	          	var s = Highcharts.dateFormat('%Y-%m-%d %H:%M', this.x);
+	          	$.each(this.points, function(){
+	          		s += '<br/><span style="color:'+this.series.color+'">' + this.series.name + ': <b>' + this.y +'</b> mmol/L</span>';
+	          	}); 
+	          	return s;          
+	          },
+	            crosshairs: true,
+	            shared: true,
+	            
+	      },
+	      plotOptions: {
+	          spline: {
+	              lineWidth: 3,
+	              states: {
+	                  hover: {
+	                      lineWidth: 4
+	                  }
+	              },
+	              marker: {
+	                  enabled: true
+	              },
+	              //pointInterval: 1000, // one hour
+	             // pointStart: Date.UTC(2009, 9, 6, 0, 0, 0)
+	          }
+	      },
+	      series: [{
+	          name: '胆固醇',
+	          data: datas1
+	
+	      }]
+	   });
+	}
+	
+
+
+
+	///////////////////////////////////////////////////
+
+	//进入页面判断类型///////////////////////////////////////////////
+	function queryType(){
+		var id="<%=request.getAttribute("olderId")%>";
+		var typeIn="<%=request.getAttribute("typeIn")%>";
+		switch (typeIn)
+		{
+			case "1,2":
+			query_xueya('','1');
+			$("#olderPhysiologicalInfo").text("血压");
+  			break;
+  			
+			case "3,4":
+			query_xuetang('','1');
+			$("#olderPhysiologicalInfo").text("血糖");
+  			break;
+
+			case "5":
+			query_mailv('','1');
+			$("#olderPhysiologicalInfo").text("脉率");
+  			break;
+  			
+			case "6":
+			query_tiwen('','1');
+			$("#olderPhysiologicalInfo").text("体温");
+  			break;
+  			
+			case "8":
+			query_xueyang('','1');
+			$("#olderPhysiologicalInfo").text("血氧");
+  			break;
+  			
+			case "10":
+			query_BMI('','1');
+			$("#olderPhysiologicalInfo").text("BMI");
+  			break;
+
+			case "11":
+			query_niaochanggui('','1');
+			$("#olderPhysiologicalInfo").text("尿常规");
+  			break;
+  			
+			case "12":
+			query_xuehongdanbai('','1');
+			$("#olderPhysiologicalInfo").text("血红蛋白");
+  			break;
+  			
+			case "13":
+			query_niaosuan('','1');
+			$("#olderPhysiologicalInfo").text("尿酸");
+  			break;
+  			
+			case "14":
+			query_danguchun('','1');
+			$("#olderPhysiologicalInfo").text("胆固醇");
+  			break;
+  			
+			case "15":
+			query_xindianshuju('','1');
+			$("#olderPhysiologicalInfo").text("心电数据");
+  			break;
+  			
+			case "16":
+			query_xindiantu('','1');
+			$("#olderPhysiologicalInfo").text("心电图");
+  			break;
+	  			
+  			default:
+  			break;
+		}
+		
+	}
+	
+	function viewECG(obj){ //加载心电分析结果详情
+		var par = $.parseJSON($(obj).attr("title"));
+		
+		 $("#ECG01").html(par.RR);
+		 $("#ECG02").html(par['P-R']);
+		 $("#ECG03").html(par.QRS);
+		 $("#ECG04").html(par.QT);
+		 $("#ECG05").html(par.QTC);
+		 $("#ECG06").html(par.P轴);
+		 $("#ECG07").html(par.QRS轴);
+		 $("#ECG08").html(par.T轴);
+		 $("#ECG09").html(par.RV5);
+		 $("#ECG10").html(par.SVI);
+		 $("#ECG11").html(par.RV5SVI);
+		 $("#ECG12").html(par.HR);
+		 $("#ECG13").html(par.analysis);	 
+		 $("#viewECG").click();
+		  
+	  }
+	  
+	  function viewncg(obj){//加载尿常规分析结果详情
+		  var par = $.parseJSON($(obj).attr("title"));
+			 $("#pee1").html(par.BIL);
+			 $("#pee2").html(par.BLD);
+			 $("#pee3").html(par.GLU);
+			 $("#pee4").html(par.KET);
+			 $("#pee5").html(par.LEU);
+			 $("#pee6").html(par.NIT);
+			 $("#pee7").html(par.PH);
+			 $("#pee9").html(par.SG);
+			 $("#pee8").html(par.PRO);
+			 $("#pee10").html(par.UBG);
+			 $("#pee11").html(par.VC);	 
+			 $("#viewncg").click();
+		  
+	  }
+	
+	//转化日期
+   function riqiChange(data){
+   		var date_=data;
+    	var date2=data.substr(0,4)+"-"+data.substr(4,2)+"-"+data.substr(6,2);
+    	if (date2 == "--"){
+    		date2 = "无";
+    	}
+    	return date2;
+   }
+//////////////////////////////////////////////////
+    </script>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+  <script src="js/behaviour/voice-commands.js"></script>
+  <script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+<script type="text/javascript" src="js/jquery.form.js"></script>
+</body>
+</html>

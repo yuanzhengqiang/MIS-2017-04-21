@@ -1,0 +1,292 @@
+package fsk.handler.healthReport;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.util.JsonUtil;
+
+import fsk.entity.healthAssessment.HealthAssessmentEntity;
+import fsk.entity.healthReport.HealthReportEntity;
+import fsk.pack.healthReport.HealthReportPack;
+import fsk.parse.healthReport.HealthReportParse;
+import fsk.service.healthAssessment.HealthAssessmentService;
+import fsk.service.healthReport.HealthReportService;
+import fsk.util.CreateReportUtil;
+
+ /**   
+ * @Title: Handler
+ * @Description: 健康评估报告业务处理器
+ * @author feng.gu
+ * @date 2016-07-12 15:06:40
+ * @version V1.0   
+ *
+ */
+public class HealthReportHandler extends BaseHandler{
+	private static Logger logger = Logger.getLogger(HealthReportService.class);
+	/**
+	 * 解析器
+	 */
+	private HealthReportParse healthReportParse = HealthReportParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private HealthReportService healthReportService = HealthReportService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private HealthReportPack healthReportPack = HealthReportPack.getInstance();
+
+	private static HealthReportHandler healthReportHandler;
+	
+	//add gufeng
+	private HealthAssessmentService healthAssessmentService = HealthAssessmentService.getInstance();
+	//end
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static HealthReportHandler getInstance() {
+		if (healthReportHandler == null) {
+			healthReportHandler = new HealthReportHandler();
+		}
+		return healthReportHandler;
+	}
+
+	/**
+	 * 
+	 * @param type 1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type,String command,String reqStr, HttpServletRequest request,
+			HttpServletResponse response) {		
+		logger.debug("请求消息："+reqStr);
+		String resultStr="";
+		try {
+			//add gufeng
+			//特殊接口处理
+			if("CREATE_REPORT_BY_SCORE_REQUEST".equals(command)){
+				String returnaction="CREATE_REPORT_BY_SCORE_RESPONSE";
+				Map reqParams = JsonUtil.getMap4Json(reqStr);
+				JSONObject contentreq = (JSONObject) reqParams.get("content");
+				if (contentreq != null) {					
+					String adl = (String) contentreq.get("adl");
+					String adlDes = (String) contentreq.get("adlDes");
+					String fall = (String) contentreq.get("fall");
+					String fallDes = (String) contentreq.get("fallDes");
+					String nutrition = (String) contentreq.get("nutrition");
+					String nutritionDes = (String) contentreq.get("nutritionDes");
+					String sore = (String) contentreq.get("sore");
+					String soreDes = (String) contentreq.get("soreDes");
+					String mmse = (String) contentreq.get("mmse");
+					String mmseDes = (String) contentreq.get("mmseDes");
+					String mas = (String) contentreq.get("mas");
+					String masDes = (String) contentreq.get("masDes");
+					String barthe = (String) contentreq.get("barthe");
+					String bartheDes = (String) contentreq.get("bartheDes");
+					String fca = (String) contentreq.get("fca");
+					String fcaDes = (String) contentreq.get("fcaDes");
+					String upperLimbMuscleStrength = (String) contentreq.get("upperLimbMuscleStrength");
+					String muscleStrengthOfLowerLimb = (String) contentreq.get("muscleStrengthOfLowerLimb");
+					String muscleToneUpperLimb = (String) contentreq.get("muscleToneUpperLimb");
+					String muscleToneLowerLimb = (String) contentreq.get("muscleToneLowerLimb");
+					String jointMobility = (String) contentreq.get("jointMobility");
+					String languageFunction = (String) contentreq.get("languageFunction");
+					resultStr = CreateReportUtil.createReport(returnaction, adl, adlDes, fall, fallDes, nutrition, nutritionDes, sore, soreDes, mmse, mmseDes, mas, masDes, barthe, bartheDes, fca, fcaDes, upperLimbMuscleStrength, muscleStrengthOfLowerLimb, muscleToneUpperLimb, muscleToneLowerLimb, jointMobility, languageFunction);
+				}
+				return resultStr;
+			}else if("CREATE_REPORT_BY_ID_REQUEST".equals(command)){
+				String returnaction="CREATE_REPORT_BY_ID_RESPONSE";
+				Map reqParams = JsonUtil.getMap4Json(reqStr);
+				JSONObject contentreq = (JSONObject) reqParams.get("content");
+				if (contentreq != null) {					
+					Integer healthAssessmentId = (Integer) contentreq.get("healthAssessmentId");
+					if(healthAssessmentId!=null){
+						HealthAssessmentEntity entity = healthAssessmentService.getById(healthAssessmentId, null, null, null, true, true, true, true, true, true, true, true, true);
+						if(entity!=null){
+							String adl = "";
+							String adlDes = "";
+							String fall = "";
+							String fallDes = "";
+							String nutrition = "";
+							String nutritionDes = "";
+							String sore = "";
+							String soreDes = "";
+							String mmse = "";
+							String mmseDes = "";
+							String mas = "";
+							String masDes = "";
+							String barthe = "";
+							String bartheDes = "";
+							String fca = "";
+							String fcaDes = "";
+							String upperLimbMuscleStrength = "";
+							String muscleStrengthOfLowerLimb = "";
+							String muscleToneUpperLimb = "";
+							String muscleToneLowerLimb = "";
+							String jointMobility = "";
+							String languageFunction = "";
+							if(entity.getAdl()!=null&&entity.getAdl().getCountPoint()!=null){
+								adl = entity.getAdl().getCountPoint().toString();
+							}
+							if(entity.getAdl()!=null&&entity.getAdl().getDes()!=null){
+								adlDes = entity.getAdl().getDes().toString();
+							}
+							if(entity.getFall()!=null&&entity.getFall().getCountPoint()!=null){
+								fall = entity.getFall().getCountPoint().toString();
+							}
+							if(entity.getFall()!=null&&entity.getFall().getDes()!=null){
+								fallDes = entity.getFall().getDes().toString();
+							}
+							if(entity.getNutrition()!=null&&entity.getNutrition().getCountPoint()!=null){
+								nutrition = entity.getNutrition().getCountPoint().toString();
+							}
+							if(entity.getNutrition()!=null&&entity.getNutrition().getDes()!=null){
+								nutritionDes = entity.getNutrition().getDes().toString();
+							}
+							if(entity.getSore()!=null&&entity.getSore().getCountPoint()!=null){
+								sore = entity.getSore().getCountPoint().toString();
+							}
+							if(entity.getSore()!=null&&entity.getSore().getDes()!=null){
+								soreDes = entity.getSore().getDes().toString();
+							}
+							if(entity.getMmse()!=null&&entity.getMmse().getCountPoint()!=null){
+								mmse = entity.getMmse().getCountPoint().toString();
+							}
+							if(entity.getMmse()!=null&&entity.getMmse().getDes()!=null){
+								mmseDes = entity.getMmse().getDes().toString();
+							}
+							if(entity.getMas()!=null&&entity.getMas().getCountPoint()!=null){
+								mas = entity.getMas().getCountPoint().toString();
+							}
+							if(entity.getMas()!=null&&entity.getMas().getDes()!=null){
+								masDes = entity.getMas().getDes().toString();
+							}
+							if(entity.getBarthel()!=null&&entity.getBarthel().getCountPoint()!=null){
+								barthe = entity.getBarthel().getCountPoint().toString();
+							}
+							if(entity.getBarthel()!=null&&entity.getBarthel().getDes()!=null){
+								bartheDes = entity.getBarthel().getDes().toString();
+							}
+							if(entity.getFca()!=null&&entity.getFca().getCountPoint2()!=null){
+								fca = entity.getFca().getCountPoint2().toString();
+							}
+							if(entity.getFca()!=null&&entity.getFca().getDes()!=null){
+								fcaDes = entity.getFca().getDes().toString();
+							}
+							if(entity.getRecovery()!=null){
+								if(entity.getRecovery().getUpperLimbMuscleStrength()!=null){
+									upperLimbMuscleStrength = entity.getRecovery().getUpperLimbMuscleStrength().toString();
+								}
+								if(entity.getRecovery().getMuscleStrengthOfLowerLimb()!=null){
+									muscleStrengthOfLowerLimb = entity.getRecovery().getMuscleStrengthOfLowerLimb().toString();
+								}
+								if(entity.getRecovery().getMuscleToneUpperLimb()!=null){
+									muscleToneUpperLimb = entity.getRecovery().getMuscleToneUpperLimb().toString();
+								}
+								if(entity.getRecovery().getMuscleToneLowerLimb()!=null){
+									muscleToneLowerLimb = entity.getRecovery().getMuscleToneLowerLimb().toString();
+								}
+								if(entity.getRecovery().getJointMobility()!=null){
+									jointMobility = entity.getRecovery().getJointMobility().toString();
+								}
+								if(entity.getRecovery().getLanguageFunction()!=null){
+									languageFunction = entity.getRecovery().getLanguageFunction().toString();
+								}
+							}
+							resultStr = CreateReportUtil.createReport(returnaction, adl, adlDes, fall, fallDes, nutrition, nutritionDes, sore, soreDes, mmse, mmseDes, mas, masDes, barthe, bartheDes, fca, fcaDes, upperLimbMuscleStrength, muscleStrengthOfLowerLimb, muscleToneUpperLimb, muscleToneLowerLimb, jointMobility, languageFunction);
+						}
+				
+					}									
+				}
+				return resultStr;
+			}
+			//end
+		    
+			// 解析
+			Map<String, Object> parseMap = healthReportParse.parse(type,command,reqStr,request);		
+			String action = (String) parseMap.get("action");
+			HealthReportEntity healthReport = (HealthReportEntity) parseMap.get("healthReport");
+			List<HealthReportEntity> healthReportList = (List<HealthReportEntity>) parseMap.get("healthReportList");
+			Integer id = (Integer) parseMap.get("id");			
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+			
+															Boolean employeeShow = (Boolean) parseMap.get("employeeShow");
+			Boolean delEmployee = (Boolean) parseMap.get("delEmployee");
+																		            Boolean healthReportPhotoListShow = (Boolean) parseMap.get("healthReportPhotoListShow");	
+            Boolean delHealthReportPhotoList = (Boolean) parseMap.get("delHealthReportPhotoList");
+																		
+			// 业务处理
+			Object result=null;
+			if ("save".equals(action)) {
+				result = healthReportService.save(healthReport);
+			} else if ("saveList".equals(action)) {
+				result = healthReportService.saveList(healthReportList);
+			} else if ("getById".equals(action)) {
+				result = healthReportService.getById(id,employeeShow,healthReportPhotoListShow);
+			} else if ("getListByCondition".equals(action)) {
+			    //根据数据权限 增加查询条件
+				queryMap = systemService.addDataRule("HealthReportEntity",queryMap,request);
+				result = healthReportService.getListByCondition(queryMap,orderList, pageno,
+						pagesize,employeeShow,healthReportPhotoListShow);
+			} else if ("del".equals(action)) {
+				result = healthReportService.del(id,delEmployee,delHealthReportPhotoList);
+			} else if ("delList".equals(action)) {
+				result = healthReportService.delList(queryMap,delEmployee,delHealthReportPhotoList);
+			}
+			// 封装
+			Map<String, Object> packMap = healthReportPack.pack(type,action,result,healthReport);
+			String actionBack = (String)packMap.get("action");
+			String resultBack = (String)packMap.get("result");
+			String desBack = (String)packMap.get("des");
+			JSONObject pageBack = (JSONObject)packMap.get("page");
+			JSONObject contentBack = (JSONObject)packMap.get("content");
+			
+			JSONObject repJson = new JSONObject();
+			if(actionBack!=null&&!"".equals(actionBack)){
+				repJson.put("action", actionBack);
+			}
+			if(resultBack!=null&&!"".equals(resultBack)){
+				repJson.put("result", resultBack);
+			}
+			if(desBack!=null&&!"".equals(desBack)){
+				repJson.put("des", desBack);
+			}
+			if(pageBack!=null){
+				repJson.put("page", pageBack);
+			}
+			if(contentBack!=null&&!"".equals(contentBack)){
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息："+repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

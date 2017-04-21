@@ -1,0 +1,146 @@
+package fsk.handler.olderPrincipalEmployee;
+
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import fsk.entity.olderPrincipalEmployee.OlderPrincipalEmployeeEntity;
+import fsk.pack.olderPrincipalEmployee.OlderPrincipalEmployeePack;
+import fsk.parse.olderPrincipalEmployee.OlderPrincipalEmployeeParse;
+import fsk.service.olderPrincipalEmployee.OlderPrincipalEmployeeService;
+import com.framework.system.common.service.SystemService;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.db.query.OrderVO;
+
+ /**   
+ * @Title: Handler
+ * @Description: 老人医师员工关联表业务处理器
+ * @author feng.gu
+ * @date 2016-06-21 08:39:44
+ * @version V1.0   
+ *
+ */
+public class OlderPrincipalEmployeeHandler extends BaseHandler{
+	private static Logger logger = Logger.getLogger(OlderPrincipalEmployeeService.class);
+	/**
+	 * 解析器
+	 */
+	private OlderPrincipalEmployeeParse olderPrincipalEmployeeParse = OlderPrincipalEmployeeParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private OlderPrincipalEmployeeService olderPrincipalEmployeeService = OlderPrincipalEmployeeService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private OlderPrincipalEmployeePack olderPrincipalEmployeePack = OlderPrincipalEmployeePack.getInstance();
+
+	private static OlderPrincipalEmployeeHandler olderPrincipalEmployeeHandler;
+	
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static OlderPrincipalEmployeeHandler getInstance() {
+		if (olderPrincipalEmployeeHandler == null) {
+			olderPrincipalEmployeeHandler = new OlderPrincipalEmployeeHandler();
+		}
+		return olderPrincipalEmployeeHandler;
+	}
+
+	/**
+	 * 
+	 * @param type 1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type,String command,String reqStr, HttpServletRequest request,
+			HttpServletResponse response) {
+		logger.debug("请求消息："+reqStr);
+		String resultStr="";
+		try {
+			// 解析
+			Map<String, Object> parseMap = olderPrincipalEmployeeParse.parse(type,command,reqStr,request);		
+			String action = (String) parseMap.get("action");
+			OlderPrincipalEmployeeEntity olderPrincipalEmployee = (OlderPrincipalEmployeeEntity) parseMap.get("olderPrincipalEmployee");
+			List<OlderPrincipalEmployeeEntity> olderPrincipalEmployeeList = (List<OlderPrincipalEmployeeEntity>) parseMap.get("olderPrincipalEmployeeList");
+			Integer id = (Integer) parseMap.get("id");			
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+			
+															Boolean olderShow = (Boolean) parseMap.get("olderShow");
+			Boolean delOlder = (Boolean) parseMap.get("delOlder");
+																								Boolean principalEmployeeShow = (Boolean) parseMap.get("principalEmployeeShow");
+			Boolean delPrincipalEmployee = (Boolean) parseMap.get("delPrincipalEmployee");
+															
+			// 业务处理
+			Object result=null;
+			if ("save".equals(action)) {
+				result = olderPrincipalEmployeeService.save(olderPrincipalEmployee);
+			} else if ("saveList".equals(action)) {
+				result = olderPrincipalEmployeeService.saveList(olderPrincipalEmployeeList);
+			} else if ("getById".equals(action)) {
+				result = olderPrincipalEmployeeService.getById(id,olderShow,principalEmployeeShow);
+			} else if ("getListByCondition".equals(action)) {
+			    //根据数据权限 增加查询条件
+				queryMap = systemService.addDataRule("OlderPrincipalEmployeeEntity",queryMap,request);
+				result = olderPrincipalEmployeeService.getListByCondition(queryMap,orderList, pageno,
+						pagesize,olderShow,principalEmployeeShow);
+			} else if ("del".equals(action)) {
+				result = olderPrincipalEmployeeService.del(id,delOlder,delPrincipalEmployee);
+			} else if ("delList".equals(action)) {
+				result = olderPrincipalEmployeeService.delList(queryMap,delOlder,delPrincipalEmployee);
+			}
+			// 封装
+			Map<String, Object> packMap = olderPrincipalEmployeePack.pack(type,action,result,olderPrincipalEmployee);
+			String actionBack = (String)packMap.get("action");
+			String resultBack = (String)packMap.get("result");
+			String desBack = (String)packMap.get("des");
+			JSONObject pageBack = (JSONObject)packMap.get("page");
+			JSONObject contentBack = (JSONObject)packMap.get("content");
+			
+			JSONObject repJson = new JSONObject();
+			if(actionBack!=null&&!"".equals(actionBack)){
+				repJson.put("action", actionBack);
+			}
+			if(resultBack!=null&&!"".equals(resultBack)){
+				repJson.put("result", resultBack);
+			}
+			if(desBack!=null&&!"".equals(desBack)){
+				repJson.put("des", desBack);
+			}
+			if(pageBack!=null){
+				repJson.put("page", pageBack);
+			}
+			if(contentBack!=null&&!"".equals(contentBack)){
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息："+repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

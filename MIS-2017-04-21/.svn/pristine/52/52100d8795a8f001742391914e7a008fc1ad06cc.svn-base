@@ -1,0 +1,360 @@
+package fsk.handler;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import fsk.entity.older.OlderEntity;
+import fsk.entity.physiologicalParametersCurrent.PhysiologicalParametersCurrentEntity;
+import fsk.entity.physiologicalParametersHistory.PhysiologicalParametersHistoryEntity;
+import fsk.service.older.OlderService;
+import fsk.service.physiologicalParametersCurrent.PhysiologicalParametersCurrentService;
+import fsk.service.physiologicalParametersHistory.PhysiologicalParametersHistoryService;
+
+public class JKYTJTCPMessageHandler {
+
+	private static OlderService olderService = OlderService.getInstance();
+	private static PhysiologicalParametersCurrentService physiologicalParametersCurrentService = PhysiologicalParametersCurrentService.getInstance();
+	private static PhysiologicalParametersHistoryService physiologicalParametersHistoryService = PhysiologicalParametersHistoryService.getInstance();
+
+	public void handle(String cardNum, Integer dataType, String dataContent, String dataTime) {
+		Integer olderId = 0;
+		boolean saveinfo = false;
+		// 根据身份证号判断老人信息是否存在
+		if (cardNum != null && !"".equals(cardNum)) {
+			Map<String, Object> query = new HashMap<String, Object>();
+			query.put("idnumber", cardNum);
+			List<OlderEntity> olderList = olderService.getListByCondition(query);
+			if (olderList != null && olderList.size() > 0) {
+				OlderEntity older = olderList.get(0);
+				saveinfo = true;
+				olderId = older.getId();
+			}
+		}
+		// 保存参数到相关的数据表
+		if (saveinfo && dataType != null) {
+			// 判断接收数据所测量的指标类型
+			// 测量血氧
+			if (dataType.intValue() == 16) {
+				bloodOxygenHanlder(dataContent, olderId, dataTime);
+			}
+			// 测量血压
+			else if (dataType.intValue() == 17) {
+				bloobPressureHanlder(dataContent, olderId, dataTime);
+			}
+			// 测量血糖
+			else if (dataType.intValue() == 18) {
+				bloodSugarHanlder(dataContent, olderId, dataTime);
+			}
+			// 测量体温
+			else if (dataType.intValue() == 20) {
+				bodyTempHanlder(dataContent, olderId, dataTime);
+			}
+		}
+	}
+
+	public void bloobPressureHanlder(String str, Integer olderId, String timecur) {
+
+		String[] bloodPressure = str.split(",");
+		// 收缩压
+		BigDecimal ssy = new BigDecimal(bloodPressure[0]);
+		// 舒张压
+		BigDecimal szy = new BigDecimal(bloodPressure[1]);
+		Integer hisstatus = 1;
+		Integer hisstatus2 = 1;
+		// 更新当前表-血压
+		Map<String, Object> querycurxueya = new HashMap<String, Object>();
+		querycurxueya.put("olderId", olderId);
+		querycurxueya.put("type", 1);// 血压的枚举值为1
+		List<PhysiologicalParametersCurrentEntity> curxueyaList = physiologicalParametersCurrentService.getListByCondition(querycurxueya);
+		if (curxueyaList != null && curxueyaList.size() > 0) {// 老人生理参数存在,则更新
+			PhysiologicalParametersCurrentEntity curentity = curxueyaList.get(0);
+			BigDecimal max = curentity.getMaxValue();
+			BigDecimal min = curentity.getMinValue();
+			BigDecimal max2 = curentity.getMaxValue2();
+			BigDecimal min2 = curentity.getMinValue2();
+			Integer status = 1;// 默认正常
+			Integer status2 = 1;// 默认正常
+			if (max != null && min != null) {
+				if (ssy.compareTo(min) == -1) {// -1表示小于
+					status = 3;
+				}
+				if (ssy.compareTo(max) == 1) {// 1表示大于
+					status = 2;
+				}
+			}
+			if (max2 != null && min2 != null) {
+				if (szy.compareTo(min2) == -1) {// -1表示小于
+					status2 = 3;
+				}
+				if (szy.compareTo(max2) == 1) {// 1表示大于
+					status2 = 2;
+				}
+			}
+			hisstatus = status;
+			hisstatus2 = status2;
+			curentity.setValue(ssy);
+			curentity.setCreateTime(timecur);
+			curentity.setStatus(status);
+			curentity.setValue2(szy);
+			curentity.setStatus2(status2);
+			curentity.setMeasurePerson("健康一体机");
+			physiologicalParametersCurrentService.save(curentity);
+
+		} else {// 老人生理参数不存在,则新建
+			PhysiologicalParametersCurrentEntity curentity = new PhysiologicalParametersCurrentEntity();
+			BigDecimal max = new BigDecimal(140.0);
+			BigDecimal min = new BigDecimal(90.0);
+			BigDecimal max2 = new BigDecimal(90.0);
+			BigDecimal min2 = new BigDecimal(60.0);
+			Integer status = 1;// 默认正常
+			Integer status2 = 1;// 默认正常
+			if (max != null && min != null) {
+				if (ssy.compareTo(min) == -1) {// -1表示小于
+					status = 3;
+				}
+				if (ssy.compareTo(max) == 1) {// 1表示大于
+					status = 2;
+				}
+			}
+			if (max2 != null && min2 != null) {
+				if (szy.compareTo(min2) == -1) {// -1表示小于
+					status2 = 3;
+				}
+				if (szy.compareTo(max2) == 1) {// 1表示大于
+					status2 = 2;
+				}
+			}
+			hisstatus = status;
+			hisstatus2 = status2;
+			curentity.setOlderId(olderId);
+			curentity.setType(1);
+			curentity.setValue(ssy);
+			curentity.setCreateTime(timecur);
+			curentity.setStatus(status);
+			curentity.setUnit("mmHg");
+			curentity.setMaxValue(max);
+			curentity.setMinValue(min);
+			curentity.setThresholdTime(timecur);
+			curentity.setThresholdPerson("系统添加");
+			curentity.setValue2(szy);
+			curentity.setMaxValue2(max2);
+			curentity.setMinValue2(min2);
+			curentity.setStatus2(status2);
+			curentity.setThresholdPerson2("系统添加");
+			curentity.setThresholdTime2(timecur);
+			curentity.setMeasurePerson("健康一体机");
+			physiologicalParametersCurrentService.save(curentity);
+		}
+		// 添加历史表-血压
+		PhysiologicalParametersHistoryEntity hisxueyaentity = new PhysiologicalParametersHistoryEntity();
+		hisxueyaentity.setOlderId(olderId);
+		hisxueyaentity.setType(1);
+		hisxueyaentity.setValue(ssy);
+		hisxueyaentity.setUnit("mmHg");
+		hisxueyaentity.setStatus(hisstatus);
+		hisxueyaentity.setMeasurePerson("健康一体机");
+		hisxueyaentity.setCreateTime(timecur);
+		hisxueyaentity.setValue2(szy);
+		hisxueyaentity.setStatus2(hisstatus2);
+		physiologicalParametersHistoryService.save(hisxueyaentity);
+
+	}
+
+	private void bodyTempHanlder(String str, Integer olderId, String timecur) {
+
+		BigDecimal tiwen = new BigDecimal(str);
+		// 更新当前表-体温
+		Integer hisprstatus = 1;// 历史表状态
+		Map<String, Object> querycurpr = new HashMap<String, Object>();
+		querycurpr.put("olderId", olderId);
+		querycurpr.put("type", 6);// 体温的枚举值为6
+		List<PhysiologicalParametersCurrentEntity> curprList = physiologicalParametersCurrentService.getListByCondition(querycurpr);
+		if (curprList != null && curprList.size() > 0) {// 老人生理参数存在,则更新
+			PhysiologicalParametersCurrentEntity curentity = curprList.get(0);
+			BigDecimal max = curentity.getMaxValue();
+			BigDecimal min = curentity.getMinValue();
+			Integer status = 1;// 默认正常
+			if (max != null && min != null) {
+				if (tiwen.compareTo(min) == -1) {// -1表示小于
+					status = 3;
+				}
+				if (tiwen.compareTo(max) == 1) {// 1表示大于
+					status = 2;
+				}
+			}
+			hisprstatus = status;// 历史数据状态
+			curentity.setValue(tiwen);
+			curentity.setCreateTime(timecur);
+			curentity.setStatus(status);
+			curentity.setMeasurePerson("健康一体机");
+			physiologicalParametersCurrentService.save(curentity);
+		} else {// 老人生理参数不存在,则新建
+			PhysiologicalParametersCurrentEntity curentity = new PhysiologicalParametersCurrentEntity();
+			Integer status = 1;// 默认正常
+			BigDecimal max = new BigDecimal(37.4);
+			BigDecimal min = new BigDecimal(36.0);
+			if (tiwen.compareTo(min) == -1) {
+				status = 3;
+			}
+			if (tiwen.compareTo(max) == 1) {// 1表示大于
+				status = 2;
+			}
+			hisprstatus = status;// 历史数据状态
+			curentity.setOlderId(olderId);
+			curentity.setType(6);
+			curentity.setValue(tiwen);
+			curentity.setCreateTime(timecur);
+			curentity.setStatus(status);
+			curentity.setUnit("℃");
+			curentity.setMaxValue(max);
+			curentity.setMinValue(min);
+			curentity.setThresholdTime(timecur);
+			curentity.setThresholdPerson("系统添加");
+			curentity.setMeasurePerson("健康一体机");
+			physiologicalParametersCurrentService.save(curentity);
+		}
+		// 添加历史表-体温
+		PhysiologicalParametersHistoryEntity hisprentity = new PhysiologicalParametersHistoryEntity();
+		hisprentity.setOlderId(olderId);
+		hisprentity.setType(6);
+		hisprentity.setValue(tiwen);
+		hisprentity.setUnit("℃");
+		hisprentity.setStatus(hisprstatus);
+		hisprentity.setMeasurePerson("健康一体机");
+		hisprentity.setCreateTime(timecur);
+		physiologicalParametersHistoryService.save(hisprentity);
+	}
+
+	public void bloodOxygenHanlder(String dataContent, Integer olderId, String timecur) {
+
+		BigDecimal xueyang = new BigDecimal(dataContent);
+		Integer hisstatus = 1;// 历史表状态
+		Map<String, Object> querycur = new HashMap<String, Object>();
+		querycur.put("olderId", olderId);
+		querycur.put("type", 8);// 项目中生理参数枚举值为8
+		List<PhysiologicalParametersCurrentEntity> curList = physiologicalParametersCurrentService.getListByCondition(querycur);
+		if (curList != null && curList.size() > 0) {// 老人生理参数存在,则更新
+			PhysiologicalParametersCurrentEntity curentity = curList.get(0);
+			BigDecimal max = curentity.getMaxValue();
+			BigDecimal min = curentity.getMinValue();
+			Integer status = 1;// 默认正常
+			if (max != null && min != null) {
+				if (xueyang.compareTo(min) == -1) {// -1表示小于
+					status = 3;
+				}
+				if (xueyang.compareTo(max) == 1) {// 1表示大于
+					status = 2;
+				}
+			}
+			hisstatus = status;// 历史数据状态
+			curentity.setValue(xueyang);
+			curentity.setCreateTime(timecur);
+			curentity.setStatus(status);
+			curentity.setMeasurePerson("健康一体机");
+			physiologicalParametersCurrentService.save(curentity);
+		} else {// 老人生理参数不存在,则新建
+			PhysiologicalParametersCurrentEntity curentity = new PhysiologicalParametersCurrentEntity();
+			Integer status = 1;// 默认正常
+			BigDecimal max = new BigDecimal(100.0);
+			BigDecimal min = new BigDecimal(95.0);
+			if (xueyang.compareTo(min) == -1) {
+				status = 3;
+			}
+			if (xueyang.compareTo(max) == 1) {// 1表示大于
+				status = 2;
+			}
+			hisstatus = status;// 历史数据状态
+			curentity.setOlderId(olderId);
+			curentity.setType(8);
+			curentity.setValue(xueyang);
+			curentity.setCreateTime(timecur);
+			curentity.setStatus(status);
+			curentity.setUnit("%");
+			curentity.setMaxValue(max);
+			curentity.setMinValue(min);
+			curentity.setThresholdTime(timecur);
+			curentity.setThresholdPerson("系统添加");
+			curentity.setMeasurePerson("健康一体机");
+			physiologicalParametersCurrentService.save(curentity);
+		}
+		// 添加历史表-血氧
+		PhysiologicalParametersHistoryEntity hisentity = new PhysiologicalParametersHistoryEntity();
+		hisentity.setOlderId(olderId);
+		hisentity.setType(8);
+		hisentity.setValue(xueyang);
+		hisentity.setUnit("%");
+		hisentity.setStatus(hisstatus);
+		hisentity.setMeasurePerson("健康一体机");
+		hisentity.setCreateTime(timecur);
+		physiologicalParametersHistoryService.save(hisentity);
+
+	}
+
+	public void bloodSugarHanlder(String str, Integer olderId, String timecur) {
+		// 血糖
+		String[] bloodSugar = str.split(",");
+		BigDecimal xuetang = new BigDecimal(bloodSugar[0]);
+		// 更新当前表-血糖
+		Integer hisprstatus = 1;// 历史表状态
+		Map<String, Object> querycurpr = new HashMap<String, Object>();
+		querycurpr.put("olderId", olderId);
+		querycurpr.put("type", 4);// 饭后血糖枚举值为4
+		List<PhysiologicalParametersCurrentEntity> curprList = physiologicalParametersCurrentService.getListByCondition(querycurpr);
+		if (curprList != null && curprList.size() > 0) {// 老人生理参数存在,则更新
+			PhysiologicalParametersCurrentEntity curentity = curprList.get(0);
+			BigDecimal max = curentity.getMaxValue();
+			BigDecimal min = curentity.getMinValue();
+			Integer status = 1;// 默认正常
+			if (max != null && min != null) {
+				if (xuetang.compareTo(min) == -1) {// -1表示小于
+					status = 3;
+				}
+				if (xuetang.compareTo(max) == 1) {// 1表示大于
+					status = 2;
+				}
+			}
+			hisprstatus = status;// 历史数据状态
+			curentity.setValue(xuetang);
+			curentity.setCreateTime(timecur);
+			curentity.setStatus(status);
+			curentity.setMeasurePerson("健康一体机");
+			physiologicalParametersCurrentService.save(curentity);
+		} else {// 老人生理参数不存在,则新建
+			PhysiologicalParametersCurrentEntity curentity = new PhysiologicalParametersCurrentEntity();
+			Integer status = 1;// 默认正常
+			BigDecimal max = new BigDecimal(7.8);
+			BigDecimal min = new BigDecimal(4.0);
+			if (xuetang.compareTo(min) == -1) {
+				status = 3;
+			}
+			if (xuetang.compareTo(max) == 1) {// 1表示大于
+				status = 2;
+			}
+			hisprstatus = status;// 历史数据状态
+			curentity.setOlderId(olderId);
+			curentity.setType(4);
+			curentity.setValue(xuetang);
+			curentity.setCreateTime(timecur);
+			curentity.setStatus(status);
+			curentity.setUnit("mmol/L");
+			curentity.setMaxValue(max);
+			curentity.setMinValue(min);
+			curentity.setThresholdTime(timecur);
+			curentity.setThresholdPerson("系统添加");
+			curentity.setMeasurePerson("健康一体机");
+			physiologicalParametersCurrentService.save(curentity);
+		}
+		// 添加历史表-血糖
+		PhysiologicalParametersHistoryEntity hisprentity = new PhysiologicalParametersHistoryEntity();
+		hisprentity.setOlderId(olderId);
+		hisprentity.setType(4);
+		hisprentity.setValue(xuetang);
+		hisprentity.setUnit("mmol/L");
+		hisprentity.setStatus(hisprstatus);
+		hisprentity.setMeasurePerson("健康一体机");
+		hisprentity.setCreateTime(timecur);
+		physiologicalParametersHistoryService.save(hisprentity);
+	}
+}

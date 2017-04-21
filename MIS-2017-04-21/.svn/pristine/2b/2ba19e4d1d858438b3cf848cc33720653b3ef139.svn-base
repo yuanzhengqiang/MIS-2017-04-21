@@ -1,0 +1,434 @@
+package fsk.parse.serviceChild;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.framework.system.util.JsonUtil;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+import fsk.entity.serviceChild.ServiceChildEntity;
+
+
+
+import fsk.entity.service.ServiceEntity;
+
+import com.framework.system.util.JsonUtil;
+import com.framework.system.db.query.OrderVO;
+ /**   
+ * @Title: Parse
+ * @Description: 服务子项解析器
+ * @author feng.gu
+ * @date 2016-07-25 14:30:38
+ * @version V1.0   
+ *
+ */
+public class ServiceChildParse {
+	private static Logger logger = Logger.getLogger(ServiceChildParse.class);
+	private static ServiceChildParse serviceChildParse;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static ServiceChildParse getInstance() {
+		if (serviceChildParse == null) {
+			serviceChildParse = new ServiceChildParse();
+		}
+		return serviceChildParse;
+	}
+
+	public Map<String, Object> parse(int type, String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			parseMap = this.parseByJson(command,reqStr, request);
+		} else if (type == 2) {
+			// xml
+			parseMap = this.parseByXml(command,reqStr, request);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByJson(String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		try {
+			String actionReturn = null;
+			ServiceChildEntity serviceChildReturn = null;
+			List<ServiceChildEntity> serviceChildListReturn = null;
+			Integer idReturn = null;			
+			Map<String, Object> queryMapReturn = null;
+			int pagenoReturn = 1;
+			int pagesizeReturn = 10;
+			List<OrderVO> orderListReturn = null;
+			
+															Boolean serviceShowReturn = false;
+			Boolean delServiceReturn = false;
+															
+			//json
+			Map reqParams = JsonUtil.getMap4Json(reqStr);
+			JSONObject contentreq = (JSONObject)reqParams.get("content");
+			if ("ADD_SERVICE_CHILD_INFO_REQUEST".equals(command)) {
+				actionReturn = "save";
+				serviceChildReturn = new ServiceChildEntity();
+				if(true){
+					if(contentreq!=null){
+												    						    Integer id = (Integer)contentreq.get("id");
+	                		if(id!=null){
+			                	serviceChildReturn.setId(id);
+			                }
+						    												    						    String name = (String)contentreq.get("name");
+	                		if(name!=null){
+			                	serviceChildReturn.setName(name);
+			                }
+						    												    						    Integer serviceId = (Integer)contentreq.get("serviceId");
+	                		if(serviceId!=null){
+			                	serviceChildReturn.setServiceId(serviceId);
+			                }
+						    											}					
+				}
+																				if(true){
+					Object service = contentreq.get("service");
+					if(service!=null){
+						JSONObject obj = (JSONObject)service;
+						if(obj!=null){
+							ServiceEntity entity = new ServiceEntity();						
+																						    Integer id = (Integer)obj.get("id");
+		                		if(id!=null){
+				                	entity.setId(id);
+				                }
+							    																						    String name = (String)obj.get("name");
+		                		if(name!=null){
+				                	entity.setName(name);
+				                }
+							    																						    String code = (String)obj.get("code");
+		                		if(code!=null){
+				                	entity.setCode(code);
+				                }
+							    																						    Integer typeId = (Integer)obj.get("typeId");
+		                		if(typeId!=null){
+				                	entity.setTypeId(typeId);
+				                }
+							    																						    Integer status = (Integer)obj.get("status");
+		                		if(status!=null){
+				                	entity.setStatus(status);
+				                }
+							    																						     							     Double marketPrice = JsonUtil.getJSONDouble(obj, "marketPrice");
+								 if (marketPrice != null) {
+									entity.setMarketPrice(BigDecimal.valueOf(marketPrice));
+								 }
+							     							     							    																						     							     Double medicalPrice = JsonUtil.getJSONDouble(obj, "medicalPrice");
+								 if (medicalPrice != null) {
+									entity.setMedicalPrice(BigDecimal.valueOf(medicalPrice));
+								 }
+							     							     							    																						    String unit = (String)obj.get("unit");
+		                		if(unit!=null){
+				                	entity.setUnit(unit);
+				                }
+							    																						    Integer goDoor = (Integer)obj.get("goDoor");
+		                		if(goDoor!=null){
+				                	entity.setGoDoor(goDoor);
+				                }
+							    																						    String serviceTimes = (String)obj.get("serviceTimes");
+		                		if(serviceTimes!=null){
+				                	entity.setServiceTimes(serviceTimes);
+				                }
+							    																						    String needPerosn = (String)obj.get("needPerosn");
+		                		if(needPerosn!=null){
+				                	entity.setNeedPerosn(needPerosn);
+				                }
+							    																						    String des = (String)obj.get("des");
+		                		if(des!=null){
+				                	entity.setDes(des);
+				                }
+							    																						    String profile = (String)obj.get("profile");
+		                		if(profile!=null){
+				                	entity.setProfile(profile);
+				                }
+							    																						    String createTime = (String)obj.get("createTime");
+		                		if(createTime!=null){
+				                	entity.setCreateTime(createTime);
+				                }
+							    														serviceChildReturn.setService(entity);
+						}						
+					}
+				}
+																			} else if ("QUERY_SERVICE_CHILD_INFO_REQUEST".equals(command)) {
+				actionReturn = "getById";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");
+					        																												String serviceShow = (String)contentreq.get("serviceShow");
+							if("true".equals(serviceShow)){
+								serviceShowReturn = true;
+							}
+																																	}	
+				}
+			} else if ("QUERY_SERVICE_CHILD_LIST_REQUEST".equals(command)) {
+				actionReturn = "getListByCondition";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																																String name_like = (String)contentreq.get("name_like");
+							String name_isNull = (String)contentreq.get("name_isNull");
+							String name_isNotNull = (String)contentreq.get("name_isNotNull");
+							String name_in = (String)contentreq.get("name_in");
+							String name = (String)contentreq.get("name");
+							if(name_like!=null){
+	                        	queryMapReturn.put("name_like", name_like);
+							}
+							if(name_isNull!=null){
+	                        	queryMapReturn.put("name_isNull", name_isNull);
+							}
+							if(name_isNotNull!=null){
+	                        	queryMapReturn.put("name_isNotNull", name_isNotNull);
+							}
+							if(name_in!=null){
+	                        	queryMapReturn.put("name_in", name_in);
+							}
+							if(name!=null){
+	                        	queryMapReturn.put("name", name);
+							}						           
+																															Integer serviceId_gt = (Integer)contentreq.get("serviceId_gt");
+						Integer serviceId_ge = (Integer)contentreq.get("serviceId_ge");
+						Integer serviceId_lt = (Integer)contentreq.get("serviceId_lt");
+						Integer serviceId_le = (Integer)contentreq.get("serviceId_le");
+						String serviceId_in = (String)contentreq.get("serviceId_in");
+						Integer serviceId = (Integer)contentreq.get("serviceId");
+                        if(serviceId_gt!=null){
+                        	queryMapReturn.put("serviceId_gt", serviceId_gt);
+						}
+						if(serviceId_ge!=null){
+                        	queryMapReturn.put("serviceId_ge", serviceId_ge);
+						}
+						if(serviceId_lt!=null){
+                        	queryMapReturn.put("serviceId_lt", serviceId_lt);
+						}
+						if(serviceId_le!=null){
+                        	queryMapReturn.put("serviceId_le", serviceId_le);
+						}
+						if(serviceId_in!=null){
+                        	queryMapReturn.put("serviceId_in", serviceId_in);
+						}
+						if(serviceId!=null){
+                        	queryMapReturn.put("serviceId", serviceId);
+						}		
+															
+						    																												
+																																			String serviceShow = (String)contentreq.get("serviceShow");
+							if("true".equals(serviceShow)){
+								serviceShowReturn = true;
+							}
+																																	}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				    Object orderreq = (Object) reqParams.get("order");
+					if (orderreq != null) {
+						JSONArray order = (JSONArray)orderreq;
+						orderListReturn = new ArrayList<OrderVO>();
+						for(int i=0;i<order.size();i++){
+							JSONObject obj = order.getJSONObject(i);
+							OrderVO orderVO = new OrderVO();
+							orderVO.setName((String)obj.get("column"));
+							orderVO.setOrderType((String)obj.get("type"));
+							orderListReturn.add(orderVO);
+						}						
+					}
+				}
+			} else if ("DEL_SERVICE_CHILD_INFO_REQUEST".equals(command)) {
+				actionReturn = "del";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");	
+						    																												String delService = (String)contentreq.get("delService");
+							if("true".equals(delService)){
+								delServiceReturn = true;
+							}
+																																	}	
+				}
+			} else if ("DEL_SERVICE_CHILD_LIST_REQUEST".equals(command)) {
+				actionReturn = "delList";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																																String name_like = (String)contentreq.get("name_like");
+							String name_isNull = (String)contentreq.get("name_isNull");
+							String name_isNotNull = (String)contentreq.get("name_isNotNull");
+							String name_in = (String)contentreq.get("name_in");
+							String name = (String)contentreq.get("name");
+							if(name_like!=null){
+	                        	queryMapReturn.put("name_like", name_like);
+							}
+							if(name_isNull!=null){
+	                        	queryMapReturn.put("name_isNull", name_isNull);
+							}
+							if(name_isNotNull!=null){
+	                        	queryMapReturn.put("name_isNotNull", name_isNotNull);
+							}
+							if(name_in!=null){
+	                        	queryMapReturn.put("name_in", name_in);
+							}
+							if(name!=null){
+	                        	queryMapReturn.put("name", name);
+							}						           
+																															Integer serviceId_gt = (Integer)contentreq.get("serviceId_gt");
+						Integer serviceId_ge = (Integer)contentreq.get("serviceId_ge");
+						Integer serviceId_lt = (Integer)contentreq.get("serviceId_lt");
+						Integer serviceId_le = (Integer)contentreq.get("serviceId_le");
+						String serviceId_in = (String)contentreq.get("serviceId_in");
+						Integer serviceId = (Integer)contentreq.get("serviceId");
+                        if(serviceId_gt!=null){
+                        	queryMapReturn.put("serviceId_gt", serviceId_gt);
+						}
+						if(serviceId_ge!=null){
+                        	queryMapReturn.put("serviceId_ge", serviceId_ge);
+						}
+						if(serviceId_lt!=null){
+                        	queryMapReturn.put("serviceId_lt", serviceId_lt);
+						}
+						if(serviceId_le!=null){
+                        	queryMapReturn.put("serviceId_le", serviceId_le);
+						}
+						if(serviceId_in!=null){
+                        	queryMapReturn.put("serviceId_in", serviceId_in);
+						}
+						if(serviceId!=null){
+                        	queryMapReturn.put("serviceId", serviceId);
+						}		
+																		
+																														String delService = (String)contentreq.get("delService");
+						if("true".equals(delService)){
+							delServiceReturn = true;
+						}
+																													}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				}
+			}
+
+			if (actionReturn != null && !"".equals(actionReturn)) {
+				parseMap.put("action", actionReturn);
+			}
+			if (serviceChildReturn != null) {
+				parseMap.put("serviceChild", serviceChildReturn);
+			}
+			if (serviceChildListReturn != null && serviceChildListReturn.size() > 0) {
+				parseMap.put("serviceChildList", serviceChildListReturn);
+			}
+			if (idReturn != null) {
+				parseMap.put("id", idReturn);
+			}	
+			if (orderListReturn != null && orderListReturn.size() > 0) {
+				parseMap.put("orderList", orderListReturn);
+			}		
+			if (queryMapReturn != null) {
+				parseMap.put("queryMap", queryMapReturn);
+			}
+			if (pagenoReturn > 0) {
+				parseMap.put("pageno", pagenoReturn);
+			}
+			if (pagesizeReturn > 0) {
+				parseMap.put("pagesize", pagesizeReturn);
+			}
+			
+			
+															if (serviceShowReturn != null) {
+				parseMap.put("serviceShow", serviceShowReturn);
+			}
+			if (delServiceReturn != null) {
+				parseMap.put("delService", delServiceReturn);
+			}
+															
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByXml(String command,String reqStr,
+			HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

@@ -1,0 +1,782 @@
+package com.framework.system.common.parse.privilege;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.framework.system.util.JsonUtil;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+import com.framework.system.common.entity.privilege.PrivilegeEntity;
+
+import com.framework.system.common.entity.role.RoleEntity;
+import com.framework.system.common.entity.module.ModuleEntity;
+import com.framework.system.common.entity.user.UserEntity;
+
+import com.framework.system.util.JsonUtil;
+import com.framework.system.db.query.OrderVO;
+ /**   
+ * @Title: Parse
+ * @Description: 系统权限解析器
+ * @author feng.gu
+ * @date 2016-04-22 09:03:01
+ * @version V1.0   
+ *
+ */
+public class PrivilegeParse {
+	private static Logger logger = Logger.getLogger(PrivilegeParse.class);
+	private static PrivilegeParse privilegeParse;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static PrivilegeParse getInstance() {
+		if (privilegeParse == null) {
+			privilegeParse = new PrivilegeParse();
+		}
+		return privilegeParse;
+	}
+
+	public Map<String, Object> parse(int type, String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			parseMap = this.parseByJson(command,reqStr, request);
+		} else if (type == 2) {
+			// xml
+			parseMap = this.parseByXml(command,reqStr, request);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByJson(String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		try {
+			String actionReturn = null;
+			PrivilegeEntity privilegeReturn = null;
+			List<PrivilegeEntity> privilegeListReturn = null;
+			Integer idReturn = null;			
+			Map<String, Object> queryMapReturn = null;
+			int pagenoReturn = 1;
+			int pagesizeReturn = 10;
+			List<OrderVO> orderListReturn = null;
+			
+															Boolean roleShowReturn = false;
+			Boolean delRoleReturn = false;
+																								Boolean moduleShowReturn = false;
+			Boolean delModuleReturn = false;
+																								Boolean createUserShowReturn = false;
+			Boolean delCreateUserReturn = false;
+															
+			//json
+			Map reqParams = JsonUtil.getMap4Json(reqStr);
+			JSONObject contentreq = (JSONObject)reqParams.get("content");
+			if ("ADD_PRIVILEGE_INFO_REQUEST".equals(command)) {
+				actionReturn = "save";
+				privilegeReturn = new PrivilegeEntity();
+				if(true){
+					if(contentreq!=null){
+												    						    Integer id = (Integer)contentreq.get("id");
+	                		if(id!=null){
+			                	privilegeReturn.setId(id);
+			                }
+						    												    						    Integer roleId = (Integer)contentreq.get("roleId");
+	                		if(roleId!=null){
+			                	privilegeReturn.setRoleId(roleId);
+			                }
+						    												    						    Integer moduleId = (Integer)contentreq.get("moduleId");
+	                		if(moduleId!=null){
+			                	privilegeReturn.setModuleId(moduleId);
+			                }
+						    												    						    String funcitonType = (String)contentreq.get("funcitonType");
+	                		if(funcitonType!=null){
+			                	privilegeReturn.setFuncitonType(funcitonType);
+			                }
+						    												    						    Integer functionId = (Integer)contentreq.get("functionId");
+	                		if(functionId!=null){
+			                	privilegeReturn.setFunctionId(functionId);
+			                }
+						    												    						    Integer createUserId = (Integer)contentreq.get("createUserId");
+	                		if(createUserId!=null){
+			                	privilegeReturn.setCreateUserId(createUserId);
+			                }
+						    												    						    String createTime = (String)contentreq.get("createTime");
+	                		if(createTime!=null){
+			                	privilegeReturn.setCreateTime(createTime);
+			                }
+						    											}					
+				}
+																				if(true){
+					Object role = contentreq.get("role");
+					if(role!=null){
+						JSONObject obj = (JSONObject)role;
+						if(obj!=null){
+							RoleEntity entity = new RoleEntity();						
+								                		Integer id = (Integer)obj.get("id");
+	                		if(id!=null){
+			                	entity.setId(id);
+			                }
+								                		String name = (String)obj.get("name");
+	                		if(name!=null){
+			                	entity.setName(name);
+			                }
+								                		String des = (String)obj.get("des");
+	                		if(des!=null){
+			                	entity.setDes(des);
+			                }
+								                		Integer parentId = (Integer)obj.get("parentId");
+	                		if(parentId!=null){
+			                	entity.setParentId(parentId);
+			                }
+								                		Integer createUserId = (Integer)obj.get("createUserId");
+	                		if(createUserId!=null){
+			                	entity.setCreateUserId(createUserId);
+			                }
+								                		String createTime = (String)obj.get("createTime");
+	                		if(createTime!=null){
+			                	entity.setCreateTime(createTime);
+			                }
+								                		Integer updateUserId = (Integer)obj.get("updateUserId");
+	                		if(updateUserId!=null){
+			                	entity.setUpdateUserId(updateUserId);
+			                }
+								                		String updateTime = (String)obj.get("updateTime");
+	                		if(updateTime!=null){
+			                	entity.setUpdateTime(updateTime);
+			                }
+														privilegeReturn.setRole(entity);
+						}						
+					}
+				}
+																																if(true){
+					Object module = contentreq.get("module");
+					if(module!=null){
+						JSONObject obj = (JSONObject)module;
+						if(obj!=null){
+							ModuleEntity entity = new ModuleEntity();						
+								                		Integer id = (Integer)obj.get("id");
+	                		if(id!=null){
+			                	entity.setId(id);
+			                }
+								                		String name = (String)obj.get("name");
+	                		if(name!=null){
+			                	entity.setName(name);
+			                }
+								                		String code = (String)obj.get("code");
+	                		if(code!=null){
+			                	entity.setCode(code);
+			                }
+								                		Integer type = (Integer)obj.get("type");
+	                		if(type!=null){
+			                	entity.setType(type);
+			                }
+								                		String url = (String)obj.get("url");
+	                		if(url!=null){
+			                	entity.setUrl(url);
+			                }
+								                		String icon = (String)obj.get("icon");
+	                		if(icon!=null){
+			                	entity.setIcon(icon);
+			                }
+								                		Integer parentId = (Integer)obj.get("parentId");
+	                		if(parentId!=null){
+			                	entity.setParentId(parentId);
+			                }
+								                		Integer createUserId = (Integer)obj.get("createUserId");
+	                		if(createUserId!=null){
+			                	entity.setCreateUserId(createUserId);
+			                }
+								                		String createTime = (String)obj.get("createTime");
+	                		if(createTime!=null){
+			                	entity.setCreateTime(createTime);
+			                }
+								                		Integer updateUserId = (Integer)obj.get("updateUserId");
+	                		if(updateUserId!=null){
+			                	entity.setUpdateUserId(updateUserId);
+			                }
+								                		String updateTime = (String)obj.get("updateTime");
+	                		if(updateTime!=null){
+			                	entity.setUpdateTime(updateTime);
+			                }
+								                		Integer showIndex = (Integer)obj.get("showIndex");
+	                		if(showIndex!=null){
+			                	entity.setShowIndex(showIndex);
+			                }
+														privilegeReturn.setModule(entity);
+						}						
+					}
+				}
+																																if(true){
+					Object createUser = contentreq.get("createUser");
+					if(createUser!=null){
+						JSONObject obj = (JSONObject)createUser;
+						if(obj!=null){
+							UserEntity entity = new UserEntity();						
+								                		Integer id = (Integer)obj.get("id");
+	                		if(id!=null){
+			                	entity.setId(id);
+			                }
+								                		String loginname = (String)obj.get("loginname");
+	                		if(loginname!=null){
+			                	entity.setLoginname(loginname);
+			                }
+								                		String password = (String)obj.get("password");
+	                		if(password!=null){
+			                	entity.setPassword(password);
+			                }
+								                		String nickname = (String)obj.get("nickname");
+	                		if(nickname!=null){
+			                	entity.setNickname(nickname);
+			                }
+								                		Integer status = (Integer)obj.get("status");
+	                		if(status!=null){
+			                	entity.setStatus(status);
+			                }
+								                		Integer loginNum = (Integer)obj.get("loginNum");
+	                		if(loginNum!=null){
+			                	entity.setLoginNum(loginNum);
+			                }
+								                		String loginTime = (String)obj.get("loginTime");
+	                		if(loginTime!=null){
+			                	entity.setLoginTime(loginTime);
+			                }
+								                		String loginIp = (String)obj.get("loginIp");
+	                		if(loginIp!=null){
+			                	entity.setLoginIp(loginIp);
+			                }
+								                		String lastLoginTime = (String)obj.get("lastLoginTime");
+	                		if(lastLoginTime!=null){
+			                	entity.setLastLoginTime(lastLoginTime);
+			                }
+								                		String lastLoginIp = (String)obj.get("lastLoginIp");
+	                		if(lastLoginIp!=null){
+			                	entity.setLastLoginIp(lastLoginIp);
+			                }
+								                		Integer departmentId = (Integer)obj.get("departmentId");
+	                		if(departmentId!=null){
+			                	entity.setDepartmentId(departmentId);
+			                }
+								                		Integer personinfoId = (Integer)obj.get("personinfoId");
+	                		if(personinfoId!=null){
+			                	entity.setPersoninfoId(personinfoId);
+			                }
+								                		Integer createUserId = (Integer)obj.get("createUserId");
+	                		if(createUserId!=null){
+			                	entity.setCreateUserId(createUserId);
+			                }
+								                		String createTime = (String)obj.get("createTime");
+	                		if(createTime!=null){
+			                	entity.setCreateTime(createTime);
+			                }
+								                		Integer updateUserId = (Integer)obj.get("updateUserId");
+	                		if(updateUserId!=null){
+			                	entity.setUpdateUserId(updateUserId);
+			                }
+								                		String updateTime = (String)obj.get("updateTime");
+	                		if(updateTime!=null){
+			                	entity.setUpdateTime(updateTime);
+			                }
+														privilegeReturn.setCreateUser(entity);
+						}						
+					}
+				}
+																			} else if ("QUERY_PRIVILEGE_INFO_REQUEST".equals(command)) {
+				actionReturn = "getById";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");
+					        																												String roleShow = (String)contentreq.get("roleShow");
+							if("true".equals(roleShow)){
+								roleShowReturn = true;
+							}
+																																																								String moduleShow = (String)contentreq.get("moduleShow");
+							if("true".equals(moduleShow)){
+								moduleShowReturn = true;
+							}
+																																																								String createUserShow = (String)contentreq.get("createUserShow");
+							if("true".equals(createUserShow)){
+								createUserShowReturn = true;
+							}
+																																	}	
+				}
+			} else if ("QUERY_PRIVILEGE_LIST_REQUEST".equals(command)) {
+				actionReturn = "getListByCondition";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																								Integer roleId_gt = (Integer)contentreq.get("roleId_gt");
+						Integer roleId_ge = (Integer)contentreq.get("roleId_ge");
+						Integer roleId_lt = (Integer)contentreq.get("roleId_lt");
+						Integer roleId_le = (Integer)contentreq.get("roleId_le");
+						String roleId_in = (String)contentreq.get("roleId_in");
+						Integer roleId = (Integer)contentreq.get("roleId");
+                        if(roleId_gt!=null){
+                        	queryMapReturn.put("roleId_gt", roleId_gt);
+						}
+						if(roleId_ge!=null){
+                        	queryMapReturn.put("roleId_ge", roleId_ge);
+						}
+						if(roleId_lt!=null){
+                        	queryMapReturn.put("roleId_lt", roleId_lt);
+						}
+						if(roleId_le!=null){
+                        	queryMapReturn.put("roleId_le", roleId_le);
+						}
+						if(roleId_in!=null){
+                        	queryMapReturn.put("roleId_in", roleId_in);
+						}
+						if(roleId!=null){
+                        	queryMapReturn.put("roleId", roleId);
+						}		
+																								Integer moduleId_gt = (Integer)contentreq.get("moduleId_gt");
+						Integer moduleId_ge = (Integer)contentreq.get("moduleId_ge");
+						Integer moduleId_lt = (Integer)contentreq.get("moduleId_lt");
+						Integer moduleId_le = (Integer)contentreq.get("moduleId_le");
+						String moduleId_in = (String)contentreq.get("moduleId_in");
+						Integer moduleId = (Integer)contentreq.get("moduleId");
+                        if(moduleId_gt!=null){
+                        	queryMapReturn.put("moduleId_gt", moduleId_gt);
+						}
+						if(moduleId_ge!=null){
+                        	queryMapReturn.put("moduleId_ge", moduleId_ge);
+						}
+						if(moduleId_lt!=null){
+                        	queryMapReturn.put("moduleId_lt", moduleId_lt);
+						}
+						if(moduleId_le!=null){
+                        	queryMapReturn.put("moduleId_le", moduleId_le);
+						}
+						if(moduleId_in!=null){
+                        	queryMapReturn.put("moduleId_in", moduleId_in);
+						}
+						if(moduleId!=null){
+                        	queryMapReturn.put("moduleId", moduleId);
+						}		
+																																String funcitonType_like = (String)contentreq.get("funcitonType_like");
+							String funcitonType_isNull = (String)contentreq.get("funcitonType_isNull");
+							String funcitonType_isNotNull = (String)contentreq.get("funcitonType_isNotNull");
+							String funcitonType_in = (String)contentreq.get("funcitonType_in");
+							String funcitonType = (String)contentreq.get("funcitonType");
+							if(funcitonType_like!=null){
+	                        	queryMapReturn.put("funcitonType_like", funcitonType_like);
+							}
+							if(funcitonType_isNull!=null){
+	                        	queryMapReturn.put("funcitonType_isNull", funcitonType_isNull);
+							}
+							if(funcitonType_isNotNull!=null){
+	                        	queryMapReturn.put("funcitonType_isNotNull", funcitonType_isNotNull);
+							}
+							if(funcitonType_in!=null){
+	                        	queryMapReturn.put("funcitonType_in", funcitonType_in);
+							}
+							if(funcitonType!=null){
+	                        	queryMapReturn.put("funcitonType", funcitonType);
+							}						           
+																															Integer functionId_gt = (Integer)contentreq.get("functionId_gt");
+						Integer functionId_ge = (Integer)contentreq.get("functionId_ge");
+						Integer functionId_lt = (Integer)contentreq.get("functionId_lt");
+						Integer functionId_le = (Integer)contentreq.get("functionId_le");
+						String functionId_in = (String)contentreq.get("functionId_in");
+						Integer functionId = (Integer)contentreq.get("functionId");
+                        if(functionId_gt!=null){
+                        	queryMapReturn.put("functionId_gt", functionId_gt);
+						}
+						if(functionId_ge!=null){
+                        	queryMapReturn.put("functionId_ge", functionId_ge);
+						}
+						if(functionId_lt!=null){
+                        	queryMapReturn.put("functionId_lt", functionId_lt);
+						}
+						if(functionId_le!=null){
+                        	queryMapReturn.put("functionId_le", functionId_le);
+						}
+						if(functionId_in!=null){
+                        	queryMapReturn.put("functionId_in", functionId_in);
+						}
+						if(functionId!=null){
+                        	queryMapReturn.put("functionId", functionId);
+						}		
+																								Integer createUserId_gt = (Integer)contentreq.get("createUserId_gt");
+						Integer createUserId_ge = (Integer)contentreq.get("createUserId_ge");
+						Integer createUserId_lt = (Integer)contentreq.get("createUserId_lt");
+						Integer createUserId_le = (Integer)contentreq.get("createUserId_le");
+						String createUserId_in = (String)contentreq.get("createUserId_in");
+						Integer createUserId = (Integer)contentreq.get("createUserId");
+                        if(createUserId_gt!=null){
+                        	queryMapReturn.put("createUserId_gt", createUserId_gt);
+						}
+						if(createUserId_ge!=null){
+                        	queryMapReturn.put("createUserId_ge", createUserId_ge);
+						}
+						if(createUserId_lt!=null){
+                        	queryMapReturn.put("createUserId_lt", createUserId_lt);
+						}
+						if(createUserId_le!=null){
+                        	queryMapReturn.put("createUserId_le", createUserId_le);
+						}
+						if(createUserId_in!=null){
+                        	queryMapReturn.put("createUserId_in", createUserId_in);
+						}
+						if(createUserId!=null){
+                        	queryMapReturn.put("createUserId", createUserId);
+						}		
+																																String createTime_gt = (String)contentreq.get("createTime_gt");
+							String createTime_ge = (String)contentreq.get("createTime_ge");
+							String createTime_lt = (String)contentreq.get("createTime_lt");
+							String createTime_le = (String)contentreq.get("createTime_le");
+	                        if(createTime_gt!=null){
+	                        	queryMapReturn.put("createTime_gt", createTime_gt);
+							}
+							if(createTime_ge!=null){
+	                        	queryMapReturn.put("createTime_ge", createTime_ge);
+							}
+							if(createTime_lt!=null){
+	                        	queryMapReturn.put("createTime_lt", createTime_lt);
+							}
+							if(createTime_le!=null){
+	                        	queryMapReturn.put("createTime_le", createTime_le);
+							} 
+																						
+						    																																																																						
+																																			String roleShow = (String)contentreq.get("roleShow");
+							if("true".equals(roleShow)){
+								roleShowReturn = true;
+							}
+																																																								String moduleShow = (String)contentreq.get("moduleShow");
+							if("true".equals(moduleShow)){
+								moduleShowReturn = true;
+							}
+																																																								String createUserShow = (String)contentreq.get("createUserShow");
+							if("true".equals(createUserShow)){
+								createUserShowReturn = true;
+							}
+																																	}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				    Object orderreq = (Object) reqParams.get("order");
+					if (orderreq != null) {
+						JSONArray order = (JSONArray)orderreq;
+						orderListReturn = new ArrayList<OrderVO>();
+						for(int i=0;i<order.size();i++){
+							JSONObject obj = order.getJSONObject(i);
+							OrderVO orderVO = new OrderVO();
+							orderVO.setName((String)obj.get("column"));
+							orderVO.setOrderType((String)obj.get("type"));
+							orderListReturn.add(orderVO);
+						}						
+					}
+				}
+			} else if ("DEL_PRIVILEGE_INFO_REQUEST".equals(command)) {
+				actionReturn = "del";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");	
+						    																												String delRole = (String)contentreq.get("delRole");
+							if("true".equals(delRole)){
+								delRoleReturn = true;
+							}
+																																																								String delModule = (String)contentreq.get("delModule");
+							if("true".equals(delModule)){
+								delModuleReturn = true;
+							}
+																																																								String delCreateUser = (String)contentreq.get("delCreateUser");
+							if("true".equals(delCreateUser)){
+								delCreateUserReturn = true;
+							}
+																																	}	
+				}
+			} else if ("DEL_PRIVILEGE_LIST_REQUEST".equals(command)) {
+				actionReturn = "delList";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																								Integer roleId_gt = (Integer)contentreq.get("roleId_gt");
+						Integer roleId_ge = (Integer)contentreq.get("roleId_ge");
+						Integer roleId_lt = (Integer)contentreq.get("roleId_lt");
+						Integer roleId_le = (Integer)contentreq.get("roleId_le");
+						String roleId_in = (String)contentreq.get("roleId_in");
+						Integer roleId = (Integer)contentreq.get("roleId");
+                        if(roleId_gt!=null){
+                        	queryMapReturn.put("roleId_gt", roleId_gt);
+						}
+						if(roleId_ge!=null){
+                        	queryMapReturn.put("roleId_ge", roleId_ge);
+						}
+						if(roleId_lt!=null){
+                        	queryMapReturn.put("roleId_lt", roleId_lt);
+						}
+						if(roleId_le!=null){
+                        	queryMapReturn.put("roleId_le", roleId_le);
+						}
+						if(roleId_in!=null){
+                        	queryMapReturn.put("roleId_in", roleId_in);
+						}
+						if(roleId!=null){
+                        	queryMapReturn.put("roleId", roleId);
+						}		
+																								Integer moduleId_gt = (Integer)contentreq.get("moduleId_gt");
+						Integer moduleId_ge = (Integer)contentreq.get("moduleId_ge");
+						Integer moduleId_lt = (Integer)contentreq.get("moduleId_lt");
+						Integer moduleId_le = (Integer)contentreq.get("moduleId_le");
+						String moduleId_in = (String)contentreq.get("moduleId_in");
+						Integer moduleId = (Integer)contentreq.get("moduleId");
+                        if(moduleId_gt!=null){
+                        	queryMapReturn.put("moduleId_gt", moduleId_gt);
+						}
+						if(moduleId_ge!=null){
+                        	queryMapReturn.put("moduleId_ge", moduleId_ge);
+						}
+						if(moduleId_lt!=null){
+                        	queryMapReturn.put("moduleId_lt", moduleId_lt);
+						}
+						if(moduleId_le!=null){
+                        	queryMapReturn.put("moduleId_le", moduleId_le);
+						}
+						if(moduleId_in!=null){
+                        	queryMapReturn.put("moduleId_in", moduleId_in);
+						}
+						if(moduleId!=null){
+                        	queryMapReturn.put("moduleId", moduleId);
+						}		
+																																String funcitonType_like = (String)contentreq.get("funcitonType_like");
+							String funcitonType_isNull = (String)contentreq.get("funcitonType_isNull");
+							String funcitonType_isNotNull = (String)contentreq.get("funcitonType_isNotNull");
+							String funcitonType_in = (String)contentreq.get("funcitonType_in");
+							String funcitonType = (String)contentreq.get("funcitonType");
+							if(funcitonType_like!=null){
+	                        	queryMapReturn.put("funcitonType_like", funcitonType_like);
+							}
+							if(funcitonType_isNull!=null){
+	                        	queryMapReturn.put("funcitonType_isNull", funcitonType_isNull);
+							}
+							if(funcitonType_isNotNull!=null){
+	                        	queryMapReturn.put("funcitonType_isNotNull", funcitonType_isNotNull);
+							}
+							if(funcitonType_in!=null){
+	                        	queryMapReturn.put("funcitonType_in", funcitonType_in);
+							}
+							if(funcitonType!=null){
+	                        	queryMapReturn.put("funcitonType", funcitonType);
+							}						           
+																															Integer functionId_gt = (Integer)contentreq.get("functionId_gt");
+						Integer functionId_ge = (Integer)contentreq.get("functionId_ge");
+						Integer functionId_lt = (Integer)contentreq.get("functionId_lt");
+						Integer functionId_le = (Integer)contentreq.get("functionId_le");
+						String functionId_in = (String)contentreq.get("functionId_in");
+						Integer functionId = (Integer)contentreq.get("functionId");
+                        if(functionId_gt!=null){
+                        	queryMapReturn.put("functionId_gt", functionId_gt);
+						}
+						if(functionId_ge!=null){
+                        	queryMapReturn.put("functionId_ge", functionId_ge);
+						}
+						if(functionId_lt!=null){
+                        	queryMapReturn.put("functionId_lt", functionId_lt);
+						}
+						if(functionId_le!=null){
+                        	queryMapReturn.put("functionId_le", functionId_le);
+						}
+						if(functionId_in!=null){
+                        	queryMapReturn.put("functionId_in", functionId_in);
+						}
+						if(functionId!=null){
+                        	queryMapReturn.put("functionId", functionId);
+						}		
+																								Integer createUserId_gt = (Integer)contentreq.get("createUserId_gt");
+						Integer createUserId_ge = (Integer)contentreq.get("createUserId_ge");
+						Integer createUserId_lt = (Integer)contentreq.get("createUserId_lt");
+						Integer createUserId_le = (Integer)contentreq.get("createUserId_le");
+						String createUserId_in = (String)contentreq.get("createUserId_in");
+						Integer createUserId = (Integer)contentreq.get("createUserId");
+                        if(createUserId_gt!=null){
+                        	queryMapReturn.put("createUserId_gt", createUserId_gt);
+						}
+						if(createUserId_ge!=null){
+                        	queryMapReturn.put("createUserId_ge", createUserId_ge);
+						}
+						if(createUserId_lt!=null){
+                        	queryMapReturn.put("createUserId_lt", createUserId_lt);
+						}
+						if(createUserId_le!=null){
+                        	queryMapReturn.put("createUserId_le", createUserId_le);
+						}
+						if(createUserId_in!=null){
+                        	queryMapReturn.put("createUserId_in", createUserId_in);
+						}
+						if(createUserId!=null){
+                        	queryMapReturn.put("createUserId", createUserId);
+						}		
+																																String createTime_gt = (String)contentreq.get("createTime_gt");
+							String createTime_ge = (String)contentreq.get("createTime_ge");
+							String createTime_lt = (String)contentreq.get("createTime_lt");
+							String createTime_le = (String)contentreq.get("createTime_le");
+	                        if(createTime_gt!=null){
+	                        	queryMapReturn.put("createTime_gt", createTime_gt);
+							}
+							if(createTime_ge!=null){
+	                        	queryMapReturn.put("createTime_ge", createTime_ge);
+							}
+							if(createTime_lt!=null){
+	                        	queryMapReturn.put("createTime_lt", createTime_lt);
+							}
+							if(createTime_le!=null){
+	                        	queryMapReturn.put("createTime_le", createTime_le);
+							} 
+																									
+																														String delRole = (String)contentreq.get("delRole");
+						if("true".equals(delRole)){
+							delRoleReturn = true;
+						}
+																																																String delModule = (String)contentreq.get("delModule");
+						if("true".equals(delModule)){
+							delModuleReturn = true;
+						}
+																																																String delCreateUser = (String)contentreq.get("delCreateUser");
+						if("true".equals(delCreateUser)){
+							delCreateUserReturn = true;
+						}
+																													}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				}
+			}
+
+			if (actionReturn != null && !"".equals(actionReturn)) {
+				parseMap.put("action", actionReturn);
+			}
+			if (privilegeReturn != null) {
+				parseMap.put("privilege", privilegeReturn);
+			}
+			if (privilegeListReturn != null && privilegeListReturn.size() > 0) {
+				parseMap.put("privilegeList", privilegeListReturn);
+			}
+			if (idReturn != null) {
+				parseMap.put("id", idReturn);
+			}	
+			if (orderListReturn != null && orderListReturn.size() > 0) {
+				parseMap.put("orderList", orderListReturn);
+			}		
+			if (queryMapReturn != null) {
+				parseMap.put("queryMap", queryMapReturn);
+			}
+			if (pagenoReturn > 0) {
+				parseMap.put("pageno", pagenoReturn);
+			}
+			if (pagesizeReturn > 0) {
+				parseMap.put("pagesize", pagesizeReturn);
+			}
+			
+			
+															if (roleShowReturn != null) {
+				parseMap.put("roleShow", roleShowReturn);
+			}
+			if (delRoleReturn != null) {
+				parseMap.put("delRole", delRoleReturn);
+			}
+																								if (moduleShowReturn != null) {
+				parseMap.put("moduleShow", moduleShowReturn);
+			}
+			if (delModuleReturn != null) {
+				parseMap.put("delModule", delModuleReturn);
+			}
+																								if (createUserShowReturn != null) {
+				parseMap.put("createUserShow", createUserShowReturn);
+			}
+			if (delCreateUserReturn != null) {
+				parseMap.put("delCreateUser", delCreateUserReturn);
+			}
+															
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByXml(String command,String reqStr,
+			HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

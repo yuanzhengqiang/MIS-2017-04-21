@@ -1,0 +1,36 @@
+/*    */ package fsk.entity.vo.gateway;
+/*    */ 
+/*    */ import java.util.ArrayList;
+/*    */ import java.util.List;
+/*    */ 
+/*    */ public class FWristbands
+/*    */ {
+/* 13 */   private List<FWristband> wristbands = new ArrayList();
+/*    */   private String count;
+/*    */ 
+/*    */   public List<FWristband> getWristbands()
+/*    */   {
+/* 18 */     return this.wristbands;
+/*    */   }
+/*    */   public void setWristbands(List<FWristband> wristbands) {
+/* 21 */     this.wristbands = wristbands;
+/*    */   }
+/*    */   public String getCount() {
+/* 24 */     return this.count;
+/*    */   }
+/*    */   public void setCount(String count) {
+/* 27 */     this.count = count;
+/*    */   }
+/*    */ 
+/*    */   public void add(FWristband obj) {
+/* 31 */     if (this.wristbands == null) {
+/* 32 */       this.wristbands = new ArrayList();
+/*    */     }
+/* 34 */     this.wristbands.add(obj);
+/*    */   }
+/*    */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.entity.vo.gateway.FWristbands
+ * JD-Core Version:    0.6.1
+ */

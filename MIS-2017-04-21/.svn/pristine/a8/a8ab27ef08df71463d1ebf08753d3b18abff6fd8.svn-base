@@ -1,0 +1,97 @@
+package fsk.entity.olderPrincipalEmployee;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+import fsk.entity.older.OlderEntity;
+import fsk.entity.employee.EmployeeEntity;
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 老人医师员工关联表
+ * @author feng.gu
+ * @date 2016-06-23 13:30:21
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "R_OLDER_PRINCIPAL_EMPLOYEE")
+public class OlderPrincipalEmployeeEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String PRINCIPAL_EMPLOYEE_ID = "PRINCIPAL_EMPLOYEE_ID";
+    public final static String OLDER_ID = "OLDER_ID";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 医师员工ID
+	 */
+	@ColumnDescription(name = "PRINCIPAL_EMPLOYEE_ID")
+	private Integer principalEmployeeId;
+    /**
+	 * 老人ID
+	 */
+	@ColumnDescription(name = "OLDER_ID")
+	private Integer olderId;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getPrincipalEmployeeId() {
+		return principalEmployeeId;
+	}
+
+	public void setPrincipalEmployeeId(Integer principalEmployeeId) {
+		this.principalEmployeeId = principalEmployeeId;
+	}
+    public Integer getOlderId() {
+		return olderId;
+	}
+
+	public void setOlderId(Integer olderId) {
+		this.olderId = olderId;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="OlderEntity"	,joinColumn="ID"	)
+			
+			
+		private OlderEntity older;
+	        
+	public OlderEntity getOlder() {
+		return older;
+    }
+	
+	public void setOlder(OlderEntity older) {
+		this.older = older;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="EmployeeEntity"	,joinColumn="ID"	)
+			
+			
+		private EmployeeEntity principalEmployee;
+	        
+	public EmployeeEntity getPrincipalEmployee() {
+		return principalEmployee;
+    }
+	
+	public void setPrincipalEmployee(EmployeeEntity principalEmployee) {
+		this.principalEmployee = principalEmployee;
+	}
+			
+}

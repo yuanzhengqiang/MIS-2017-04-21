@@ -1,0 +1,146 @@
+package fsk.handler.serviceEmployee;
+
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import fsk.entity.serviceEmployee.ServiceEmployeeEntity;
+import fsk.pack.serviceEmployee.ServiceEmployeePack;
+import fsk.parse.serviceEmployee.ServiceEmployeeParse;
+import fsk.service.serviceEmployee.ServiceEmployeeService;
+import com.framework.system.common.service.SystemService;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.db.query.OrderVO;
+
+ /**   
+ * @Title: Handler
+ * @Description: 服务人员业务处理器
+ * @author feng.gu
+ * @date 2016-08-02 14:39:47
+ * @version V1.0   
+ *
+ */
+public class ServiceEmployeeHandler extends BaseHandler{
+	private static Logger logger = Logger.getLogger(ServiceEmployeeService.class);
+	/**
+	 * 解析器
+	 */
+	private ServiceEmployeeParse serviceEmployeeParse = ServiceEmployeeParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private ServiceEmployeeService serviceEmployeeService = ServiceEmployeeService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private ServiceEmployeePack serviceEmployeePack = ServiceEmployeePack.getInstance();
+
+	private static ServiceEmployeeHandler serviceEmployeeHandler;
+	
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static ServiceEmployeeHandler getInstance() {
+		if (serviceEmployeeHandler == null) {
+			serviceEmployeeHandler = new ServiceEmployeeHandler();
+		}
+		return serviceEmployeeHandler;
+	}
+
+	/**
+	 * 
+	 * @param type 1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type,String command,String reqStr, HttpServletRequest request,
+			HttpServletResponse response) {	
+		logger.debug("请求消息："+reqStr);
+		String resultStr="";
+		try {
+			// 解析
+			Map<String, Object> parseMap = serviceEmployeeParse.parse(type,command,reqStr,request);		
+			String action = (String) parseMap.get("action");
+			ServiceEmployeeEntity serviceEmployee = (ServiceEmployeeEntity) parseMap.get("serviceEmployee");
+			List<ServiceEmployeeEntity> serviceEmployeeList = (List<ServiceEmployeeEntity>) parseMap.get("serviceEmployeeList");
+			Integer id = (Integer) parseMap.get("id");			
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+			
+															Boolean serviceTaskShow = (Boolean) parseMap.get("serviceTaskShow");
+			Boolean delServiceTask = (Boolean) parseMap.get("delServiceTask");
+																								Boolean employeeShow = (Boolean) parseMap.get("employeeShow");
+			Boolean delEmployee = (Boolean) parseMap.get("delEmployee");
+															
+			// 业务处理
+			Object result=null;
+			if ("save".equals(action)) {
+				result = serviceEmployeeService.save(serviceEmployee);
+			} else if ("saveList".equals(action)) {
+				result = serviceEmployeeService.saveList(serviceEmployeeList);
+			} else if ("getById".equals(action)) {
+				result = serviceEmployeeService.getById(id,serviceTaskShow,employeeShow);
+			} else if ("getListByCondition".equals(action)) {
+			    //根据数据权限 增加查询条件
+				queryMap = systemService.addDataRule("ServiceEmployeeEntity",queryMap,request);
+				result = serviceEmployeeService.getListByCondition(queryMap,orderList, pageno,
+						pagesize,serviceTaskShow,employeeShow);
+			} else if ("del".equals(action)) {
+				result = serviceEmployeeService.del(id,delServiceTask,delEmployee);
+			} else if ("delList".equals(action)) {
+				result = serviceEmployeeService.delList(queryMap,delServiceTask,delEmployee);
+			}
+			// 封装
+			Map<String, Object> packMap = serviceEmployeePack.pack(type,action,result,serviceEmployee);
+			String actionBack = (String)packMap.get("action");
+			String resultBack = (String)packMap.get("result");
+			String desBack = (String)packMap.get("des");
+			JSONObject pageBack = (JSONObject)packMap.get("page");
+			JSONObject contentBack = (JSONObject)packMap.get("content");
+			
+			JSONObject repJson = new JSONObject();
+			if(actionBack!=null&&!"".equals(actionBack)){
+				repJson.put("action", actionBack);
+			}
+			if(resultBack!=null&&!"".equals(resultBack)){
+				repJson.put("result", resultBack);
+			}
+			if(desBack!=null&&!"".equals(desBack)){
+				repJson.put("des", desBack);
+			}
+			if(pageBack!=null){
+				repJson.put("page", pageBack);
+			}
+			if(contentBack!=null&&!"".equals(contentBack)){
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息："+repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

@@ -1,0 +1,1437 @@
+package fsk.service.fall;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+
+
+
+import fsk.entity.fall.FallEntity;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+
+
+/**   
+ * @Title: Service
+ * @Description: 跌倒风险评估服务类
+ * @author feng.gu
+ * @date 2016-06-30 16:10:42
+ * @version V1.0   
+ *
+ */
+public class FallService {
+	   private static Logger logger = Logger.getLogger(FallService.class);
+	   private DBManager dbManager = DBManager.getInstance();
+    		
+	   private static FallService fallService;
+	   /**
+	    * 获取实例	
+	    * @return
+	    */
+	   public static FallService getInstance(){
+		if(fallService==null){
+			fallService = new FallService();
+		}
+		return fallService;
+	   }
+	                 	                 				     				     				     				     
+				     	 
+	   /**
+		 * 保存记录
+		 * 
+		 * @param obj
+		 */
+		public boolean save(FallEntity fall) {			
+			boolean result =false;
+			if(fall!=null){
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					 tx.beginTransaction();					 					 
+					 					 result=dbManager.saveNoTransaction(fall);	
+					 tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {				    
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  			
+			}	
+			return result;
+		}
+		
+		/**
+		 * 批量保存记录
+		 * 
+		 * @param list
+		 */
+		public boolean saveList(List<FallEntity> fallList) {
+			boolean result = false;
+			if (fallList != null && fallList.size() > 0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 
+					for(FallEntity fall:fallList){
+						if(fall!=null){												  								 
+								 								 result=dbManager.saveNoTransaction(fall);								 			
+						}	
+					}
+				    tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+				
+		
+		/**
+		 * 根据id读取记录
+		 * @param id 主键
+		 		 * @param obj
+		 */
+		public FallEntity getById(Integer id) {
+			FallEntity obj = null;
+			if (id!=null) {
+				obj = (FallEntity)dbManager.getById(id, FallEntity.class);
+							}
+			return obj;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合		
+		 * @return
+		 */
+		public List<FallEntity> getListByCondition(Map<String,Object> queryMap) {
+		    List<FallEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object countPoint=queryMap.get("countPoint");
+					Object countPoint_gt=queryMap.get("countPoint_gt");
+					Object countPoint_ge=queryMap.get("countPoint_ge");
+					Object countPoint_lt=queryMap.get("countPoint_lt");
+					Object countPoint_le=queryMap.get("countPoint_le");
+					Object countPoint_in=queryMap.get("countPoint_in");
+																					Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+																					Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+																Object score1=queryMap.get("score1");
+					Object score1_gt=queryMap.get("score1_gt");
+					Object score1_ge=queryMap.get("score1_ge");
+					Object score1_lt=queryMap.get("score1_lt");
+					Object score1_le=queryMap.get("score1_le");
+					Object score1_in=queryMap.get("score1_in");
+																Object score2=queryMap.get("score2");
+					Object score2_gt=queryMap.get("score2_gt");
+					Object score2_ge=queryMap.get("score2_ge");
+					Object score2_lt=queryMap.get("score2_lt");
+					Object score2_le=queryMap.get("score2_le");
+					Object score2_in=queryMap.get("score2_in");
+																Object score3=queryMap.get("score3");
+					Object score3_gt=queryMap.get("score3_gt");
+					Object score3_ge=queryMap.get("score3_ge");
+					Object score3_lt=queryMap.get("score3_lt");
+					Object score3_le=queryMap.get("score3_le");
+					Object score3_in=queryMap.get("score3_in");
+																Object score4=queryMap.get("score4");
+					Object score4_gt=queryMap.get("score4_gt");
+					Object score4_ge=queryMap.get("score4_ge");
+					Object score4_lt=queryMap.get("score4_lt");
+					Object score4_le=queryMap.get("score4_le");
+					Object score4_in=queryMap.get("score4_in");
+																Object score5=queryMap.get("score5");
+					Object score5_gt=queryMap.get("score5_gt");
+					Object score5_ge=queryMap.get("score5_ge");
+					Object score5_lt=queryMap.get("score5_lt");
+					Object score5_le=queryMap.get("score5_le");
+					Object score5_in=queryMap.get("score5_in");
+																Object score6=queryMap.get("score6");
+					Object score6_gt=queryMap.get("score6_gt");
+					Object score6_ge=queryMap.get("score6_ge");
+					Object score6_lt=queryMap.get("score6_lt");
+					Object score6_le=queryMap.get("score6_le");
+					Object score6_in=queryMap.get("score6_in");
+																Object score7=queryMap.get("score7");
+					Object score7_gt=queryMap.get("score7_gt");
+					Object score7_ge=queryMap.get("score7_ge");
+					Object score7_lt=queryMap.get("score7_lt");
+					Object score7_le=queryMap.get("score7_le");
+					Object score7_in=queryMap.get("score7_in");
+																Object score8=queryMap.get("score8");
+					Object score8_gt=queryMap.get("score8_gt");
+					Object score8_ge=queryMap.get("score8_ge");
+					Object score8_lt=queryMap.get("score8_lt");
+					Object score8_le=queryMap.get("score8_le");
+					Object score8_in=queryMap.get("score8_in");
+																Object score9=queryMap.get("score9");
+					Object score9_gt=queryMap.get("score9_gt");
+					Object score9_ge=queryMap.get("score9_ge");
+					Object score9_lt=queryMap.get("score9_lt");
+					Object score9_le=queryMap.get("score9_le");
+					Object score9_in=queryMap.get("score9_in");
+																Object score10=queryMap.get("score10");
+					Object score10_gt=queryMap.get("score10_gt");
+					Object score10_ge=queryMap.get("score10_ge");
+					Object score10_lt=queryMap.get("score10_lt");
+					Object score10_le=queryMap.get("score10_le");
+					Object score10_in=queryMap.get("score10_in");
+																Object score11=queryMap.get("score11");
+					Object score11_gt=queryMap.get("score11_gt");
+					Object score11_ge=queryMap.get("score11_ge");
+					Object score11_lt=queryMap.get("score11_lt");
+					Object score11_le=queryMap.get("score11_le");
+					Object score11_in=queryMap.get("score11_in");
+																Object score12=queryMap.get("score12");
+					Object score12_gt=queryMap.get("score12_gt");
+					Object score12_ge=queryMap.get("score12_ge");
+					Object score12_lt=queryMap.get("score12_lt");
+					Object score12_le=queryMap.get("score12_le");
+					Object score12_in=queryMap.get("score12_in");
+																Object score13=queryMap.get("score13");
+					Object score13_gt=queryMap.get("score13_gt");
+					Object score13_ge=queryMap.get("score13_ge");
+					Object score13_lt=queryMap.get("score13_lt");
+					Object score13_le=queryMap.get("score13_le");
+					Object score13_in=queryMap.get("score13_in");
+																Object score14=queryMap.get("score14");
+					Object score14_gt=queryMap.get("score14_gt");
+					Object score14_ge=queryMap.get("score14_ge");
+					Object score14_lt=queryMap.get("score14_lt");
+					Object score14_le=queryMap.get("score14_le");
+					Object score14_in=queryMap.get("score14_in");
+							
+			
+
+						
+			
+			QueryCondition qc = new QueryCondition(FallEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.in, id_in));}
+																if(countPoint!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+					if(countPoint_gt!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.gt, countPoint_gt));}
+					if(countPoint_ge!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.ge, countPoint_ge));}
+					if(countPoint_lt!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.lt, countPoint_lt));}
+					if(countPoint_le!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.le, countPoint_le));}
+					if(countPoint_in!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+															  					if(des!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.in, status_in));}
+																if(score1!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.eq, score1));}
+					if(score1_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.gt, score1_gt));}
+					if(score1_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.ge, score1_ge));}
+					if(score1_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.lt, score1_lt));}
+					if(score1_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.le, score1_le));}
+					if(score1_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.in, score1_in));}
+																if(score2!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.eq, score2));}
+					if(score2_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.gt, score2_gt));}
+					if(score2_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.ge, score2_ge));}
+					if(score2_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.lt, score2_lt));}
+					if(score2_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.le, score2_le));}
+					if(score2_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.in, score2_in));}
+																if(score3!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.eq, score3));}
+					if(score3_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.gt, score3_gt));}
+					if(score3_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.ge, score3_ge));}
+					if(score3_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.lt, score3_lt));}
+					if(score3_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.le, score3_le));}
+					if(score3_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.in, score3_in));}
+																if(score4!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.eq, score4));}
+					if(score4_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.gt, score4_gt));}
+					if(score4_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.ge, score4_ge));}
+					if(score4_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.lt, score4_lt));}
+					if(score4_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.le, score4_le));}
+					if(score4_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.in, score4_in));}
+																if(score5!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.eq, score5));}
+					if(score5_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.gt, score5_gt));}
+					if(score5_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.ge, score5_ge));}
+					if(score5_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.lt, score5_lt));}
+					if(score5_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.le, score5_le));}
+					if(score5_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.in, score5_in));}
+																if(score6!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.eq, score6));}
+					if(score6_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.gt, score6_gt));}
+					if(score6_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.ge, score6_ge));}
+					if(score6_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.lt, score6_lt));}
+					if(score6_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.le, score6_le));}
+					if(score6_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.in, score6_in));}
+																if(score7!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.eq, score7));}
+					if(score7_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.gt, score7_gt));}
+					if(score7_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.ge, score7_ge));}
+					if(score7_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.lt, score7_lt));}
+					if(score7_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.le, score7_le));}
+					if(score7_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.in, score7_in));}
+																if(score8!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.eq, score8));}
+					if(score8_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.gt, score8_gt));}
+					if(score8_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.ge, score8_ge));}
+					if(score8_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.lt, score8_lt));}
+					if(score8_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.le, score8_le));}
+					if(score8_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.in, score8_in));}
+																if(score9!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.eq, score9));}
+					if(score9_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.gt, score9_gt));}
+					if(score9_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.ge, score9_ge));}
+					if(score9_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.lt, score9_lt));}
+					if(score9_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.le, score9_le));}
+					if(score9_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.in, score9_in));}
+																if(score10!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.eq, score10));}
+					if(score10_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.gt, score10_gt));}
+					if(score10_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.ge, score10_ge));}
+					if(score10_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.lt, score10_lt));}
+					if(score10_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.le, score10_le));}
+					if(score10_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.in, score10_in));}
+																if(score11!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.eq, score11));}
+					if(score11_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.gt, score11_gt));}
+					if(score11_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.ge, score11_ge));}
+					if(score11_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.lt, score11_lt));}
+					if(score11_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.le, score11_le));}
+					if(score11_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.in, score11_in));}
+																if(score12!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.eq, score12));}
+					if(score12_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.gt, score12_gt));}
+					if(score12_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.ge, score12_ge));}
+					if(score12_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.lt, score12_lt));}
+					if(score12_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.le, score12_le));}
+					if(score12_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.in, score12_in));}
+																if(score13!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.eq, score13));}
+					if(score13_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.gt, score13_gt));}
+					if(score13_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.ge, score13_ge));}
+					if(score13_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.lt, score13_lt));}
+					if(score13_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.le, score13_le));}
+					if(score13_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.in, score13_in));}
+																if(score14!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.eq, score14));}
+					if(score14_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.gt, score14_gt));}
+					if(score14_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.ge, score14_ge));}
+					if(score14_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.lt, score14_lt));}
+					if(score14_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.le, score14_le));}
+					if(score14_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.in, score14_in));}
+										
+			            list = dbManager.queryByCondition(FallEntity.class,qc);    
+            if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<FallEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((FallEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		
+		/**
+		 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 		 * @return
+		 */
+		public List<FallEntity> getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList) {
+			List<FallEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object countPoint=queryMap.get("countPoint");
+					Object countPoint_gt=queryMap.get("countPoint_gt");
+					Object countPoint_ge=queryMap.get("countPoint_ge");
+					Object countPoint_lt=queryMap.get("countPoint_lt");
+					Object countPoint_le=queryMap.get("countPoint_le");
+					Object countPoint_in=queryMap.get("countPoint_in");
+																					Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+																					Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+																Object score1=queryMap.get("score1");
+					Object score1_gt=queryMap.get("score1_gt");
+					Object score1_ge=queryMap.get("score1_ge");
+					Object score1_lt=queryMap.get("score1_lt");
+					Object score1_le=queryMap.get("score1_le");
+					Object score1_in=queryMap.get("score1_in");
+																Object score2=queryMap.get("score2");
+					Object score2_gt=queryMap.get("score2_gt");
+					Object score2_ge=queryMap.get("score2_ge");
+					Object score2_lt=queryMap.get("score2_lt");
+					Object score2_le=queryMap.get("score2_le");
+					Object score2_in=queryMap.get("score2_in");
+																Object score3=queryMap.get("score3");
+					Object score3_gt=queryMap.get("score3_gt");
+					Object score3_ge=queryMap.get("score3_ge");
+					Object score3_lt=queryMap.get("score3_lt");
+					Object score3_le=queryMap.get("score3_le");
+					Object score3_in=queryMap.get("score3_in");
+																Object score4=queryMap.get("score4");
+					Object score4_gt=queryMap.get("score4_gt");
+					Object score4_ge=queryMap.get("score4_ge");
+					Object score4_lt=queryMap.get("score4_lt");
+					Object score4_le=queryMap.get("score4_le");
+					Object score4_in=queryMap.get("score4_in");
+																Object score5=queryMap.get("score5");
+					Object score5_gt=queryMap.get("score5_gt");
+					Object score5_ge=queryMap.get("score5_ge");
+					Object score5_lt=queryMap.get("score5_lt");
+					Object score5_le=queryMap.get("score5_le");
+					Object score5_in=queryMap.get("score5_in");
+																Object score6=queryMap.get("score6");
+					Object score6_gt=queryMap.get("score6_gt");
+					Object score6_ge=queryMap.get("score6_ge");
+					Object score6_lt=queryMap.get("score6_lt");
+					Object score6_le=queryMap.get("score6_le");
+					Object score6_in=queryMap.get("score6_in");
+																Object score7=queryMap.get("score7");
+					Object score7_gt=queryMap.get("score7_gt");
+					Object score7_ge=queryMap.get("score7_ge");
+					Object score7_lt=queryMap.get("score7_lt");
+					Object score7_le=queryMap.get("score7_le");
+					Object score7_in=queryMap.get("score7_in");
+																Object score8=queryMap.get("score8");
+					Object score8_gt=queryMap.get("score8_gt");
+					Object score8_ge=queryMap.get("score8_ge");
+					Object score8_lt=queryMap.get("score8_lt");
+					Object score8_le=queryMap.get("score8_le");
+					Object score8_in=queryMap.get("score8_in");
+																Object score9=queryMap.get("score9");
+					Object score9_gt=queryMap.get("score9_gt");
+					Object score9_ge=queryMap.get("score9_ge");
+					Object score9_lt=queryMap.get("score9_lt");
+					Object score9_le=queryMap.get("score9_le");
+					Object score9_in=queryMap.get("score9_in");
+																Object score10=queryMap.get("score10");
+					Object score10_gt=queryMap.get("score10_gt");
+					Object score10_ge=queryMap.get("score10_ge");
+					Object score10_lt=queryMap.get("score10_lt");
+					Object score10_le=queryMap.get("score10_le");
+					Object score10_in=queryMap.get("score10_in");
+																Object score11=queryMap.get("score11");
+					Object score11_gt=queryMap.get("score11_gt");
+					Object score11_ge=queryMap.get("score11_ge");
+					Object score11_lt=queryMap.get("score11_lt");
+					Object score11_le=queryMap.get("score11_le");
+					Object score11_in=queryMap.get("score11_in");
+																Object score12=queryMap.get("score12");
+					Object score12_gt=queryMap.get("score12_gt");
+					Object score12_ge=queryMap.get("score12_ge");
+					Object score12_lt=queryMap.get("score12_lt");
+					Object score12_le=queryMap.get("score12_le");
+					Object score12_in=queryMap.get("score12_in");
+																Object score13=queryMap.get("score13");
+					Object score13_gt=queryMap.get("score13_gt");
+					Object score13_ge=queryMap.get("score13_ge");
+					Object score13_lt=queryMap.get("score13_lt");
+					Object score13_le=queryMap.get("score13_le");
+					Object score13_in=queryMap.get("score13_in");
+																Object score14=queryMap.get("score14");
+					Object score14_gt=queryMap.get("score14_gt");
+					Object score14_ge=queryMap.get("score14_ge");
+					Object score14_lt=queryMap.get("score14_lt");
+					Object score14_le=queryMap.get("score14_le");
+					Object score14_in=queryMap.get("score14_in");
+							
+			
+
+						
+			
+			QueryCondition qc = new QueryCondition(FallEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.in, id_in));}
+																if(countPoint!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+					if(countPoint_gt!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.gt, countPoint_gt));}
+					if(countPoint_ge!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.ge, countPoint_ge));}
+					if(countPoint_lt!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.lt, countPoint_lt));}
+					if(countPoint_le!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.le, countPoint_le));}
+					if(countPoint_in!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+															  					if(des!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.in, status_in));}
+																if(score1!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.eq, score1));}
+					if(score1_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.gt, score1_gt));}
+					if(score1_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.ge, score1_ge));}
+					if(score1_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.lt, score1_lt));}
+					if(score1_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.le, score1_le));}
+					if(score1_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.in, score1_in));}
+																if(score2!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.eq, score2));}
+					if(score2_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.gt, score2_gt));}
+					if(score2_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.ge, score2_ge));}
+					if(score2_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.lt, score2_lt));}
+					if(score2_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.le, score2_le));}
+					if(score2_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.in, score2_in));}
+																if(score3!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.eq, score3));}
+					if(score3_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.gt, score3_gt));}
+					if(score3_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.ge, score3_ge));}
+					if(score3_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.lt, score3_lt));}
+					if(score3_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.le, score3_le));}
+					if(score3_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.in, score3_in));}
+																if(score4!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.eq, score4));}
+					if(score4_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.gt, score4_gt));}
+					if(score4_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.ge, score4_ge));}
+					if(score4_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.lt, score4_lt));}
+					if(score4_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.le, score4_le));}
+					if(score4_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.in, score4_in));}
+																if(score5!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.eq, score5));}
+					if(score5_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.gt, score5_gt));}
+					if(score5_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.ge, score5_ge));}
+					if(score5_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.lt, score5_lt));}
+					if(score5_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.le, score5_le));}
+					if(score5_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.in, score5_in));}
+																if(score6!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.eq, score6));}
+					if(score6_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.gt, score6_gt));}
+					if(score6_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.ge, score6_ge));}
+					if(score6_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.lt, score6_lt));}
+					if(score6_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.le, score6_le));}
+					if(score6_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.in, score6_in));}
+																if(score7!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.eq, score7));}
+					if(score7_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.gt, score7_gt));}
+					if(score7_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.ge, score7_ge));}
+					if(score7_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.lt, score7_lt));}
+					if(score7_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.le, score7_le));}
+					if(score7_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.in, score7_in));}
+																if(score8!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.eq, score8));}
+					if(score8_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.gt, score8_gt));}
+					if(score8_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.ge, score8_ge));}
+					if(score8_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.lt, score8_lt));}
+					if(score8_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.le, score8_le));}
+					if(score8_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.in, score8_in));}
+																if(score9!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.eq, score9));}
+					if(score9_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.gt, score9_gt));}
+					if(score9_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.ge, score9_ge));}
+					if(score9_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.lt, score9_lt));}
+					if(score9_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.le, score9_le));}
+					if(score9_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.in, score9_in));}
+																if(score10!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.eq, score10));}
+					if(score10_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.gt, score10_gt));}
+					if(score10_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.ge, score10_ge));}
+					if(score10_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.lt, score10_lt));}
+					if(score10_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.le, score10_le));}
+					if(score10_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.in, score10_in));}
+																if(score11!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.eq, score11));}
+					if(score11_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.gt, score11_gt));}
+					if(score11_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.ge, score11_ge));}
+					if(score11_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.lt, score11_lt));}
+					if(score11_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.le, score11_le));}
+					if(score11_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.in, score11_in));}
+																if(score12!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.eq, score12));}
+					if(score12_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.gt, score12_gt));}
+					if(score12_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.ge, score12_ge));}
+					if(score12_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.lt, score12_lt));}
+					if(score12_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.le, score12_le));}
+					if(score12_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.in, score12_in));}
+																if(score13!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.eq, score13));}
+					if(score13_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.gt, score13_gt));}
+					if(score13_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.ge, score13_ge));}
+					if(score13_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.lt, score13_lt));}
+					if(score13_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.le, score13_le));}
+					if(score13_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.in, score13_in));}
+																if(score14!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.eq, score14));}
+					if(score14_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.gt, score14_gt));}
+					if(score14_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.ge, score14_ge));}
+					if(score14_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.lt, score14_lt));}
+					if(score14_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.le, score14_le));}
+					if(score14_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.in, score14_in));}
+										
+						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}			
+            list = dbManager.queryByConditions(FallEntity.class,qc,oc);
+                        					    			if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<FallEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((FallEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数		
+		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,int pageno,int pagesize) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object countPoint=queryMap.get("countPoint");
+					Object countPoint_gt=queryMap.get("countPoint_gt");
+					Object countPoint_ge=queryMap.get("countPoint_ge");
+					Object countPoint_lt=queryMap.get("countPoint_lt");
+					Object countPoint_le=queryMap.get("countPoint_le");
+					Object countPoint_in=queryMap.get("countPoint_in");
+															  					Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+				   																Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+																Object score1=queryMap.get("score1");
+					Object score1_gt=queryMap.get("score1_gt");
+					Object score1_ge=queryMap.get("score1_ge");
+					Object score1_lt=queryMap.get("score1_lt");
+					Object score1_le=queryMap.get("score1_le");
+					Object score1_in=queryMap.get("score1_in");
+																Object score2=queryMap.get("score2");
+					Object score2_gt=queryMap.get("score2_gt");
+					Object score2_ge=queryMap.get("score2_ge");
+					Object score2_lt=queryMap.get("score2_lt");
+					Object score2_le=queryMap.get("score2_le");
+					Object score2_in=queryMap.get("score2_in");
+																Object score3=queryMap.get("score3");
+					Object score3_gt=queryMap.get("score3_gt");
+					Object score3_ge=queryMap.get("score3_ge");
+					Object score3_lt=queryMap.get("score3_lt");
+					Object score3_le=queryMap.get("score3_le");
+					Object score3_in=queryMap.get("score3_in");
+																Object score4=queryMap.get("score4");
+					Object score4_gt=queryMap.get("score4_gt");
+					Object score4_ge=queryMap.get("score4_ge");
+					Object score4_lt=queryMap.get("score4_lt");
+					Object score4_le=queryMap.get("score4_le");
+					Object score4_in=queryMap.get("score4_in");
+																Object score5=queryMap.get("score5");
+					Object score5_gt=queryMap.get("score5_gt");
+					Object score5_ge=queryMap.get("score5_ge");
+					Object score5_lt=queryMap.get("score5_lt");
+					Object score5_le=queryMap.get("score5_le");
+					Object score5_in=queryMap.get("score5_in");
+																Object score6=queryMap.get("score6");
+					Object score6_gt=queryMap.get("score6_gt");
+					Object score6_ge=queryMap.get("score6_ge");
+					Object score6_lt=queryMap.get("score6_lt");
+					Object score6_le=queryMap.get("score6_le");
+					Object score6_in=queryMap.get("score6_in");
+																Object score7=queryMap.get("score7");
+					Object score7_gt=queryMap.get("score7_gt");
+					Object score7_ge=queryMap.get("score7_ge");
+					Object score7_lt=queryMap.get("score7_lt");
+					Object score7_le=queryMap.get("score7_le");
+					Object score7_in=queryMap.get("score7_in");
+																Object score8=queryMap.get("score8");
+					Object score8_gt=queryMap.get("score8_gt");
+					Object score8_ge=queryMap.get("score8_ge");
+					Object score8_lt=queryMap.get("score8_lt");
+					Object score8_le=queryMap.get("score8_le");
+					Object score8_in=queryMap.get("score8_in");
+																Object score9=queryMap.get("score9");
+					Object score9_gt=queryMap.get("score9_gt");
+					Object score9_ge=queryMap.get("score9_ge");
+					Object score9_lt=queryMap.get("score9_lt");
+					Object score9_le=queryMap.get("score9_le");
+					Object score9_in=queryMap.get("score9_in");
+																Object score10=queryMap.get("score10");
+					Object score10_gt=queryMap.get("score10_gt");
+					Object score10_ge=queryMap.get("score10_ge");
+					Object score10_lt=queryMap.get("score10_lt");
+					Object score10_le=queryMap.get("score10_le");
+					Object score10_in=queryMap.get("score10_in");
+																Object score11=queryMap.get("score11");
+					Object score11_gt=queryMap.get("score11_gt");
+					Object score11_ge=queryMap.get("score11_ge");
+					Object score11_lt=queryMap.get("score11_lt");
+					Object score11_le=queryMap.get("score11_le");
+					Object score11_in=queryMap.get("score11_in");
+																Object score12=queryMap.get("score12");
+					Object score12_gt=queryMap.get("score12_gt");
+					Object score12_ge=queryMap.get("score12_ge");
+					Object score12_lt=queryMap.get("score12_lt");
+					Object score12_le=queryMap.get("score12_le");
+					Object score12_in=queryMap.get("score12_in");
+																Object score13=queryMap.get("score13");
+					Object score13_gt=queryMap.get("score13_gt");
+					Object score13_ge=queryMap.get("score13_ge");
+					Object score13_lt=queryMap.get("score13_lt");
+					Object score13_le=queryMap.get("score13_le");
+					Object score13_in=queryMap.get("score13_in");
+																Object score14=queryMap.get("score14");
+					Object score14_gt=queryMap.get("score14_gt");
+					Object score14_ge=queryMap.get("score14_ge");
+					Object score14_lt=queryMap.get("score14_lt");
+					Object score14_le=queryMap.get("score14_le");
+					Object score14_in=queryMap.get("score14_in");
+							
+			
+
+						
+			
+			QueryCondition qc = new QueryCondition(FallEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.in, id_in));}
+																if(countPoint!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+					if(countPoint_gt!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.gt, countPoint_gt));}
+					if(countPoint_ge!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.ge, countPoint_ge));}
+					if(countPoint_lt!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.lt, countPoint_lt));}
+					if(countPoint_le!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.le, countPoint_le));}
+					if(countPoint_in!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+															  					if(des!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.in, status_in));}
+																if(score1!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.eq, score1));}
+					if(score1_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.gt, score1_gt));}
+					if(score1_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.ge, score1_ge));}
+					if(score1_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.lt, score1_lt));}
+					if(score1_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.le, score1_le));}
+					if(score1_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.in, score1_in));}
+																if(score2!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.eq, score2));}
+					if(score2_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.gt, score2_gt));}
+					if(score2_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.ge, score2_ge));}
+					if(score2_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.lt, score2_lt));}
+					if(score2_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.le, score2_le));}
+					if(score2_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.in, score2_in));}
+																if(score3!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.eq, score3));}
+					if(score3_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.gt, score3_gt));}
+					if(score3_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.ge, score3_ge));}
+					if(score3_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.lt, score3_lt));}
+					if(score3_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.le, score3_le));}
+					if(score3_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.in, score3_in));}
+																if(score4!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.eq, score4));}
+					if(score4_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.gt, score4_gt));}
+					if(score4_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.ge, score4_ge));}
+					if(score4_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.lt, score4_lt));}
+					if(score4_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.le, score4_le));}
+					if(score4_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.in, score4_in));}
+																if(score5!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.eq, score5));}
+					if(score5_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.gt, score5_gt));}
+					if(score5_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.ge, score5_ge));}
+					if(score5_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.lt, score5_lt));}
+					if(score5_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.le, score5_le));}
+					if(score5_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.in, score5_in));}
+																if(score6!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.eq, score6));}
+					if(score6_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.gt, score6_gt));}
+					if(score6_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.ge, score6_ge));}
+					if(score6_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.lt, score6_lt));}
+					if(score6_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.le, score6_le));}
+					if(score6_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.in, score6_in));}
+																if(score7!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.eq, score7));}
+					if(score7_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.gt, score7_gt));}
+					if(score7_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.ge, score7_ge));}
+					if(score7_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.lt, score7_lt));}
+					if(score7_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.le, score7_le));}
+					if(score7_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.in, score7_in));}
+																if(score8!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.eq, score8));}
+					if(score8_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.gt, score8_gt));}
+					if(score8_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.ge, score8_ge));}
+					if(score8_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.lt, score8_lt));}
+					if(score8_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.le, score8_le));}
+					if(score8_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.in, score8_in));}
+																if(score9!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.eq, score9));}
+					if(score9_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.gt, score9_gt));}
+					if(score9_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.ge, score9_ge));}
+					if(score9_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.lt, score9_lt));}
+					if(score9_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.le, score9_le));}
+					if(score9_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.in, score9_in));}
+																if(score10!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.eq, score10));}
+					if(score10_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.gt, score10_gt));}
+					if(score10_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.ge, score10_ge));}
+					if(score10_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.lt, score10_lt));}
+					if(score10_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.le, score10_le));}
+					if(score10_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.in, score10_in));}
+																if(score11!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.eq, score11));}
+					if(score11_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.gt, score11_gt));}
+					if(score11_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.ge, score11_ge));}
+					if(score11_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.lt, score11_lt));}
+					if(score11_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.le, score11_le));}
+					if(score11_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.in, score11_in));}
+																if(score12!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.eq, score12));}
+					if(score12_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.gt, score12_gt));}
+					if(score12_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.ge, score12_ge));}
+					if(score12_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.lt, score12_lt));}
+					if(score12_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.le, score12_le));}
+					if(score12_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.in, score12_in));}
+																if(score13!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.eq, score13));}
+					if(score13_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.gt, score13_gt));}
+					if(score13_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.ge, score13_ge));}
+					if(score13_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.lt, score13_lt));}
+					if(score13_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.le, score13_le));}
+					if(score13_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.in, score13_in));}
+																if(score14!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.eq, score14));}
+					if(score14_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.gt, score14_gt));}
+					if(score14_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.ge, score14_ge));}
+					if(score14_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.lt, score14_lt));}
+					if(score14_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.le, score14_le));}
+					if(score14_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.in, score14_in));}
+										
+			            pagelist = dbManager.queryByCondition(FallEntity.class,qc,pageno,pagesize);	                      			
+			return pagelist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数
+		 		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,int pageno,int pagesize) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object countPoint=queryMap.get("countPoint");
+					Object countPoint_gt=queryMap.get("countPoint_gt");
+					Object countPoint_ge=queryMap.get("countPoint_ge");
+					Object countPoint_lt=queryMap.get("countPoint_lt");
+					Object countPoint_le=queryMap.get("countPoint_le");
+					Object countPoint_in=queryMap.get("countPoint_in");
+															  					Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+				   																Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+																Object score1=queryMap.get("score1");
+					Object score1_gt=queryMap.get("score1_gt");
+					Object score1_ge=queryMap.get("score1_ge");
+					Object score1_lt=queryMap.get("score1_lt");
+					Object score1_le=queryMap.get("score1_le");
+					Object score1_in=queryMap.get("score1_in");
+																Object score2=queryMap.get("score2");
+					Object score2_gt=queryMap.get("score2_gt");
+					Object score2_ge=queryMap.get("score2_ge");
+					Object score2_lt=queryMap.get("score2_lt");
+					Object score2_le=queryMap.get("score2_le");
+					Object score2_in=queryMap.get("score2_in");
+																Object score3=queryMap.get("score3");
+					Object score3_gt=queryMap.get("score3_gt");
+					Object score3_ge=queryMap.get("score3_ge");
+					Object score3_lt=queryMap.get("score3_lt");
+					Object score3_le=queryMap.get("score3_le");
+					Object score3_in=queryMap.get("score3_in");
+																Object score4=queryMap.get("score4");
+					Object score4_gt=queryMap.get("score4_gt");
+					Object score4_ge=queryMap.get("score4_ge");
+					Object score4_lt=queryMap.get("score4_lt");
+					Object score4_le=queryMap.get("score4_le");
+					Object score4_in=queryMap.get("score4_in");
+																Object score5=queryMap.get("score5");
+					Object score5_gt=queryMap.get("score5_gt");
+					Object score5_ge=queryMap.get("score5_ge");
+					Object score5_lt=queryMap.get("score5_lt");
+					Object score5_le=queryMap.get("score5_le");
+					Object score5_in=queryMap.get("score5_in");
+																Object score6=queryMap.get("score6");
+					Object score6_gt=queryMap.get("score6_gt");
+					Object score6_ge=queryMap.get("score6_ge");
+					Object score6_lt=queryMap.get("score6_lt");
+					Object score6_le=queryMap.get("score6_le");
+					Object score6_in=queryMap.get("score6_in");
+																Object score7=queryMap.get("score7");
+					Object score7_gt=queryMap.get("score7_gt");
+					Object score7_ge=queryMap.get("score7_ge");
+					Object score7_lt=queryMap.get("score7_lt");
+					Object score7_le=queryMap.get("score7_le");
+					Object score7_in=queryMap.get("score7_in");
+																Object score8=queryMap.get("score8");
+					Object score8_gt=queryMap.get("score8_gt");
+					Object score8_ge=queryMap.get("score8_ge");
+					Object score8_lt=queryMap.get("score8_lt");
+					Object score8_le=queryMap.get("score8_le");
+					Object score8_in=queryMap.get("score8_in");
+																Object score9=queryMap.get("score9");
+					Object score9_gt=queryMap.get("score9_gt");
+					Object score9_ge=queryMap.get("score9_ge");
+					Object score9_lt=queryMap.get("score9_lt");
+					Object score9_le=queryMap.get("score9_le");
+					Object score9_in=queryMap.get("score9_in");
+																Object score10=queryMap.get("score10");
+					Object score10_gt=queryMap.get("score10_gt");
+					Object score10_ge=queryMap.get("score10_ge");
+					Object score10_lt=queryMap.get("score10_lt");
+					Object score10_le=queryMap.get("score10_le");
+					Object score10_in=queryMap.get("score10_in");
+																Object score11=queryMap.get("score11");
+					Object score11_gt=queryMap.get("score11_gt");
+					Object score11_ge=queryMap.get("score11_ge");
+					Object score11_lt=queryMap.get("score11_lt");
+					Object score11_le=queryMap.get("score11_le");
+					Object score11_in=queryMap.get("score11_in");
+																Object score12=queryMap.get("score12");
+					Object score12_gt=queryMap.get("score12_gt");
+					Object score12_ge=queryMap.get("score12_ge");
+					Object score12_lt=queryMap.get("score12_lt");
+					Object score12_le=queryMap.get("score12_le");
+					Object score12_in=queryMap.get("score12_in");
+																Object score13=queryMap.get("score13");
+					Object score13_gt=queryMap.get("score13_gt");
+					Object score13_ge=queryMap.get("score13_ge");
+					Object score13_lt=queryMap.get("score13_lt");
+					Object score13_le=queryMap.get("score13_le");
+					Object score13_in=queryMap.get("score13_in");
+																Object score14=queryMap.get("score14");
+					Object score14_gt=queryMap.get("score14_gt");
+					Object score14_ge=queryMap.get("score14_ge");
+					Object score14_lt=queryMap.get("score14_lt");
+					Object score14_le=queryMap.get("score14_le");
+					Object score14_in=queryMap.get("score14_in");
+							
+			
+
+						
+			
+			QueryCondition qc = new QueryCondition(FallEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.in, id_in));}
+																if(countPoint!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+					if(countPoint_gt!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.gt, countPoint_gt));}
+					if(countPoint_ge!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.ge, countPoint_ge));}
+					if(countPoint_lt!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.lt, countPoint_lt));}
+					if(countPoint_le!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.le, countPoint_le));}
+					if(countPoint_in!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+															  					if(des!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.in, status_in));}
+																if(score1!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.eq, score1));}
+					if(score1_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.gt, score1_gt));}
+					if(score1_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.ge, score1_ge));}
+					if(score1_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.lt, score1_lt));}
+					if(score1_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.le, score1_le));}
+					if(score1_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.in, score1_in));}
+																if(score2!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.eq, score2));}
+					if(score2_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.gt, score2_gt));}
+					if(score2_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.ge, score2_ge));}
+					if(score2_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.lt, score2_lt));}
+					if(score2_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.le, score2_le));}
+					if(score2_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.in, score2_in));}
+																if(score3!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.eq, score3));}
+					if(score3_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.gt, score3_gt));}
+					if(score3_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.ge, score3_ge));}
+					if(score3_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.lt, score3_lt));}
+					if(score3_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.le, score3_le));}
+					if(score3_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.in, score3_in));}
+																if(score4!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.eq, score4));}
+					if(score4_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.gt, score4_gt));}
+					if(score4_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.ge, score4_ge));}
+					if(score4_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.lt, score4_lt));}
+					if(score4_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.le, score4_le));}
+					if(score4_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.in, score4_in));}
+																if(score5!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.eq, score5));}
+					if(score5_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.gt, score5_gt));}
+					if(score5_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.ge, score5_ge));}
+					if(score5_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.lt, score5_lt));}
+					if(score5_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.le, score5_le));}
+					if(score5_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.in, score5_in));}
+																if(score6!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.eq, score6));}
+					if(score6_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.gt, score6_gt));}
+					if(score6_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.ge, score6_ge));}
+					if(score6_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.lt, score6_lt));}
+					if(score6_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.le, score6_le));}
+					if(score6_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.in, score6_in));}
+																if(score7!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.eq, score7));}
+					if(score7_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.gt, score7_gt));}
+					if(score7_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.ge, score7_ge));}
+					if(score7_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.lt, score7_lt));}
+					if(score7_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.le, score7_le));}
+					if(score7_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.in, score7_in));}
+																if(score8!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.eq, score8));}
+					if(score8_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.gt, score8_gt));}
+					if(score8_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.ge, score8_ge));}
+					if(score8_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.lt, score8_lt));}
+					if(score8_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.le, score8_le));}
+					if(score8_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.in, score8_in));}
+																if(score9!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.eq, score9));}
+					if(score9_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.gt, score9_gt));}
+					if(score9_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.ge, score9_ge));}
+					if(score9_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.lt, score9_lt));}
+					if(score9_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.le, score9_le));}
+					if(score9_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.in, score9_in));}
+																if(score10!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.eq, score10));}
+					if(score10_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.gt, score10_gt));}
+					if(score10_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.ge, score10_ge));}
+					if(score10_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.lt, score10_lt));}
+					if(score10_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.le, score10_le));}
+					if(score10_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.in, score10_in));}
+																if(score11!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.eq, score11));}
+					if(score11_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.gt, score11_gt));}
+					if(score11_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.ge, score11_ge));}
+					if(score11_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.lt, score11_lt));}
+					if(score11_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.le, score11_le));}
+					if(score11_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.in, score11_in));}
+																if(score12!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.eq, score12));}
+					if(score12_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.gt, score12_gt));}
+					if(score12_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.ge, score12_ge));}
+					if(score12_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.lt, score12_lt));}
+					if(score12_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.le, score12_le));}
+					if(score12_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.in, score12_in));}
+																if(score13!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.eq, score13));}
+					if(score13_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.gt, score13_gt));}
+					if(score13_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.ge, score13_ge));}
+					if(score13_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.lt, score13_lt));}
+					if(score13_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.le, score13_le));}
+					if(score13_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.in, score13_in));}
+																if(score14!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.eq, score14));}
+					if(score14_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.gt, score14_gt));}
+					if(score14_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.ge, score14_ge));}
+					if(score14_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.lt, score14_lt));}
+					if(score14_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.le, score14_le));}
+					if(score14_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.in, score14_in));}
+										
+						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}		
+            pagelist = dbManager.queryByConditions(FallEntity.class,qc,oc,pageno,pagesize);	           
+                        					    			return pagelist;
+		}
+		
+		/**
+		 * 删除记录
+		 * 
+		 * @param id 主键
+		 * @param obj
+		 */
+		public boolean del(Integer id) {
+			boolean result = false;
+			if (id !=null&&id>0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 					
+										result = dbManager.delNoTransaction(id, FallEntity.class);
+					tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		/**
+		 * 批量删除记录
+		 * 
+		 * @param ids
+		 *            主键 英文逗号间隔
+		 * @param obj
+		 */
+		public boolean del(String ids) {
+			boolean result = false;
+			if (ids != null && !"".equals(ids.trim())) {
+				TransactionManager tx = DbUtils.getTranManager();
+				try {
+					tx.beginTransaction();
+					QueryCondition qc = new QueryCondition(FallEntity.ID,QueryCondition.in, ids);
+					result = dbManager.delByConditionsNoTransaction(FallEntity.class, qc);
+					tx.commitAndClose();
+				} catch (Exception e) {
+					logger.error("数据库提交失败！");
+					logger.error(e);
+					result = false;
+					try {
+						tx.rollbackAndClose();
+					} catch (Exception ex) {
+						logger.error("数据库回滚失败！");
+						logger.error(ex);
+					}
+				}
+			}
+			return result;
+		}
+
+		/**
+		 * 批量条件删除记录
+		 * @param queryMap 查询条件集合
+		 */
+		public boolean delList(Map<String,Object> queryMap) {
+			boolean result = false;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object countPoint=queryMap.get("countPoint");
+					Object countPoint_gt=queryMap.get("countPoint_gt");
+					Object countPoint_ge=queryMap.get("countPoint_ge");
+					Object countPoint_lt=queryMap.get("countPoint_lt");
+					Object countPoint_le=queryMap.get("countPoint_le");
+					Object countPoint_in=queryMap.get("countPoint_in");
+															  					Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+				  																Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+																Object score1=queryMap.get("score1");
+					Object score1_gt=queryMap.get("score1_gt");
+					Object score1_ge=queryMap.get("score1_ge");
+					Object score1_lt=queryMap.get("score1_lt");
+					Object score1_le=queryMap.get("score1_le");
+					Object score1_in=queryMap.get("score1_in");
+																Object score2=queryMap.get("score2");
+					Object score2_gt=queryMap.get("score2_gt");
+					Object score2_ge=queryMap.get("score2_ge");
+					Object score2_lt=queryMap.get("score2_lt");
+					Object score2_le=queryMap.get("score2_le");
+					Object score2_in=queryMap.get("score2_in");
+																Object score3=queryMap.get("score3");
+					Object score3_gt=queryMap.get("score3_gt");
+					Object score3_ge=queryMap.get("score3_ge");
+					Object score3_lt=queryMap.get("score3_lt");
+					Object score3_le=queryMap.get("score3_le");
+					Object score3_in=queryMap.get("score3_in");
+																Object score4=queryMap.get("score4");
+					Object score4_gt=queryMap.get("score4_gt");
+					Object score4_ge=queryMap.get("score4_ge");
+					Object score4_lt=queryMap.get("score4_lt");
+					Object score4_le=queryMap.get("score4_le");
+					Object score4_in=queryMap.get("score4_in");
+																Object score5=queryMap.get("score5");
+					Object score5_gt=queryMap.get("score5_gt");
+					Object score5_ge=queryMap.get("score5_ge");
+					Object score5_lt=queryMap.get("score5_lt");
+					Object score5_le=queryMap.get("score5_le");
+					Object score5_in=queryMap.get("score5_in");
+																Object score6=queryMap.get("score6");
+					Object score6_gt=queryMap.get("score6_gt");
+					Object score6_ge=queryMap.get("score6_ge");
+					Object score6_lt=queryMap.get("score6_lt");
+					Object score6_le=queryMap.get("score6_le");
+					Object score6_in=queryMap.get("score6_in");
+																Object score7=queryMap.get("score7");
+					Object score7_gt=queryMap.get("score7_gt");
+					Object score7_ge=queryMap.get("score7_ge");
+					Object score7_lt=queryMap.get("score7_lt");
+					Object score7_le=queryMap.get("score7_le");
+					Object score7_in=queryMap.get("score7_in");
+																Object score8=queryMap.get("score8");
+					Object score8_gt=queryMap.get("score8_gt");
+					Object score8_ge=queryMap.get("score8_ge");
+					Object score8_lt=queryMap.get("score8_lt");
+					Object score8_le=queryMap.get("score8_le");
+					Object score8_in=queryMap.get("score8_in");
+																Object score9=queryMap.get("score9");
+					Object score9_gt=queryMap.get("score9_gt");
+					Object score9_ge=queryMap.get("score9_ge");
+					Object score9_lt=queryMap.get("score9_lt");
+					Object score9_le=queryMap.get("score9_le");
+					Object score9_in=queryMap.get("score9_in");
+																Object score10=queryMap.get("score10");
+					Object score10_gt=queryMap.get("score10_gt");
+					Object score10_ge=queryMap.get("score10_ge");
+					Object score10_lt=queryMap.get("score10_lt");
+					Object score10_le=queryMap.get("score10_le");
+					Object score10_in=queryMap.get("score10_in");
+																Object score11=queryMap.get("score11");
+					Object score11_gt=queryMap.get("score11_gt");
+					Object score11_ge=queryMap.get("score11_ge");
+					Object score11_lt=queryMap.get("score11_lt");
+					Object score11_le=queryMap.get("score11_le");
+					Object score11_in=queryMap.get("score11_in");
+																Object score12=queryMap.get("score12");
+					Object score12_gt=queryMap.get("score12_gt");
+					Object score12_ge=queryMap.get("score12_ge");
+					Object score12_lt=queryMap.get("score12_lt");
+					Object score12_le=queryMap.get("score12_le");
+					Object score12_in=queryMap.get("score12_in");
+																Object score13=queryMap.get("score13");
+					Object score13_gt=queryMap.get("score13_gt");
+					Object score13_ge=queryMap.get("score13_ge");
+					Object score13_lt=queryMap.get("score13_lt");
+					Object score13_le=queryMap.get("score13_le");
+					Object score13_in=queryMap.get("score13_in");
+																Object score14=queryMap.get("score14");
+					Object score14_gt=queryMap.get("score14_gt");
+					Object score14_ge=queryMap.get("score14_ge");
+					Object score14_lt=queryMap.get("score14_lt");
+					Object score14_le=queryMap.get("score14_le");
+					Object score14_in=queryMap.get("score14_in");
+													
+			QueryCondition qc = new QueryCondition(FallEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(FallEntity.ID, QueryCondition.in, id_in));}
+																if(countPoint!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+					if(countPoint_gt!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.gt, countPoint_gt));}
+					if(countPoint_ge!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.ge, countPoint_ge));}
+					if(countPoint_lt!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.lt, countPoint_lt));}
+					if(countPoint_le!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.le, countPoint_le));}
+					if(countPoint_in!=null){qc.andCondition(new QueryCondition(FallEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+															  					if(des!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(FallEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(FallEntity.STATUS, QueryCondition.in, status_in));}
+																if(score1!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.eq, score1));}
+					if(score1_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.gt, score1_gt));}
+					if(score1_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.ge, score1_ge));}
+					if(score1_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.lt, score1_lt));}
+					if(score1_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.le, score1_le));}
+					if(score1_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE1, QueryCondition.in, score1_in));}
+																if(score2!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.eq, score2));}
+					if(score2_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.gt, score2_gt));}
+					if(score2_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.ge, score2_ge));}
+					if(score2_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.lt, score2_lt));}
+					if(score2_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.le, score2_le));}
+					if(score2_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE2, QueryCondition.in, score2_in));}
+																if(score3!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.eq, score3));}
+					if(score3_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.gt, score3_gt));}
+					if(score3_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.ge, score3_ge));}
+					if(score3_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.lt, score3_lt));}
+					if(score3_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.le, score3_le));}
+					if(score3_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE3, QueryCondition.in, score3_in));}
+																if(score4!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.eq, score4));}
+					if(score4_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.gt, score4_gt));}
+					if(score4_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.ge, score4_ge));}
+					if(score4_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.lt, score4_lt));}
+					if(score4_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.le, score4_le));}
+					if(score4_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE4, QueryCondition.in, score4_in));}
+																if(score5!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.eq, score5));}
+					if(score5_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.gt, score5_gt));}
+					if(score5_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.ge, score5_ge));}
+					if(score5_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.lt, score5_lt));}
+					if(score5_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.le, score5_le));}
+					if(score5_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE5, QueryCondition.in, score5_in));}
+																if(score6!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.eq, score6));}
+					if(score6_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.gt, score6_gt));}
+					if(score6_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.ge, score6_ge));}
+					if(score6_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.lt, score6_lt));}
+					if(score6_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.le, score6_le));}
+					if(score6_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE6, QueryCondition.in, score6_in));}
+																if(score7!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.eq, score7));}
+					if(score7_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.gt, score7_gt));}
+					if(score7_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.ge, score7_ge));}
+					if(score7_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.lt, score7_lt));}
+					if(score7_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.le, score7_le));}
+					if(score7_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE7, QueryCondition.in, score7_in));}
+																if(score8!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.eq, score8));}
+					if(score8_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.gt, score8_gt));}
+					if(score8_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.ge, score8_ge));}
+					if(score8_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.lt, score8_lt));}
+					if(score8_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.le, score8_le));}
+					if(score8_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE8, QueryCondition.in, score8_in));}
+																if(score9!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.eq, score9));}
+					if(score9_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.gt, score9_gt));}
+					if(score9_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.ge, score9_ge));}
+					if(score9_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.lt, score9_lt));}
+					if(score9_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.le, score9_le));}
+					if(score9_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE9, QueryCondition.in, score9_in));}
+																if(score10!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.eq, score10));}
+					if(score10_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.gt, score10_gt));}
+					if(score10_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.ge, score10_ge));}
+					if(score10_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.lt, score10_lt));}
+					if(score10_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.le, score10_le));}
+					if(score10_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE10, QueryCondition.in, score10_in));}
+																if(score11!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.eq, score11));}
+					if(score11_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.gt, score11_gt));}
+					if(score11_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.ge, score11_ge));}
+					if(score11_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.lt, score11_lt));}
+					if(score11_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.le, score11_le));}
+					if(score11_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE11, QueryCondition.in, score11_in));}
+																if(score12!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.eq, score12));}
+					if(score12_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.gt, score12_gt));}
+					if(score12_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.ge, score12_ge));}
+					if(score12_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.lt, score12_lt));}
+					if(score12_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.le, score12_le));}
+					if(score12_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE12, QueryCondition.in, score12_in));}
+																if(score13!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.eq, score13));}
+					if(score13_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.gt, score13_gt));}
+					if(score13_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.ge, score13_ge));}
+					if(score13_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.lt, score13_lt));}
+					if(score13_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.le, score13_le));}
+					if(score13_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE13, QueryCondition.in, score13_in));}
+																if(score14!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.eq, score14));}
+					if(score14_gt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.gt, score14_gt));}
+					if(score14_ge!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.ge, score14_ge));}
+					if(score14_lt!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.lt, score14_lt));}
+					if(score14_le!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.le, score14_le));}
+					if(score14_in!=null){qc.andCondition(new QueryCondition(FallEntity.SCORE14, QueryCondition.in, score14_in));}
+										
+						if (qc.getQueryNextCondition()!=null) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 						
+										result = dbManager.delByConditionsNoTransaction(FallEntity.class,qc);				
+					tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		
+}

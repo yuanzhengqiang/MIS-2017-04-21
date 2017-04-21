@@ -1,0 +1,152 @@
+package fsk.entity.employeeDistribution;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.nursingPlanService.NursingPlanServiceEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 护工分配列表
+ * @author feng.gu
+ * @date 2016-12-28 13:33:00
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_EMPLOYEE_DISTRIBUTION")
+public class EmployeeDistributionEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String CHARGE_EMPLOYEE_ID = "CHARGE_EMPLOYEE_ID";
+    public final static String CHARGE_EMPLOYEE_NAME = "CHARGE_EMPLOYEE_NAME";
+    public final static String PARTAKE_EMPLOYEE_NAME = "PARTAKE_EMPLOYEE_NAME";
+    public final static String EMPLOYEE_SERVICE_NUM = "EMPLOYEE_SERVICE_NUM";
+    public final static String NURSING_PLAN_SERVICE_ID = "NURSING_PLAN_SERVICE_ID";
+    public final static String EXECUTION_DATE = "EXECUTION_DATE";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 负责护工员工ID
+	 */
+	@ColumnDescription(name = "CHARGE_EMPLOYEE_ID")
+	private Integer chargeEmployeeId;
+    /**
+	 * 负责护工姓名
+	 */
+	@ColumnDescription(name = "CHARGE_EMPLOYEE_NAME")
+	private String chargeEmployeeName;
+    /**
+	 * 参与护工
+	 */
+	@ColumnDescription(name = "PARTAKE_EMPLOYEE_NAME")
+	private String partakeEmployeeName;
+    /**
+	 * 护工服务次数
+	 */
+	@ColumnDescription(name = "EMPLOYEE_SERVICE_NUM")
+	private Integer employeeServiceNum;
+    /**
+	 * 护理计划服务项目ID
+	 */
+	@ColumnDescription(name = "NURSING_PLAN_SERVICE_ID")
+	private Integer nursingPlanServiceId;
+    /**
+	 * 执行日期
+	 */
+	@ColumnDescription(name = "EXECUTION_DATE")
+	private String executionDate;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getChargeEmployeeId() {
+		return chargeEmployeeId;
+	}
+
+	public void setChargeEmployeeId(Integer chargeEmployeeId) {
+		this.chargeEmployeeId = chargeEmployeeId;
+	}
+    public String getChargeEmployeeName() {
+		return chargeEmployeeName;
+	}
+
+	public void setChargeEmployeeName(String chargeEmployeeName) {
+		this.chargeEmployeeName = chargeEmployeeName;
+	}
+    public String getPartakeEmployeeName() {
+		return partakeEmployeeName;
+	}
+
+	public void setPartakeEmployeeName(String partakeEmployeeName) {
+		this.partakeEmployeeName = partakeEmployeeName;
+	}
+    public Integer getEmployeeServiceNum() {
+		return employeeServiceNum;
+	}
+
+	public void setEmployeeServiceNum(Integer employeeServiceNum) {
+		this.employeeServiceNum = employeeServiceNum;
+	}
+    public Integer getNursingPlanServiceId() {
+		return nursingPlanServiceId;
+	}
+
+	public void setNursingPlanServiceId(Integer nursingPlanServiceId) {
+		this.nursingPlanServiceId = nursingPlanServiceId;
+	}
+    public String getExecutionDate() {
+		return executionDate;
+	}
+
+	public void setExecutionDate(String executionDate) {
+		this.executionDate = executionDate;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="EmployeeEntity"	,joinColumn="ID"	)
+			
+			
+		private EmployeeEntity chargeEmployee;
+	        
+	public EmployeeEntity getChargeEmployee() {
+		return chargeEmployee;
+    }
+	
+	public void setChargeEmployee(EmployeeEntity chargeEmployee) {
+		this.chargeEmployee = chargeEmployee;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="NursingPlanServiceEntity"	,joinColumn="ID"	)
+			
+			
+		private NursingPlanServiceEntity nursingPlanService;
+	        
+	public NursingPlanServiceEntity getNursingPlanService() {
+		return nursingPlanService;
+    }
+	
+	public void setNursingPlanService(NursingPlanServiceEntity nursingPlanService) {
+		this.nursingPlanService = nursingPlanService;
+	}
+			
+}

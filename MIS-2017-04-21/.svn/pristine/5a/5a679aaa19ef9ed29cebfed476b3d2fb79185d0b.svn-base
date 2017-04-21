@@ -1,0 +1,754 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="shortcut icon" href="images/logo.png">
+
+<title>工作台</title>
+
+<!-- Bootstrap core CSS -->
+<link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css"
+	href="js/jquery.gritter/css/jquery.gritter.css" />
+
+<link rel="stylesheet"
+	href="fonts/font-awesome-4/css/font-awesome.min.css">
+
+<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!--[if lt IE 9]>
+	  <script src="../../assets/js/html5shiv.js"></script>
+	  <script src="../../assets/js/respond.min.js"></script>
+	<![endif]-->
+<link rel="stylesheet" type="text/css"
+	href="js/jquery.nanoscroller/nanoscroller.css" />
+<link rel="stylesheet" type="text/css"
+	href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+<link rel="stylesheet" type="text/css"
+	href="js/bootstrap.switch/bootstrap-switch.css" />
+<link rel="stylesheet" type="text/css"
+	href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+<link rel="stylesheet" type="text/css"
+	href="js/jquery.select2/select2.css" />
+<link rel="stylesheet" type="text/css"
+	href="js/bootstrap.slider/css/slider.css" />
+<link rel="stylesheet" type="text/css"
+	href="js/jquery.niftymodals/css/component.css" />
+<link href="js/jquery.icheck/skins/square/blue.css" rel="stylesheet">
+
+<link rel="stylesheet" href="js/jquery.crop/css/jquery.Jcrop.css"
+	type="text/css" />
+<link href="css/style.css" rel="stylesheet" />
+<style>
+.hideul {
+	position: absolute;
+	top: 33px;
+	z-index: 200;
+	right: 15px;
+	left: 15px;
+	display: none
+}
+
+.hideul ul {
+	border: 1px solid #ccc;
+	width: 100%;
+	background: #f4f4f4;
+	padding-left: 0
+}
+
+.hideul ul li {
+	list-style-type: none;
+	text-indent: 20px
+}
+
+.hideul ul li:hover {
+	background: #ddd
+}
+
+.mytable tr:nth-child(2n) {
+	background: #fff
+}
+
+.mytable td {
+	text-align: center;
+	vertical-align: middle
+}
+</style>
+</head>
+
+<body>
+	<div id="cl-wrapper" style="padding-top:0">
+		<div class="container-fluid" id="pcont">
+			<div class="cl-mcont">
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="block-flat profile-info">
+							<div class="row">
+								<div class="col-sm-2">
+									<div class="avatar">
+										<img src="photos/av.jpg" id="touxiangId"
+											class="profile-avatar" /> <input type="hidden"
+											id="hide_employeeTupian" value="" />
+									</div>
+								</div>
+								<div class="col-sm-10">
+									<div class="personal">
+										<input type="hidden" id="userId_loginId" value="0" />
+										<h1 class="name" style="font-size:24px;" id="head_name">无</h1>
+										<p class="description" style="line-height:13px"
+											id="head_juesezhicheng">
+										<p>
+										<p class="description" style="line-height:13px;"
+											id="head_zhandian">
+										<p>
+										<p class="description" style="line-height:13px"
+											id="head_zhm_ygid">
+										<p>
+										<form style="display:none;" id="picuploadform"
+											class="secondcol" action="position.do?pic1" method="post"
+											enctype="multipart/form-data">
+											<input id="pic4upload" name="pic4upload" type="file"
+												onchange="javascript:$('#quedintupian').click()"
+												accept="image/*">
+										</form>
+										<form style="display:none;" id="image_submit"
+											action="position.do?pic2" method="post"
+											enctype="multipart/form-data">
+											<input type="hidden" name="srcPath" id="srcPath" value="" />
+											<input type="hidden" name="type" id="type" value="employeePhoto_" /> 
+											<input type="hidden" name="x1" id="x1" value="0" /> 
+											<input type="hidden" name="y1" id="y1" value="0" /> 
+											<input type="hidden" name="x2" id="x2" value="0" /> 
+											<input type="hidden" name="y2" id="y2" value="0" />
+										</form>
+										<button type="button" class="btn btn-primary btn-flat"
+											style="display:none;" id="sure_SC" onclick="uploadPic_cut()">确定</button>
+										<input id="quedintupian" style="display:none;" type="button"
+											value="确定" onclick="uploadPic()">
+										<button class="btn btn-primary btn-flat btn-rad"
+											onclick="javascript:$('#pic4upload').click()" id="xiugaiTX">修改头像</button>
+										<button class="btn btn-primary btn-flat btn-rad md-trigger"
+											data-modal="md-scale3">修改密码</button>
+										<button class="btn btn-primary btn-flat btn-rad">
+											<a href="systemLogin.do?logout" style="color:#FFFFFF">退出登录</a>
+										</button>
+
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row" style="margin-top:0">
+					<div class="col-sm-12">
+						<div class="block-flat">
+							<div class="row">
+								<div class="col-sm-3">
+									<div class="block">
+										<div class="header myheader"
+											style="background:#2494f2;color:#fff;cursor:pointer;"
+											onclick="showTheIframe(this,'jkpg')">
+											<p class="text-center"
+												style="color:#fff;font-size:20px;padding-top:10px">
+												<img src="images/greenchecked.png" width="22"
+													style="display:none"> 健康评估
+											</p>
+										</div>
+										<table class="mytable">
+											<tr>
+												<td colspan="2" style="padding:25px 0" id="jkpg_yiwancheng">本月已完成(0)</td>
+											</tr>
+											<tr>
+												<td style="padding:25px 0" id="jkpg_daipinggu">待评估(0)</td>
+												<td style="padding:25px 0" id="jkpg_daishenhe">待审核(0)</td>
+											</tr>
+										</table>
+									</div>
+								</div>
+								<div class="col-sm-6">
+									<div class="block">
+										<div class="header myheader"
+											style="background:#2494f2;color:#fff;cursor:pointer;"
+											onclick="showTheIframe(this,'fwgd')">
+											<p class="text-center"
+												style="color:#fff;font-size:20px;padding-top:10px">
+												<img src="images/greenchecked.png" width="22"> 服务工单
+											</p>
+										</div>
+										<table class="mytable">
+											<tr>
+												<td id="fwgd_yiwancheng_month">本月已完成(0)</td>
+												<td id="fwgd_weiwancheng_month">本月未完成(0)</td>
+											</tr>
+											<tr>
+												<td id="fwgd_yiwancheng_week">本周已完成(0)</td>
+												<td id="fwgd_weiwancheng_week">本周未完成(0)</td>
+											</tr>
+											<tr>
+												<td id="fwgd_yiwancheng_today">今日已完成(0)</td>
+												<td id="fwgd_weiwancheng_today">今日未完成(0)</td>
+											</tr>
+											<tr>
+												<td id="fwgd_daipaiban">待排班(0)</td>
+												<td id="fwgd_daishenhe">待审核(0)</td>
+											</tr>
+										</table>
+									</div>
+								</div>
+								<div class="col-sm-3">
+									<div class="block">
+										<div class="header myheader"
+											style="background:#2494f2;color:#fff;cursor:pointer;"
+											onclick="showTheIframe(this,'hljh')">
+											<p class="text-center"
+												style="color:#fff;font-size:20px;padding-top:10px">
+												<img src="images/greenchecked.png" width="22"
+													style="display:none"> 护理计划
+											</p>
+										</div>
+										<table class="mytable">
+											<tr>
+												<td style="padding:25px 0" id="hljh_daishenhe">待审核(0)</td>
+											</tr>
+											<tr>
+												<td style="padding:25px 0" id="hljh_shenhetongguo">审核通过(0)
+											</tr>
+										</table>
+
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row" style="margin-top:0">
+					<div class="col-sm-12">
+						<iframe id="biaoqianCenter" scrolling="auto" frameborder="0"
+							src="" style="width: 100%; height:1500px"> </iframe>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 主页面结束 -->
+
+
+	<!-- 密码修改模态框 -->
+	<div class="md-modal md-effect-1" id="md-scale3">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="block-flat">
+					<div class="header">
+						<h3>用户密码修改</h3>
+					</div>
+
+					<div class="content form-horizontal group-border-dashed">
+						<div class="form-group">
+							<label class="col-sm-4 control-label" style="text-align:left">原密码<span
+								style="color:red">*</span>
+							</label>
+							<div class="col-sm-8">
+								<input type="password" class="form-control" value=""
+									id="loginPWD">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-4 control-label"
+								style="text-align:left;margin-bottom:5px;">新密码<span
+								style="color:red">*</span>
+							</label>
+							<div class="col-sm-8">
+								<input type="password" class="form-control" value=""
+									style="margin-bottom:5px;" id="newPWD_1">
+							</div>
+							<label class="col-sm-4 control-label" style="text-align:left;">新密码再次输入<span
+								style="color:red">*</span>
+							</label>
+							<div class="col-sm-8">
+								<input type="password" class="form-control" value=""
+									id="newPWD_2">
+							</div>
+						</div>
+						<p style="text-align:center;color:red;display:block;"
+							id="changePwdTips">&nbsp;</p>
+						<div class="form-group" style="text-align: center;">
+							<button type="button" class="btn btn-success btn-rad"
+								onclick="xiugaipassword()">
+								<span><i class="fa fa-check" style="margin-right:5px;"></i>确定修改</span>
+							</button>
+							<button id="cancel_button" type="button"
+								class="btn btn-primary btn-rad md-close"
+								style="margin-left: 50px;" onclick="cancelmima();">
+								<span><i class="fa fa-times" style="margin-right:5px;"></i>取消</span>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 密码重置模态框结束 -->
+
+	<div class="md-overlay"></div>
+	<!-- Nifty Modal模态框的遮罩层-->
+
+	<script src="js/jquery.js"></script>
+	<script type="text/javascript"
+		src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+	<script type="text/javascript"
+		src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script type="text/javascript"
+		src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+	<script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
+	<script type="text/javascript"
+		src="js/jquery.nestable/jquery.nestable.js"></script>
+	<script type="text/javascript"
+		src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
+
+	<script type="text/javascript"
+		src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
+	<script src="js/bootstrap.slider/js/bootstrap-slider.js"
+		type="text/javascript"></script>
+	<script type="text/javascript"
+		src="js/jquery.gritter/js/jquery.gritter.js"></script>
+	<script type="text/javascript"
+		src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>
+	<script type="text/javascript" src="js/masonry.js"></script>
+	<script type="text/javascript" src="js/jquery.crop/js/jquery.Jcrop.js"></script>
+
+	<script type="text/javascript" src="js/jquery.md5.js"></script>
+	<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+	<script src="js/jquery.upload/js/jquery.iframe-transport.js"></script>
+	<!-- The basic File Upload plugin -->
+	<script src="js/jquery.upload/js/jquery.fileupload.js"></script>
+	<script type="text/javascript" src="js/behaviour/general.js"></script>
+	<script type="text/javascript" src="js/jquery.icheck/icheck.min.js"></script>
+	<script type="text/javascript">
+		function showTheIframe(par,flag){ //点击改变 √ 的颜色，其他变白	
+		$(par).parent().find('img').css("display","");
+		$(par).parent().parent().siblings().find('img').css("display","none");
+		
+     	 var url = "";
+     	 if(flag == "jkpg"){//健康评估
+     	 	url = "workbench.do?jkpgPage";
+     	 	document.getElementById("biaoqianCenter").src="<%=request.getContextPath()%>/"+url;
+     	 }
+     	 if(flag == "fwgd"){//服务工单
+     	 	url = "workbench.do?fwgdPage";
+     	 	document.getElementById("biaoqianCenter").src="<%=request.getContextPath()%>/"+url;
+     	 }
+     	 if(flag == "hljh"){//护理计划
+     	 	url = "workbench.do?hljhPage";
+     	 	document.getElementById("biaoqianCenter").src="<%=request.getContextPath()%>/"+url;
+     	 }
+	}
+	
+	 $(document).ready(function(){
+	 	  var userId_login = "<%=request.getAttribute("userId")%>";
+    	  if(userId_login == 1){//当前用户账号id
+    	  	  $("#head_name").html("超级管理员");
+    	  	  $("#xiugaiTX").hide();
+    	  }else{
+	 	  	 getLoginName();
+	 	  	 query_employee();
+	 	  }
+	 	  getHealthTongji();
+	 	  getgogndanTongji();
+	 	  getNursingTongji();
+	 	 
+	 	 //设置默认进入iframe页面为服务工单
+     	 var url = "workbench.do?fwgdPage";
+     	 document.getElementById("biaoqianCenter").src="<%=request.getContextPath()%>/"+url;
+     	 
+	 	  
+	 });
+	 
+	 //获取当前登陆员工
+	function getLoginName(){
+    	  var userId_login = "<%=request.getAttribute("userId")%>";
+    	  if(userId_login == 1){
+    	  		alert("当前非员工");
+    	  		return;
+    	  }
+		  var reqmsg="{'action':'QUERY_EMPLOYEE_LIST_REQUEST','page':{'pageno':'1','pagesize':'1'},'content':{\"userId\":"+userId_login+"}}";
+
+		  jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "employee.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  if (data.content != null) {
+            	    var siteIds = "";
+            	  	if(data.content.employeeList != null && data.content.employeeList.length == 1){
+            	  		if(data.content.employeeList[0] != null && data.content.employeeList[0] != ""){
+            	  			$("#userId_loginId").val(data.content.employeeList[0].id);
+            	  		}
+            	  	}
+				}
+			}else if(data.des=="failure"){
+                 alert("查询当前登陆员工ID失败");
+            }
+          },
+          error:function(){
+	           //alert("error");
+          }
+     	  });
+	}
+	
+	 //获取员工基本信息
+	 function query_employee(){
+	 	  var id = $("#userId_loginId").val();
+		  var reqmsg="{'action':'QUERY_EMPLOYEE_INFO_REQUEST','content':{\"siteListShow\":\"true\",\"dataDicListShow\":\"true\",\"id\":"+id+"}}";
+		
+		  jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "employee.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  if (data.content != null) {
+            	  	 	if(data.content.mainPhoto != null && data.content.mainPhoto != ""){
+							$("#touxiangId").attr("src",data.content.mainPhoto + "?random=" + Math.random());//头像
+							$("#hide_employeeTupian").val(data.content.mainPhoto);//头像
+						}
+			
+            	  	 	if(data.content.name != null && data.content.name != ""){
+            	  	  		$("#head_name").html(data.content.name);
+            	  	  	}
+            	  	  	
+            	  	  	//职称
+						var htmlZC = "";
+ 						if(data.content.dataDicList != null && data.content.dataDicList.length > 0){
+							jQuery.each(data.content.dataDicList, function(i, item) {
+								if(item != null){
+									htmlZC += item.name + ",";
+								}
+							});
+							if(htmlZC != ""){
+								htmlZC = htmlZC.substr(0,htmlZC.length-1);
+							}
+						}
+            	  	  	var rn = data.content.roleNames;
+ 			
+ 						if(rn == null || rn == ""){
+ 							rn="未知角色";
+ 						}
+ 						if(htmlZC == null || htmlZC == ""){
+ 							htmlZC="未知职称";
+ 						}
+ 						$("#head_juesezhicheng").html(rn+"/"+htmlZC);
+            	  	  	 
+            	  	  	//站点
+ 						var htmlSite = "";
+ 						if(data.content.siteList != null && data.content.siteList.length > 0){
+							jQuery.each(data.content.siteList, function(i, item) {
+								htmlSite += item.name + ",";
+							});
+							if(htmlSite != ""){
+								htmlSite = htmlSite.substr(0,htmlSite.length-1);
+							}
+						}
+            	  	  	if(htmlSite != ""){
+ 							$("#head_zhandian").html(htmlSite);
+ 						}else{
+ 							$("#head_zhandian").html("未知站点");
+ 						}
+ 						
+ 						var zh=data.content.zhanghaoId;
+ 						var idn=data.content.indexNum;
+ 						if(zh == null || zh == ""){
+ 							zh="未知账户";
+ 						}
+ 						if(idn == null || idn == ""){
+ 							idn="未知员工编号";
+ 						}
+ 						$("#head_zhm_ygid").html(zh+"/"+idn);
+ 						
+            	  }
+              }else if(data.des=="failure"){
+                 alert("查询当前登陆员工信息失败");
+              }
+          },
+          error:function(){
+	           //alert("error");
+          }
+     	  });
+	 }
+	 
+
+	//上传图片////////////////////////////////////////////////////////////////
+	function uploadPic() {
+		var currPic = $("#pic4upload").val();
+		if (currPic != null && currPic != "") {
+			var ajax_option = {
+				async:false,
+				data:{},
+				success:function(data) {
+					if (data != null && data != "") {
+						$("#srcPath").val(data); 
+						//$("#touxiangId2").attr("src", data);  //将当前图片设为上传的图片
+						openImagejsp(data);
+					} else {
+						alert("图片上传失败");
+					}
+				}
+			};
+			$("#picuploadform").ajaxSubmit(ajax_option);
+		} else {
+			//alert("请选择图片");
+		}
+	}
+	function openImagejsp(data){
+		window.open ("view/imageCut/jquery-image-cut/image.jsp?"+data, "newwindow", "height=550, width=1100, top=200, left=450, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no");
+	}
+	 //上传裁剪后图片
+	function uploadPic_cut() {
+			var ajax_option = {
+				async:false,
+				data:{},
+				success:function(data) {
+					if (data != null && data != "") {
+						var result = JSON.parse(data);
+						$("#hide_employeeTupian").val(result.base64);
+						$("#touxiangId").attr("src", result.url);  //将当前图片设为上传的图片
+						baocuntouxiang();
+					} else {
+						alert("图片上传失败");
+					}
+				}
+			};
+			$("#image_submit").ajaxSubmit(ajax_option);
+	}
+	////////////////////////////////////////////////////////////////
+	
+	//修改头像////////////////////////////////////////////////////////////////
+	function baocuntouxiang(){
+		var touxiangSrc=$("#hide_employeeTupian").val();//头像
+		var reqmsg="{'action':'ADD_EMPLOYEE_INFO_REQUEST','content':{";
+		
+		if (touxiangSrc != null && touxiangSrc != "") {
+	       	reqmsg += "\"mainPhoto\":\"" + touxiangSrc + "\",";
+		}
+		var id = $("#userId_loginId").val();
+		reqmsg+="\"id\":"+id+",";
+	
+		reqmsg += "}}";
+	
+		jQuery.ajax({
+	          type : "post",
+	          async:true,
+	          url : "daeEmployee.do?handler",
+	          dataType : "json",
+	          data: {
+	               "reqmsg":reqmsg
+	          },
+	          success : function(data){
+	              if(data.des=="success"){
+	              	 alert("修改头像成功");
+	              }else if(data.des=="failure"){
+	                 alert("修改头像失败");
+	              }else{
+	              	 alert(data.des);
+	              }
+	          },
+	          error:function(){
+		           alert("error");
+	          }
+	     });
+	}
+	////////////////////////////////////////////////////////////////
+
+	//修改密码////////////////////////////////////////////////////////////////
+	function xiugaipassword(){
+		var loginPWD = $("#loginPWD")[0].value; //原密码
+		var newPWD_1 = $("#newPWD_1")[0].value; //新密码
+		var newPWD_2 = $("#newPWD_2")[0].value; //第二次输入的新密码
+			
+		if (loginPWD.length == 0 || newPWD_1.length == 0  || newPWD_2.length == 0 ) {
+			document.getElementById('changePwdTips').innerHTML = '三个框都是必填！';
+		} else if (newPWD_1 != newPWD_2) {
+			document.getElementById('changePwdTips').innerHTML = '两次新密码输入不一致！';
+		} else {
+			document.getElementById('changePwdTips').innerHTML = '&nbsp;';
+			loginPWD = $.md5(loginPWD);
+			newPWD_1 = $.md5(newPWD_1);
+			changePwd(loginPWD,newPWD_1);
+		}
+	}
+	function changePwd(loginPWD, newPWD_1) {
+		$.ajax({
+			type : "post",
+			async : true,
+			url : "modifyUserInfo.do?modifyUserPwd",
+			dataType : "json",
+			data: {
+				"loginUserPwd":loginPWD,
+				"newUserPwd":newPWD_1
+			},
+			success : function(data) {
+				if (data.result == "success") {
+					alert(data.des);
+					$("#loginPWD")[0].value = "";
+					$("#newPWD_1")[0].value = "";
+					$("#newPWD_2")[0].value = "";
+					$("#changePwdTips").html("&nbsp;");
+					$("#cancel_button").click();
+				} else if(data.result == "failure") {
+					alert(data.des);  //原密码错误，继续修改
+				}
+			},
+			error : function() {
+				alert("修改密码失败！");
+			}
+		});
+	}
+	function cancelmima(){
+	 $("#loginPWD").val("");
+	 $("#newPWD_1").val("");
+	 $("#newPWD_2").val("");
+	 $("#changePwdTips").html("&nbsp;");
+	}
+	////////////////////////////////////////////////////////////////
+	
+	//获取本月第一天
+	function getthisMonthFirstDay(){
+		var date = new Date();
+	    var month = date.getMonth() + 1;
+	    if (month >= 1 && month <= 9) {
+	        month = "0" + month;
+	    }
+	    return date.getFullYear() + "-" + month + "-" + "01";
+	}
+	//获取本月最后一天
+	function getthisMonthLastDay(){
+		var date = new Date();
+	    var month = date.getMonth() + 1;
+		var nextMonthFirstDay = new Date(date.getFullYear(),month,1);
+	 	var oneDay = 1000*60*60*24;
+	 	var date2 = new Date(nextMonthFirstDay-oneDay);
+		var strDate = date2.getDate();
+	    return date.getFullYear() + "-" + month + "-" + strDate;
+	}
+	
+	//查询健康评估统计信息
+	function getHealthTongji(){
+		var stratTime = getthisMonthFirstDay();
+		var endTime = getthisMonthLastDay();
+		
+	    var url1 = "<%=request.getContextPath()%>/" + "assessmentTask.do?main&stratTime=" + stratTime + "&endTime=" + endTime + "&taskStatus=3";
+	    var url2 = "<%=request.getContextPath()%>/" + "assessmentTask.do?main&taskStatus=1";
+	    var url3 = "<%=request.getContextPath()%>/" + "assessmentTask.do?main&taskStatus=2";
+	    	 	
+		jQuery.ajax({
+	          type : "post",
+	          async:true,
+	          url : "assessmentTask.do?handlerCount",
+	          dataType : "json",
+	          data: {},	
+	          success : function(data){
+	              if(data.des=="success"){
+	            	  $("#jkpg_yiwancheng").html("<a href=\"" + url1 + "\" style=\"color:black;\">本月已完成(" + data.yiWanCheng + ")</a>");
+	            	  $("#jkpg_daipinggu").html("<a href=\"" + url2 + "\" style=\"color:black;\">待评估(" + data.daiPingGu + ")</a>");
+	            	  $("#jkpg_daishenhe").html("<a href=\"" + url3 + "\" style=\"color:black;\">待审核(" + data.daiShenHe + ")</a>");
+	              }else if(data.des=="failure"){
+	                 alert("查询健康评估统计信息失败");
+	              }
+	          },
+	          error:function(){
+		          // alert("error");
+	          }
+	     });
+	}
+	//查询服务工单统计信息
+	function getgogndanTongji(){
+	    var url1 = "<%=request.getContextPath()%>/" + "serviceTask.do?main&datetype=month&status=6,7";
+	    var url2 = "<%=request.getContextPath()%>/" + "serviceTask.do?main&datetype=month&status=4,5";
+	    var url3 = "<%=request.getContextPath()%>/" + "serviceTask.do?main&datetype=week&status=6,7";
+	    var url4 = "<%=request.getContextPath()%>/" + "serviceTask.do?main&datetype=week&status=4,5";
+	    var url5 = "<%=request.getContextPath()%>/" + "serviceTask.do?main&datetype=day&status=6,7";
+	    var url6 = "<%=request.getContextPath()%>/" + "serviceTask.do?main&datetype=day&status=4,5";
+	    var url7 = "<%=request.getContextPath()%>/" + "serviceTask.do?main&status=2";
+	    var url8 = "<%=request.getContextPath()%>/" + "serviceTask.do?main&status=3";
+	    	 	
+		jQuery.ajax({
+	          type : "post",
+	          async:true,
+	          url : "serviceTask.do?handlerCount",
+	          dataType : "json",
+	          data: {},	
+	          success : function(data){
+	              if(data.des=="success"){
+	            	  $("#fwgd_yiwancheng_month").html("<a href=\"" + url1 + "\" style=\"color:black;\">本月已完成(" + data.yueYiWanCheng + ")</a>");
+	            	  $("#fwgd_weiwancheng_month").html("<a href=\"" + url2 + "\" style=\"color:black;\">本月未完成(" + data.yueWeiWanCheng + ")</a>");
+	            	  $("#fwgd_yiwancheng_week").html("<a href=\"" + url3 + "\" style=\"color:black;\">本周已完成(" + data.zhouYiWanCheng + ")</a>");
+	            	  $("#fwgd_weiwancheng_week").html("<a href=\"" + url4 + "\" style=\"color:black;\">本周未完成(" + data.zhouWeiWanCheng + ")</a>");
+	            	  $("#fwgd_yiwancheng_today").html("<a href=\"" + url5 + "\" style=\"color:black;\">今日已完成(" + data.riYiWanCheng + ")</a>");
+	            	  $("#fwgd_weiwancheng_today").html("<a href=\"" + url6 + "\" style=\"color:black;\">今日未完成(" + data.riWeiWanCheng + ")</a>");
+	            	  $("#fwgd_daipaiban").html("<a href=\"" + url7 + "\" style=\"color:black;\">待排班(" + data.daipaiBan + ")</a>");
+	            	  $("#fwgd_daishenhe").html("<a href=\"" + url8 + "\" style=\"color:black;\">待审核(" + data.daiShenHe + ")</a>");
+	              }else if(data.des=="failure"){
+	                 alert("查询服务工单统计信息失败");
+	              }
+	          },
+	          error:function(){
+		           //alert("error");
+	          }
+	     });
+	}
+	//查询护理计划统计信息
+	function getNursingTongji(){
+	    var url1 = "<%=request.getContextPath()%>/" + "nursingPlan.do?main&status=1";
+	    var url2 = "<%=request.getContextPath()%>/" + "nursingPlan.do?main&status=2";
+	    	 	
+		jQuery.ajax({
+	          type : "post",
+	          async:true,
+	          url : "nursingPlan.do?handlerCount",
+	          dataType : "json",
+	          data: {},	
+	          success : function(data){
+	              if(data.des=="success"){
+	            	  $("#hljh_daishenhe").html("<a href=\"" + url1 + "\" style=\"color:black;\">待审核(" + data.daiShenHe + ")</a>");
+	            	  $("#hljh_shenhetongguo").html("<a href=\"" + url2 + "\" style=\"color:black;\">审核通过(" + data.yiShehHe + ")</a>");
+	              }else if(data.des=="failure"){
+	                 alert("查询护理计划统计信息失败");
+	              }
+	          },
+	          error:function(){
+		          // alert("error");
+	          }
+	     });
+	}
+
+	function reset() {
+  		var frame = document.getElementById("biaoqianCenter");
+  		var a = $('#biaoqianCenter').contents().find('#getHeight').offset().top;
+  		frame.style.height = (a) + "px";
+	}
+	</script>
+
+	<script src="js/behaviour/voice-commands.js"></script>
+	<script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
+	<script type="text/javascript"
+		src="js/jquery.flot/jquery.flot.resize.js"></script>
+	<script type="text/javascript"
+		src="js/jquery.flot/jquery.flot.labels.js"></script>
+	<script type="text/javascript" src="js/jquery.form.js"></script>
+</body>
+</html>

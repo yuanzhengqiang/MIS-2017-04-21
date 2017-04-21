@@ -1,0 +1,5 @@
+体检系统：
+106.14.112.25
+linux登陆：root/Tijian123
+数据库：root/123tijian
+数据库远程：tijian/tijian123

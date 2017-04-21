@@ -1,0 +1,164 @@
+package com.framework.system.common.handler.userGroup;
+
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.common.entity.userGroup.UserGroupEntity;
+import com.framework.system.common.pack.userGroup.UserGroupPack;
+import com.framework.system.common.parse.userGroup.UserGroupParse;
+import com.framework.system.common.service.userGroup.UserGroupService;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.db.query.OrderVO;
+
+/**
+ * @Title: Handler
+ * @Description: 用户组业务处理器
+ * @author feng.gu
+ * @date 2015-12-02 09:20:57
+ * @version V1.0
+ * 
+ */
+public class UserGroupHandler extends BaseHandler {
+	private static Logger logger = Logger.getLogger(UserGroupService.class);
+	/**
+	 * 解析器
+	 */
+	private UserGroupParse userGroupParse = UserGroupParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private UserGroupService userGroupService = UserGroupService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private UserGroupPack userGroupPack = UserGroupPack.getInstance();
+
+	private static UserGroupHandler userGroupHandler;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static UserGroupHandler getInstance() {
+		if (userGroupHandler == null) {
+			userGroupHandler = new UserGroupHandler();
+		}
+		return userGroupHandler;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type, String command, String reqStr,
+			HttpServletRequest request, HttpServletResponse response) {
+		String resultStr = "";
+		try {
+			// 解析
+			Map<String, Object> parseMap = userGroupParse.parse(type, command,
+					reqStr, request);
+			String action = (String) parseMap.get("action");
+			UserGroupEntity userGroup = (UserGroupEntity) parseMap
+					.get("userGroup");
+			List<UserGroupEntity> userGroupList = (List<UserGroupEntity>) parseMap
+					.get("userGroupList");
+			Integer id = (Integer) parseMap.get("id");
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap
+					.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+
+			Boolean parentUserGroupShow = (Boolean) parseMap
+					.get("parentUserGroupShow");
+			Boolean delParentUserGroup = (Boolean) parseMap
+					.get("delParentUserGroup");
+			Boolean delParentUserGroupList = (Boolean) parseMap
+					.get("delParentUserGroupList");
+			Boolean childUserGroupListShow = (Boolean) parseMap
+					.get("childUserGroupListShow");
+			Boolean delChildUserGroupList = (Boolean) parseMap
+					.get("delChildUserGroupList");
+			Boolean createUserShow = (Boolean) parseMap.get("createUserShow");
+			Boolean delCreateUser = (Boolean) parseMap.get("delCreateUser");
+			Boolean updateUserShow = (Boolean) parseMap.get("updateUserShow");
+			Boolean delUpdateUser = (Boolean) parseMap.get("delUpdateUser");
+			Boolean userListShow = (Boolean) parseMap.get("userListShow");
+			Boolean delUserGroupUserList = (Boolean) parseMap
+					.get("delUserGroupUserList");
+
+			// 业务处理
+			Object result = null;
+			if ("save".equals(action)) {
+				result = userGroupService.save(userGroup);
+			} else if ("saveList".equals(action)) {
+				result = userGroupService.saveList(userGroupList);
+			} else if ("getById".equals(action)) {
+				result = userGroupService.getById(id, parentUserGroupShow,
+						childUserGroupListShow, createUserShow, updateUserShow,
+						userListShow);
+			} else if ("getListByCondition".equals(action)) {
+				result = userGroupService.getListByCondition(queryMap,
+						orderList, pageno, pagesize, parentUserGroupShow,
+						childUserGroupListShow, createUserShow, updateUserShow,
+						userListShow);
+			} else if ("del".equals(action)) {
+				result = userGroupService.del(id, delParentUserGroup,
+						delChildUserGroupList, delCreateUser, delUpdateUser,
+						delUserGroupUserList);
+			} else if ("delList".equals(action)) {
+				result = userGroupService.delList(queryMap,
+						delParentUserGroupList, delChildUserGroupList,
+						delCreateUser, delUpdateUser, delUserGroupUserList);
+			}
+			// 封装
+			Map<String, Object> packMap = userGroupPack.pack(type, action,
+					result, userGroup);
+			String actionBack = (String) packMap.get("action");
+			String resultBack = (String) packMap.get("result");
+			String desBack = (String) packMap.get("des");
+			JSONObject pageBack = (JSONObject) packMap.get("page");
+			JSONObject contentBack = (JSONObject) packMap.get("content");
+
+			JSONObject repJson = new JSONObject();
+			if (actionBack != null && !"".equals(actionBack)) {
+				repJson.put("action", actionBack);
+			}
+			if (resultBack != null && !"".equals(resultBack)) {
+				repJson.put("result", resultBack);
+			}
+			if (desBack != null && !"".equals(desBack)) {
+				repJson.put("des", desBack);
+			}
+			if (pageBack != null) {
+				repJson.put("page", pageBack);
+			}
+			if (contentBack != null && !"".equals(contentBack)) {
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息：" + repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

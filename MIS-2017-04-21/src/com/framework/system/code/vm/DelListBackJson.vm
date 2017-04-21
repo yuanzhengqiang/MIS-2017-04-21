@@ -1,0 +1,4 @@
+{"action":"DEL_${requestMap.entityInfo.tableUpperName}_LIST_REQUEST",
+ "result":"100",
+ "des":"success"
+}

@@ -1,0 +1,304 @@
+package fsk.service;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.common.service.module.ModuleService;
+import com.framework.system.common.service.privilege.PrivilegeService;
+import com.framework.system.common.service.userRole.UserRoleService;
+
+
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.older.OlderEntity;
+import fsk.entity.site.SiteEntity;
+import fsk.entity.siteEmployee.SiteEmployeeEntity;
+import fsk.entity.siteServiceArea.SiteServiceAreaEntity;
+import fsk.init.SystemInit;
+import fsk.service.employee.EmployeeService;
+import fsk.service.older.OlderService;
+import fsk.service.site.SiteService;
+import fsk.service.siteEmployee.SiteEmployeeService;
+import fsk.service.siteServiceArea.SiteServiceAreaService;
+
+/**
+ * @Title: Service
+ * @Description: 业务服务类
+ * @author feng.gu
+ * @date 2015-11-20 10:50:06
+ * @version V1.0
+ * 
+ */
+public class BusinessService {
+	private static Logger logger = Logger.getLogger(BusinessService.class);
+	private static BusinessService systemService;
+	private UserRoleService userRoleService = UserRoleService.getInstance();
+	private PrivilegeService privilegeService = PrivilegeService.getInstance();
+	private ModuleService moduleService = ModuleService.getInstance();
+	private OlderService olderService = OlderService.getInstance();
+	private SiteService siteService = SiteService.getInstance();
+	private EmployeeService employeeService = EmployeeService.getInstance();
+	private static SiteServiceAreaService siteServiceAreaService = SiteServiceAreaService
+			.getInstance();
+	private static SiteEmployeeService siteEmployeeService = SiteEmployeeService
+			.getInstance();
+	private static SimpleDateFormat formater = new SimpleDateFormat("yyyyMMddHHmmss");
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static BusinessService getInstance() {
+		if (systemService == null) {
+			systemService = new BusinessService();
+		}
+		return systemService;
+	}
+
+	/**
+	 * 根据userId查询用户的员工id、站点id、老人id 并放入session中
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	public void getUserBusinessId(Integer userId, HttpServletRequest request) {
+		//老人ID
+		Integer olderId = 0;
+		//员工自己ID
+		Integer employeeId = 0;		
+		//所属站点ID集合
+		String siteIds = "";
+		//所属站点老人ID集合
+		String siteOlderIds = "";
+		//所属站点员工ID集合
+		String siteEmployeeIds = "";
+		//所属组员工ID集合
+		String groupEmployeeIds = "";
+		try {		
+			// 查询是否老人
+			if (true) {
+				Map<String, Object> queryMap = new HashMap<String, Object>();
+				queryMap.put("userId", userId);
+				List<OlderEntity> list = olderService.getListByCondition(queryMap);
+				if (list != null && list.size() > 0) {
+					OlderEntity older = list.get(0);
+					if (older.getId() != null) {
+						olderId = older.getId();
+						//本站会员
+						if(older.getServiceStreetId()!=null&&older.getServiceStreetId().intValue()>0){
+							//自己站点
+							siteIds = getStiteIdsByOlderStreetId(older.getServiceStreetId());
+							if(siteIds!=null&&!"".equals(siteIds)){
+								siteOlderIds = getOlderIds(siteIds);
+							}
+						}						
+						
+					}
+				}
+			}
+			// 查询是否员工
+			if (true) {
+				Map<String, Object> queryMap = new HashMap<String, Object>();
+				queryMap.put("userId", userId);
+				List<EmployeeEntity> list = employeeService.getListByCondition(queryMap);
+				if (list != null && list.size() > 0) {
+					EmployeeEntity employee = list.get(0);
+					if (employee.getId() != null) {
+						//员工自己
+						employeeId = employee.getId();					
+						//所属站点集合
+						siteIds = getStiteIdsEmployeeById(employee.getId());
+						if(siteIds!=null&&!"".equals(siteIds)){
+							//本站员工
+							siteEmployeeIds = getEmployeeIds(siteIds);
+							//本组员工(包括组长)
+							groupEmployeeIds = getGroupEmployeeIdsEmployeeById(employee.getId(),employee.getLeaderEmployeeId());							
+							//本站会员
+							siteOlderIds = getOlderIds(siteIds);
+						}									
+					}					
+				}
+			}
+
+		} catch (Exception e) {
+			logger.error(e);
+		}
+		//老人ID
+//		if(olderId!=null&&olderId.intValue()>0){
+			request.getSession().setAttribute("olderId",olderId);
+//		}
+		//员工自己ID
+//		if(employeeId!=null&&employeeId.intValue()>0){
+			request.getSession().setAttribute("employeeId",employeeId);
+//		}		
+		//所属站点ID集合
+//		if(siteIds!=null&&!"".equals(siteIds)){			
+			request.getSession().setAttribute("siteIds",siteIds);
+//		}
+		//所属站点老人ID集合
+//		if(siteOlderIds!=null&&!"".equals(siteOlderIds)){
+			request.getSession().setAttribute("siteOlderIds",siteOlderIds);
+//		}
+		//所属站点员工ID集合
+//		if(siteEmployeeIds!=null&&!"".equals(siteEmployeeIds)){
+			request.getSession().setAttribute("siteEmployeeIds",siteEmployeeIds);
+//		}
+		//所属组员工ID集合
+//		if(groupEmployeeIds!=null&&!"".equals(groupEmployeeIds)){
+			request.getSession().setAttribute("groupEmployeeIds",groupEmployeeIds);
+//		}
+	}
+	
+	/*
+	 * 根据员工id查询本组员工id集合
+	 */
+	public String getGroupEmployeeIdsEmployeeById(Integer employeeId,Integer leaderEmployeeId) {
+		String groupEmployeeIds = ""+employeeId+",";
+		//1.组长是自己的组
+		if(employeeId!=null&&employeeId.intValue()>0){
+			Map<String, Object> queryMap = new HashMap<String, Object>();
+			queryMap.put("leaderEmployeeId", employeeId);
+			List<EmployeeEntity> employeeList = employeeService
+					.getListByCondition(queryMap);
+			if (employeeList != null && employeeList.size() > 0) {
+				for (EmployeeEntity entity : employeeList) {
+					groupEmployeeIds = groupEmployeeIds + entity.getId() + ",";
+				}
+				
+			}
+		}		
+		//2.同一组长的组员
+		if(leaderEmployeeId!=null&&leaderEmployeeId.intValue()>0){
+			Map<String, Object> queryMap = new HashMap<String, Object>();
+			queryMap.put("leaderEmployeeId", leaderEmployeeId);
+			List<EmployeeEntity> employeeList = employeeService
+					.getListByCondition(queryMap);
+			if (employeeList != null && employeeList.size() > 0) {
+				for (EmployeeEntity entity : employeeList) {
+					groupEmployeeIds = groupEmployeeIds + entity.getId() + ",";
+				}
+				
+			}
+		}
+		
+		if(groupEmployeeIds!=null&&!"".equals(groupEmployeeIds)){
+			groupEmployeeIds = groupEmployeeIds.substring(0, groupEmployeeIds.length() - 1);
+		}
+		return groupEmployeeIds;
+	}	
+	
+	/*
+	 * 根据员工id查询所属站点id集合
+	 */
+	public String getStiteIdsEmployeeById(Integer employeeId) {
+		String siteIds = "";
+		Map<String, Object> queryMapsite = new HashMap<String, Object>();
+		queryMapsite.put("employeeId", employeeId);
+		List<SiteEmployeeEntity> siteEmployeeList = siteEmployeeService
+				.getListByCondition(queryMapsite);
+		if (siteEmployeeList != null && siteEmployeeList.size() > 0) {
+			for (SiteEmployeeEntity entity : siteEmployeeList) {
+				siteIds = siteIds + entity.getSiteId() + ",";
+			}
+			
+		}
+		//查询所属站点是站长
+		Map<String, Object> queryMap = new HashMap<String, Object>();
+		queryMap.put("masterEmployeeId", employeeId);
+		List<SiteEntity> siteList = siteService.getListByCondition(queryMap);
+		if (siteList != null && siteList.size() > 0) {
+			for (SiteEntity entity : siteList) {
+				siteIds = siteIds + entity.getId() + ",";
+			}
+			
+		}
+		
+		
+		if(siteIds!=null&&!"".equals(siteIds)){
+			siteIds = siteIds.substring(0, siteIds.length() - 1);
+		}
+		return siteIds;
+	}	
+	/*
+	 * 根据老人街道id查询所属站点集合
+	 */
+	public String getStiteIdsByOlderStreetId(Integer olderStreetId) {
+		String siteIds = "";
+		Map<String, Object> queryMapsite = new HashMap<String, Object>();
+		queryMapsite.put("serviceStreetId", olderStreetId);
+		List<SiteServiceAreaEntity> siteServiceAreaList = siteServiceAreaService
+				.getListByCondition(queryMapsite);
+		if (siteServiceAreaList != null && siteServiceAreaList.size() > 0) {
+			for (SiteServiceAreaEntity entity : siteServiceAreaList) {
+				siteIds = siteIds + entity.getSiteId() + ",";
+			}
+		}
+		if(siteIds!=null&&!"".equals(siteIds)){
+			siteIds = siteIds.substring(0, siteIds.length() - 1);
+		}	
+		return siteIds;
+	}	
+	
+
+	// 返回老人的IDs,英文逗号隔开
+	public String getOlderIds(String siteIds) {
+		String olderIds = "";
+		Map<String, Object> queryMapsite = new HashMap<String, Object>();
+		queryMapsite.put("siteId_in", siteIds);
+		List<SiteServiceAreaEntity> siteServiceAreaList = siteServiceAreaService
+				.getListByCondition(queryMapsite);
+		String ids = "";
+		if (siteServiceAreaList != null && siteServiceAreaList.size() > 0) {
+			for (SiteServiceAreaEntity entity : siteServiceAreaList) {
+				ids = ids + entity.getServiceStreetId() + ",";
+			}
+			if (!"".equals(ids)) {
+				ids = ids.replaceAll(",,", ",");
+				ids = ids.substring(0, ids.length() - 1);
+				Map<String, Object> queryMapOlder = new HashMap<String, Object>();
+				queryMapOlder.put("serviceStreetId_in", ids);
+				List<OlderEntity> olderList = olderService
+						.getListByCondition(queryMapOlder);
+				if (olderList != null && olderList.size() > 0) {
+					for (OlderEntity older : olderList) {
+						olderIds = olderIds + older.getId() + ",";
+					}
+					if (!"".equals(olderIds)) {
+						olderIds = olderIds.replaceAll(",,", ",");
+						olderIds = olderIds.substring(0, olderIds.length() - 1);
+					}
+				}
+			}
+		}
+		return olderIds;
+	}
+
+	// 返回员工的IDs,英文逗号隔开
+	public String getEmployeeIds(String siteIds) {
+		String employeeIds = "";
+		Map<String, Object> queryMapsite = new HashMap<String, Object>();
+		queryMapsite.put("siteId_in", siteIds);
+		List<SiteEmployeeEntity> siteEmployeeList = siteEmployeeService
+				.getListByCondition(queryMapsite);
+		if (siteEmployeeList != null && siteEmployeeList.size() > 0) {
+			for (SiteEmployeeEntity entity : siteEmployeeList) {
+				employeeIds = employeeIds + entity.getEmployeeId() + ",";
+			}
+			if (!"".equals(employeeIds)) {
+				employeeIds = employeeIds.replaceAll(",,", ",");
+				employeeIds = employeeIds
+						.substring(0, employeeIds.length() - 1);
+			}
+		}
+		return employeeIds;
+	}
+	public void setCache(String lastTime){
+		SystemInit.lastQueryMedTimeMap.put("lastTime", lastTime);
+	}
+}

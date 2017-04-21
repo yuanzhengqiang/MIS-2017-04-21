@@ -1,0 +1,241 @@
+package fsk.pack.site;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import fsk.entity.site.SiteEntity;
+import fsk.entity.siteServiceArea.SiteServiceAreaEntity;
+import fsk.service.siteServiceArea.SiteServiceAreaService;
+
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.OrderVO;
+
+/**
+ * @Title: Pack
+ * @Description: 站点信息表封装器
+ * @author feng.gu
+ * @date 2016-07-12 13:51:03
+ * @version V1.0
+ * 
+ */
+public class SitePack {
+	private static Logger logger = Logger.getLogger(SitePack.class);
+	private static SitePack sitePack;
+	private static SiteServiceAreaService siteServiceAreaService=SiteServiceAreaService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static SitePack getInstance() {
+		if (sitePack == null) {
+			sitePack = new SitePack();
+		}
+		return sitePack;
+	}
+
+	public Map<String, Object> pack(int type, String action, Object request,
+			Object entity) {
+		// 定义返回参数
+		Map<String, Object> packMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			packMap = this.packByJson(action, request, entity);
+		} else if (type == 2) {
+			// xml
+			packMap = this.packByXml(action, request, entity);
+		}
+		return packMap;
+	}
+
+	private Map<String, Object> packByJson(String action, Object request,
+			Object entity) {
+		// 定义返回参数
+		Map<String, Object> packMap = new HashMap<String, Object>();
+		String actionBack = null;
+		String resultBack = null;
+		String desBack = null;
+		JSONObject pageBack = null;
+		JSONObject contentBack = null;
+		try {
+			if ("save".equals(action)) {
+				actionBack = "ADD_SITE_INFO_RESPONSE";
+				if (request.equals(true)) {
+					resultBack = "100";
+					desBack = "success";
+				} else if (request.equals(false)) {
+					resultBack = "200";
+					desBack = "failure";
+				}
+				SiteEntity site = (SiteEntity) entity;
+				if (site != null) {
+					contentBack = new JSONObject();
+					contentBack.put("id", site.getId());
+
+					if (site.getMasterEmployee() != null) {
+						contentBack.put("masterEmployeeId", site
+								.getMasterEmployee().getId());
+					}
+					if (site.getProvince() != null) {
+						contentBack.put("provinceId", site.getProvince()
+								.getId());
+					}
+					if (site.getCity() != null) {
+						contentBack.put("cityId", site.getCity().getId());
+					}
+					if (site.getArea() != null) {
+						contentBack.put("areaId", site.getArea().getId());
+					}
+					if (site.getStreet() != null) {
+						contentBack.put("streetId", site.getStreet().getId());
+					}
+				}
+			} else if ("getById".equals(action)) {
+				actionBack = "QUERY_SITE_INFO_RESPONSE";
+				resultBack = "100";
+				desBack = "success";
+				SiteEntity site = (SiteEntity) request;
+				if (site != null) {
+					contentBack = JSONObject.fromObject(site);
+					if (site.getMasterEmployee() != null) {
+						contentBack
+								.put("masterEmployee", JSONObject
+										.fromObject(site.getMasterEmployee()));
+					}
+					if (site.getProvince() != null) {
+						contentBack.put("province",
+								JSONObject.fromObject(site.getProvince()));
+					}
+					if (site.getCity() != null) {
+						contentBack.put("city",
+								JSONObject.fromObject(site.getCity()));
+					}
+					if (site.getArea() != null) {
+						contentBack.put("area",
+								JSONObject.fromObject(site.getArea()));
+					}
+					if (site.getStreet() != null) {
+						contentBack.put("street",
+								JSONObject.fromObject(site.getStreet()));
+					}
+					if (site.getEmployeeList() != null) {
+						contentBack.put("employeeList",
+								JSONArray.fromObject(site.getEmployeeList()));
+					}
+					if (site.getDataDicList() != null) {
+						contentBack.put("dataDicList",
+								JSONArray.fromObject(site.getDataDicList()));
+					}
+				}
+			} else if ("getListByCondition".equals(action)) {
+				actionBack = "QUERY_SITE_LIST_RESPONSE";
+				resultBack = "100";
+				desBack = "success";
+				PageList pageList = (PageList) request;
+				if (pageList != null && pageList.getResultList() != null
+						&& pageList.getResultList().size() > 0) {
+					contentBack = new JSONObject();
+					pageBack = new JSONObject();
+					JSONArray list = JSONArray.fromObject(pageList
+							.getResultList());
+					
+					/*
+					 * 加入服务站点信息
+					 * */
+					if(list!=null&&list.size()>0){
+						for(int i =0;i<list.size();i++){
+						String siteName = "";
+						JSONObject sitelistinfo = (JSONObject)list.getJSONObject(i);
+						Integer siteIdTemp = sitelistinfo.getInt("id");
+						List<OrderVO> orderList = new ArrayList<OrderVO>();
+						Map<String,Object> queryMap = new HashMap<String,Object>();
+						queryMap.put("siteId",siteIdTemp);
+						List<SiteServiceAreaEntity>  siteServiceAreaList =siteServiceAreaService.getListByCondition(queryMap,orderList,true,true);
+						if(siteServiceAreaList!=null&&siteServiceAreaList.size()>0){
+							for(int j =0;j<siteServiceAreaList.size();j++){
+							SiteServiceAreaEntity entuty = (SiteServiceAreaEntity)siteServiceAreaList.get(j);
+							DataDicEntity street = entuty.getServiceStreet();
+							if(j<siteServiceAreaList.size()-1){
+							try {
+								siteName = siteName+street.getName()+",";
+							} catch (Exception e) {
+							}
+							}else{
+								try {
+									siteName = siteName+street.getName();
+								} catch (Exception e) {
+								}
+							}
+							}
+						}
+						sitelistinfo.put("siteStreetName", siteName);
+					}
+					}
+					
+					//
+					contentBack.put("siteList", list);
+
+					pageBack.put("pageno", pageList.getPageno());
+					pageBack.put("pagesize", pageList.getPagesize());
+					pageBack.put("recordCount", pageList.getRecordCount());
+					pageBack.put("pageCount", pageList.getPageCount());
+
+				}
+			} else if ("del".equals(action)) {
+				actionBack = "DEL_SITE_INFO_REQUEST";
+				if (request.equals(true)) {
+					resultBack = "100";
+					desBack = "success";
+				} else if (request.equals(false)) {
+					resultBack = "200";
+					desBack = "failure";
+				}
+			} else if ("delList".equals(action)) {
+				actionBack = "DEL_SITE_LIST_REQUEST";
+				if (request.equals(true)) {
+					resultBack = "100";
+					desBack = "success";
+				} else if (request.equals(false)) {
+					resultBack = "200";
+					desBack = "failure";
+				}
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		if (actionBack != null && !"".equals(actionBack)) {
+			packMap.put("action", actionBack);
+		}
+		if (resultBack != null && !"".equals(resultBack)) {
+			packMap.put("result", resultBack);
+		}
+		if (desBack != null && !"".equals(desBack)) {
+			packMap.put("des", desBack);
+		}
+		if (pageBack != null) {
+			packMap.put("page", pageBack);
+		}
+		if (contentBack != null) {
+			packMap.put("content", contentBack);
+		}
+		return packMap;
+	}
+
+	private Map<String, Object> packByXml(String action, Object request,
+			Object entity) {
+		Map<String, Object> packMap = new HashMap<String, Object>();
+		return packMap;
+	}
+
+}

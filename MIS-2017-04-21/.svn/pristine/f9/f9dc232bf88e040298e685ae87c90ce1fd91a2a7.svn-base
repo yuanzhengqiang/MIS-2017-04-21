@@ -1,0 +1,210 @@
+package fsk.handler.medPlan;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.db.query.OrderVO;
+
+import fsk.entity.medPlan.MedPlanEntity;
+import fsk.pack.medPlan.MedPlanPack;
+import fsk.parse.medPlan.MedPlanParse;
+import fsk.service.medNotice.MedNoticeService;
+import fsk.service.medPlan.MedPlanService;
+
+/**
+ * @Title: Handler
+ * @Description: 服药计划业务处理器
+ * @author feng.gu
+ * @date 2016-10-19 16:11:40
+ * @version V1.0
+ * 
+ */
+public class MedPlanHandler extends BaseHandler {
+	private static Logger logger = Logger.getLogger(MedPlanService.class);
+	/**
+	 * 解析器
+	 */
+	private MedPlanParse medPlanParse = MedPlanParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private MedPlanService medPlanService = MedPlanService.getInstance();
+	private static MedNoticeService medNoticeService = MedNoticeService
+			.getInstance();
+	/**
+	 * 封装器
+	 */
+	private MedPlanPack medPlanPack = MedPlanPack.getInstance();
+
+	private static MedPlanHandler medPlanHandler;
+
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+	private static SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static MedPlanHandler getInstance() {
+		if (medPlanHandler == null) {
+			medPlanHandler = new MedPlanHandler();
+		}
+		return medPlanHandler;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type, String command, String reqStr,
+			HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("请求消息：" + reqStr);
+		String resultStr = "";
+		try {
+			// 解析
+			Map<String, Object> parseMap = medPlanParse.parse(type, command,
+					reqStr, request);
+			String action = (String) parseMap.get("action");
+			MedPlanEntity medPlan = (MedPlanEntity) parseMap.get("medPlan");
+			List<MedPlanEntity> medPlanList = (List<MedPlanEntity>) parseMap
+					.get("medPlanList");
+			Integer id = (Integer) parseMap.get("id");
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap
+					.get("queryMap");
+			Integer pageno = (Integer) parseMap.get("pageno");
+			Integer pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+
+			Boolean olderShow = (Boolean) parseMap.get("olderShow");
+			Boolean delOlder = (Boolean) parseMap.get("delOlder");
+			Boolean medNoticeListShow = (Boolean) parseMap
+					.get("medNoticeListShow");
+			Boolean delMedNoticeList = (Boolean) parseMap
+					.get("delMedNoticeList");
+
+			// 业务处理
+			Object result = null;
+			if ("save".equals(action)) {
+				if (medPlan.getId() == null) {// 新增服药计划时生成护理计划编号
+					String medPlanNum = creatmedPlanNum();
+					medPlan.setPlanNum(medPlanNum);
+				}
+				// 删除关联表
+				if (medPlan.getId() != null) {
+					if (medPlan.getMedNoticeList() != null) {
+						Map<String, Object> delMap = new HashMap<String, Object>();
+						delMap.put("medPlanId", medPlan.getId());
+						medNoticeService.delList(delMap, false);
+					}
+				}
+				result = medPlanService.save(medPlan);
+			} else if ("saveList".equals(action)) {
+				result = medPlanService.saveList(medPlanList);
+			} else if ("getById".equals(action)) {
+				result = medPlanService.getById(id, olderShow,
+						medNoticeListShow);
+			} else if ("getListByCondition".equals(action)) {
+				// 根据数据权限 增加查询条件
+				queryMap = systemService.addDataRuleByRoles("MedPlanEntity",
+						queryMap, request);
+				result = medPlanService.getListByCondition(queryMap, orderList,
+						pageno, pagesize, olderShow, medNoticeListShow);
+			} else if ("del".equals(action)) {
+				result = medPlanService.del(id, delOlder, delMedNoticeList);
+			} else if ("delList".equals(action)) {
+				result = medPlanService.delList(queryMap, delOlder,
+						delMedNoticeList);
+			}
+			// 封装
+			Map<String, Object> packMap = medPlanPack.pack(type, action,
+					result, medPlan);
+			String actionBack = (String) packMap.get("action");
+			String resultBack = (String) packMap.get("result");
+			String desBack = (String) packMap.get("des");
+			JSONObject pageBack = (JSONObject) packMap.get("page");
+			JSONObject contentBack = (JSONObject) packMap.get("content");
+
+			JSONObject repJson = new JSONObject();
+			if (actionBack != null && !"".equals(actionBack)) {
+				repJson.put("action", actionBack);
+			}
+			if (resultBack != null && !"".equals(resultBack)) {
+				repJson.put("result", resultBack);
+			}
+			if (desBack != null && !"".equals(desBack)) {
+				repJson.put("des", desBack);
+			}
+			if (pageBack != null) {
+				repJson.put("page", pageBack);
+			}
+			if (contentBack != null && !"".equals(contentBack)) {
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息：" + repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+
+	// 生成服药计划编号
+	private String creatmedPlanNum() {
+		String lastNum = "";
+		String planNum = "EMP" + formater.format(new Date());
+		Map<String, Object> mapValue = new HashMap<String, Object>();
+		Map<String, Object> queryMenplan = new HashMap<String, Object>();
+		queryMenplan.put("planNum_like", planNum);
+		List<MedPlanEntity> medPlanList = medPlanService
+				.getListByCondition(queryMenplan);
+		if (medPlanList != null && medPlanList.size() > 0) {
+			for (MedPlanEntity medplan : medPlanList) {
+				String num = medplan.getPlanNum();
+				if (num != null) {
+					num = num.substring(11, 15);
+					mapValue.put(num, "yes");
+				}
+			}
+		}
+		for (int i = 1; i < 9999; i++) {
+			if (i < 10) {
+				lastNum = "000" + String.valueOf(i);
+			} else if (i >= 10 && i < 100) {
+				lastNum = "00" + String.valueOf(i);
+			} else if (i >= 100 && i < 1000) {
+				lastNum = "0" + String.valueOf(i);
+			} else {
+				lastNum = String.valueOf(i);
+			}
+			if (mapValue.get(lastNum) == null) {
+				planNum = planNum + lastNum;
+				break;
+			}
+		}
+		return planNum;
+	}
+}

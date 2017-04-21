@@ -1,0 +1,1202 @@
+package fsk.controller.older;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import com.framework.system.common.entity.json.AjaxJson;
+import com.framework.system.common.entity.module.ModuleEntity;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.common.service.dataDic.DataDicService;
+import com.framework.system.common.service.user.UserService;
+import com.framework.system.common.tools.Datetools;
+import com.framework.system.common.tools.JsonEncoding;
+import com.framework.system.db.query.PageList;
+import com.framework.system.util.JsonUtil;
+
+import fsk.entity.older.OlderEntity;
+import fsk.entity.olderAddress.OlderAddressEntity;
+import fsk.entity.olderContact.OlderContactEntity;
+import fsk.entity.olderSite.OlderSiteEntity;
+import fsk.entity.site.SiteEntity;
+import fsk.entity.siteServiceArea.SiteServiceAreaEntity;
+import fsk.handler.older.OlderHandler;
+import fsk.service.UpdateOlder;
+import fsk.service.older.OlderService;
+import fsk.service.olderSite.OlderSiteService;
+import fsk.service.site.SiteService;
+import fsk.service.siteServiceArea.SiteServiceAreaService;
+import fsk.util.FileUtil;
+
+@RequestMapping("/older")
+@Controller
+public class OlderController {
+	private static Logger logger = Logger.getLogger(OlderController.class);
+	/**
+	 * 处理器
+	 */
+	private OlderHandler olderHandler = OlderHandler.getInstance();
+	/**
+	 * 服务类
+	 */
+	private OlderService olderService = OlderService.getInstance();
+	private DataDicService dataDicService = DataDicService.getInstance();
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+	private SiteServiceAreaService siteServiceAreaService = SiteServiceAreaService.getInstance();
+	private static SiteService siteService = SiteService.getInstance();
+	private static UserService userService = UserService.getInstance();
+	private static OlderSiteService olderSiteService = OlderSiteService.getInstance();
+
+	/**
+	 * 列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/older/OlderList");
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService.getHTMLModulesByRoleIdsAndModuleId(roleIds, htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		return mav;
+	}
+
+	/**
+	 * 批量删除 ids英文逗号间隔
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "del")
+	@ResponseBody
+	public AjaxJson del(HttpServletRequest request) {
+		AjaxJson j = new AjaxJson();
+		String result = "failure";
+		String des = "删除失败";
+		String ids = request.getParameter("ids");
+		if (ids != null && !"".equals(ids)) {
+			//
+			Map<String, Object> delmap = new HashMap<String, Object>();
+			delmap.put("id_in", ids);
+			boolean falg = olderService.delList(delmap, true, false, true, true, true, false, false, false);
+			if (falg) {
+				result = "success";
+				des = "删除成功";
+			}
+		}
+		j.setResult(result);
+		j.setDes(des);
+		return j;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handler")
+	@ResponseBody
+	public String query(HttpServletRequest request, HttpServletResponse response) {
+		String msg = "";
+		try {
+			String reqmsg = request.getParameter("reqmsg");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return msg;
+			}
+			String action = (String) reqParams.get("action");
+			String rep = olderHandler.doHandler(1, action, reqmsg, request, response);
+			msg = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+
+		return msg;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "querySiteName")
+	@ResponseBody
+	public String querySiteName(HttpServletRequest request, Integer olderId) {
+		JSONObject jsonrep = new JSONObject();
+		try {
+			JSONArray jaonArrName = new JSONArray();
+			if (olderId != null) {
+				OlderEntity older = olderService.getById(olderId);
+				if (older != null) {
+					Integer streetId = older.getServiceStreetId();
+					if (streetId != null) {
+						Map<String, Object> querystreetmap = new HashMap<String, Object>();
+						querystreetmap.put("serviceStreetId", streetId);
+						List<SiteServiceAreaEntity> siteServiceAreaList = siteServiceAreaService.getListByCondition(querystreetmap);
+						if (siteServiceAreaList != null && siteServiceAreaList.size() > 0) {
+							String siteIds = "";
+							for (SiteServiceAreaEntity entity : siteServiceAreaList) {
+								siteIds = siteIds + entity.getSiteId() + ",";
+							}
+							if (!"".equals(siteIds)) {
+								siteIds = siteIds.replaceAll(",,", ",");
+								siteIds = siteIds.substring(0, siteIds.length() - 1);
+								Map<String, Object> querySite = new HashMap<String, Object>();
+								querySite.put("id_in", siteIds);
+								List<SiteEntity> siteList = siteService.getListByCondition(querySite);
+								if (siteList != null && siteList.size() > 0) {
+									for (SiteEntity site : siteList) {
+										JSONObject jsonSiteName = new JSONObject();
+										jsonSiteName.put("id", site.getId());
+										jsonSiteName.put("name", site.getName());
+										jaonArrName.add(jsonSiteName);
+									}
+								}
+
+							}
+						}
+					}
+				}
+			}
+			jsonrep.put("result", "success");
+			jsonrep.put("nameList", jaonArrName.toString());
+			jsonrep.put("des", "100");
+
+		} catch (Exception e) {
+			jsonrep.put("result", "failure");
+			jsonrep.put("des", "200");
+		}
+		String rep = jsonrep.toString();
+		try {
+			rep = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return rep;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handlercontent")
+	public void queryApp(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			InputStream is = request.getInputStream();
+			byte[] bis = IOUtils.toByteArray(is);
+			String reqmsg = new String(bis, "UTF-8");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return;
+			}
+			String action = (String) reqParams.get("action");
+			String rep = olderHandler.doHandler(1, action, reqmsg, request, response);
+			OutputStream os = response.getOutputStream();
+			os.write(rep.toString().getBytes("UTF-8"));
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+	}
+
+	/**
+	 * 导出老人信息为 xls 文件
+	 * 
+	 * @param request
+	 * @param response
+	 * @param name_input
+	 * @param idNumber
+	 * @param sex
+	 * @param hulijibie
+	 * @param siteIdsQuery
+	 * @param customerState
+	 * @param customerSource
+	 * @param idNumber_Card
+	 * @param age1
+	 * @param age2
+	 * @param quyushen_input
+	 * @param quyushi_input
+	 * @param quyuqu_input
+	 * @param quyujiedao_input
+	 * @param olderSource
+	 * @param olderSource
+	 */
+	@RequestMapping(params = "exportxls")
+	public void exportXls(HttpServletRequest request, HttpServletResponse response, String name_input, String idNumber, String sex, String hulijibie,
+	        String siteIdsQuery, String customerState, String customerSource, String idNumber_Card, String age1, String age2, String quyushen_input,
+	        String quyushi_input, String quyuqu_input, String quyujiedao_input, Integer olderSource, String ids2) {
+
+		Map<String, Object> query = new HashMap<String, Object>();
+		if (ids2 == null || "".equals(ids2)) {
+			if (name_input != null && !"".equals(name_input)) {
+				try {
+					byte source[] = name_input.getBytes("iso8859-1");
+					name_input = new String(source, "UTF-8");
+					query.put("name_like", name_input);
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+			}
+			if (idNumber != null && !"".equals(idNumber)) {
+				try {
+					byte source[] = idNumber.getBytes("iso8859-1");
+					idNumber = new String(source, "UTF-8");
+					query.put("memberNum_like", idNumber);
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+			}
+			if (sex != null && !"".equals(sex)) {
+				try {
+					byte source[] = sex.getBytes("iso8859-1");
+					sex = new String(source, "UTF-8");
+					query.put("gender", sex);
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+			}
+			if (hulijibie != null && !"".equals(hulijibie)) {
+				query.put("nurseLevel", hulijibie);
+			}
+			if (customerState != null && !"".equals(customerState)) {
+				query.put("memberStatus", customerState);
+			}
+			if (customerSource != null && !"".equals(customerSource)) {
+				try {
+					byte source[] = customerSource.getBytes("iso8859-1");
+					customerSource = new String(source, "UTF-8");
+					query.put("memberSource", customerSource);
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+			}
+			if (idNumber_Card != null && !"".equals(idNumber_Card)) {
+				try {
+					byte source[] = idNumber_Card.getBytes("iso8859-1");
+					idNumber_Card = new String(source, "UTF-8");
+					query.put("memberCard_like", idNumber_Card);
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+			}
+			if (age1 != null && !"".equals(age1)) {
+				query.put("birthdate_le", age1);
+			}
+			if (age2 != null && !"".equals(age2)) {
+				query.put("birthdate_ge", age2);
+			}
+
+			if (siteIdsQuery != null && !"".equals(siteIdsQuery)) {
+				String ids = "";
+				String siteids = "";
+				Map<String, Object> queryMapSiteArea = new HashMap<String, Object>();
+				queryMapSiteArea.put("siteId_in", siteIdsQuery);
+				List<SiteServiceAreaEntity> siteServiceAreaList = siteServiceAreaService.getListByCondition(queryMapSiteArea);
+				if (siteServiceAreaList != null && siteServiceAreaList.size() > 0) {
+					for (SiteServiceAreaEntity entity : siteServiceAreaList) {
+						siteids = siteids + entity.getServiceStreetId() + ",";
+					}
+					if (!"".equals(siteids)) {
+						siteids = siteids.replaceAll(",,", ",");
+						siteids = siteids.substring(0, siteids.length() - 1);
+						Map<String, Object> queryMapOlder = new HashMap<String, Object>();
+						queryMapOlder.put("serviceStreetId_in", siteids);
+						if (!"".equals(ids)) {
+							queryMapOlder.put("id_in", ids);
+						}
+
+						List<OlderEntity> olderListQuery = olderService.getListByCondition(queryMapOlder);
+						if (olderListQuery != null && olderListQuery.size() > 0) {
+							ids = "";
+							for (OlderEntity entity : olderListQuery) {
+								ids = ids + entity.getId() + ",";
+							}
+							if (!"".equals(ids)) {
+								ids = ids.replaceAll(",,", ",");
+								ids = ids.substring(0, ids.length() - 1);
+							}
+						}
+					}
+				}
+				if (!ids.equals("") && ids != null) {
+					query.put("id_in", ids);
+				}
+			}
+
+			if (quyushen_input != null && !"".equals(quyushen_input)) {
+				query.put("serviceProvinceId", quyushen_input);
+			}
+			if (quyushi_input != null && !"".equals(quyushi_input)) {
+				query.put("serviceCityId", quyushi_input);
+			}
+			if (quyuqu_input != null && !"".equals(quyuqu_input)) {
+				query.put("serviceAreaId", quyuqu_input);
+			}
+			if (quyujiedao_input != null && !"".equals(quyujiedao_input)) {
+				query.put("serviceStreetId", quyujiedao_input);
+			}
+			if (olderSource != null && !"".equals(olderSource)) {
+				query.put("source", olderSource);
+			}
+		} else {
+			if (ids2 != null && !"".equals(ids2)) {
+				query.put("id_in", ids2);
+			}
+		}
+		query = systemService.addDataRuleByRoles("OlderEntity", query, request);
+		List<OlderEntity> sizeList = olderService.getListByCondition(query);
+		int pageListSize = 0;
+		if (sizeList != null && sizeList.size() > 0) {
+			pageListSize = sizeList.size();
+		}
+		PageList oldEntityTemp = olderService.getListByCondition(query, null, 1, pageListSize + 1, false, false, false, true, true, false, false, false);
+		List<OlderEntity> oldEntity = new ArrayList<OlderEntity>();
+		if (oldEntityTemp != null) {
+			if (oldEntityTemp.getResultList() != null && oldEntityTemp.getResultList().size() > 0) {
+				for (Object obj : oldEntityTemp.getResultList()) {
+					if (obj != null) {
+						OlderEntity oEntity = (OlderEntity) obj;
+						oldEntity.add(oEntity);
+					}
+				}
+			}
+		}
+
+		List<OlderAddressEntity> olderAddressEntity = null;
+		List<OlderContactEntity> olderContactEntity = null;
+		Integer flag = 0;
+
+		try {
+			String filepath = request.getSession().getServletContext().getRealPath("/view/source");
+			File file = new File(filepath, "老人信息导出模板.xls");
+
+			HSSFWorkbook workbook2003 = null;
+			if (file.exists()) {
+				try {
+					workbook2003 = new HSSFWorkbook(new FileInputStream(file));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				HSSFSheet sheet = workbook2003.getSheet("Sheet1");
+				if (oldEntity != null && oldEntity.size() > 0) {
+					String addressString = "";
+					for (int i = 0; i < oldEntity.size(); i++) {
+						HSSFRow row = sheet.createRow(i + 1);
+						// 开始创建单元格并赋值
+
+						HSSFCell nameCell = row.createCell(0);
+						if (oldEntity.get(i).getName() == null) {
+							nameCell.setCellValue("无");// 姓名
+						} else {
+							nameCell.setCellValue(oldEntity.get(i).getName());// 姓名
+						}
+
+						HSSFCell birthdateCell = row.createCell(1);
+						if (oldEntity.get(i).getBirthdate() == null && oldEntity.get(i).getBirthdate() == "") {
+							birthdateCell.setCellValue("无");// 年龄
+						} else {
+							birthdateCell.setCellValue(getAge(oldEntity.get(i).getBirthdate()));// 年龄
+						}
+
+						HSSFCell idnumberCell = row.createCell(2);
+						if (oldEntity.get(i).getIdnumber() == null) {
+							idnumberCell.setCellValue("无");// 身份证
+						} else {
+							idnumberCell.setCellValue(oldEntity.get(i).getIdnumber());// 身份证
+						}
+
+						HSSFCell memberNumCell = row.createCell(3);
+						if (oldEntity.get(i).getMemberNum() == null) {
+							memberNumCell.setCellValue("无");// 会员号
+						} else {
+							memberNumCell.setCellValue(oldEntity.get(i).getMemberNum());// 会员号
+						}
+
+						HSSFCell memberCardCell = row.createCell(4);
+						if (oldEntity.get(i).getMemberCard() == null) {
+							memberCardCell.setCellValue("无");// 会员卡号
+						} else {
+							memberCardCell.setCellValue(oldEntity.get(i).getMemberCard());// 会员卡号
+						}
+
+						HSSFCell juzhudizhiCell = row.createCell(5);
+						if (oldEntity.get(i).getOlderAddressList() != null) {
+							olderAddressEntity = oldEntity.get(i).getOlderAddressList();
+							if (olderAddressEntity != null && olderAddressEntity.size() > 0) {
+								for (OlderAddressEntity olderAddress : olderAddressEntity) {
+									if (olderAddress.getAddressType() != null) {
+										if (olderAddress.getAddressType() == 0) {
+											flag = 1;
+											addressString = "";
+											addressString += getNameBysjzdId(olderAddress.getProvinceId());
+											addressString += "," + getNameBysjzdId(olderAddress.getCityId());
+											addressString += "," + getNameBysjzdId(olderAddress.getAreaId());
+											if (olderAddress.getStreet() != null && !"".equals(olderAddress.getStreet())) {
+												addressString += "," + olderAddress.getStreet();
+											}
+											if (olderAddress.getCommitteeVillage() != null && !"".equals(olderAddress.getCommitteeVillage())) {
+												addressString += "," + olderAddress.getCommitteeVillage();
+											}
+											if (olderAddress.getRoad() != null && !"".equals(olderAddress.getRoad())) {
+												addressString += "," + olderAddress.getRoad();
+											}
+											if (olderAddress.getLane() != null && !"".equals(olderAddress.getLane())) {
+												addressString += "," + olderAddress.getLane();
+											}
+											if (olderAddress.getNumber() != null && !"".equals(olderAddress.getNumber())) {
+												addressString += "," + olderAddress.getNumber();
+											}
+											if (olderAddress.getRoom() != null && !"".equals(olderAddress.getRoom())) {
+												addressString += "," + olderAddress.getRoom();
+											}
+											if (olderAddress.getAddress() != null && !"".equals(olderAddress.getAddress())) {
+												addressString += "," + olderAddress.getAddress();
+											}
+											if (olderAddress.getZipCode() != null && !"".equals(olderAddress.getZipCode())) {
+												addressString += "," + olderAddress.getZipCode();
+											}
+
+											juzhudizhiCell.setCellValue(addressString);// 居住地地址
+											break;
+										}
+									}
+								}
+								if (flag == 0) {
+									juzhudizhiCell.setCellValue("无");// 居住地地址
+								}
+							} else {
+								juzhudizhiCell.setCellValue("无");// 居住地地址
+							}
+						} else {
+							juzhudizhiCell.setCellValue("无");// 居住地地址
+						}
+						flag = 0;
+
+						HSSFCell lianxidianhuaCell = row.createCell(6);
+						if (oldEntity.get(i).getMobileTel() == null) {
+							lianxidianhuaCell.setCellValue("无");// 联系电话
+						} else {
+							lianxidianhuaCell.setCellValue(oldEntity.get(i).getMobileTel());// 联系电话
+						}
+
+						HSSFCell lianxirenCell1 = row.createCell(7);
+						HSSFCell lianxirenCell2 = row.createCell(8);
+						HSSFCell lianxirenCell3 = row.createCell(9);
+						if (oldEntity.get(i).getOlderContactList() != null) {
+							olderContactEntity = oldEntity.get(i).getOlderContactList();
+							if (olderContactEntity != null && olderContactEntity.size() > 0) {
+								if (olderContactEntity.size() == 1) {
+									lianxirenCell1.setCellValue(olderContactEntity.get(0).getContactName() + "/" + olderContactEntity.get(0).getRelation()
+									        + "/" + olderContactEntity.get(0).getTel());// 联系人1
+									lianxirenCell2.setCellValue("无");// 联系人2
+									lianxirenCell3.setCellValue("无");// 联系人3
+								} else if (olderContactEntity.size() == 2) {
+									lianxirenCell1.setCellValue(olderContactEntity.get(0).getContactName() + "/" + olderContactEntity.get(0).getRelation()
+									        + "/" + olderContactEntity.get(0).getTel());// 联系人1
+									lianxirenCell2.setCellValue(olderContactEntity.get(1).getContactName() + "/" + olderContactEntity.get(1).getRelation()
+									        + "/" + olderContactEntity.get(1).getTel());// 联系人2
+									lianxirenCell3.setCellValue("无");// 联系人3
+								} else if (olderContactEntity.size() == 3) {
+									lianxirenCell1.setCellValue(olderContactEntity.get(0).getContactName() + "/" + olderContactEntity.get(0).getRelation()
+									        + "/" + olderContactEntity.get(0).getTel());// 联系人1
+									lianxirenCell2.setCellValue(olderContactEntity.get(1).getContactName() + "/" + olderContactEntity.get(1).getRelation()
+									        + "/" + olderContactEntity.get(1).getTel());// 联系人2
+									lianxirenCell3.setCellValue(olderContactEntity.get(2).getContactName() + "/" + olderContactEntity.get(2).getRelation()
+									        + "/" + olderContactEntity.get(2).getTel());// 联系人3
+								}
+							} else {
+								lianxirenCell1.setCellValue("无");// 联系人1
+								lianxirenCell2.setCellValue("无");// 联系人2
+								lianxirenCell3.setCellValue("无");// 联系人3
+							}
+						} else {
+							lianxirenCell1.setCellValue("无");// 联系人1
+							lianxirenCell2.setCellValue("无");// 联系人2
+							lianxirenCell3.setCellValue("无");// 联系人3
+						}
+
+						HSSFCell kehulaiyuanCell = row.createCell(10);
+						if (oldEntity.get(i).getMemberSource() == null) {
+							kehulaiyuanCell.setCellValue("无");// 客户来源
+						} else {
+							kehulaiyuanCell.setCellValue(oldEntity.get(i).getMemberSource());// 客户来源
+						}
+
+						HSSFCell sexCell = row.createCell(11);
+						if (oldEntity.get(i).getGender() == null) {
+							sexCell.setCellValue("无");// 性别
+						} else {
+							sexCell.setCellValue(oldEntity.get(i).getGender());// 性别
+						}
+
+						HSSFCell suoshuquyuCell = row.createCell(12);
+						if (oldEntity.get(i).getServiceProvinceId() != null && oldEntity.get(i).getServiceProvinceId() != 0) {
+							suoshuquyuCell.setCellValue(getNameBysjzdId(oldEntity.get(i).getServiceProvinceId()) + ","
+							        + getNameBysjzdId(oldEntity.get(i).getServiceCityId()) + "," + getNameBysjzdId(oldEntity.get(i).getServiceAreaId()) + ","
+							        + getNameBysjzdId(oldEntity.get(i).getServiceStreetId()));// 所属区域
+						} else {
+							suoshuquyuCell.setCellValue("无");// 所属区域
+						}
+
+						HSSFCell hulijibieCell = row.createCell(13);
+						if (oldEntity.get(i).getNurseLevel() == null || oldEntity.get(i).getNurseLevel() == 0) {
+							hulijibieCell.setCellValue("无");// 护理级别
+						} else {
+							hulijibieCell.setCellValue(oldEntity.get(i).getNurseLevel() + "级");// 护理级别
+						}
+
+						HSSFCell kehuzhuangtaiCell = row.createCell(14);
+						if (oldEntity.get(i).getMemberStatus() == null) {
+							kehuzhuangtaiCell.setCellValue("无");// 客户状态
+						} else {
+							kehuzhuangtaiCell.setCellValue(changeState(oldEntity.get(i).getMemberStatus()));// 客户状态
+						}
+
+					}
+				}
+				response.setContentType("application/octet-stream");
+				String time = Datetools.getCurrentDate();
+				time = time.substring(0, 4) + "_" + time.substring(4, 6) + "_" + time.substring(6, 8) + " " + time.substring(8, 10) + "."
+				        + time.substring(10, 12) + "." + time.substring(12, 14);
+				response.addHeader("Content-Disposition", "attachment; filename=olderInformation_" + time + ".xls");
+				OutputStream os = response.getOutputStream();
+				workbook2003.write(os);
+			}
+		} catch (Exception e) {
+
+		}
+	}
+
+	/**
+	 * 根据出身日计算年龄yyyymmdd
+	 * 
+	 * @return 年龄
+	 */
+	public String getAge(String birth) {
+		try {
+			String birthYear = birth.substring(0, 4);
+			Calendar cal = Calendar.getInstance();
+			int year = cal.get(Calendar.YEAR);
+			int age = 0;
+			if (birthYear.length() == 4) {
+				age = year - Integer.parseInt(birthYear);
+			}
+			return age + "";
+		} catch (Exception e) {
+			return "无";
+		}
+	}
+
+	/**
+	 * 根据数据字典ID查询名称
+	 * 
+	 * @return 名称
+	 */
+	public String getNameBysjzdId(Integer id) {
+		String name = "未知";
+		if (id == null || id == 0) {
+			return name;
+		}
+		Map<String, Object> query = new HashMap<String, Object>();
+		if (id != null && id != 0) {
+			query.put("id", id);
+		}
+		List<Object> objects = dataDicService.getListByCondition(query);
+		if (objects != null && objects.size() > 0) {
+			for (Object obj : objects) {
+				DataDicEntity dataDicEntity = (DataDicEntity) obj;
+				if (dataDicEntity != null) {
+					name = dataDicEntity.getName();
+				}
+			}
+		}
+		return name;
+	}
+
+	/**
+	 * 根据客户状态Id转化状态名称
+	 * 
+	 * @return 名称
+	 */
+	public String changeState(Integer id) {
+		String name = "未知";
+		switch (id) {
+		case 0:
+			name = "正常";
+			break;
+		case 1:
+			name = "审核不通过";
+			break;
+		case 2:
+			name = "待评估";
+			break;
+		default:
+			name = "未知";
+			break;
+		}
+		return name;
+	}
+
+	/**
+	 * 下载老人信息导入 模板
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "download")
+	public void downloadTemplate(HttpServletRequest request, HttpServletResponse response) {
+		AjaxJson rMessage = new AjaxJson();
+		String result = "failure";
+		String des = "下载模板失败";
+
+		String filepath = request.getSession().getServletContext().getRealPath("/view/source");
+		File file = new File(filepath, "老人信息导入模板.xls");
+		response.setContentType("application/octet-stream;characterSet=UTF-8");
+		response.addHeader("Content-Disposition", "attachment; filename=" + JsonEncoding.encode("老人信息导入模板") + ".xls");
+		HSSFWorkbook workbook = null;
+		try {
+			workbook = new HSSFWorkbook(new FileInputStream(file));
+			OutputStream os = response.getOutputStream();
+			workbook.write(os);
+		} catch (Exception e) {
+			rMessage.setDes(des);
+			rMessage.setResult(result);
+		}
+		if (file != null) {
+			result = "success";
+			des = "下载模板成功";
+		}
+		rMessage.setDes(des);
+		rMessage.setResult(result);
+	}
+
+	/**
+	 * 从文件导入老人信息
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "importxls")
+	@ResponseBody
+	public String importXls(HttpServletRequest request, Integer provinceId, Integer cityId, Integer areaId, Integer streetId, String siteIds) {
+		// errorList 说明导入失败的具体原因
+		ArrayList<JSONObject> errorList = new ArrayList<JSONObject>();
+		JSONObject jsonResult = new JSONObject();
+		String json2return = null;
+		// 创建一个通用的多部分解析器
+		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(request.getSession().getServletContext());
+		// 判断 request 是否有文件上传,即多部分请求
+		if (multipartResolver.isMultipart(request)) {
+			// 转换成多部分request
+			MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
+			// 取得request中的所有文件名
+			Iterator<String> iter = multiRequest.getFileNames();
+			while (iter.hasNext()) {
+				// 取得上传文件
+				MultipartFile file = multiRequest.getFile(iter.next()); // iter.next()
+				                                                        // 返回下一个元素
+				if (file != null) {
+					// 取得当前上传文件的文件名称
+					String myFileName = file.getOriginalFilename();
+					// 如果名称不为"",说明该文件存在，否则说明该文件不存在
+					if (myFileName.trim() != "") {
+						try {
+							// 获得数据流
+							InputStream is = file.getInputStream();
+							// 文件解析
+							POIFSFileSystem fs = new POIFSFileSystem(is);
+							// 得到Excel工作簿对象
+							HSSFWorkbook wb2003 = new HSSFWorkbook(fs);
+							// 得到Excel工作表对象
+							HSSFSheet sheet = wb2003.getSheetAt(0);
+							// 获取最后一行的编号（编号从0开始）
+							// int rowNumber = sheet.getLastRowNum();
+							// 获取物理行数（不包括空行、隔行的情况）
+							int rowNumber = sheet.getPhysicalNumberOfRows();
+							// 保存要导入的老人信息的 LIST
+							List<OlderEntity> olderList = new ArrayList<OlderEntity>();
+							List<OlderEntity> notSaveOlderList = new ArrayList<OlderEntity>();
+							List<OlderSiteEntity> olderSiteList = new ArrayList<OlderSiteEntity>();
+							if (siteIds != null && !"".equals(siteIds)) {
+								Map<String, Object> querySiteMap = new HashMap<String, Object>();
+								querySiteMap.put("id_in", siteIds);
+								List<SiteEntity> siteList = siteService.getListByCondition(querySiteMap);
+
+								if (siteList != null && siteList.size() > 0) {
+									for (SiteEntity site : siteList) {
+										OlderSiteEntity olderSite = new OlderSiteEntity();
+										olderSite.setSiteId(site.getId());
+										olderSite.setSiteName(site.getName());
+										olderSiteList.add(olderSite);
+									}
+								}
+							}
+
+							// ----------------将 excel
+							// 文件中信息转换为对应的实体---------------
+							for (int index = 0; index < rowNumber; index++) {
+								// 得到工作表的行
+								HSSFRow row = sheet.getRow(index + 2);
+								HSSFCell cell = null;
+								OlderEntity olders = null;
+								JSONObject jObj = new JSONObject();
+								jObj.put("rowOfSheet", index + 2);
+								// isOccurError 用于标记是否发生内容解析错误
+								boolean isOccurError = false;
+								// errorReason 用于记录错误原因
+								String errorReason = "";
+								if (row != null) {
+									olders = new OlderEntity();
+									if (olders != null) {
+										// 填入会员卡号
+										cell = row.getCell(1);
+										if (cell != null) {
+											cell.setCellType(cell.CELL_TYPE_STRING);
+											String memberCard = cell.getStringCellValue().replaceAll(" ", "");
+											if (memberCard != null && !memberCard.equals("")) {
+												olders.setMemberCard(memberCard);
+											} else {
+												olders.setMemberCard("");
+											}
+										}
+										// 填入姓名
+										cell = row.getCell(2);
+										if (cell != null) {
+											cell.setCellType(cell.CELL_TYPE_STRING);
+											String name = cell.getStringCellValue().replaceAll(" ", "");
+											if (name != null && !name.equals("")) {
+												olders.setName(name);
+											} else {
+												isOccurError = true;
+												errorReason += "姓名不可为空";
+											}
+										} else {
+											isOccurError = true;
+											errorReason += "姓名不可为空";
+										}
+										// 填入性别
+										cell = row.getCell(3);
+										if (cell != null) {
+											cell.setCellType(cell.CELL_TYPE_STRING);
+											String gender = cell.getStringCellValue().replaceAll(" ", "");
+											if (gender != null && !gender.equals("")) {
+												olders.setGender(gender);
+											} else {
+												isOccurError = true;
+												errorReason += "性别不可为空";
+											}
+										} else {
+											isOccurError = true;
+											errorReason += "性别不可为空";
+										}
+										// 填入身份证号
+										cell = row.getCell(4);
+										if (cell != null) {
+											cell.setCellType(cell.CELL_TYPE_STRING);
+											String idnumber = cell.getStringCellValue().replaceAll(" ", "");
+											if (idnumber != null && !idnumber.equals("")) {
+												olders.setIdnumber(idnumber);
+											} else {
+												olders.setIdnumber("");
+											}
+										}
+										// 填入社保号码
+										cell = row.getCell(5);
+										if (cell != null) {
+											cell.setCellType(cell.CELL_TYPE_STRING);
+											String socialsnumber = cell.getStringCellValue().replaceAll(" ", "");
+											if (socialsnumber != null && !socialsnumber.equals("")) {
+												olders.setSocialSecurityNumber(socialsnumber);
+											} else {
+												olders.setSocialSecurityNumber("");
+											}
+										}
+										// 填入出生年月
+										cell = row.getCell(6);
+										if (cell != null) {
+											cell.setCellType(cell.CELL_TYPE_STRING);
+											String birthdate = cell.getStringCellValue().replaceAll(" ", "");
+											if (birthdate != null && !birthdate.equals("")) {
+												if (birthdate.length() == 6) {
+													try {
+														Integer.parseInt(birthdate);
+													} catch (Exception e) {
+														isOccurError = true;
+													}
+												} else {
+													isOccurError = true;
+												}
+
+												olders.setBirthdate(birthdate);
+											} else {
+												olders.setBirthdate("");
+											}
+										}
+										// 填入服务地址
+										olders.setServiceProvinceId(provinceId);
+										olders.setServiceCityId(cityId);
+										olders.setServiceAreaId(areaId);
+										olders.setServiceStreetId(streetId);
+
+										// 填入详细住址
+										List<OlderAddressEntity> addressList = new ArrayList<OlderAddressEntity>();
+										OlderAddressEntity olderAddress = new OlderAddressEntity();
+										olderAddress.setAddressType(0);
+										olderAddress.setProvinceId(provinceId);
+										olderAddress.setCityId(cityId);
+										olderAddress.setAreaId(areaId);
+										cell = row.getCell(7);
+										if (cell != null) {
+											cell.setCellType(cell.CELL_TYPE_STRING);
+											String address = cell.getStringCellValue().replaceAll(" ", "");
+											if (address != null && !address.equals("")) {
+												olderAddress.setAddress(address);
+											}
+										}
+										addressList.add(olderAddress);
+										olders.setOlderAddressList(addressList);
+										// 联系方式
+										cell = row.getCell(8);
+										if (cell != null) {
+											cell.setCellType(cell.CELL_TYPE_STRING);
+											String telephone = cell.getStringCellValue().replaceAll(" ", "");
+											if (telephone != null && !telephone.equals("")) {
+												olders.setMobileTel(telephone);
+											} else {
+												isOccurError = true;
+												errorReason += "联系方式不可为空";
+											}
+										} else {
+											isOccurError = true;
+											errorReason += "联系方式不可为空";
+										}
+
+										// 站点关联
+										if (olderSiteList != null && olderSiteList.size() > 0) {
+											olders.setOlderSiteList(olderSiteList);
+										}
+										olders.setMemberSource("商业");
+										olders.setSource(1);
+									}
+								}
+								if (isOccurError) {
+									notSaveOlderList.add(olders);
+								}
+								if (olders != null && !isOccurError) {
+									olderList.add(olders);
+								}
+							}
+							wb2003.close();
+							Integer userId = (Integer) request.getSession().getAttribute("userId");
+							json2return = olderService.saveList(olderList, userId, notSaveOlderList);
+							// ----------------------------------------------------------------
+						} catch (Exception e) {
+							jsonResult.put("result", "failure");
+							JSONObject jObj2 = new JSONObject();
+							jObj2.put("errorReason", "文件解析失败");
+							errorList.add(jObj2);
+							jsonResult.put("des", errorList.toString());
+							json2return = jsonResult.toString();
+						}
+					}
+				} else {
+					jsonResult.put("result", "failure");
+					JSONObject jObj2 = new JSONObject();
+					jObj2.put("errorReason", "文件获取失败");
+					errorList.add(jObj2);
+					jsonResult.put("des", errorList.toString());
+					json2return = jsonResult.toString();
+				}
+			}
+		} else {
+			jsonResult.put("result", "failure");
+			JSONObject jObj2 = new JSONObject();
+			jObj2.put("errorReason", "未上传文件");
+			errorList.add(jObj2);
+			jsonResult.put("des", errorList.toString());
+			json2return = jsonResult.toString();
+		}
+
+		try {
+			json2return = new String(json2return.getBytes("utf-8"), "iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+
+		}
+		return json2return;
+	}
+
+	/**
+	 * 发送older到床垫服务器
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "sendOlders")
+	@ResponseBody
+	public String sendOlders(HttpServletRequest request, HttpServletResponse response) {
+		String msg = "";
+		try {
+			OlderService olderServvice = OlderService.getInstance();
+			PageList pagelist = olderServvice.getListByCondition(null, null, 1, 1000000, null, null, null, null, true, null, null, null);
+			boolean result = UpdateOlder.sendOlder(pagelist.getResultList());
+			if (result) {
+				msg = "true";
+			} else {
+				msg = "false";
+			}
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+
+		return msg;
+	}
+
+	/**
+	 * 下载批量导入错误文件
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "downloadErrorFiles")
+	@ResponseBody
+	public void downloadErrorFiles(HttpServletRequest request, HttpServletResponse response, String url) {
+		if (url != null) {
+
+			String separator = FileUtil.getFileSeparator();
+			String path = OlderHandler.class.getResource("OlderHandler.class").toString();
+			if ("file".equals(path.substring(0, 4))) {
+				if ("\\".equals(separator))
+					path = path.substring(6);
+				else {
+					path = path.substring(5);
+				}
+			}
+			String localPath = path.substring(0, path.indexOf("WEB-INF")) + "errorSaveOlderList" + separator;
+			String urlTemp = localPath + url.substring(url.lastIndexOf("/"), url.length());
+			File oldfile = new File(urlTemp);
+			String fileName = url.substring(url.length() - 18, url.length());
+			if (oldfile.exists()) {
+				try {
+					// 转一下文件名
+					fileName = URLDecoder.decode(fileName, "UTF-8");
+					// 设置响应头，控制浏览器下载该文件
+					response.setHeader("content-disposition", "attachment;filename=" + new String(fileName.getBytes(), "ISO-8859-1"));
+					// 读取要下载的文件，保存到文件输入流
+					FileInputStream in = new FileInputStream(urlTemp);
+					// 创建输出流
+					OutputStream out = response.getOutputStream();
+					// 创建缓冲区
+					byte buffer[] = new byte[1024];
+					int len = 0;
+					// 循环将输入流中的内容读取到缓冲区当中
+					while ((len = in.read(buffer)) > 0) {
+						// 输出缓冲区的内容到浏览器，实现文件下载
+						out.write(buffer, 0, len);
+					}
+					// 关闭文件输入流
+					in.close();
+					// 关闭输出流
+					out.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		}
+	}
+
+	/**
+	 * 返回其他站点老人列表
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "getOtherSiteOlderList")
+	@ResponseBody
+	public String getOtherSiteOlderList(HttpServletRequest request, HttpServletResponse response, Integer siteId, Integer pageno, Integer pagesize,
+	        Integer serviceProvinceId, Integer serviceCityId, Integer serviceAreaId, Integer serviceStreetId) {
+		// 封装返回消息
+		JSONObject returnJson = new JSONObject();
+		returnJson.put("result", "success");
+		returnJson.put("des", "success");
+		// 默认分页参数
+		if (pageno == null) {
+			pageno = 1;
+		}
+		if (pagesize == null) {
+			pagesize = 10;
+		}
+		JSONObject pageJson = new JSONObject();
+		pageJson.put("pageno", pageno);
+		pageJson.put("pagesize", pagesize);
+		JSONObject contentJson = new JSONObject();
+		List<OlderEntity> notReturnolderList = null;
+		try {
+			if (siteId != null) {
+				// 根据站点id查老人站点关联表
+				Map<String, Object> queryOlderSiteList = new HashMap<String, Object>();
+				queryOlderSiteList.put("siteId", siteId);
+				List<OlderSiteEntity> olderSiteList = olderSiteService.getListByCondition(queryOlderSiteList);
+				StringBuffer olderIds = new StringBuffer();
+				if (olderSiteList != null && olderSiteList.size() > 0) {
+					for (OlderSiteEntity olderSite : olderSiteList) {
+						if (olderSite.getOlderId() != null) {
+							olderIds.append(olderSite.getOlderId() + ",");
+						}
+					}
+				}
+				// 拼接老人id字符串
+				if (!"".equals(olderIds.toString())) {
+					String olderIdsStr = olderIds.toString();
+					olderIdsStr = olderIdsStr.replaceAll(",,", ",");
+					olderIdsStr = olderIdsStr.substring(0, olderIdsStr.length() - 1);
+					Map<String, Object> notReturnMap = new HashMap<String, Object>();
+					notReturnMap.put("id_in", olderIdsStr);
+					notReturnolderList = olderService.getListByCondition(notReturnMap);
+				}
+				// 将本站点老人的id放入map里面
+				Map<String, String> idMap = new HashMap<String, String>();
+				if (notReturnolderList != null && notReturnolderList.size() > 0) {
+					for (OlderEntity older : notReturnolderList) {
+						idMap.put(String.valueOf(older.getId()), String.valueOf(older.getId()));
+					}
+				}
+				// 取出所有老人的信息，剔除本站点老人id，拼接其他站点的老人id
+				List<OlderEntity> allOlderList = olderService.getListByCondition(null);
+				StringBuffer newOlderIdsSb = new StringBuffer();
+				if (allOlderList != null && allOlderList.size() > 0) {
+					for (OlderEntity older : allOlderList) {
+						String key = String.valueOf(older.getId());
+						if (idMap.get(key) == null) {
+							newOlderIdsSb.append(older.getId() + ",");
+						}
+					}
+				}
+				// 根据老人id和站点查询条件分页返回老人信息
+				if (!"".equals(newOlderIdsSb)) {
+					String newOlderIds = newOlderIdsSb.toString();
+					newOlderIds = newOlderIds.replaceAll(",,", ",");
+					newOlderIds = newOlderIds.substring(0, newOlderIds.length() - 1);
+					Map<String, Object> queryOlderListMap = new HashMap<String, Object>();
+					queryOlderListMap.put("id_in", newOlderIds);
+					if (serviceProvinceId != null) {
+						queryOlderListMap.put("serviceProvinceId", serviceProvinceId);
+					}
+					if (serviceCityId != null) {
+						queryOlderListMap.put("serviceCityId", serviceCityId);
+					}
+					if (serviceAreaId != null) {
+						queryOlderListMap.put("serviceAreaId", serviceAreaId);
+					}
+					if (serviceStreetId != null) {
+						queryOlderListMap.put("serviceStreetId", serviceStreetId);
+					}
+					// 遍历结果，封装返回的数据
+					PageList olderList = olderService.getListByCondition(queryOlderListMap, pageno, pagesize);
+					if (olderList != null && olderList.getResultList() != null && olderList.getResultList().size() > 0) {
+						pageJson.put("recordCount", olderList.getRecordCount());
+						pageJson.put("pageCount", olderList.getPageCount());
+						returnJson.put("page", pageJson.toString());
+						JSONArray olderListjson = new JSONArray();
+						for (Object obj : olderList.getResultList()) {
+							OlderEntity older = (OlderEntity) obj;
+							JSONObject olderJson = new JSONObject();
+							olderJson.put("id", older.getId());
+							olderJson.put("name", older.getName()!=null?older.getName():"");
+							olderJson.put("gender", older.getGender()!=null?older.getGender():"");
+							olderJson.put("homeTel", older.getHomeTel()!=null?older.getHomeTel():"");
+							olderJson.put("mobileTel", older.getMobileTel()!=null?older.getMobileTel():"");
+							olderJson.put("idnumber", older.getIdnumber()!=null?older.getIdnumber():"");
+							olderListjson.add(olderJson);
+						}
+						contentJson.put("olderList", olderListjson.toString());
+						returnJson.put("content", contentJson.toString());
+					} else {
+						pageJson.put("recordCount", 0);
+						pageJson.put("pageCount", 0);
+						returnJson.put("page", pageJson.toString());
+						JSONArray olderListjson = new JSONArray();
+						contentJson.put("olderList", olderListjson.toString());
+						returnJson.put("content", contentJson.toString());
+
+					}
+
+				}
+			}
+		} catch (Exception e) {
+			returnJson.put("result", "failure");
+			returnJson.put("des", "failure");
+		}
+		String rep = returnJson.toString();
+		try {
+			rep = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return rep;
+	}
+}

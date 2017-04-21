@@ -1,0 +1,101 @@
+/*     */ package fsk.entity.vo.gateway;
+/*     */ 
+/*     */ public class FLocal
+/*     */ {
+/*     */   private String id;
+/*     */   private String longitude;
+/*     */   private String latitude;
+/*     */   private String room;
+/*     */   private String floor;
+/*     */   private String normal;
+/*     */   private String voltage;
+/*     */   private String offline;
+/*     */   private String alarm;
+/*     */   private String mode;
+/*     */ 
+/*     */   public String getAlarm()
+/*     */   {
+/*  33 */     return this.alarm;
+/*     */   }
+/*     */ 
+/*     */   public void setAlarm(String alarm) {
+/*  37 */     this.alarm = alarm;
+/*     */   }
+/*     */ 
+/*     */   public String getMode() {
+/*  41 */     return this.mode;
+/*     */   }
+/*     */ 
+/*     */   public void setMode(String mode) {
+/*  45 */     this.mode = mode;
+/*     */   }
+/*     */ 
+/*     */   public String getNormal() {
+/*  49 */     return this.normal;
+/*     */   }
+/*     */ 
+/*     */   public void setNormal(String normal) {
+/*  53 */     this.normal = normal;
+/*     */   }
+/*     */ 
+/*     */   public String getVoltage() {
+/*  57 */     return this.voltage;
+/*     */   }
+/*     */ 
+/*     */   public void setVoltage(String voltage) {
+/*  61 */     this.voltage = voltage;
+/*     */   }
+/*     */ 
+/*     */   public String getOffline() {
+/*  65 */     return this.offline;
+/*     */   }
+/*     */ 
+/*     */   public void setOffline(String offline) {
+/*  69 */     this.offline = offline;
+/*     */   }
+/*     */ 
+/*     */   public String getId() {
+/*  73 */     return this.id;
+/*     */   }
+/*     */ 
+/*     */   public void setId(String id) {
+/*  77 */     this.id = id;
+/*     */   }
+/*     */ 
+/*     */   public String getLongitude() {
+/*  81 */     return this.longitude;
+/*     */   }
+/*     */ 
+/*     */   public void setLongitude(String longitude) {
+/*  85 */     this.longitude = longitude;
+/*     */   }
+/*     */ 
+/*     */   public String getLatitude() {
+/*  89 */     return this.latitude;
+/*     */   }
+/*     */ 
+/*     */   public void setLatitude(String latitude) {
+/*  93 */     this.latitude = latitude;
+/*     */   }
+/*     */ 
+/*     */   public String getRoom() {
+/*  97 */     return this.room;
+/*     */   }
+/*     */ 
+/*     */   public void setRoom(String room) {
+/* 101 */     this.room = room;
+/*     */   }
+/*     */ 
+/*     */   public String getFloor() {
+/* 105 */     return this.floor;
+/*     */   }
+/*     */ 
+/*     */   public void setFloor(String floor) {
+/* 109 */     this.floor = floor;
+/*     */   }
+/*     */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.entity.vo.gateway.FLocal
+ * JD-Core Version:    0.6.1
+ */

@@ -1,0 +1,199 @@
+package fsk.pack.nursingPlan;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.db.query.PageList;
+
+import fsk.entity.employeeDistribution.EmployeeDistributionEntity;
+import fsk.entity.nursingPlan.NursingPlanEntity;
+import fsk.entity.nursingPlanService.NursingPlanServiceEntity;
+import fsk.entity.service.ServiceEntity;
+import fsk.service.employeeDistribution.EmployeeDistributionService;
+import fsk.service.service.ServiceService;
+
+/**
+ * @Title: Pack
+ * @Description: 护理计划封装器
+ * @author feng.gu
+ * @date 2016-12-28 14:27:43
+ * @version V1.0
+ * 
+ */
+public class NursingPlanPack {
+	private static Logger logger = Logger.getLogger(NursingPlanPack.class);
+	private static NursingPlanPack nursingPlanPack;
+	private static EmployeeDistributionService employeeDistributionService = EmployeeDistributionService.getInstance();
+	private static ServiceService serviceService = ServiceService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static NursingPlanPack getInstance() {
+		if (nursingPlanPack == null) {
+			nursingPlanPack = new NursingPlanPack();
+		}
+		return nursingPlanPack;
+	}
+
+	public Map<String, Object> pack(int type, String action, Object request, Object entity) {
+		// 定义返回参数
+		Map<String, Object> packMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			packMap = this.packByJson(action, request, entity);
+		} else if (type == 2) {
+			// xml
+			packMap = this.packByXml(action, request, entity);
+		}
+		return packMap;
+	}
+
+	private Map<String, Object> packByJson(String action, Object request, Object entity) {
+		// 定义返回参数
+		Map<String, Object> packMap = new HashMap<String, Object>();
+		String actionBack = null;
+		String resultBack = null;
+		String desBack = null;
+		JSONObject pageBack = null;
+		JSONObject contentBack = null;
+		try {
+			if ("save".equals(action)) {
+				actionBack = "ADD_NURSING_PLAN_INFO_RESPONSE";
+				if (request.equals(true)) {
+					resultBack = "100";
+					desBack = "success";
+				} else if (request.equals(false)) {
+					resultBack = "200";
+					desBack = "failure";
+				}
+				NursingPlanEntity nursingPlan = (NursingPlanEntity) entity;
+				if (nursingPlan != null) {
+					contentBack = new JSONObject();
+					contentBack.put("id", nursingPlan.getId());
+
+					if (nursingPlan.getOlder() != null) {
+						contentBack.put("olderId", nursingPlan.getOlder().getId());
+					}
+					if (nursingPlan.getAddEmployee() != null) {
+						contentBack.put("addEmployeeId", nursingPlan.getAddEmployee().getId());
+					}
+				}
+			} else if ("getById".equals(action)) {
+				actionBack = "QUERY_NURSING_PLAN_INFO_RESPONSE";
+				resultBack = "100";
+				desBack = "success";
+				NursingPlanEntity nursingPlan = (NursingPlanEntity) request;
+				if (nursingPlan != null) {
+					contentBack = JSONObject.fromObject(nursingPlan);
+					if (nursingPlan.getOlder() != null) {
+						contentBack.put("older", JSONObject.fromObject(nursingPlan.getOlder()));
+					}
+					if (nursingPlan.getAddEmployee() != null) {
+						contentBack.put("addEmployee", JSONObject.fromObject(nursingPlan.getAddEmployee()));
+					}
+					//增加EmployeeDistributionList的返回
+					List<NursingPlanServiceEntity> entityList = new ArrayList<NursingPlanServiceEntity>();
+
+					if (nursingPlan.getNursingPlanServiceList() != null && nursingPlan.getNursingPlanServiceList().size() > 0) {
+						for (int i = 0; i < nursingPlan.getNursingPlanServiceList().size(); i++) {
+							NursingPlanServiceEntity planentity = nursingPlan.getNursingPlanServiceList().get(i);
+							Integer planId = planentity.getId();
+							Integer serviceId = planentity.getServiceId();
+							ServiceEntity serviceEntity = serviceService.getById(serviceId);
+							if (serviceEntity != null) {
+								planentity.setServiceName(serviceEntity.getName());
+							}
+							Map<String, Object> queryMapPlan = new HashMap<String, Object>();
+							queryMapPlan.put("nursingPlanServiceId", planId);
+							List<EmployeeDistributionEntity> empLIst = employeeDistributionService.getListByCondition(queryMapPlan);
+							List<EmployeeDistributionEntity> entityList2 = new ArrayList<EmployeeDistributionEntity>();
+							if (empLIst != null && empLIst.size() > 0) {
+								for (EmployeeDistributionEntity entiyer : empLIst) {
+									entityList2.add(entiyer);
+								}
+							}
+							planentity.setEmployeeDistributionList(entityList2);
+							entityList.add(planentity);
+						}
+						contentBack.put("nursingPlanServiceList", entityList);
+					}
+					// ///
+					if (nursingPlan.getNursingPlanServiceList() != null) {
+						contentBack.put("nursingPlanServiceList", JSONArray.fromObject(nursingPlan.getNursingPlanServiceList()));
+					}
+				}
+			} else if ("getListByCondition".equals(action)) {
+				actionBack = "QUERY_NURSING_PLAN_LIST_RESPONSE";
+				resultBack = "100";
+				desBack = "success";
+				PageList pageList = (PageList) request;
+				if (pageList != null && pageList.getResultList() != null && pageList.getResultList().size() > 0) {
+					contentBack = new JSONObject();
+					pageBack = new JSONObject();
+					JSONArray list = JSONArray.fromObject(pageList.getResultList());
+					contentBack.put("nursingPlanList", list);
+
+					pageBack.put("pageno", pageList.getPageno());
+					pageBack.put("pagesize", pageList.getPagesize());
+					pageBack.put("recordCount", pageList.getRecordCount());
+					pageBack.put("pageCount", pageList.getPageCount());
+
+				}
+			} else if ("del".equals(action)) {
+				actionBack = "DEL_NURSING_PLAN_INFO_REQUEST";
+				if (request.equals(true)) {
+					resultBack = "100";
+					desBack = "success";
+				} else if (request.equals(false)) {
+					resultBack = "200";
+					desBack = "failure";
+				}
+			} else if ("delList".equals(action)) {
+				actionBack = "DEL_NURSING_PLAN_LIST_REQUEST";
+				if (request.equals(true)) {
+					resultBack = "100";
+					desBack = "success";
+				} else if (request.equals(false)) {
+					resultBack = "200";
+					desBack = "failure";
+				}
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		if (actionBack != null && !"".equals(actionBack)) {
+			packMap.put("action", actionBack);
+		}
+		if (resultBack != null && !"".equals(resultBack)) {
+			packMap.put("result", resultBack);
+		}
+		if (desBack != null && !"".equals(desBack)) {
+			packMap.put("des", desBack);
+		}
+		if (pageBack != null) {
+			packMap.put("page", pageBack);
+		}
+		if (contentBack != null) {
+			packMap.put("content", contentBack);
+		}
+		return packMap;
+	}
+
+	private Map<String, Object> packByXml(String action, Object request, Object entity) {
+		Map<String, Object> packMap = new HashMap<String, Object>();
+		return packMap;
+	}
+
+}

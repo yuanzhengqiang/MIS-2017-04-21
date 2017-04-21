@@ -1,0 +1,144 @@
+package fsk.handler.sendReceivePhoto;
+
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import fsk.entity.sendReceivePhoto.SendReceivePhotoEntity;
+import fsk.pack.sendReceivePhoto.SendReceivePhotoPack;
+import fsk.parse.sendReceivePhoto.SendReceivePhotoParse;
+import fsk.service.sendReceivePhoto.SendReceivePhotoService;
+import com.framework.system.common.service.SystemService;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.db.query.OrderVO;
+
+ /**   
+ * @Title: Handler
+ * @Description: 交接班图片业务处理器
+ * @author feng.gu
+ * @date 2016-10-19 13:13:14
+ * @version V1.0   
+ *
+ */
+public class SendReceivePhotoHandler extends BaseHandler{
+	private static Logger logger = Logger.getLogger(SendReceivePhotoService.class);
+	/**
+	 * 解析器
+	 */
+	private SendReceivePhotoParse sendReceivePhotoParse = SendReceivePhotoParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private SendReceivePhotoService sendReceivePhotoService = SendReceivePhotoService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private SendReceivePhotoPack sendReceivePhotoPack = SendReceivePhotoPack.getInstance();
+
+	private static SendReceivePhotoHandler sendReceivePhotoHandler;
+	
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static SendReceivePhotoHandler getInstance() {
+		if (sendReceivePhotoHandler == null) {
+			sendReceivePhotoHandler = new SendReceivePhotoHandler();
+		}
+		return sendReceivePhotoHandler;
+	}
+
+	/**
+	 * 
+	 * @param type 1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type,String command,String reqStr, HttpServletRequest request,
+			HttpServletResponse response) {		
+		logger.debug("请求消息："+reqStr);
+		String resultStr="";
+		try {
+			// 解析
+			Map<String, Object> parseMap = sendReceivePhotoParse.parse(type,command,reqStr,request);		
+			String action = (String) parseMap.get("action");
+			SendReceivePhotoEntity sendReceivePhoto = (SendReceivePhotoEntity) parseMap.get("sendReceivePhoto");
+			List<SendReceivePhotoEntity> sendReceivePhotoList = (List<SendReceivePhotoEntity>) parseMap.get("sendReceivePhotoList");
+			Integer id = (Integer) parseMap.get("id");			
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			Integer pageno = (Integer) parseMap.get("pageno");
+			Integer pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+			
+															Boolean sendReceiveShow = (Boolean) parseMap.get("sendReceiveShow");
+			Boolean delSendReceive = (Boolean) parseMap.get("delSendReceive");
+															
+			// 业务处理
+			Object result=null;
+			if ("save".equals(action)) {
+				result = sendReceivePhotoService.save(sendReceivePhoto);
+			} else if ("saveList".equals(action)) {
+				result = sendReceivePhotoService.saveList(sendReceivePhotoList);
+			} else if ("getById".equals(action)) {
+				result = sendReceivePhotoService.getById(id,sendReceiveShow);
+			} else if ("getListByCondition".equals(action)) {
+			    //根据数据权限 增加查询条件
+				queryMap = systemService.addDataRuleByRoles("SendReceivePhotoEntity",queryMap,request);
+				result = sendReceivePhotoService.getListByCondition(queryMap,orderList, pageno,
+						pagesize,sendReceiveShow);
+			} else if ("del".equals(action)) {
+				result = sendReceivePhotoService.del(id,delSendReceive);
+			} else if ("delList".equals(action)) {
+				result = sendReceivePhotoService.delList(queryMap,delSendReceive);
+			}
+			// 封装
+			Map<String, Object> packMap = sendReceivePhotoPack.pack(type,action,result,sendReceivePhoto);
+			String actionBack = (String)packMap.get("action");
+			String resultBack = (String)packMap.get("result");
+			String desBack = (String)packMap.get("des");
+			JSONObject pageBack = (JSONObject)packMap.get("page");
+			JSONObject contentBack = (JSONObject)packMap.get("content");
+			
+			JSONObject repJson = new JSONObject();
+			if(actionBack!=null&&!"".equals(actionBack)){
+				repJson.put("action", actionBack);
+			}
+			if(resultBack!=null&&!"".equals(resultBack)){
+				repJson.put("result", resultBack);
+			}
+			if(desBack!=null&&!"".equals(desBack)){
+				repJson.put("des", desBack);
+			}
+			if(pageBack!=null){
+				repJson.put("page", pageBack);
+			}
+			if(contentBack!=null&&!"".equals(contentBack)){
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息："+repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

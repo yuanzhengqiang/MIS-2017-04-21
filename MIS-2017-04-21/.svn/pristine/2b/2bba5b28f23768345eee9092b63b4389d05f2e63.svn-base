@@ -1,0 +1,83 @@
+/*    */ package fsk.entity.vo.gateway;
+/*    */ 
+/*    */ public class FWristband
+/*    */ {
+/*    */   private String id;
+/*    */   private String time;
+/*    */   private String status;
+/*    */   private String type;
+/*    */   private String normal;
+/*    */   private String alarm;
+/*    */   private String mode;
+/*    */   private String voltage;
+/*    */ 
+/*    */   public String getVoltage()
+/*    */   {
+/* 31 */     return this.voltage;
+/*    */   }
+/*    */ 
+/*    */   public void setVoltage(String voltage) {
+/* 35 */     this.voltage = voltage;
+/*    */   }
+/*    */ 
+/*    */   public String getId() {
+/* 39 */     return this.id;
+/*    */   }
+/*    */ 
+/*    */   public void setId(String id) {
+/* 43 */     this.id = id;
+/*    */   }
+/*    */ 
+/*    */   public String getTime() {
+/* 47 */     return this.time;
+/*    */   }
+/*    */ 
+/*    */   public void setTime(String time) {
+/* 51 */     this.time = time;
+/*    */   }
+/*    */ 
+/*    */   public String getStatus() {
+/* 55 */     return this.status;
+/*    */   }
+/*    */ 
+/*    */   public void setStatus(String status) {
+/* 59 */     this.status = status;
+/*    */   }
+/*    */ 
+/*    */   public String getType() {
+/* 63 */     return this.type;
+/*    */   }
+/*    */ 
+/*    */   public void setType(String type) {
+/* 67 */     this.type = type;
+/*    */   }
+/*    */ 
+/*    */   public String getAlarm() {
+/* 71 */     return this.alarm;
+/*    */   }
+/*    */ 
+/*    */   public void setAlarm(String alarm) {
+/* 75 */     this.alarm = alarm;
+/*    */   }
+/*    */ 
+/*    */   public String getMode() {
+/* 79 */     return this.mode;
+/*    */   }
+/*    */ 
+/*    */   public void setMode(String mode) {
+/* 83 */     this.mode = mode;
+/*    */   }
+/*    */ 
+/*    */   public String getNormal() {
+/* 87 */     return this.normal;
+/*    */   }
+/*    */ 
+/*    */   public void setNormal(String normal) {
+/* 91 */     this.normal = normal;
+/*    */   }
+/*    */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.entity.vo.gateway.FWristband
+ * JD-Core Version:    0.6.1
+ */

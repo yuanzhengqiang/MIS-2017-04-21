@@ -1,0 +1,612 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page import="fsk.init.SystemInit" %>
+<%
+	String nickname = (String) session.getAttribute("nickname");
+	if (nickname == null) {
+		nickname = "";
+	}
+	String header = SystemInit.header;
+	String headerImage = SystemInit.headerImage;
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="shortcut icon" href="images/logo.png">
+
+	<title>站点基本信息</title>
+
+	<!-- Bootstrap core CSS -->
+	<link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+
+	<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+	  <script src="../../assets/js/html5shiv.js"></script>
+	  <script src="../../assets/js/respond.min.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
+  <link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
+  <link href="js/jquery.icheck/skins/square/blue.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="js/jquery.crop/css/jquery.Jcrop.css" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" />	
+<style>
+.accordion .panel,.accordion .panel:first-child{border-top:1px solid #ECECEC;border-bottom:1px solid #ECECEC;}
+.checkbox-inline{padding-left:0;padding-right:30px;}
+ .checkbox-inline + .checkbox-inline{margin-left:0;}
+ .hideAndShow{display:none;}
+</style>
+<script type="text/javascript" src="js/addressJS.js"></script>
+</head>
+
+<body>
+<!-- 上侧栏开始 -->
+    <div id="head-nav" class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="fa fa-gear"></span>
+          </button>
+          <a class="navbar-brand" href="#"  style="width:auto;background: url(images/<%=headerImage %>) no-repeat 0 10px;"><span><%=header %>/站点基本信息</span></a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right user-nav">
+            <li class="dropdown profile_menu">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <img src="images/avatar2.jpg"/>
+                <span id="accountNickname"><%=nickname %></span>
+<!--                 <b class="caret"></b> -->
+              </a>
+<!--               <ul class="dropdown-menu"> -->
+<!--                 <li><a href="#" class="md-trigger" data-modal="md-scale3">密码修改</a></li> -->
+<!--                 <li class="divider"></li> -->
+<!--                 <li><a href="systemLogin.do?logout">退出登录</a></li> -->
+<!--               </ul> -->
+            </li>
+          </ul>
+        </div><!--/.nav-collapse animate-collapse -->
+      </div>
+    </div>  <!-- 上侧栏结束 -->
+
+	
+<div id="cl-wrapper" style="padding-top:40px">	
+<div class="container-fluid" id="pcont">
+	<div class="cl-mcont">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="block-flat profile-info">
+          <div class="row">
+            <div class="col-sm-2">
+              <div class="avatar">
+                <img src="photos/zhandian.png" id="touxiangId" class="profile-avatar" />
+                <input type="hidden" id="hide_siteTupian" value="" /> 
+              </div>
+            </div>
+            <div class="col-sm-7">
+              <div class="personal">
+                <h1 class="name" style="font-size:24px;" id="zhandian_head">未知</h1>
+                <p class="description" style="line-height:13px" id="jutidizhi_head">未知<p>
+                <p class="description" style="line-height:13px;" id="jutidizhi_fuwu_head">未知<p>
+                <p class="description" style="line-height:13px" id="name_tele_head">未知<p>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <table class="no-border no-strip skills">
+                <tbody class="no-border-x no-border-y">
+                  <tr>
+                    <td style="width:50%;color:#666">服务次数</td>   <!-- 4个相关展示信息 -->
+                    <td style="color:#999">88888</td>
+                  </tr>
+                  <tr>
+                    <td style="color:#666">综合服务评价</td>
+                    <td style="color:#999"><i class="fa fa-star" style="width:15px;"></i><i class="fa fa-star" style="width:15px;"></i><i class="fa fa-star" style="width:15px;"></i><i class="fa fa-star" style="width:15px;"></i><i class="fa fa-star-half-empty " style="width:15px;"></i></td>
+                  </tr>
+                  <tr>
+                    <td style="color:#666">员工数量</td>
+                    <td style="color:#999" id="ygNum"></td>
+                  </tr>
+                  <tr>
+                    <td style="color:#666">老人数量</td>
+                    <td style="color:#999" id="oldNum"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row" style="margin-top:0">
+      <div class="col-sm-12">
+        <div class="tab-container" >
+          <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#siteBasicInfo">基本信息</a></li>
+          </ul>
+          <div class="tab-content" >
+            <div id="siteBasicInfo" class="tab-pane  cont active" ><!-- 基本信息开始 -->
+				
+					<div class="panel-group accordion accordion-semi" id="accordion1-1" style="margin-top:20px;">
+					  <div class="panel panel-default">
+						<div class="panel-heading">
+						  <h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion1-1" href="#ac1-1">
+								<i class="fa fa-angle-right"></i>基本信息
+							</a>
+						  </h4>
+						</div>
+						<div id="ac1-1" class="panel-collapse collapse in">
+						  <div class="panel-body">
+							<form class="form-horizontal" >
+								<div class="form-group">
+								  <label class="col-sm-2 control-label">名称<span style="color:red">*</span></label>
+								  <div class="col-sm-4">
+									<input type="text" class="form-control" id="name_input" readonly="readonly" tag="hedangdang">
+									<input type="hidden" id="name_input_hide">
+								  </div>
+								  <input id="zhanzhang_modalId"  class="btn btn-primary btn-flat btn-rad" type="hidden" value="站长">
+								  <label  class="col-sm-2 control-label">站长</label>
+								 	<div class="col-sm-4">
+									<input type="text" class="form-control" id="zhanzhang_input" readonly="readonly" tag="hedangdang" onclick="javascript:return false;">
+									<input type="hidden" id="zhanzhangId_input" >
+								  </div>								 
+								</div>
+								<div class="form-group">
+								  <label class="col-sm-2 control-label">联系人<span style="color:red">*</span></span></label>
+								  <div class="col-sm-4">
+									<input type="text" class="form-control" id="lianxiren_input" readonly="readonly" tag="hedangdang">
+									<input type="hidden" id="lianxiren_input_hide">
+								  </div>
+								  <label  class="col-sm-2 control-label">联系电话<span style="color:red">*</span></label>
+								  <div class="col-sm-4">
+									<input type="text" class="form-control" id="lianxidianhua_input" readonly="readonly" tag="hedangdang">
+									<input type="hidden" id="lianxidianhua_input_hide">
+								  </div>
+								</div>
+								<div class="form-group">
+								  <label class="col-sm-2 control-label">站点类别<span style="color:red">*</span></span></label>
+								  <div class="col-sm-4">
+									<select class="form-control" id="siteleibie_input" disabled="disabled" tag="hedangdang">
+										<option value="医疗护理站 ">医疗护理站</option>
+										<option value="照护站">照护站</option>
+										<option value="日间照料中心">日间照料中心</option>
+										<option value="长者照护之家">长者照护之家</option>
+										<option value="养老院">养老院</option>
+										<option value="其他">其他</option>
+									</select>
+								  </div>
+								</div>
+								<div class="form-group">
+								  <label class="col-sm-2 control-label">地址（省）<span style="color:red">*</span></label>
+								  <div class="col-sm-4">
+									<select class="form-control" id="quyushen_input" disabled="disabled" tag="hedangdang">
+									
+									</select>
+									<input type="hidden" id="quyushen_input_hide">
+								  </div>
+								  <label  class="col-sm-2 control-label">地址（市）<span style="color:red">*</span></label>
+								  <div class="col-sm-4">
+									<select class="form-control" id="quyushi_input" disabled="disabled" tag="hedangdang">
+									</select>
+									<input type="hidden" id="quyushi_input_hide">
+								  </div>
+								</div>
+								<div class="form-group">
+								  <label class="col-sm-2 control-label">地址（区）<span style="color:red">*</span></label>
+								  <div class="col-sm-4">
+									<select class="form-control" id="quyuqu_input" disabled="disabled" tag="hedangdang">
+									</select>
+									<input type="hidden" id="quyuqu_input_hide">
+								  </div>
+								  <label  class="col-sm-2 control-label">地址（街道）<span style="color:red">*</span></label>
+								  <div class="col-sm-4">
+									<select class="form-control" id="quyujiedao_input" disabled="disabled" tag="hedangdang">
+									</select>
+									<input type="hidden" id="quyujiedao_input_hide">
+								  </div>
+								</div>
+								<div class="form-group">
+								  <label class="col-sm-2 control-label">地址（具体地址）<span style="color:red">*</span></label>
+								  <div class="col-sm-10" >
+									<input type="text" class="form-control" id="jutidizhi" readonly="readonly" tag="hedangdang">
+									<input type="hidden" id="jutidizhi_hide">
+								  </div>
+								</div>
+								
+							</form>
+						  </div>
+						</div>
+					  </div>
+					</div>	
+					<div class="panel-group accordion accordion-semi" id="accordion1-2" >
+					  <div class="panel panel-default">
+						<div class="panel-heading">
+						  <h4 class="panel-title">
+							<a class="" data-toggle="collapse" data-parent="#accordion1-2" href="#ac1-2">
+							  <i class="fa fa-angle-right"></i>服务信息
+							</a>
+						  </h4>
+						</div>
+						<div id="ac1-2" class="panel-collapse collapse in">
+						  <div class="panel-body">
+						  <div class="table-responsive">
+							<table class="table no-border hover">
+								<thead class="no-border">
+									<tr>
+										<th style="width:20%;"><strong>服务区域（省）</strong></th>
+										<th style="width:20%;"><strong>服务区域（市）</strong></th>
+										<th style="width:20%;"><strong>服务区域（区）</strong></th>
+										<th style="width:30%;"><strong>服务区域（街道）</strong></th>
+										<th style="display:none;" tag="hedangdang"><strong>操作</strong></th>
+									</tr>
+								</thead>
+								<a class="label label-primary md-trigger" data-modal="add-address" id="adddzxx" style="display:none;"><i class="fa fa-plus"></i></a>
+								<a class="label label-primary md-trigger" data-modal="add-addressBJ" id="editdzxx" style="display:none;"><i class="fa fa-pencil"></i></a> <a class="label label-danger" id="deldzxx" style="display:none;"><i class="fa fa-times"></i></a>
+								<tbody class="no-border-y" id="addressMessge">
+								</tbody>
+							</table>		
+							</div>
+						  </div>
+						</div>
+					  </div>
+					</div>
+					
+			</div>
+
+          </div>
+        </div>    
+        
+
+      </div>
+      
+
+    </div>
+
+	</div>
+	
+</div> 
+	
+</div> <!-- 主页面结束 -->
+				
+				 <div class="md-overlay"></div>
+
+
+	<script src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+	<script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+  <script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
+	<script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
+
+	<script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
+	<script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+  <script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>   
+  <script type="text/javascript" src="js/masonry.js"></script>
+  <script type="text/javascript" src="js/jquery.crop/js/jquery.Jcrop.js"></script>
+
+  <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+  <script src="js/jquery.upload/js/jquery.iframe-transport.js"></script>
+  <!-- The basic File Upload plugin -->
+  <script src="js/jquery.upload/js/jquery.fileupload.js"></script>
+	<script type="text/javascript" src="js/behaviour/general.js"></script>
+	<script type="text/javascript" src="js/jquery.icheck/icheck.min.js"></script>
+
+
+    <script type="text/javascript">
+
+     //获取市信息
+      function getquyushixinxi(id){
+        var result = new Array();
+    	result = getAddresses(id);
+        var html="";
+        for(var i=0;i<result.length;i++){
+        	html+="<option value=\""+result[i].id+"\">"+result[i].name+"</option>";
+        }
+        $("#quyushi_input").html(html);
+      }
+      
+     //获取区信息
+      function getquyuquxinxi(id){
+        var result = new Array();
+    	result = getAddresses(id);
+        var html="";
+        for(var i=0;i<result.length;i++){
+        	html+="<option value=\""+result[i].id+"\">"+result[i].name+"</option>";
+        }
+        $("#quyuqu_input").html(html);
+      }
+      
+      //获取街道信息
+      function getquyujiedaoxinxi(id){
+        var result = new Array();
+    	result = getAddresses(id);
+        var html="";
+        for(var i=0;i<result.length;i++){
+        	html+="<option value=\""+result[i].id+"\">"+result[i].name+"</option>";
+        }
+        $("#quyujiedao_input").html(html);
+      }
+    
+      $(document).ready(function(){
+        //initialize the javascript
+        
+        App.init();
+		 $(".md-trigger").modalEffects();  //初始化模态框
+		 
+		///主页面 地址设置默认值////////////////////////////////////////////////////////////////////////////////////////////
+        //获取省  
+        var result = new Array();
+        result = getAddresses(4897);
+        var html="";
+        for(var i=0;i<result.length;i++){
+        	html+="<option value=\""+result[i].id+"\">"+result[i].name+"</option>";
+        }
+        $("#quyushen_input").html(html);
+                
+        //获取默认市
+        getquyushixinxi($("#quyushen_input").val());
+        //获取默认区
+        getquyuquxinxi($("#quyushi_input").val());
+        //获取默认街道
+        getquyujiedaoxinxi($("#quyuqu_input").val());
+        
+        
+        	//主页面"地址信息"
+			var html2="<tr>";
+			html2+="<td></td>";
+			html2+="<td></td>";
+			html2+="<td></td>";
+			html2+="<td></td>";
+			html2+="<td><a class=\"label label-primary md-trigger\" data-modal=\"add-address\" onclick=\"dizhixinxi()\"><i class=\"fa fa-plus\"></i></a></td>";							
+			html2+="</tr>";
+			$("#addressMessge").html(html2);
+			
+			query();
+		});
+
+      	var num="1";
+
+	function query(){
+		var siteId="<%=request.getAttribute("siteId")%>";
+		var reqmsg="{'action':'QUERY_SITE_INFO_REQUEST','content':{\"masterEmployeeShow\":\"true\",\"employeeListShow\":\"true\",\"dataDicListShow\":\"true\",\"id\":"+siteId+"}}";
+		
+		  jQuery.ajax({
+          type : "post",
+          async:true,
+          url : "daeSite.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  changeData(data);
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+    	 });
+	}
+	
+	//获取员工数量和老人数量
+	function getyuangongAndLaoren(siteId){
+		  var html="";
+		  jQuery.ajax({
+	          type : "post",
+	          async:false,
+	          url : "daeSite.do?getyuangongAndLaoren",
+	          dataType : "json",
+	          data: {
+	               "siteId":siteId
+	          },
+	          success : function(data){
+	              if(data.des=="success"){
+	            	  $("#ygNum").html(data.ygNum);
+	            	  $("#oldNum").html(data.oldNum);
+	              }else{
+	              	$("#ygNum").html("未知");
+	            	$("#oldNum").html("未知");
+	              }
+	          },
+	          error:function(){
+	            	$("#ygNum").html("未知");
+	            	$("#oldNum").html("未知");
+		           alert("error");
+	          }
+	      });
+		 
+		}
+	var siteStreets = "";
+	function changeData(data){
+		if (data.content != null) {
+			if(data.content.mainPhoto != null && data.content.mainPhoto != ""){
+				$("#touxiangId").attr("src",data.content.mainPhoto + "?random=" + Math.random());//头像
+				$("#hide_siteTupian").val(data.content.mainPhoto);//头像
+			}
+			//头
+			getyuangongAndLaoren(data.content.id);
+			
+			if(data.content.name != null && data.content.name != ""){
+ 				$("#zhandian_head").html(data.content.name);//站点名称
+ 			}else{
+ 				$("#zhandian_head").html("未知");//站点名称
+ 			}
+ 			
+ 			var pi=getNameById(data.content.provinceId);
+ 			var ci=getNameById(data.content.cityId);
+ 			var ai=getNameById(data.content.areaId);
+ 			var si=getNameById(data.content.streetId);
+ 			var ad=data.content.address;
+ 			if(pi == null || pi == ""){
+ 				pi="未知";
+ 			}
+ 			if(ci == null || ci == ""){
+ 				ci="未知";
+ 			}
+ 			if(ai == null || ai == ""){
+ 				ai="未知";
+ 			}
+ 			if(si == null || si == ""){
+ 				si="未知";
+ 			}
+ 			if(ad == null || ad == ""){
+ 				ad="未知";
+ 			}
+			$("#jutidizhi_head").html(pi+","+ci+","+ai+","+si+","+ad);//地址
+
+			if(data.content.dataDicList != null && data.content.dataDicList.length > 0){
+				var jiedao = "";
+				jQuery.each(data.content.dataDicList, function(i, item) {
+					jiedao += getNameById(item.id) + ",";
+					siteStreets += item.id + ",";
+				});
+				if(jiedao != ""){
+					jiedao = jiedao.substring(0, jiedao.length-1);
+				}
+				if(siteStreets != ""){
+					siteStreets = siteStreets.substring(0, siteStreets.length-1);
+				}
+				if(jiedao != "" && jiedao != null){
+					if(jiedao.length > 18){
+						$("#jutidizhi_fuwu_head").html(jiedao.substr(0,18) + "...");//服务地址
+					}else{
+						$("#jutidizhi_fuwu_head").html(jiedao);//服务地址
+					}
+				}
+			}
+
+			var cp=data.content.contactPerson;
+ 			var ct=data.content.contactTel;
+ 			if(cp == null || cp == ""){
+ 				cp="未知";
+ 			}
+ 			if(ct == null || ct == ""){
+ 				ct="未知";
+ 			}
+ 
+			$("#name_tele_head").html("负责人:"+cp+"/"+ct);//负责人：姓名和电话
+		
+
+			//主体
+			$("#name_input").val(data.content.name);//站点名称
+			if(data.content.masterEmployee != null){
+				$("#zhanzhang_input").val(data.content.masterEmployee.name);//站长
+				$("#zhanzhangId_input").val(data.content.masterEmployee.id);
+			}
+			$("#lianxiren_input").val(data.content.contactPerson);//联系人
+			$("#lianxidianhua_input").val(data.content.contactTel);//联系电话
+			$("#siteleibie_input").val(data.content.type);//站点类别
+			$("#quyushen_input").val(data.content.provinceId);//地址（省）
+			getquyushixinxi(data.content.provinceId);
+			$("#quyushi_input").val(data.content.cityId);//地址（市）
+			getquyuquxinxi(data.content.cityId);
+			$("#quyuqu_input").val(data.content.areaId);//地址（区）
+			getquyujiedaoxinxi(data.content.areaId);
+			$("#quyujiedao_input").val(data.content.streetId);//地址（街道）
+			$("#jutidizhi").val(data.content.address);//地址（具体地址）
+			
+			//服务地址信息
+ 			var html23="";
+ 			if(data.content.dataDicList != null){
+ 				var jiedao = 0;
+ 				var qu = 0;
+ 				var shi = 0;
+ 				var shen = 0;
+ 				
+ 				if(data.content.dataDicList.length == 1 || data.content.dataDicList.length == 2){
+ 					var linshi = 1;
+ 					jQuery.each(data.content.dataDicList, function(i, item) {
+ 					 	jiedao = item.id;
+ 				 		qu = getFatherIdBySonId(jiedao);
+ 						shi = getFatherIdBySonId(qu);
+ 						shen = getFatherIdBySonId(shi);
+ 						html23+="<tr>";
+						html23+="<td>"+getNameById(shen)+"</td>";
+						html23+="<td>"+getNameById(shi)+"</td>";
+						html23+="<td>"+getNameById(qu)+"</td>";
+						html23+="<td>"+getNameById(jiedao)+"</td>";
+						html23+="<td style=\"display:none;\" tag=\"hedangdang\" id=\""+num+"\"><a class=\"label label-default\" onclick=\"editxinxi("+num+","+ shen +","+ shi +","+ qu +","+ jiedao +")\"><i class=\"fa fa-pencil\"></i></a> <a class=\"label label-danger\" onclick=\"delxinxi("+linshi+")\"><i class=\"fa fa-times\"></i></a></td>";							
+						html23+="</tr>";
+						num++;
+						linshi++;
+ 					});
+ 					html23+="<tr>";
+					html23+="<td></td>";
+					html23+="<td></td>";
+					html23+="<td></td>";
+					html23+="<td></td>";
+					html23+="<td style=\"display:none;\" tag=\"hedangdang\"><a class=\"label label-primary md-trigger\" data-modal=\"add-address\" onclick=\"dizhixinxi()\"><i class=\"fa fa-plus\"></i></a></td>";							
+					html23+="</tr>";	
+ 				}else if(data.content.dataDicList.length == 3){
+ 					var linshi = 1;
+ 					jQuery.each(data.content.dataDicList, function(i, item) {
+ 						jiedao = item.id;
+ 				 		qu = getFatherIdBySonId(jiedao);
+ 						shi = getFatherIdBySonId(qu);
+ 						shen = getFatherIdBySonId(shi);
+ 						html23+="<tr>";
+						html23+="<td>"+getNameById(shen)+"</td>";
+						html23+="<td>"+getNameById(shi)+"</td>";
+						html23+="<td>"+getNameById(qu)+"</td>";
+						html23+="<td>"+getNameById(jiedao)+"</td>";
+						html23+="<td style=\"display:none;\" tag=\"hedangdang\" id=\""+num+"\"><a class=\"label label-default\" onclick=\"editxinxi("+num+","+ shen +","+ shi +","+ qu +","+ jiedao +")\"><i class=\"fa fa-pencil\"></i></a> <a class=\"label label-danger\" onclick=\"delxinxi("+linshi+")\"><i class=\"fa fa-times\"></i></a></td>";							
+						html23+="</tr>";
+						num++;
+						linshi++;
+ 					});
+ 				}else{
+ 					html23+="<tr>";
+					html23+="<td></td>";
+					html23+="<td></td>";
+					html23+="<td></td>";
+					html23+="<td></td>";
+					html23+="<td style=\"display:none;\" tag=\"hedangdang\"><a class=\"label label-primary md-trigger\" data-modal=\"add-address\" onclick=\"dizhixinxi()\"><i class=\"fa fa-plus\"></i></a></td>";							
+					html23+="</tr>";	
+ 				}
+ 				$("#addressMessge").html(html23);
+ 			}else{
+ 				html23+="<tr>";
+				html23+="<td></td>";
+				html23+="<td></td>";
+				html23+="<td></td>";
+				html23+="<td></td>";
+				html23+="<td style=\"display:none;\" tag=\"hedangdang\"><a class=\"label label-primary md-trigger\" data-modal=\"add-address\" onclick=\"dizhixinxi()\"><i class=\"fa fa-plus\"></i></a></td>";							
+				html23+="</tr>";	
+				$("#addressMessge").html(html23);
+ 			}
+ 			
+ 		}
+    }
+    
+    </script>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+  <script src="js/behaviour/voice-commands.js"></script>
+  <script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+<script type="text/javascript" src="js/jquery.form.js"></script>
+</body>
+</html>

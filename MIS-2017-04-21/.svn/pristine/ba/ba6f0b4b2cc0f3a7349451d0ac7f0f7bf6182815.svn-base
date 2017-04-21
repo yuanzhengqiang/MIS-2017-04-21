@@ -1,0 +1,905 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page import="fsk.init.SystemInit" %>
+<%
+	String nickname = (String) session.getAttribute("nickname");
+	if (nickname == null) {
+		nickname = "";
+	}
+	String header = SystemInit.header;
+	String headerImage = SystemInit.headerImage;
+%>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="images/logo.png">
+    <title>回访记录</title>
+    <!-- Bootstrap core CSS -->
+    <link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+    <link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+	  <script src="../../assets/js/html5shiv.js"></script>
+	  <script src="../../assets/js/respond.min.js"></script>
+	<![endif]-->
+    <link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+    <link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
+    <link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
+    <link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
+    <link href="js/jquery.icheck/skins/square/blue.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="js/dropzone/css/dropzone.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.timeline/css/component.css" />
+    <link rel="stylesheet" href="js/jquery.crop/css/jquery.Jcrop.css" type="text/css" />
+    <link href="css/style.css" rel="stylesheet" />
+  <style>
+    .control-label0{padding-top:6px;}
+    .asqqsize{font-size:14px}
+    .asqq{margin-right:15px}
+    .color999{color:#999}
+    .color3380ff{color:#3380FF}
+    .jiange5px >div{margin-bottom:10px}
+    .mytablenopadding>tr>td{padding-top:0 !important;padding-bottom:0 !important;}
+    .mytablenopadding>tr>td:nth-child(4){padding-top:7px !important;padding-bottom:7px !important;text-align:right}
+    .mytablenopadding>tr{background:#fff !important;}
+    .mytablenopadding input,.mytablenopadding select{border:0}
+     textarea{resize:vertical}
+    .minH100px{min-height:100px}
+    .cbp_tmlabel{padding:10px !important;}
+    .cbp_tmicon strong{font-size:24px} 
+    .TPhide{display:none}
+    
+.hideul{position:absolute;top:33px;z-index:200;right:15px;left:15px;display:none}
+.hideul ul{ border:1px solid #ccc;width:100%;background:#f4f4f4;padding-left:0}
+.hideul ul li{ list-style-type:none;text-indent:20px}
+.hideul ul li:hover{ background:#ddd}
+  </style>
+  </head>
+  <body>
+  <div class="navbar-fixed-top">
+	<div class="navbar navbar-default" style="margin-bottom: 0;">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="fa fa-gear"></span>
+          </button>
+          <a class="navbar-brand" href="#"  style="width:auto;background: url(images/<%=headerImage %>) no-repeat 0 10px;"><span><%=header %>/回访记录</span></a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right user-nav">
+            <li class="dropdown profile_menu">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <img src="images/avatar2.jpg"/>
+                <span id="accountNickname"><%=nickname %></span>
+<!--                 <b class="caret"></b> -->
+              </a>
+<!--               <ul class="dropdown-menu"> -->
+<!--                 <li><a href="#" class="md-trigger" data-modal="md-scale3">密码修改</a></li> -->
+<!--                 <li class="divider"></li> -->
+<!--                 <li><a href="systemLogin.do?logout">退出登录</a></li> -->
+<!--               </ul> -->
+            </li>
+          </ul>
+        </div><!--/.nav-collapse animate-collapse -->
+      </div>
+    </div>  <!-- 上侧栏结束 -->
+	<div id="head-nav" class=""> 
+      <div class="block-flat" style="padding-bottom: 0; margin-bottom: 0">
+        <div class="row">
+          <div class=" col-xs-6">
+            <div>
+              <h3 style="margin-top: 5px; margin-bottom: 15px">回访记录</h3>
+            </div>
+          </div>
+          <div class=" col-xs-6" style="text-align: right; ">
+            <button class="btn btn-primary" onclick="save()">保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div id="cl-wrapper1" style="overflow: hidden;padding-top:120px">
+      <div class="cl-mcont">
+        <div class="block-flat">
+          <div class="row" style="margin-top: 0">
+            <div class="col-sm-12">
+              <div class="form-group form-horizontal group-border-dashed" style="padding-top: 0">
+                <div class="row jiange5px" style="margin-top: 0">
+                  <div class="col-sm-12">
+                    <h4 ><i class="fa fa-book fa-fw"></i> 基本信息</h4>
+                  </div>
+                  <div class="col-sm-2 col-md-2 " id="hfbh_input_title">回访编号</div>
+                  <div class="col-sm-10 col-md-10 " id="hfbh_input">无</div>
+                  <div class="col-sm-2 col-md-2 ">预计回访时间</div>
+                  <input type="hidden" value="" id="yjhfsj_input_hide">
+                  <div class="col-sm-4 col-md-4 " id="yjhfsj_input">无</div>                  
+                  <div class="col-sm-2 col-md-2 ">实际回访时间</div>
+                  <div class="col-sm-4 col-md-4 " id="sjhfsj_input">无</div> 
+                  <div class="col-sm-2 col-md-2 ">回访老人</div>
+                  <div class="col-sm-4 col-md-4 ">
+                  		<div class="col-sm-4 col-md-3" id="hflr_inputHtml" style="padding:0px"></div>
+						<div class="col-sm-4 col-md-4" style="position:relative;padding:0px" id="hflr_input">
+							<div class="input-group " >
+								<input type="hidden" value="0" id="oldinput_searchId">
+								<input class="form-control"  type="text" id="oldinput_search" onclick="getolderName()" oninput="getolderName()" onmouseout="javascript:$('#hideul-1').hide();" onmouseover="javascript:$('#hideul-1').show();">
+								<span class="input-group-btn"><button class="btn btn-primary " type="button"><span class="fa fa-search"></span></button></span>
+							</div>
+							<div class="hideul" id="hideul-1"  onmouseover="javascript:$('#hideul-1').show();" onmouseout="javascript:$('#hideul-1').hide();">
+								<ul id="hideul_nei1">
+							
+								</ul>
+							</div>
+						</div>
+                    	<a href="###" id="oldinput_searchUrl" target="_blank">详情</a>
+                  </div>
+                  <div class="col-sm-2 col-md-2 ">回访人</div>
+                  <div class="col-sm-4 col-md-4 " >
+                  	<div id="hfr_inputHtml" style="padding:0px"></div>
+                  	<div class="col-sm-4 col-md-4" style="position:relative;padding:0px" id="hfr_input">
+						<div class="input-group " >
+							<input type="hidden" value="0" id="hfrinputId">
+							<input class="form-control"  type="text" id="hfrinput_search" onclick="gethfrName()" oninput="gethfrName()" onmouseout="javascript:$('#hideul-25').hide();" onmouseover="javascript:$('#hideul-25').show();">
+							<span class="input-group-btn"><button class="btn btn-primary " type="button"><span class="fa fa-search"></span></button></span>
+						</div>
+						<div class="hideul" id="hideul-25"  onmouseover="javascript:$('#hideul-25').show();" onmouseout="javascript:$('#hideul-25').hide();">
+							<ul id="hideul_nei25">
+							
+							</ul>
+						</div>
+					</div>
+                  </div>
+                  <div class="col-sm-2 col-md-2 ">服务站点</div>
+                  <div class="col-sm-4 col-md-4 ">
+				  	<select class="form-control" id="fwzd_input">
+												
+					</select>
+				  </div>
+				  <div class="col-sm-2 col-md-2 ">回访方式</div>
+                  <div class="col-sm-4 col-md-4 ">
+				  	<select class="form-control" id="hffs_input">
+                      <option value="1">电话</option>
+                      <option value="2">入户</option>
+                      <option value="3">机构</option>
+                    </select>
+				  </div>
+				  <div class="col-sm-2 col-md-2 ">回访来源</div>
+                  <div class="col-sm-4 col-md-4 c">
+				  	<select class="form-control" id="hfly_input">
+                      <option value="1">站点</option>
+                      <option value="2">品保部</option>
+                    </select>
+				  </div>
+				  <div class="col-sm-2 col-md-2 ">回访状态</div>
+				  <input type="hidden" value="" id="hfzt_input_hide">
+                  <div class="col-sm-4 col-md-4 " id="hfzt_input">
+				  	 未回访
+				  </div>              
+                 </div>
+              </div>
+              <div class=" form-horizontal group-border-dashed">
+                <div class="row " style="margin-top: 0">                
+                  <div class="col-sm-12">
+                    <h4 ><i class="fa fa-pencil"></i> 调查选项</h4>
+                  </div>
+                  <div class="form-group">
+	                  <div class="col-sm-12 ">问题1：服务中存在的问题</div>
+	                  <div class="col-sm-12">
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="1"> 1.入门时没有打招呼以及自我介绍，出门时没有报别</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="2"> 2.没有穿工作服</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="3"> 3.没有佩戴工牌</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="4"> 4.没有穿鞋套</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="5"> 5.没有洗手</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="6"> 6.服务前没有了解及评价客户当天的健康状况</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="7"> 7.服务前没有告知此次服务的流程及目标</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="8"> 8.服务中没有主动协助客户移动</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="9"> 9.服务中没有妥善解决客户提出的问题</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="10"> 10.服务中没有按康复护理计划要求完成</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="11"> 11.服务中遇到客户二便没有妥善解决</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="12"> 12.服务中接听与工作无关的电话</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="13"> 13.服务中有情绪化表现</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="14"> 14.服务中工作不细致</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="15"> 15.服务后没有与客户及家属沟通并告知康复护理情况</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="16"> 16.服务后没有协助客户及家属安排家庭自我康复计划</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="17"> 17.服务后没有按规定处理护理废弃物</label> 
+		                  </div>
+		                  <div class="radio col-sm-6"> 
+		                    <label> <input type="checkbox" name="rad1" class="icheck" value="18"> 18.服务后没有按要求填写护理记录并交由客户确认</label> 
+		                  </div>
+	                  </div>
+                  </div>
+                  <div class="form-group">
+	                  <div class="col-sm-12 ">问题2：服务评价是否是您真实意思表达</div>
+	                  <div class="col-sm-12 ">
+	                  	<label class="radio-inline"> <input type="radio" name="rad2" class="icheck" value="1"> 是</label> 
+	                    <label class="radio-inline"> <input type="radio" name="rad2" class="icheck" value="2"> 否</label> 
+				  	  </div>
+				  </div>
+				  <div class="form-group">
+	                  <div class="col-sm-12 ">问题3：精神面貌是否满意</div>
+	                  <div class="col-sm-12 ">
+	                  	<label class="radio-inline"> <input type="radio" name="rad3" class="icheck" value="1"> 是</label> 
+	                    <label class="radio-inline"> <input type="radio" name="rad3" class="icheck" value="2"> 否</label> 
+				  	  </div>
+				  </div>
+				  <div class="form-group">
+	                  <div class="col-sm-12 ">问题4：服务人员仪容及穿着您是否满意</div>
+	                  <div class="col-sm-12 ">
+	                  	<label class="radio-inline"> <input type="radio" name="rad4" class="icheck" value="1"> 是</label> 
+	                    <label class="radio-inline"> <input type="radio" name="rad4" class="icheck" value="2"> 否</label> 
+				  	  </div>
+				  </div>
+				  <div class="form-group">
+	                  <div class="col-sm-12 ">问题5：服务人员的专业技术您是否满意</div>
+	                  <div class="col-sm-12 ">
+	                  	<label class="radio-inline"> <input type="radio" name="rad5" class="icheck" value="1"> 是</label> 
+	                    <label class="radio-inline"> <input type="radio" name="rad5" class="icheck" value="2"> 否</label> 
+				  	  </div>
+				  </div>
+				  <div class="form-group">
+	                  <div class="col-sm-12 ">问题6：总体满意度</div>
+	                  <div class="col-sm-12 ">
+	                  	<label class="radio-inline"> <input type="radio" name="rad6" class="icheck" value="1"> 很满意</label> 
+	                    <label class="radio-inline"> <input type="radio" name="rad6" class="icheck" value="2"> 满意</label> 
+	                    <label class="radio-inline"> <input type="radio" name="rad6" class="icheck" value="3"> 一般</label> 
+	                    <label class="radio-inline"> <input type="radio" name="rad6" class="icheck" value="4"> 中</label> 
+	                    <label class="radio-inline"> <input type="radio" name="rad6" class="icheck" value="5"> 差</label> 
+				  	  </div>
+				  </div>
+				   <div class="form-group">
+	                  <div class="col-sm-12 ">问题7：您对服务有何意见和建议</div>
+	                  <div class="col-sm-12 ">
+	                  	<textarea class="form-control" style="margin:10px 20px 0 20px" id="yjjy_input"></textarea>
+				  	  </div>
+				  </div>
+				   <div class="form-group">
+	                  <div class="col-sm-12 ">问题8：您对服务有何特别的要求和需求</div>
+	                  <div class="col-sm-12 ">
+	                  	<textarea class="form-control" style="margin:10px 20px 0 20px" id="yqxq_input"></textarea>
+				  	  </div>
+				  </div>     
+			</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    </div>
+    <!-- 主页面结束 -->
+
+    <script src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+    <script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
+    <script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+    <script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
+    <script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
+    <script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+    <script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>
+    <script type="text/javascript" src="js/masonry.js"></script>
+    <script type="text/javascript" src="js/jquery.crop/js/jquery.Jcrop.js"></script>
+    <script src="js/ckeditor/ckeditor.js"></script>
+    <script src="js/ckeditor/adapters/jquery.js"></script>
+    <script src="js/jquery.timeline/js/modernizr.custom.js"></script>
+    <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+    <script src="js/jquery.upload/js/jquery.iframe-transport.js"></script>
+    <!-- The basic File Upload plugin -->
+    <script src="js/jquery.upload/js/jquery.fileupload.js"></script>
+    <script type="text/javascript" src="js/behaviour/general.js"></script>
+    <script type="text/javascript" src="js/jquery.icheck/icheck.min.js"></script>
+    <script type="text/javascript" src="js/dropzone/dropzone.js"></script>
+    <script type="text/javascript">
+	$(document).ready(function() {
+		$("#yjhfsj_input_hide").val(getNowFormatDate());
+		$("#yjhfsj_input").html($("#yjhfsj_input_hide").val().substr(0,4) + "年" + $("#yjhfsj_input_hide").val().substr(4,2) + "月");
+		getzhandian();
+		var id="<%=request.getAttribute("id")%>";
+		if(id != null && id != ""){//有值为编辑
+			$("#hflr_input").hide();
+			query(id);
+		}else{//无值为新增，分两种
+			$("#hfbh_input_title").hide();
+			$("#hfbh_input").hide();
+			$("#hflr_inputHtml").hide();
+			$("#hfr_inputHtml").hide();
+			getLogin();//给回访人赋值默认值
+			var olderId="<%=request.getAttribute("olderId")%>";
+			if(olderId != null && olderId != ""){//有值为指定老人新增-老人模块，回访模块跳转过来
+				getOlderJBXX(olderId);
+			}
+		}
+		var homeUrl = "<%=request.getContextPath()%>" + "/welcome.do?main";
+  		$(".navbar-brand").attr("href",homeUrl);
+	
+		$(".deleteThisTime").click(function() { //清除日期框中的值
+			$(this).parent().prev()[0].value = "";
+		});
+		App.init();
+
+	});
+	
+	//查找已存在回访记录信息
+	function query(id){
+		  var reqmsg="{'action':'QUERY_REVIEW_INFO_REQUEST','content':{\"id\":"+id+"}}";
+		 
+		  jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "review.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  changeData(data);
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     	  });
+	}
+	function changeData(data){
+		if (data.content != null) {
+			$("#hfbh_input").html(data.content.recordCode);
+			if(data.content.estimatedReviewTime != null && data.content.estimatedReviewTime.length == 14){
+				$("#yjhfsj_input").html(data.content.estimatedReviewTime.substr(0,4) + "年" + data.content.estimatedReviewTime.substr(4,2) + "月");
+			}
+			if(data.content.realReviewTime != null && data.content.realReviewTime.length == 14){
+				$("#sjhfsj_input").html(data.content.realReviewTime.substr(0,4) + "年" + data.content.realReviewTime.substr(4,2) + "月" + data.content.realReviewTime.substr(6,2) + "日");
+			}
+			$("#hflr_inputHtml").html(data.content.olderName);
+			$("#oldinput_searchUrl").attr("href","<%=request.getContextPath()%>" + "/daeOlder.do?main&id="+data.content.olderId);
+			if(data.content.employeeName != null && data.content.employeeName != ""){
+				$("#hfr_inputHtml").html(data.content.employeeName);
+			}
+			if(data.content.siteId != null && data.content.siteId != ""){
+				$("#fwzd_input").val(data.content.siteId);
+			}
+			if(data.content.method != null && data.content.method != ""){
+				$("#hffs_input").val(data.content.method);
+			}
+			if(data.content.source != null && data.content.source != ""){
+				$("#hfly_input").val(data.content.source);
+			}
+			$("#hfzt_input_hide").val(data.content.status);
+			$("#hfzt_input").html(changestatus(data.content.status));
+			if(data.content.status == 1){//是已经生成的未回访的
+				$("#hfr_inputHtml").hide();
+				getLogin();//给回访人赋值默认值
+			}else{
+				$("#hfr_input").hide();
+			}
+			
+			if(data.content.question1 != null && data.content.question1 != ""){
+				getcheckbox(data.content.question1,"rad1");
+			}
+			if(data.content.question2 != null && data.content.question2!= ""){
+ 				getradiobox(data.content.question2,"rad2");
+ 			}
+ 			if(data.content.question3 != null && data.content.question3!= ""){
+ 				getradiobox(data.content.question3,"rad3");
+ 			}
+ 			if(data.content.question4 != null && data.content.question4!= ""){
+ 				getradiobox(data.content.question4,"rad4");
+ 			}
+ 			if(data.content.question5 != null && data.content.question5!= ""){
+ 				getradiobox(data.content.question5,"rad5");
+ 			}
+ 			if(data.content.question6 != null && data.content.question6!= ""){
+ 				getradiobox(data.content.question6,"rad6");
+ 			}
+ 			
+ 			if(data.content.question7 != null && data.content.question7!= ""){
+ 				$("#yjjy_input").val(data.content.question7);
+ 			}
+ 			if(data.content.question8 != null && data.content.question8!= ""){
+ 				$("#yqxq_input").val(data.content.question8);
+ 			}
+		}
+	}
+	
+	//保存回访记录
+	function save(){
+		var userId_login = "<%=request.getAttribute("userId")%>";
+		if(userId_login == "1"){
+		  	alert("非员工无法操作");
+		  	return;
+		}
+		var id="<%=request.getAttribute("id")%>";
+		
+		var yjhfsj_input_hide = $("#yjhfsj_input_hide").val();//预计回访时间
+		var oldinput_searchId = $.trim($("#oldinput_searchId").val());
+		var oldinput_search = $.trim($("#oldinput_search").val());//回访老人
+		if((oldinput_search == "" || oldinput_search == null) && (id == null || id == "")){
+			alert("请选择回访老人");
+			return;
+		}else{
+			if((oldinput_searchId == null || oldinput_searchId == "" || oldinput_searchId == "0") && (id == null || id == "")){
+				alert("请选择回访老人");
+				return;
+			}
+		}
+		var hfrinputId = $.trim($("#hfrinputId").val());
+		var hfrinput_search = $.trim($("#hfrinput_search").val());//回访人
+		if((hfrinput_search == "" || hfrinput_search == null) && (id == null || id == "")){
+			alert("请选择回访人");
+			return;
+		}else{
+			if((hfrinputId == null || hfrinputId == "" || hfrinputId == "0") && (id == null || id == "")){
+				alert("请选择回访人");
+				return;
+			}
+		}
+		
+		var fwzd_input = $("#fwzd_input").val();//服务站点
+		var fwzd_inputName = $("#fwzd_input").find("option:selected").text();
+		
+		var hffs_input = $("#hffs_input").val();//回访方式
+		var hfly_input = $("#hfly_input").val();//回访来源
+	
+		var rad1 = getcheckboxValue("rad1");
+		var rad2 = getradioValue("rad2");
+		var rad3 = getradioValue("rad3");
+		var rad4 = getradioValue("rad4");
+		var rad5 = getradioValue("rad5");
+		var rad6 = getradioValue("rad6");
+		var problem = "2";//是否有不满意的地方(1-有2-无) 
+		if(rad1 != null && rad1 != ""){
+			problem = "1";
+		}
+		if(rad2 == "2"){
+			problem = "1";
+		}
+		if(rad3 == "2"){
+			problem = "1";
+		}
+		if(rad4 == "2"){
+			problem = "1";
+		}
+		if(rad5 == "2"){
+			problem = "1";
+		}
+		if(rad6 == "2" || rad6 == "3" || rad6 == "4" || rad6 == "5"){
+			problem = "1";
+		}
+		
+		var yjjy_input = $("#yjjy_input").val();//您对服务有何意见和建议
+		if (yjjy_input != null && yjjy_input != "") {
+			yjjy_input = JSON.stringify(yjjy_input);
+			if(yjjy_input.length > 500){
+				alert("意见和建议最大字数超出限制500字");
+				return;
+			}
+		}else{
+			yjjy_input = "\"\"";
+		}
+		var yqxq_input = $("#yqxq_input").val();//您对服务有何特别的要求和需求
+		if (yqxq_input != null && yqxq_input != "") {
+			yqxq_input = JSON.stringify(yqxq_input);
+			if(yqxq_input.length > 500){
+				alert("要求和需求最大字数超出限制500字");
+				return;
+			}
+		}else{
+			yqxq_input = "\"\"";
+		}
+		
+		var reqmsg="{'action':'ADD_REVIEW_INFO_REQUEST','content':{";
+		
+		reqmsg += "\"method\":\"" + hffs_input + "\",";
+		reqmsg += "\"source\":\"" + hfly_input + "\",";
+		reqmsg += "\"siteId\":" + fwzd_input + ",";
+		reqmsg += "\"siteName\":\"" + fwzd_inputName + "\",";
+			 
+		
+		if(id == null || id == ""){//新增
+			 reqmsg += "\"olderId\":" + oldinput_searchId + ",";
+			 reqmsg += "\"olderName\":\"" + oldinput_search + "\",";
+			 reqmsg += "\"status\":\"2\",";
+			 reqmsg += "\"employeeId\":" + hfrinputId + ",";
+			 reqmsg += "\"employeeName\":\"" + hfrinput_search + "\",";
+			 reqmsg += "\"estimatedReviewTime\":\"" + yjhfsj_input_hide + "\",";
+			 reqmsg += "\"realReviewTime\":\"" + getNowFormatDate() + "\",";
+			 reqmsg += "\"createTime\":\"" + getNowFormatDate() + "\",";
+		}else{
+			if($("#hfzt_input_hide").val() == "1"){//已经生成的，还未回访
+				reqmsg += "\"status\":\"2\",";
+			 	reqmsg += "\"employeeId\":" + hfrinputId + ",";
+			 	reqmsg += "\"employeeName\":\"" + hfrinput_search + "\",";
+				reqmsg += "\"realReviewTime\":\"" + getNowFormatDate() + "\",";
+			}
+			reqmsg += "\"id\":" + id + ",";
+		}
+		
+		reqmsg += "\"question1\":\"" + rad1 + "\",";
+		reqmsg += "\"question2\":\"" + rad2 + "\",";
+		reqmsg += "\"question3\":\"" + rad3 + "\",";
+		reqmsg += "\"question4\":\"" + rad4 + "\",";
+		reqmsg += "\"question5\":\"" + rad5 + "\",";
+		reqmsg += "\"question6\":\"" + rad6 + "\",";
+		reqmsg += "\"question7\":" + yjjy_input + ",";
+		reqmsg += "\"question8\":" + yqxq_input + ",";
+		reqmsg += "\"satisfied\":\"" + problem + "\",";
+	
+		reqmsg += "}}";
+
+    	jQuery.ajax({
+          	type : "post",
+          	async:false,
+          	url : "review.do?handler",
+          	dataType : "json",
+          	data: {
+               "reqmsg":reqmsg
+          	},
+          	success : function(data){
+              if(data.des=="success"){
+              		alert("保存成功");
+              	 	var id=data.content.id;
+              		var path="<%=request.getContextPath()%>";
+              		var url=path+"/review.do?mainXQ&id="+id;
+              		window.location.replace(url);
+              }else{
+                 alert("保存失败");
+              }
+          	},
+          	error:function(){
+	           alert("error");
+          	}
+     	});
+	}
+	
+	 //获取当前登录人信息
+	 function getLogin(){
+	 	  var userId_login = "<%=request.getAttribute("userId")%>";
+		  if(userId_login == "1"){
+		  	  $("#hfrinput_search").val("非员工无法操作");
+		  	  return;
+		  }
+		  var reqmsg="{'action':'QUERY_EMPLOYEE_LIST_REQUEST','page':{'pageno':'1','pagesize':'1'},'content':{\"userId\":"+userId_login+"}}";
+		  
+		  jQuery.ajax({
+          type : "post",
+          async:true,
+          url : "employee.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  if (data.content != null) {
+            	  	if(data.content.employeeList != null && data.content.employeeList.length == 1){
+            	  	   $("#hfrinputId").val(data.content.employeeList[0].id);
+            	  	   $("#hfrinput_search").val(data.content.employeeList[0].name);
+            	  	}
+            	  }
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     	  });
+	}
+//获取老人信息
+function getOlderJBXX(olderId){
+	var reqmsg="{'action':'QUERY_OLDER_INFO_REQUEST','content':{\"id\":"+olderId+"}}";
+		  jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "daeOlder.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  if(data.content != null){
+            	  	 $("#oldinput_searchId").val(data.content.id);
+            	  	 $("#oldinput_search").val(data.content.name);
+            	  	 $("#oldinput_searchUrl").attr("href","<%=request.getContextPath()%>" + "/daeOlder.do?main&id="+data.content.id);
+            	  	 var siteId = data.content.siteId;
+            	  	 if(siteId != null && siteId != "" && siteId.length > 0){
+            	  	 	$("#fwzd_input").val(siteId.split(",")[0]);
+            	  	 }
+            	  }
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+    });
+}
+		//获取所有站点
+		function getzhandian(){
+		  var html="";
+		  jQuery.ajax({
+	          type : "post",
+	          async:false,
+	          url : "addEmployee.do?getzhandian",
+	          dataType : "json",
+	          data: {
+	               "zhandian":"站点"
+	          },
+	          success : function(data){
+	              if(data.des=="success"){
+	            	  var id=data.id.split(",");
+	            	  var name=data.name.split(",");
+	            	  for(var i=0;i<id.length;i++){
+	            	  	html=html+"<option value=\""+id[i]+"\">"+name[i]+"</option>";
+	            	  }
+	              }
+	          },
+	          error:function(){
+		           alert("error");
+	          }
+	      });
+		  $("#fwzd_input").html(html);
+		}
+//获取当前时间return yyyymmddhhmmss
+function getNowFormatDate() {
+    var date = new Date();
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    var strHour = date.getHours();
+    var strMinutes = date.getMinutes();
+    var strSeconds = date.getSeconds();
+    
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    if (strHour >= 0 && strHour <= 9) {
+        strHour = "0" + strHour;
+    }
+    if (strMinutes >= 0 && strMinutes <= 9) {
+        strMinutes = "0" + strMinutes;
+    }
+    if (strSeconds >= 0 && strSeconds <= 9) {
+        strSeconds = "0" + strSeconds;
+    }
+    var currentdate = date.getFullYear() + "" + month + "" + strDate + "" + strHour + "" + strMinutes + "" + strSeconds;
+    return currentdate;
+}
+		
+	
+//实时获取老人姓名
+function getolderName(){
+	var reqmsg="{'action':'QUERY_OLDER_LIST_REQUEST','page':{'pageno':'1','pagesize':'5'},'content':{";
+	var name = $.trim($("#oldinput_search").val());
+	if (name != null && name != "") {
+		reqmsg += "\"name_like\":\"" + name + "\"";
+	}else{
+		$("#hideul_nei1").html("");
+		$("#hideul-1").hide();
+		return;
+	}
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "older.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.olderList != null){
+            	  		jQuery.each(data.content.olderList, function(i, item) {
+            	  			if(item != null){
+		    					htmlcode += "<li onclick=\"olderNamefuzhi('" + item.name + "','" + item.id + "')\">" + item.name + "</li>";		
+            	  			}	
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#hideul_nei1").html(htmlcode);
+		    	  $("#hideul-1").show();
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//老人姓名赋值
+function olderNamefuzhi(name,id){
+	$("#oldinput_search").val(name);
+	$("#oldinput_searchId").val(id);
+	$("#hideul_nei1").html("");
+	$("#hideul-1").hide();
+	$("#oldinput_searchUrl").attr("href","<%=request.getContextPath()%>" + "/daeOlder.do?main&id="+id);
+}
+
+//实时获取回访人姓名
+function gethfrName(){
+	var reqmsg="{'action':'QUERY_EMPLOYEE_LIST_REQUEST','page':{'pageno':'1','pagesize':'5'},'content':{";
+	var name = $("#hfrinput_search").val();
+	if (name != null && name != "") {
+		reqmsg += "\"name_like\":\"" + name + "\"";
+	}else{
+		$("#hideul_nei25").html("");
+		$("#hideul-25").hide();
+		return;
+	}
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "employee.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.employeeList != null){
+            	  		jQuery.each(data.content.employeeList, function(i, item) {
+            	  				if(item != null){
+		    						htmlcode += "<li onclick=\"hfrNamefuzhi('" + item.name + "'," + item.id + ")\">" + item.name + "</li>";		
+            	  				}	
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#hideul_nei25").html(htmlcode);
+		    	  $("#hideul-25").show();
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//回访人姓名赋值
+function hfrNamefuzhi(name,id){
+	$("#hfrinputId").val(id);
+	$("#hfrinput_search").val(name);
+	$("#hideul_nei25").html("");
+	$("#hideul-25").hide();
+}
+
+	//获取单选框
+	function getradioValue(name){
+	 		var a="";
+ 			var boxes = document.getElementsByName(name);
+			for(i=0;i<boxes.length;i++){
+				if(boxes[i].checked == true){
+					a = boxes[i].value;
+				}
+			}
+			return a;
+	}
+	//获取复选框
+	function getcheckboxValue(name){
+	 		var a="";
+ 			var boxes = document.getElementsByName(name);
+			for(i=0;i<boxes.length;i++){
+					if(boxes[i].checked == true){
+						a=a+boxes[i].value+",";
+					}
+			}
+			if(a != ""){
+				a=a.substr(0,a.length-1);
+			}
+			return a;
+	}
+	
+	
+	//勾选单选框
+	function getradiobox(value_,name){
+ 		var boxes = document.getElementsByName(name);
+		for(i=0;i<boxes.length;i++){
+			if(boxes[i].value == value_){
+				boxes[i].checked = true;
+				break;
+			}
+		}
+	}
+	//勾选复选框
+	function getcheckbox(value_,name){
+	 	var a=value_.split(",");
+ 		if(a.length > 0){
+ 			var boxes = document.getElementsByName(name);
+			for(i=0;i<boxes.length;i++){
+				for(j=0;j<a.length;j++){
+					if(boxes[i].value == a[j]){
+						boxes[i].checked = true;
+						break;
+					}
+				}
+			}	
+ 		}else{
+ 			var boxes = document.getElementsByName(name);
+ 			for(i=0;i<boxes.length;i++){
+ 				if(boxes[i].value == value_){
+ 					boxes[i].checked = true;
+					break;
+ 				}
+ 			}
+ 		}
+	}
+	
+//回访状态转化
+function changestatus(status){
+	var statusName = "";
+	switch(status){
+		case "1":
+			statusName = "未回访";
+			break;
+		case "2":
+			statusName = "已回访";
+			break;
+		default:
+			statusName = "未知";
+			break;
+	}
+	return statusName;
+}
+		
+</script>
+    <script src="js/behaviour/voice-commands.js"></script>
+    <script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/jquery.form.js"></script>
+  </body>
+</html>

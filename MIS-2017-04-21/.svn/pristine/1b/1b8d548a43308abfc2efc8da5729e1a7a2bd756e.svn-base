@@ -1,0 +1,39 @@
+/*    */ package fsk.entity.vo.gateway;
+/*    */ 
+/*    */ import java.util.ArrayList;
+/*    */ import java.util.List;
+/*    */ 
+/*    */ public class FLocals
+/*    */ {
+/* 13 */   private List<FLocal> locals = new ArrayList();
+/*    */   private String count;
+/*    */ 
+/*    */   public String getCount()
+/*    */   {
+/* 18 */     return this.count;
+/*    */   }
+/*    */ 
+/*    */   public void setCount(String count) {
+/* 22 */     this.count = count;
+/*    */   }
+/*    */ 
+/*    */   public List<FLocal> getLocals() {
+/* 26 */     return this.locals;
+/*    */   }
+/*    */ 
+/*    */   public void setLocals(List<FLocal> locals) {
+/* 30 */     this.locals = locals;
+/*    */   }
+/*    */ 
+/*    */   public void add(FLocal obj) {
+/* 34 */     if (this.locals == null) {
+/* 35 */       this.locals = new ArrayList();
+/*    */     }
+/* 37 */     this.locals.add(obj);
+/*    */   }
+/*    */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.entity.vo.gateway.FLocals
+ * JD-Core Version:    0.6.1
+ */

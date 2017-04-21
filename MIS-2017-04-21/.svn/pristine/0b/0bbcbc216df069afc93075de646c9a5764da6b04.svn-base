@@ -1,0 +1,378 @@
+package fsk.entity.sendReceive;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.site.SiteEntity;
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.sendReceivePhoto.SendReceivePhotoEntity;
+import fsk.entity.sendReceiveCareful.SendReceiveCarefulEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 交接班记录
+ * @author feng.gu
+ * @date 2016-10-19 13:13:09
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_SEND_RECEIVE")
+public class SendReceiveEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String SERVICE_SITE_ID = "SERVICE_SITE_ID";
+    public final static String SERVICE_SITE_NAME = "SERVICE_SITE_NAME";
+    public final static String SEND_EMPLOYEE_ID = "SEND_EMPLOYEE_ID";
+    public final static String SEND_EMPLOYEE_NAME = "SEND_EMPLOYEE_NAME";
+    public final static String SEND_EMPLOYEE_INDEX_NUM = "SEND_EMPLOYEE_INDEX_NUM";
+    public final static String SEND_EMPLOYEE_SIGNATURE_TIME = "SEND_EMPLOYEE_SIGNATURE_TIME";
+    public final static String RECEIVE_EMPLOYEE_ID = "RECEIVE_EMPLOYEE_ID";
+    public final static String RECEIVE_EMPLOYEE_NAME = "RECEIVE_EMPLOYEE_NAME";
+    public final static String RECEIVE_EMPLOYEE_INDEX_NUM = "RECEIVE_EMPLOYEE_INDEX_NUM";
+    public final static String RECEIVE_EMPLOYEE_SIGNATURE_TIME = "RECEIVE_EMPLOYEE_SIGNATURE_TIME";
+    public final static String SUPERVISE_EMPLOYEE_ID = "SUPERVISE_EMPLOYEE_ID";
+    public final static String SUPERVISE_EMPLOYEE_NAME = "SUPERVISE_EMPLOYEE_NAME";
+    public final static String SUPERVISE_EMPLOYEE_INDEX_NUM = "SUPERVISE_EMPLOYEE_INDEX_NUM";
+    public final static String SUPERVISE_EMPLOYEE_SIGNATURE_TIME = "SUPERVISE_EMPLOYEE_SIGNATURE_TIME";
+    public final static String REASON = "REASON";
+    public final static String CREATE_TIME = "CREATE_TIME";
+    public final static String STATUS = "STATUS";
+    public final static String SERIAL_NUMBER = "SERIAL_NUMBER";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 服务站点ID
+	 */
+	@ColumnDescription(name = "SERVICE_SITE_ID")
+	private Integer serviceSiteId;
+    /**
+	 * 服务站点名称
+	 */
+	@ColumnDescription(name = "SERVICE_SITE_NAME")
+	private String serviceSiteName;
+    /**
+	 * 交班人ID
+	 */
+	@ColumnDescription(name = "SEND_EMPLOYEE_ID")
+	private Integer sendEmployeeId;
+    /**
+	 * 交班人名称
+	 */
+	@ColumnDescription(name = "SEND_EMPLOYEE_NAME")
+	private String sendEmployeeName;
+    /**
+	 * 交班人员工编号
+	 */
+	@ColumnDescription(name = "SEND_EMPLOYEE_INDEX_NUM")
+	private String sendEmployeeIndexNum;
+    /**
+	 * 交班人签字时间
+	 */
+	@ColumnDescription(name = "SEND_EMPLOYEE_SIGNATURE_TIME")
+	private String sendEmployeeSignatureTime;
+    /**
+	 * 接班人ID
+	 */
+	@ColumnDescription(name = "RECEIVE_EMPLOYEE_ID")
+	private Integer receiveEmployeeId;
+    /**
+	 * 接班人名称
+	 */
+	@ColumnDescription(name = "RECEIVE_EMPLOYEE_NAME")
+	private String receiveEmployeeName;
+    /**
+	 * 接班人员工编号
+	 */
+	@ColumnDescription(name = "RECEIVE_EMPLOYEE_INDEX_NUM")
+	private String receiveEmployeeIndexNum;
+    /**
+	 * 接班人签字时间
+	 */
+	@ColumnDescription(name = "RECEIVE_EMPLOYEE_SIGNATURE_TIME")
+	private String receiveEmployeeSignatureTime;
+    /**
+	 * 监督人ID
+	 */
+	@ColumnDescription(name = "SUPERVISE_EMPLOYEE_ID")
+	private Integer superviseEmployeeId;
+    /**
+	 * 监督人名称
+	 */
+	@ColumnDescription(name = "SUPERVISE_EMPLOYEE_NAME")
+	private String superviseEmployeeName;
+    /**
+	 * 监督人员工编号
+	 */
+	@ColumnDescription(name = "SUPERVISE_EMPLOYEE_INDEX_NUM")
+	private String superviseEmployeeIndexNum;
+    /**
+	 * 监督人签字时间
+	 */
+	@ColumnDescription(name = "SUPERVISE_EMPLOYEE_SIGNATURE_TIME")
+	private String superviseEmployeeSignatureTime;
+    /**
+	 * 交接班原因
+	 */
+	@ColumnDescription(name = "REASON")
+	private String reason;
+    /**
+	 * 交接班时间
+	 */
+	@ColumnDescription(name = "CREATE_TIME")
+	private String createTime;
+    /**
+	 * 交接班状态(1-未提交 2-已提交)
+	 */
+	@ColumnDescription(name = "STATUS")
+	private Integer status;
+    /**
+	 * 交接班流水号
+	 */
+	@ColumnDescription(name = "SERIAL_NUMBER")
+	private String serialNumber;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getServiceSiteId() {
+		return serviceSiteId;
+	}
+
+	public void setServiceSiteId(Integer serviceSiteId) {
+		this.serviceSiteId = serviceSiteId;
+	}
+    public String getServiceSiteName() {
+		return serviceSiteName;
+	}
+
+	public void setServiceSiteName(String serviceSiteName) {
+		this.serviceSiteName = serviceSiteName;
+	}
+    public Integer getSendEmployeeId() {
+		return sendEmployeeId;
+	}
+
+	public void setSendEmployeeId(Integer sendEmployeeId) {
+		this.sendEmployeeId = sendEmployeeId;
+	}
+    public String getSendEmployeeName() {
+		return sendEmployeeName;
+	}
+
+	public void setSendEmployeeName(String sendEmployeeName) {
+		this.sendEmployeeName = sendEmployeeName;
+	}
+    public String getSendEmployeeIndexNum() {
+		return sendEmployeeIndexNum;
+	}
+
+	public void setSendEmployeeIndexNum(String sendEmployeeIndexNum) {
+		this.sendEmployeeIndexNum = sendEmployeeIndexNum;
+	}
+    public String getSendEmployeeSignatureTime() {
+		return sendEmployeeSignatureTime;
+	}
+
+	public void setSendEmployeeSignatureTime(String sendEmployeeSignatureTime) {
+		this.sendEmployeeSignatureTime = sendEmployeeSignatureTime;
+	}
+    public Integer getReceiveEmployeeId() {
+		return receiveEmployeeId;
+	}
+
+	public void setReceiveEmployeeId(Integer receiveEmployeeId) {
+		this.receiveEmployeeId = receiveEmployeeId;
+	}
+    public String getReceiveEmployeeName() {
+		return receiveEmployeeName;
+	}
+
+	public void setReceiveEmployeeName(String receiveEmployeeName) {
+		this.receiveEmployeeName = receiveEmployeeName;
+	}
+    public String getReceiveEmployeeIndexNum() {
+		return receiveEmployeeIndexNum;
+	}
+
+	public void setReceiveEmployeeIndexNum(String receiveEmployeeIndexNum) {
+		this.receiveEmployeeIndexNum = receiveEmployeeIndexNum;
+	}
+    public String getReceiveEmployeeSignatureTime() {
+		return receiveEmployeeSignatureTime;
+	}
+
+	public void setReceiveEmployeeSignatureTime(String receiveEmployeeSignatureTime) {
+		this.receiveEmployeeSignatureTime = receiveEmployeeSignatureTime;
+	}
+    public Integer getSuperviseEmployeeId() {
+		return superviseEmployeeId;
+	}
+
+	public void setSuperviseEmployeeId(Integer superviseEmployeeId) {
+		this.superviseEmployeeId = superviseEmployeeId;
+	}
+    public String getSuperviseEmployeeName() {
+		return superviseEmployeeName;
+	}
+
+	public void setSuperviseEmployeeName(String superviseEmployeeName) {
+		this.superviseEmployeeName = superviseEmployeeName;
+	}
+    public String getSuperviseEmployeeIndexNum() {
+		return superviseEmployeeIndexNum;
+	}
+
+	public void setSuperviseEmployeeIndexNum(String superviseEmployeeIndexNum) {
+		this.superviseEmployeeIndexNum = superviseEmployeeIndexNum;
+	}
+    public String getSuperviseEmployeeSignatureTime() {
+		return superviseEmployeeSignatureTime;
+	}
+
+	public void setSuperviseEmployeeSignatureTime(String superviseEmployeeSignatureTime) {
+		this.superviseEmployeeSignatureTime = superviseEmployeeSignatureTime;
+	}
+    public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+    public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+    public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+    public String getSerialNumber() {
+		return serialNumber;
+	}
+
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="SiteEntity"	,joinColumn="ID"	)
+			
+			
+		private SiteEntity serviceSite;
+	        
+	public SiteEntity getServiceSite() {
+		return serviceSite;
+    }
+	
+	public void setServiceSite(SiteEntity serviceSite) {
+		this.serviceSite = serviceSite;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="EmployeeEntity"	,joinColumn="ID"	)
+			
+			
+		private EmployeeEntity sendEmployee;
+	        
+	public EmployeeEntity getSendEmployee() {
+		return sendEmployee;
+    }
+	
+	public void setSendEmployee(EmployeeEntity sendEmployee) {
+		this.sendEmployee = sendEmployee;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="EmployeeEntity"	,joinColumn="ID"	)
+			
+			
+		private EmployeeEntity receiveEmployee;
+	        
+	public EmployeeEntity getReceiveEmployee() {
+		return receiveEmployee;
+    }
+	
+	public void setReceiveEmployee(EmployeeEntity receiveEmployee) {
+		this.receiveEmployee = receiveEmployee;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="EmployeeEntity"	,joinColumn="ID"	)
+			
+			
+		private EmployeeEntity superviseEmployee;
+	        
+	public EmployeeEntity getSuperviseEmployee() {
+		return superviseEmployee;
+    }
+	
+	public void setSuperviseEmployee(EmployeeEntity superviseEmployee) {
+		this.superviseEmployee = superviseEmployee;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="SendReceivePhotoEntity"			,joinColumn="SEND_RECEIVE_ID"
+			)
+			
+		private List<SendReceivePhotoEntity> sendReceivePhotoList;
+	        
+	public List<SendReceivePhotoEntity> getSendReceivePhotoList() {
+		return sendReceivePhotoList;
+	}
+	
+	public void setSendReceivePhotoList(List<SendReceivePhotoEntity> sendReceivePhotoList) {
+		this.sendReceivePhotoList = sendReceivePhotoList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="SendReceiveCarefulEntity"			,joinColumn="SEND_RECEIVE_ID"
+			)
+			
+		private List<SendReceiveCarefulEntity> sendReceiveCarefulList;
+	        
+	public List<SendReceiveCarefulEntity> getSendReceiveCarefulList() {
+		return sendReceiveCarefulList;
+	}
+	
+	public void setSendReceiveCarefulList(List<SendReceiveCarefulEntity> sendReceiveCarefulList) {
+		this.sendReceiveCarefulList = sendReceiveCarefulList;
+	}
+			
+			
+}

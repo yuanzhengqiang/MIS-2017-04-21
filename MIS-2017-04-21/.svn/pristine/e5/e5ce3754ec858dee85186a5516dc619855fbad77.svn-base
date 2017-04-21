@@ -1,0 +1,48 @@
+/*    */ package fsk.entity.vo.gateway;
+/*    */ 
+/*    */ import java.util.ArrayList;
+/*    */ import java.util.List;
+/*    */ 
+/*    */ public class FDoors
+/*    */ {
+/* 13 */   private List<FDoor> doors = new ArrayList();
+/*    */   private String count;
+/*    */   private String offline;
+/*    */ 
+/*    */   public String getCount()
+/*    */   {
+/* 20 */     return this.count;
+/*    */   }
+/*    */ 
+/*    */   public void setCount(String count) {
+/* 24 */     this.count = count;
+/*    */   }
+/*    */ 
+/*    */   public String getOffline() {
+/* 28 */     return this.offline;
+/*    */   }
+/*    */ 
+/*    */   public void setOffline(String offline) {
+/* 32 */     this.offline = offline;
+/*    */   }
+/*    */ 
+/*    */   public List<FDoor> getDoors() {
+/* 36 */     return this.doors;
+/*    */   }
+/*    */ 
+/*    */   public void setDoors(List<FDoor> doors) {
+/* 40 */     this.doors = doors;
+/*    */   }
+/*    */ 
+/*    */   public void add(FDoor obj) {
+/* 44 */     if (this.doors == null) {
+/* 45 */       this.doors = new ArrayList();
+/*    */     }
+/* 47 */     this.doors.add(obj);
+/*    */   }
+/*    */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.entity.vo.gateway.FDoors
+ * JD-Core Version:    0.6.1
+ */

@@ -1,0 +1,144 @@
+package fsk.handler.situationObservation;
+
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import fsk.entity.situationObservation.SituationObservationEntity;
+import fsk.pack.situationObservation.SituationObservationPack;
+import fsk.parse.situationObservation.SituationObservationParse;
+import fsk.service.situationObservation.SituationObservationService;
+import com.framework.system.common.service.SystemService;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.db.query.OrderVO;
+
+ /**   
+ * @Title: Handler
+ * @Description: 全身情况观察业务处理器
+ * @author feng.gu
+ * @date 2016-07-27 15:35:58
+ * @version V1.0   
+ *
+ */
+public class SituationObservationHandler extends BaseHandler{
+	private static Logger logger = Logger.getLogger(SituationObservationService.class);
+	/**
+	 * 解析器
+	 */
+	private SituationObservationParse situationObservationParse = SituationObservationParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private SituationObservationService situationObservationService = SituationObservationService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private SituationObservationPack situationObservationPack = SituationObservationPack.getInstance();
+
+	private static SituationObservationHandler situationObservationHandler;
+	
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static SituationObservationHandler getInstance() {
+		if (situationObservationHandler == null) {
+			situationObservationHandler = new SituationObservationHandler();
+		}
+		return situationObservationHandler;
+	}
+
+	/**
+	 * 
+	 * @param type 1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type,String command,String reqStr, HttpServletRequest request,
+			HttpServletResponse response) {	
+		logger.debug("请求消息："+reqStr);
+		String resultStr="";
+		try {
+			// 解析
+			Map<String, Object> parseMap = situationObservationParse.parse(type,command,reqStr,request);		
+			String action = (String) parseMap.get("action");
+			SituationObservationEntity situationObservation = (SituationObservationEntity) parseMap.get("situationObservation");
+			List<SituationObservationEntity> situationObservationList = (List<SituationObservationEntity>) parseMap.get("situationObservationList");
+			Integer id = (Integer) parseMap.get("id");			
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+			
+															Boolean serviceTaskShow = (Boolean) parseMap.get("serviceTaskShow");
+			Boolean delServiceTask = (Boolean) parseMap.get("delServiceTask");
+															
+			// 业务处理
+			Object result=null;
+			if ("save".equals(action)) {
+				result = situationObservationService.save(situationObservation);
+			} else if ("saveList".equals(action)) {
+				result = situationObservationService.saveList(situationObservationList);
+			} else if ("getById".equals(action)) {
+				result = situationObservationService.getById(id,serviceTaskShow);
+			} else if ("getListByCondition".equals(action)) {
+			    //根据数据权限 增加查询条件
+				queryMap = systemService.addDataRule("SituationObservationEntity",queryMap,request);
+				result = situationObservationService.getListByCondition(queryMap,orderList, pageno,
+						pagesize,serviceTaskShow);
+			} else if ("del".equals(action)) {
+				result = situationObservationService.del(id,delServiceTask);
+			} else if ("delList".equals(action)) {
+				result = situationObservationService.delList(queryMap,delServiceTask);
+			}
+			// 封装
+			Map<String, Object> packMap = situationObservationPack.pack(type,action,result,situationObservation);
+			String actionBack = (String)packMap.get("action");
+			String resultBack = (String)packMap.get("result");
+			String desBack = (String)packMap.get("des");
+			JSONObject pageBack = (JSONObject)packMap.get("page");
+			JSONObject contentBack = (JSONObject)packMap.get("content");
+			
+			JSONObject repJson = new JSONObject();
+			if(actionBack!=null&&!"".equals(actionBack)){
+				repJson.put("action", actionBack);
+			}
+			if(resultBack!=null&&!"".equals(resultBack)){
+				repJson.put("result", resultBack);
+			}
+			if(desBack!=null&&!"".equals(desBack)){
+				repJson.put("des", desBack);
+			}
+			if(pageBack!=null){
+				repJson.put("page", pageBack);
+			}
+			if(contentBack!=null&&!"".equals(contentBack)){
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息："+repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

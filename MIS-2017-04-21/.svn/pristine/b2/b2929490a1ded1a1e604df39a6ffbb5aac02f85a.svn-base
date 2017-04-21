@@ -1,0 +1,101 @@
+/*     */ package fsk.entity.vo.gateway;
+/*     */ 
+/*     */ public class FUrinedetect
+/*     */ {
+/*     */   private String type;
+/*     */   private String id;
+/*     */   private String time;
+/*     */   private String status;
+/*     */   private String normal;
+/*     */   private String start;
+/*     */   private String end;
+/*     */   private String yz;
+/*     */   private String alarm;
+/*     */   private String mode;
+/*     */ 
+/*     */   public String getAlarm()
+/*     */   {
+/*  44 */     return this.alarm;
+/*     */   }
+/*     */ 
+/*     */   public void setAlarm(String alarm) {
+/*  48 */     this.alarm = alarm;
+/*     */   }
+/*     */ 
+/*     */   public String getMode() {
+/*  52 */     return this.mode;
+/*     */   }
+/*     */ 
+/*     */   public void setMode(String mode) {
+/*  56 */     this.mode = mode;
+/*     */   }
+/*     */ 
+/*     */   public String getType() {
+/*  60 */     return this.type;
+/*     */   }
+/*     */ 
+/*     */   public void setType(String type) {
+/*  64 */     this.type = type;
+/*     */   }
+/*     */ 
+/*     */   public String getId() {
+/*  68 */     return this.id;
+/*     */   }
+/*     */ 
+/*     */   public void setId(String id) {
+/*  72 */     this.id = id;
+/*     */   }
+/*     */ 
+/*     */   public String getTime() {
+/*  76 */     return this.time;
+/*     */   }
+/*     */ 
+/*     */   public void setTime(String time) {
+/*  80 */     this.time = time;
+/*     */   }
+/*     */ 
+/*     */   public String getStatus() {
+/*  84 */     return this.status;
+/*     */   }
+/*     */ 
+/*     */   public void setStatus(String status) {
+/*  88 */     this.status = status;
+/*     */   }
+/*     */ 
+/*     */   public String getNormal() {
+/*  92 */     return this.normal;
+/*     */   }
+/*     */ 
+/*     */   public void setNormal(String normal) {
+/*  96 */     this.normal = normal;
+/*     */   }
+/*     */ 
+/*     */   public String getStart() {
+/* 100 */     return this.start;
+/*     */   }
+/*     */ 
+/*     */   public void setStart(String start) {
+/* 104 */     this.start = start;
+/*     */   }
+/*     */ 
+/*     */   public String getEnd() {
+/* 108 */     return this.end;
+/*     */   }
+/*     */ 
+/*     */   public void setEnd(String end) {
+/* 112 */     this.end = end;
+/*     */   }
+/*     */ 
+/*     */   public String getYz() {
+/* 116 */     return this.yz;
+/*     */   }
+/*     */ 
+/*     */   public void setYz(String yz) {
+/* 120 */     this.yz = yz;
+/*     */   }
+/*     */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.entity.vo.gateway.FUrinedetect
+ * JD-Core Version:    0.6.1
+ */

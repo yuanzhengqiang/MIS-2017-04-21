@@ -1,0 +1,92 @@
+/*    */ package fsk.socket;
+/*    */ 
+/*    */ import java.io.IOException;
+/*    */ import java.io.InputStream;
+/*    */ import java.io.OutputStream;
+/*    */ import java.net.SocketTimeoutException;
+/*    */ import java.text.SimpleDateFormat;
+/*    */ import fsk.handler.JTWGTCPMessageHandler;
+/*    */ import org.apache.commons.lang.ArrayUtils;
+/*    */ import org.apache.log4j.Logger;
+/*    */ 
+/*    */ public class JTWGDoHandlerThread extends Thread
+/*    */ {
+/* 22 */   private static Logger logger = Logger.getLogger(JTWGDoHandlerThread.class);
+/*    */   static final int BUFFER_SIZE = 4096;
+/*    */   private InputStream in;
+/*    */   private OutputStream out;
+/* 32 */   private static JTWGTCPMessageHandler handler = new JTWGTCPMessageHandler();
+/*    */ 
+/* 34 */   private SimpleDateFormat formater1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*    */ 
+/* 36 */   private static SimpleDateFormat formater = new SimpleDateFormat("yyyyMMddHHmmss");
+/*    */ 
+/*    */   public JTWGDoHandlerThread(InputStream in, OutputStream out)
+/*    */   {
+/* 40 */     this.in = in;
+/* 41 */     this.out = out;
+/*    */   }
+/*    */ 
+/*    */   public void run()
+/*    */   {
+/*    */     try
+/*    */     {
+/* 49 */       byte[] reciveBytes = new byte[0];
+/*    */ 
+/* 51 */       int offset = 0;
+/*    */ 
+/* 53 */       int len = 0;
+/* 54 */       byte[] buffer = new byte[4096];
+/* 55 */       while (len != -1)
+/*    */       {
+/*    */         try
+/*    */         {
+/* 60 */           len = this.in.read(buffer, 0, 4096);
+/*    */         }
+/*    */         catch (SocketTimeoutException e) {
+/* 63 */           break;
+/*    */         }
+/* 65 */         if (len != -1)
+/*    */         {
+/* 67 */           reciveBytes = ArrayUtils.addAll(reciveBytes, buffer);
+/* 68 */           offset += len;
+/*    */         }
+/*    */ 
+/* 71 */         byte[] reqbyte = ArrayUtils.subarray(buffer, 0, len);
+/* 72 */         if (reqbyte.length >= 0)
+/*    */         {
+/*    */           break;
+/*    */         }
+/*    */       }
+/* 77 */       byte[] data = ArrayUtils.subarray(reciveBytes, 0, offset);
+/* 78 */       logger.debug("JTWG数据信息监听: 数据长度byte: " + data.length);
+/* 79 */       String bytestr = new String(data);
+/* 80 */       logger.debug("JTWG数据信息监听: 数据内容: " + bytestr);
+/*    */ 
+/* 90 */       String responsestr = handler.hanlder(bytestr);
+/*    */     }
+/*    */     catch (Exception e)
+/*    */     {
+/*    */       String responsestr;
+/* 99 */       logger.debug("JTWG数据信息监听:数据处理出错！");
+/* 100 */       logger.error(e);
+/*    */     } finally {
+/*    */       try {
+/* 103 */         if (this.in != null) {
+/* 104 */           this.in.close();
+/*    */         }
+/* 106 */         if (this.out != null)
+/* 107 */           this.out.close();
+/*    */       }
+/*    */       catch (IOException e) {
+/* 110 */         logger.error(e);
+/*    */       }
+/* 112 */       logger.debug("JTWG数据信息监听:数据处理完毕！");
+/*    */     }
+/*    */   }
+/*    */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.socket.JTWGDoHandlerThread
+ * JD-Core Version:    0.6.1
+ */

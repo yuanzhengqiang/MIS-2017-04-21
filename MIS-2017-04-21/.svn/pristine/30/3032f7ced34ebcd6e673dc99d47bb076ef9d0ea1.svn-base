@@ -1,0 +1,623 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%> 
+<%@ page import="fsk.init.SystemInit" %>
+<%
+	String nickname = (String) session.getAttribute("nickname");
+	if (nickname == null) {
+		nickname = "";
+	}
+	String header = SystemInit.header;
+	String headerImage = SystemInit.headerImage;
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>交接班详情</title>
+    
+  	<link rel="shortcut icon" href="images/logo.png">
+    <!-- Bootstrap core CSS -->
+    <link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+	<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.js"></script>
+    <![endif]-->
+	<link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+  	<link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
+  	<link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
+	<link rel="stylesheet" type="text/css" href="js/intro.js/introjs.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.magnific-popup/dist/magnific-popup.css" />
+	<!-- Custom styles for this template -->
+	<link href="css/style.css" rel="stylesheet" />
+	<style type="text/css">
+	body{
+		margin-left: 0px;
+		opacity: 1; 
+	}
+    .timeTip{
+    	width:220px;
+    	height:80px;
+    	background:#f3f9ff;
+    	border:2px solid #dadada;
+    	z-index:10;
+    }
+    #head_oldSum{
+    	margin-left:10px;
+    	font-size:14px; 
+    }
+    .wid-hgt200{
+    	width:200px; 
+    	height:200px;
+    }
+    .timeTip div{margin:20px 30px;}
+    .hide{display:none;}
+    .moveover {cursor:pointer;}
+    .margin-bm{margin-bottom:10px;}
+    .TPhide{display:none;}
+    .imageShow{cursor:pointer;}
+	</style>
+</head>
+<body>
+	<!-- 上侧栏开始 -->
+    <div id="head-nav" class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="fa fa-gear"></span>
+          </button>
+          <a class="navbar-brand" href="#"  style="width:auto;background: url(images/<%=headerImage %>) no-repeat 0 10px;"><span><%=header %>/交接班详情</span></a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right user-nav">
+            <li class="dropdown profile_menu">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <img src="images/avatar2.jpg"/>
+                <span id="accountNickname"><%=nickname %></span>
+<!--                 <b class="caret"></b> -->
+              </a>
+<!--               <ul class="dropdown-menu"> -->
+<!--                 <li><a href="#" class="md-trigger" data-modal="md-scale3">密码修改</a></li> -->
+<!--                 <li class="divider"></li> -->
+<!--                 <li><a href="systemLogin.do?logout">退出登录</a></li> -->
+<!--               </ul> -->
+            </li>
+          </ul>
+        </div><!--/.nav-collapse animate-collapse -->
+      </div>
+    </div>  <!-- 上侧栏结束 -->
+
+	
+<div id="cl-wrapper" style="padding-top:30px">	
+		<div class="container-fluid" style="padding: 0px">
+		
+		<!-- 头部开始 -->
+			<div class="page-head">
+				<h2>交接班记录 </h2>
+				<span style="font-size:18px">交接班编号:<lable id="head_oldSum"></lable></span>
+			</div>
+		</div>
+		<!-- 头部结束 -->
+
+		<div class="cl-mcont">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="block-flat">
+						<div class="content">
+							<div class="table-responsive">
+							<input type="hidden" id="modalHide" value="hide" />
+								<div class="dataTables_wrapper form-inline">
+								    <!-- 查询框开始 -->
+									<div class="row">
+										<div class="col-md-12">
+						                    <h1 style="font-size:24px;" id="name_header">基本信息</h1>
+						                    <div class="col-sm-6 margin-bm">
+							                	<label class="col-sm-3 control-label">服务站点: </label>
+							                	<div class="col-sm-9">
+							                  		<span id="serviceSiteName"></span>
+							                  	</div>
+							                </div>
+							                <div class="col-sm-6 margin-bm">
+							                	<label class="col-sm-3">交班人: </label>
+							                	<div class="col-sm-9">
+							                    	<span id="sendEmployeeName"></span>
+							                  	</div>
+							                </div>
+							                <div class="col-sm-6 margin-bm">
+							                	<label class="col-sm-3 control-label">接班人: </label>
+							                  	<div class="col-sm-9">
+							                   		<span id="receiveEmployeeName"></span>
+							                  	</div>
+							                </div>
+							                <div class="col-sm-6 margin-bm">
+							                	<label class="col-sm-3 control-label">监督人: </label>
+							                	<div class="col-sm-9">
+							                    	<span id="superviseEmployeeName"></span>
+							                  	</div>
+							                </div>
+							                <div class="col-sm-6 margin-bm">
+							                	<label class="col-sm-3 control-label">交接班时间: </label>
+							                	<div class="col-sm-9">
+							                    	<span id="createTime"></span>
+							                  	</div>
+							                </div>
+							                <div class="col-sm-6 margin-bm">
+							                	<label class="col-sm-3 control-label">交接班原因: </label>
+							                	<div class="col-sm-9">
+							                    	<span id="reason"></span>
+							                  	</div>
+							                </div>
+										</div>
+									</div>
+									<!-- 查询框结束 -->
+									
+                                    <!-- 数据表格开始 -->
+									<div class="row">
+										<div class="col-sm-12">							
+											<table class="table no-border hover">
+												<thead class="no-border">
+						                            <tr role="row">
+						                                <th style="width:20%"><strong>老人姓名</strong></th>
+						                                <th><strong>注意事项</strong></th>
+						                            </tr>
+						                        </thead>
+						                        <tbody id="datacontainer" role="alert" aria-live="polite" aria-relevant="all" class="no-border-y">                                                                                                                        
+						                        </tbody>
+						                    </table>
+										</div>
+									</div>
+									<!-- 数据表格结束 -->
+									<div class="row">
+									<!-- 第一个图片容器 -->
+									<div class="col-sm-6 col-md-4 col-lg-3 TPhide wid-hgt200" name="hide" id="Fptphoto1">
+										<div class="item">
+											<div class="photo">
+												<div class="head">
+													<h4 id="tpTitle1"></h4>
+													<span class="desc" id="tpmiaoshu1"></span> 
+													<input type="hidden" id="hide_tpmiaoshu1">
+												</div>
+												<div class="img">
+													<img src="" class="imageShow" id="ptphoto1" width="100%" height="auto" />
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!-- 第二个图片容器 -->
+									<div class="col-sm-6 col-md-4 col-lg-3 TPhide wid-hgt200" name="hide" id="Fptphoto2">
+										<div class="item">
+											<div class="photo">
+												<div class="head">
+													<h4 id="tpTitle2"></h4>
+													<span class="desc" id="tpmiaoshu2"></span> 
+													<input type="hidden" id="hide_tpmiaoshu2">
+												</div>
+												<div class="img">
+													<img src="" id="ptphoto2" class="imageShow" width="100%" height="auto" />
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!-- 第三个图片容器 -->
+									<div class="col-sm-6 col-md-4 col-lg-3 TPhide wid-hgt200" name="hide" id="Fptphoto3">
+										<div class="item">
+											<div class="photo">
+												<div class="head">
+													<h4 id="tpTitle3"></h4>
+													<span class="desc" id="tpmiaoshu3"></span> 
+													<input type="hidden" id="hide_tpmiaoshu3">
+												</div>
+												<div class="img">
+													<img src="" id="ptphoto3" class="imageShow" width="100%" height="auto" />
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!-- 第四个图片容器 -->
+									<div class="col-sm-6 col-md-4 col-lg-3 TPhide wid-hgt200" name="hide" id="Fptphoto4">
+										<div class="item">
+											<div class="photo">
+												<div class="head">
+													<h4 id="tpTitle4"></h4>
+													<span class="desc" id="tpmiaoshu4"></span> 
+													<input type="hidden" id="hide_tpmiaoshu4">
+												</div>
+												<div class="img">
+													<img src="" id="ptphoto4" class="imageShow" width="100%" height="auto" />
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!-- 第五个图片容器 -->
+									<div class="col-sm-6 col-md-4 col-lg-3 TPhide wid-hgt200" name="hide" id="Fptphoto5">
+										<div class="item">
+											<div class="photo">
+												<div class="head">
+													<h4 id="tpTitle5"></h4>
+													<span class="desc" id="tpmiaoshu5"></span> 
+													<input type="hidden" id="hide_tpmiaoshu5">
+												</div>
+												<div class="img">
+													<img src="" id="ptphoto5" class="imageShow" width="100%" height="auto" />
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!-- 第六个图片容器 -->
+									<div class="col-sm-6 col-md-4 col-lg-3 TPhide wid-hgt200" name="hide" id="Fptphoto6">
+										<div class="item">
+											<div class="photo">
+												<div class="head">
+													<h4 id="tpTitle6"></h4>
+													<span class="desc" id="tpmiaoshu6"></span> 
+													<input type="hidden" id="hide_tpmiaoshu6">
+												</div>
+												<div class="img">
+													<img src="" id="ptphoto6" class="imageShow" width="100%" height="auto" />
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	<!--  </div> -->
+					
+	<button type="button" class="btn btn-primary btn-flat md-trigger hide" id="showAll" data-modal="md-scale"></button>
+	<div class="md-modal md-effect-1" id="md-scale">  
+	    <div class="row">
+	        <div class="col-md-12">
+	     		<div class="block-flat">
+	            	<div class="header">
+	                	<button type="button" class="close md-close"  data-dismiss="modal">×</button>
+	                	<h3>注意事项详细信息</h3>
+	              	</div>
+	              	<div class="content form-horizontal group-border-dashed">
+		              		<div class="form-group">
+		                  		<label class="col-sm-3 control-label" style="margin-top: -5px;">老人姓名</label>
+		                  	<div class="col-sm-9">
+		                    	<span id="olderName" style="border:none"></span>
+		                  	</div>
+		                </div>
+		                <div class="form-group">
+		                	<label class="col-sm-3 control-label" style="margin-top: -5px;">注意事项</label>
+		                  	<div class="col-sm-9">
+		                   		<span id="carefulContent"  style="border:none;word-wrap: break-word;"></span>
+		                  	</div>
+		                </div>
+		                <div class="form-group">
+		                	<div class="col-sm-12" id="modalexaminationDataPhotoList">
+								<div class="row">
+									<!-- 第一个图片容器 -->
+									<div class="col-sm-6 col-md-4 col-lg-3 TPhide wid-hgt200" name="hide" id="fptPhoto1">
+										<div class="item">
+											<div class="photo">
+												<div class="head">
+													<h4 id="tpTitles1"></h4>
+													<span class="desc" id="tpMiaoshu1"></span> 
+													<input type="hidden" id="hideTpMiaoshu1">
+												</div>
+												<div class="img">
+													<img src="" id="ptPhoto1" class="imageShow" width="100%" height="auto" />
+												</div>
+											</div>
+										</div>
+									</div>
+		
+									<!-- 第二个图片容器 -->
+									<div class="col-sm-6 col-md-4 col-lg-3 TPhide wid-hgt200" name="hide" id="fptPhoto2">
+										<div class="item">
+											<div class="photo">
+												<div class="head">
+													<h4 id="tpTitles2"></h4>
+													<span class="desc" id="tpMiaoshu2"></span> 
+													<input type="hidden" id="hideTpMiaoshu2">
+												</div>
+												<div class="img">
+													<img src="" id="ptPhoto2" class="imageShow" width="100%" height="auto" />
+												</div>
+											</div>
+										</div>
+									</div>
+		
+									<!-- 第三个图片容器 -->
+									<div class="col-sm-6 col-md-4 col-lg-3 TPhide wid-hgt200" name="hide" id="fptPhoto3">
+										<div class="item">
+											<div class="photo">
+												<div class="head">
+													<h4 id="tpTitles3"></h4>
+													<span class="desc" id="tpMiaoshu3"></span> 
+													<input type="hidden" id="hideTpMiaoshu3">
+												</div>
+												<div class="img">
+													<img src="" id="ptPhoto3" class="imageShow" width="100%" height="auto" />
+												</div>
+											</div>
+										</div>
+									</div>
+		
+									<!-- 第四个图片容器 -->
+									<div class="col-sm-6 col-md-4 col-lg-3 TPhide wid-hgt200" name="hide" id="fptPhoto4">
+										<div class="item">
+											<div class="photo">
+												<div class="head">
+													<h4 id="tpTitles4"></h4>
+													<span class="desc" id="tpMiaoshu4"></span> 
+													<input type="hidden" id="hideTpMiaoshu4">
+												</div>
+												<div class="img">
+													<img src="" id="ptPhoto4" class="imageShow" width="100%" height="auto" />
+												</div>
+											</div>
+										</div>
+									</div>
+		
+									<!-- 第五个图片容器 -->
+									<div class="col-sm-6 col-md-4 col-lg-3 TPhide wid-hgt200" name="hide" id="fptPhoto5">
+										<div class="item">
+											<div class="photo">
+												<div class="head">
+													<h4 id="tpTitles5"></h4>
+													<span class="desc" id="tpMiaoshu5"></span> 
+													<input type="hidden" id="hideTpMiaoshu5">
+												</div>
+												<div class="img">
+													<img src="" id="ptPhoto5" class="imageShow" width="100%" height="auto" />
+												</div>
+											</div>
+										</div>
+									</div>
+		
+									<!-- 第六个图片容器 -->
+									<div class="col-sm-6 col-md-4 col-lg-3 TPhide wid-hgt200" name="hide" id="fptPhoto6">
+										<div class="item">
+											<div class="photo">
+												<div class="head">
+													<h4 id="tpTitles6"></h4>
+													<span class="desc" id="tpMiaoshu6"></span> 
+													<input type="hidden" id="hideTpMiaoshu6">
+												</div>
+												<div class="img">
+													<img src="" id="ptPhoto6" class="imageShow" width="100%" height="auto" />
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+		                </div>
+		                <div class="form-group" style="text-align: center;">
+		                	<button id="cancel_button" type="button" class="btn btn-primary btn-rad md-close" style="text-align:center">
+		                    	<span><i class="fa fa-times" style="margin-right:5px;"></i>关闭</span>
+		                  	</button>
+		                </div>
+	            	</div>
+	            </div>
+	       	</div>
+	    </div>
+	</div>  
+  
+    <button type="button" class="btn btn-primary btn-flat md-trigger hide" id="showPhoto" data-modal="md-photo"></button><!-- 隐藏按钮 -->
+	<div class="md-modal md-effect-1" id="md-photo">  
+        <div class="row">
+        	<div class="col-md-12">
+        		<div class="block-flat">
+            		<button type="button" class="close md-close closePhoto"  data-dismiss="modal">×</button>			
+					<div class="form-group">
+				        <img src="" id="bigPhoto" width="100%" height="auto" />
+					</div>
+				</div>
+		  	</div>
+        </div>
+    </div>
+
+	<div class="md-overlay"></div> <!-- Nifty Modal的遮罩层-->
+	
+	<script type="text/javascript" src="js/addressJS.js"></script>
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+	<script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+	<script type="text/javascript" src="js/behaviour/general.js"></script>
+	<script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+	<script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
+	<script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
+	<script src="js/skycons/skycons.js" type="text/javascript"></script>
+	<script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
+	<script src="js/intro.js/intro.js" type="text/javascript"></script> 
+	<script src="js/behaviour/voice-commands.js"></script>
+	<script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+	<script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>
+	<script type="text/javascript" src="js/jquery.magnific-popup/dist/jquery.magnific-popup.min.js"></script>
+	<script type="text/javascript" src="js/jquery.form.js"></script>
+	<script type="text/javascript">
+	var currentshownpage = 1;
+	$(document).ready(function(){
+	    App.init();
+	    $(".md-trigger").modalEffects();
+		go2page("1");
+		var homeUrl = "<%=request.getContextPath()%>" + "/welcome.do?main";
+  		$(".navbar-brand").attr("href",homeUrl);
+	});
+	
+	//查询
+	function go2page(pagenumber){
+		var id="<%=request.getAttribute("id")%>";
+		id = parseInt(id);
+		var reqmsg="{\"action\":\"QUERY_SEND_RECEIVE_INFO_REQUEST\",\"content\":{";
+		reqmsg += "\"id\":" + id +",";
+		reqmsg += "\"serviceSiteShow\":\"" + true + "\",";
+	    reqmsg += "\"receiveEmployeeShow\":\"" + true + "\",";
+	    reqmsg += "\"sendEmployeeShow\":\"" + true + "\",";
+	    reqmsg += "\"superviseEmployeeShow\":\"" + true + "\",";
+	    reqmsg += "\"sendReceivePhotoListShow\":\"" + true + "\",";
+	    reqmsg += "\"sendReceiveCarefulListShow\":\"" + true + "\"";
+	    reqmsg += "}}";
+	
+	    jQuery.ajax({
+	          type : "post",
+	          async:true,
+	          url : "sendReceiveDetail.do?handler",
+	          dataType : "json",
+	          data: {
+	               "reqmsg":reqmsg
+	          },
+	          success : function(data){
+	              if(data.des=="success"){
+	            	  changeData(data);
+	              }else if(data.des=="failure"){
+	                 alert("查询失败");
+	              }
+	          },
+	          error:function(){
+		           alert("error");
+	          }
+	     });
+	}
+	
+	function changeData(data){
+		var htmlcode = "";
+		if (data.content != null) {
+			$("#head_oldSum").text(data.content.serialNumber);
+			$("#serviceSiteName").text(data.content.serviceSiteName);
+	        $("#sendEmployeeName").text(data.content.sendEmployeeName +" "+data.content.sendEmployeeIndexNum +" "+ formateTime(data.content.sendEmployeeSignatureTime));
+	        $("#receiveEmployeeName").text(data.content.receiveEmployeeName + " " + data.content.receiveEmployeeIndexNum + " " + formateTime(data.content.receiveEmployeeSignatureTime));
+	        $("#superviseEmployeeName").text(data.content.superviseEmployeeName + " " + data.content.superviseEmployeeIndexNum + " " + formateTime(data.content.superviseEmployeeSignatureTime));
+	        $("#createTime").text(formateTime(data.content.createTime));
+	        $("#reason").text(data.content.reason);
+	        jQuery.each(data.content.sendReceivePhotoList, function(i, item) {
+	        	$("#Fptphoto"+(i+1)).removeClass("TPhide");
+		        $("#ptphoto"+(i+1)).attr("src", item.url);
+		        $("#tpTitle"+(i+1)).text(item.name);
+		        $("#tpmiaoshu"+(i+1)).text(item.name);
+		    });
+			jQuery.each(data.content.sendReceiveCarefulList, function(i, item) {
+				htmlcode += "<tr class=\"" + item.id + "\">";		
+			    htmlcode += "<td>" + item.olderName + "</td>";	
+			    htmlcode += "<td onclick=\"showAll('" + item.id + "','" + item.olderName + "','" + item.carefulContent + "')\" class=\"moveover\">" + formateDetail(item.carefulContent) + "</td>";	
+				htmlcode += "</tr>";
+			});
+		}
+		$("#datacontainer").html(htmlcode);
+	}
+	
+	//模态框显示信息
+	function showAll(id,name,des){
+		$("#olderName").text(name);	
+	    $("#carefulContent").text(des);
+		id = parseInt(id);
+		var reqmsg="{\"action\":\"QUERY_SEND_RECEIVE_CAREFUL_INFO_REQUEST\",\"content\":{";
+		reqmsg += "\"id\":" + id +",";
+	    reqmsg += "\"sendReceiveCarefulPhotoListShow\":\"" + true + "\"";
+	    reqmsg += "}}";
+	    jQuery.ajax({
+	        type : "post",
+	        async:true,
+	        url : "sendReceiveCareful.do?handler",
+	        dataType : "json",
+	        data: {
+	             "reqmsg":reqmsg
+	        },
+	        success : function(data){
+	            if(data.des=="success"){
+	          	  showData(data);
+	            }else if(data.des=="failure"){
+	               alert("查询失败");
+	            }
+	        },
+	        error:function(){
+		           alert("error");
+	        }
+	   });
+		
+	    $("#showAll").click();
+	}
+	
+	//显示提示信息
+	function showData(data){
+		if (data.content != null) {
+			jQuery.each(data.content.sendReceiveCarefulPhotoList, function(i, item) {
+				$("#fptPhoto"+(i+1)).removeClass("TPhide");
+		        $("#ptPhoto"+(i+1)).attr("src", item.url);
+		        $("#tpTitles"+(i+1)).text(item.name);
+		        $("#tpMiaoshu"+(i+1)).text(item.name);
+		    });
+		}
+	}
+	
+	//点击X关闭模态框显示图片
+	$(document).on("click", ".closePhoto", function () {
+		var modalHide = $("#modalHide").val();
+		if(modalHide == "show"){
+			$("#md-scale").css("visibility","");
+			$("#modalHide").val("hide");
+		}else if(modalHide == "hide"){
+			$("#md-scale").css("visibility","hidden");
+		}
+	});	
+	
+	//点击查看模态框显示隐藏图片
+	$(document).on("click", ".cursor", function () {
+		$("#modalHide").val("show");
+		$(".mfp-close").css("cursor","pointer");
+		$("#md-scale").css("visibility","hidden");
+	});
+	
+	//点击放大显示
+	$(document).on("click", ".imageShow", function () {
+		var imageurl = $(this).attr("src");
+		$("#bigPhoto").attr("src",imageurl);
+		$("#showPhoto").click();
+	});
+	
+	/**
+	 * 格式化时间
+	 * @method formateTime
+	 * @param {String} time 时间信息(YYYYMMDDHHmmSS)
+	 * @return 格式化的时间(YYYY-MM-DD HH:mm:SS)
+	 */
+	function formateTime(time) {
+		if (time != null && time.length == 14) {
+			return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8) + " " + time.substring(8, 10) + ":" + time.substring(10, 12) + ":" + time.substring(12, 14);
+		} else {
+			return time;
+		}
+	}
+	
+	//文字过长缩略显示
+	function formateDetail(par){
+	    if (par != null && par.length >50) {
+	        return par.substring(0, 50) + "..." ;
+	    }else {
+	        return par;
+	    }
+	}
+	</script>
+</body>
+</html>

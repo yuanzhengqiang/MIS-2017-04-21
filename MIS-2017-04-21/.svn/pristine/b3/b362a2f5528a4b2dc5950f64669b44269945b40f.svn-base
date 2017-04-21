@@ -1,0 +1,651 @@
+package fsk.parse.softInfo;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.framework.system.util.JsonUtil;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+import fsk.entity.softInfo.SoftInfoEntity;
+
+
+
+
+import com.framework.system.util.JsonUtil;
+import com.framework.system.db.query.OrderVO;
+ /**   
+ * @Title: Parse
+ * @Description: 软件版本管理解析器
+ * @author feng.gu
+ * @date 2016-07-27 16:18:42
+ * @version V1.0   
+ *
+ */
+public class SoftInfoParse {
+	private static Logger logger = Logger.getLogger(SoftInfoParse.class);
+	private static SoftInfoParse softInfoParse;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static SoftInfoParse getInstance() {
+		if (softInfoParse == null) {
+			softInfoParse = new SoftInfoParse();
+		}
+		return softInfoParse;
+	}
+
+	public Map<String, Object> parse(int type, String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			parseMap = this.parseByJson(command,reqStr, request);
+		} else if (type == 2) {
+			// xml
+			parseMap = this.parseByXml(command,reqStr, request);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByJson(String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		try {
+			String actionReturn = null;
+			SoftInfoEntity softInfoReturn = null;
+			List<SoftInfoEntity> softInfoListReturn = null;
+			Integer idReturn = null;			
+			Map<String, Object> queryMapReturn = null;
+			int pagenoReturn = 1;
+			int pagesizeReturn = 10;
+			List<OrderVO> orderListReturn = null;
+			
+						
+			//json
+			Map reqParams = JsonUtil.getMap4Json(reqStr);
+			JSONObject contentreq = (JSONObject)reqParams.get("content");
+			if ("ADD_SOFT_INFO_INFO_REQUEST".equals(command)) {
+				actionReturn = "save";
+				softInfoReturn = new SoftInfoEntity();
+				if(true){
+					if(contentreq!=null){
+												    						    Integer id = (Integer)contentreq.get("id");
+	                		if(id!=null){
+			                	softInfoReturn.setId(id);
+			                }
+						    												    						    String softName = (String)contentreq.get("softName");
+	                		if(softName!=null){
+			                	softInfoReturn.setSoftName(softName);
+			                }
+						    												    						    String softVersion = (String)contentreq.get("softVersion");
+	                		if(softVersion!=null){
+			                	softInfoReturn.setSoftVersion(softVersion);
+			                }
+						    												    						    String softCode = (String)contentreq.get("softCode");
+	                		if(softCode!=null){
+			                	softInfoReturn.setSoftCode(softCode);
+			                }
+						    												    						    String updateLog = (String)contentreq.get("updateLog");
+	                		if(updateLog!=null){
+			                	softInfoReturn.setUpdateLog(updateLog);
+			                }
+						    												    						    Integer mandatoryUpdate = (Integer)contentreq.get("mandatoryUpdate");
+	                		if(mandatoryUpdate!=null){
+			                	softInfoReturn.setMandatoryUpdate(mandatoryUpdate);
+			                }
+						    												    						    String updateUrl = (String)contentreq.get("updateUrl");
+	                		if(updateUrl!=null){
+			                	softInfoReturn.setUpdateUrl(updateUrl);
+			                }
+						    												    						    String lastVersion = (String)contentreq.get("lastVersion");
+	                		if(lastVersion!=null){
+			                	softInfoReturn.setLastVersion(lastVersion);
+			                }
+						    												    						    String redundantField1 = (String)contentreq.get("redundantField1");
+	                		if(redundantField1!=null){
+			                	softInfoReturn.setRedundantField1(redundantField1);
+			                }
+						    												    						    String redundantField2 = (String)contentreq.get("redundantField2");
+	                		if(redundantField2!=null){
+			                	softInfoReturn.setRedundantField2(redundantField2);
+			                }
+						    											}					
+				}
+							} else if ("QUERY_SOFT_INFO_INFO_REQUEST".equals(command)) {
+				actionReturn = "getById";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");
+					        					}	
+				}
+			} else if ("QUERY_SOFT_INFO_LIST_REQUEST".equals(command)) {
+				actionReturn = "getListByCondition";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																																String softName_like = (String)contentreq.get("softName_like");
+							String softName_isNull = (String)contentreq.get("softName_isNull");
+							String softName_isNotNull = (String)contentreq.get("softName_isNotNull");
+							String softName_in = (String)contentreq.get("softName_in");
+							String softName = (String)contentreq.get("softName");
+							if(softName_like!=null){
+	                        	queryMapReturn.put("softName_like", softName_like);
+							}
+							if(softName_isNull!=null){
+	                        	queryMapReturn.put("softName_isNull", softName_isNull);
+							}
+							if(softName_isNotNull!=null){
+	                        	queryMapReturn.put("softName_isNotNull", softName_isNotNull);
+							}
+							if(softName_in!=null){
+	                        	queryMapReturn.put("softName_in", softName_in);
+							}
+							if(softName!=null){
+	                        	queryMapReturn.put("softName", softName);
+							}						           
+																																							String softVersion_like = (String)contentreq.get("softVersion_like");
+							String softVersion_isNull = (String)contentreq.get("softVersion_isNull");
+							String softVersion_isNotNull = (String)contentreq.get("softVersion_isNotNull");
+							String softVersion_in = (String)contentreq.get("softVersion_in");
+							String softVersion = (String)contentreq.get("softVersion");
+							if(softVersion_like!=null){
+	                        	queryMapReturn.put("softVersion_like", softVersion_like);
+							}
+							if(softVersion_isNull!=null){
+	                        	queryMapReturn.put("softVersion_isNull", softVersion_isNull);
+							}
+							if(softVersion_isNotNull!=null){
+	                        	queryMapReturn.put("softVersion_isNotNull", softVersion_isNotNull);
+							}
+							if(softVersion_in!=null){
+	                        	queryMapReturn.put("softVersion_in", softVersion_in);
+							}
+							if(softVersion!=null){
+	                        	queryMapReturn.put("softVersion", softVersion);
+							}						           
+																																							String softCode_like = (String)contentreq.get("softCode_like");
+							String softCode_isNull = (String)contentreq.get("softCode_isNull");
+							String softCode_isNotNull = (String)contentreq.get("softCode_isNotNull");
+							String softCode_in = (String)contentreq.get("softCode_in");
+							String softCode = (String)contentreq.get("softCode");
+							if(softCode_like!=null){
+	                        	queryMapReturn.put("softCode_like", softCode_like);
+							}
+							if(softCode_isNull!=null){
+	                        	queryMapReturn.put("softCode_isNull", softCode_isNull);
+							}
+							if(softCode_isNotNull!=null){
+	                        	queryMapReturn.put("softCode_isNotNull", softCode_isNotNull);
+							}
+							if(softCode_in!=null){
+	                        	queryMapReturn.put("softCode_in", softCode_in);
+							}
+							if(softCode!=null){
+	                        	queryMapReturn.put("softCode", softCode);
+							}						           
+																																							String updateLog_like = (String)contentreq.get("updateLog_like");
+							String updateLog_isNull = (String)contentreq.get("updateLog_isNull");
+							String updateLog_isNotNull = (String)contentreq.get("updateLog_isNotNull");
+							String updateLog_in = (String)contentreq.get("updateLog_in");
+							String updateLog = (String)contentreq.get("updateLog");
+							if(updateLog_like!=null){
+	                        	queryMapReturn.put("updateLog_like", updateLog_like);
+							}
+							if(updateLog_isNull!=null){
+	                        	queryMapReturn.put("updateLog_isNull", updateLog_isNull);
+							}
+							if(updateLog_isNotNull!=null){
+	                        	queryMapReturn.put("updateLog_isNotNull", updateLog_isNotNull);
+							}
+							if(updateLog_in!=null){
+	                        	queryMapReturn.put("updateLog_in", updateLog_in);
+							}
+							if(updateLog!=null){
+	                        	queryMapReturn.put("updateLog", updateLog);
+							}						           
+																															Integer mandatoryUpdate_gt = (Integer)contentreq.get("mandatoryUpdate_gt");
+						Integer mandatoryUpdate_ge = (Integer)contentreq.get("mandatoryUpdate_ge");
+						Integer mandatoryUpdate_lt = (Integer)contentreq.get("mandatoryUpdate_lt");
+						Integer mandatoryUpdate_le = (Integer)contentreq.get("mandatoryUpdate_le");
+						String mandatoryUpdate_in = (String)contentreq.get("mandatoryUpdate_in");
+						Integer mandatoryUpdate = (Integer)contentreq.get("mandatoryUpdate");
+                        if(mandatoryUpdate_gt!=null){
+                        	queryMapReturn.put("mandatoryUpdate_gt", mandatoryUpdate_gt);
+						}
+						if(mandatoryUpdate_ge!=null){
+                        	queryMapReturn.put("mandatoryUpdate_ge", mandatoryUpdate_ge);
+						}
+						if(mandatoryUpdate_lt!=null){
+                        	queryMapReturn.put("mandatoryUpdate_lt", mandatoryUpdate_lt);
+						}
+						if(mandatoryUpdate_le!=null){
+                        	queryMapReturn.put("mandatoryUpdate_le", mandatoryUpdate_le);
+						}
+						if(mandatoryUpdate_in!=null){
+                        	queryMapReturn.put("mandatoryUpdate_in", mandatoryUpdate_in);
+						}
+						if(mandatoryUpdate!=null){
+                        	queryMapReturn.put("mandatoryUpdate", mandatoryUpdate);
+						}		
+																																String updateUrl_like = (String)contentreq.get("updateUrl_like");
+							String updateUrl_isNull = (String)contentreq.get("updateUrl_isNull");
+							String updateUrl_isNotNull = (String)contentreq.get("updateUrl_isNotNull");
+							String updateUrl_in = (String)contentreq.get("updateUrl_in");
+							String updateUrl = (String)contentreq.get("updateUrl");
+							if(updateUrl_like!=null){
+	                        	queryMapReturn.put("updateUrl_like", updateUrl_like);
+							}
+							if(updateUrl_isNull!=null){
+	                        	queryMapReturn.put("updateUrl_isNull", updateUrl_isNull);
+							}
+							if(updateUrl_isNotNull!=null){
+	                        	queryMapReturn.put("updateUrl_isNotNull", updateUrl_isNotNull);
+							}
+							if(updateUrl_in!=null){
+	                        	queryMapReturn.put("updateUrl_in", updateUrl_in);
+							}
+							if(updateUrl!=null){
+	                        	queryMapReturn.put("updateUrl", updateUrl);
+							}						           
+																																							String lastVersion_like = (String)contentreq.get("lastVersion_like");
+							String lastVersion_isNull = (String)contentreq.get("lastVersion_isNull");
+							String lastVersion_isNotNull = (String)contentreq.get("lastVersion_isNotNull");
+							String lastVersion_in = (String)contentreq.get("lastVersion_in");
+							String lastVersion = (String)contentreq.get("lastVersion");
+							if(lastVersion_like!=null){
+	                        	queryMapReturn.put("lastVersion_like", lastVersion_like);
+							}
+							if(lastVersion_isNull!=null){
+	                        	queryMapReturn.put("lastVersion_isNull", lastVersion_isNull);
+							}
+							if(lastVersion_isNotNull!=null){
+	                        	queryMapReturn.put("lastVersion_isNotNull", lastVersion_isNotNull);
+							}
+							if(lastVersion_in!=null){
+	                        	queryMapReturn.put("lastVersion_in", lastVersion_in);
+							}
+							if(lastVersion!=null){
+	                        	queryMapReturn.put("lastVersion", lastVersion);
+							}						           
+																																							String redundantField1_like = (String)contentreq.get("redundantField1_like");
+							String redundantField1_isNull = (String)contentreq.get("redundantField1_isNull");
+							String redundantField1_isNotNull = (String)contentreq.get("redundantField1_isNotNull");
+							String redundantField1_in = (String)contentreq.get("redundantField1_in");
+							String redundantField1 = (String)contentreq.get("redundantField1");
+							if(redundantField1_like!=null){
+	                        	queryMapReturn.put("redundantField1_like", redundantField1_like);
+							}
+							if(redundantField1_isNull!=null){
+	                        	queryMapReturn.put("redundantField1_isNull", redundantField1_isNull);
+							}
+							if(redundantField1_isNotNull!=null){
+	                        	queryMapReturn.put("redundantField1_isNotNull", redundantField1_isNotNull);
+							}
+							if(redundantField1_in!=null){
+	                        	queryMapReturn.put("redundantField1_in", redundantField1_in);
+							}
+							if(redundantField1!=null){
+	                        	queryMapReturn.put("redundantField1", redundantField1);
+							}						           
+																																							String redundantField2_like = (String)contentreq.get("redundantField2_like");
+							String redundantField2_isNull = (String)contentreq.get("redundantField2_isNull");
+							String redundantField2_isNotNull = (String)contentreq.get("redundantField2_isNotNull");
+							String redundantField2_in = (String)contentreq.get("redundantField2_in");
+							String redundantField2 = (String)contentreq.get("redundantField2");
+							if(redundantField2_like!=null){
+	                        	queryMapReturn.put("redundantField2_like", redundantField2_like);
+							}
+							if(redundantField2_isNull!=null){
+	                        	queryMapReturn.put("redundantField2_isNull", redundantField2_isNull);
+							}
+							if(redundantField2_isNotNull!=null){
+	                        	queryMapReturn.put("redundantField2_isNotNull", redundantField2_isNotNull);
+							}
+							if(redundantField2_in!=null){
+	                        	queryMapReturn.put("redundantField2_in", redundantField2_in);
+							}
+							if(redundantField2!=null){
+	                        	queryMapReturn.put("redundantField2", redundantField2);
+							}						           
+																						
+						    							
+												}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				    Object orderreq = (Object) reqParams.get("order");
+					if (orderreq != null) {
+						JSONArray order = (JSONArray)orderreq;
+						orderListReturn = new ArrayList<OrderVO>();
+						for(int i=0;i<order.size();i++){
+							JSONObject obj = order.getJSONObject(i);
+							OrderVO orderVO = new OrderVO();
+							orderVO.setName((String)obj.get("column"));
+							orderVO.setOrderType((String)obj.get("type"));
+							orderListReturn.add(orderVO);
+						}						
+					}
+				}
+			} else if ("DEL_SOFT_INFO_INFO_REQUEST".equals(command)) {
+				actionReturn = "del";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");	
+						    					}	
+				}
+			} else if ("DEL_SOFT_INFO_LIST_REQUEST".equals(command)) {
+				actionReturn = "delList";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																																String softName_like = (String)contentreq.get("softName_like");
+							String softName_isNull = (String)contentreq.get("softName_isNull");
+							String softName_isNotNull = (String)contentreq.get("softName_isNotNull");
+							String softName_in = (String)contentreq.get("softName_in");
+							String softName = (String)contentreq.get("softName");
+							if(softName_like!=null){
+	                        	queryMapReturn.put("softName_like", softName_like);
+							}
+							if(softName_isNull!=null){
+	                        	queryMapReturn.put("softName_isNull", softName_isNull);
+							}
+							if(softName_isNotNull!=null){
+	                        	queryMapReturn.put("softName_isNotNull", softName_isNotNull);
+							}
+							if(softName_in!=null){
+	                        	queryMapReturn.put("softName_in", softName_in);
+							}
+							if(softName!=null){
+	                        	queryMapReturn.put("softName", softName);
+							}						           
+																																							String softVersion_like = (String)contentreq.get("softVersion_like");
+							String softVersion_isNull = (String)contentreq.get("softVersion_isNull");
+							String softVersion_isNotNull = (String)contentreq.get("softVersion_isNotNull");
+							String softVersion_in = (String)contentreq.get("softVersion_in");
+							String softVersion = (String)contentreq.get("softVersion");
+							if(softVersion_like!=null){
+	                        	queryMapReturn.put("softVersion_like", softVersion_like);
+							}
+							if(softVersion_isNull!=null){
+	                        	queryMapReturn.put("softVersion_isNull", softVersion_isNull);
+							}
+							if(softVersion_isNotNull!=null){
+	                        	queryMapReturn.put("softVersion_isNotNull", softVersion_isNotNull);
+							}
+							if(softVersion_in!=null){
+	                        	queryMapReturn.put("softVersion_in", softVersion_in);
+							}
+							if(softVersion!=null){
+	                        	queryMapReturn.put("softVersion", softVersion);
+							}						           
+																																							String softCode_like = (String)contentreq.get("softCode_like");
+							String softCode_isNull = (String)contentreq.get("softCode_isNull");
+							String softCode_isNotNull = (String)contentreq.get("softCode_isNotNull");
+							String softCode_in = (String)contentreq.get("softCode_in");
+							String softCode = (String)contentreq.get("softCode");
+							if(softCode_like!=null){
+	                        	queryMapReturn.put("softCode_like", softCode_like);
+							}
+							if(softCode_isNull!=null){
+	                        	queryMapReturn.put("softCode_isNull", softCode_isNull);
+							}
+							if(softCode_isNotNull!=null){
+	                        	queryMapReturn.put("softCode_isNotNull", softCode_isNotNull);
+							}
+							if(softCode_in!=null){
+	                        	queryMapReturn.put("softCode_in", softCode_in);
+							}
+							if(softCode!=null){
+	                        	queryMapReturn.put("softCode", softCode);
+							}						           
+																																							String updateLog_like = (String)contentreq.get("updateLog_like");
+							String updateLog_isNull = (String)contentreq.get("updateLog_isNull");
+							String updateLog_isNotNull = (String)contentreq.get("updateLog_isNotNull");
+							String updateLog_in = (String)contentreq.get("updateLog_in");
+							String updateLog = (String)contentreq.get("updateLog");
+							if(updateLog_like!=null){
+	                        	queryMapReturn.put("updateLog_like", updateLog_like);
+							}
+							if(updateLog_isNull!=null){
+	                        	queryMapReturn.put("updateLog_isNull", updateLog_isNull);
+							}
+							if(updateLog_isNotNull!=null){
+	                        	queryMapReturn.put("updateLog_isNotNull", updateLog_isNotNull);
+							}
+							if(updateLog_in!=null){
+	                        	queryMapReturn.put("updateLog_in", updateLog_in);
+							}
+							if(updateLog!=null){
+	                        	queryMapReturn.put("updateLog", updateLog);
+							}						           
+																															Integer mandatoryUpdate_gt = (Integer)contentreq.get("mandatoryUpdate_gt");
+						Integer mandatoryUpdate_ge = (Integer)contentreq.get("mandatoryUpdate_ge");
+						Integer mandatoryUpdate_lt = (Integer)contentreq.get("mandatoryUpdate_lt");
+						Integer mandatoryUpdate_le = (Integer)contentreq.get("mandatoryUpdate_le");
+						String mandatoryUpdate_in = (String)contentreq.get("mandatoryUpdate_in");
+						Integer mandatoryUpdate = (Integer)contentreq.get("mandatoryUpdate");
+                        if(mandatoryUpdate_gt!=null){
+                        	queryMapReturn.put("mandatoryUpdate_gt", mandatoryUpdate_gt);
+						}
+						if(mandatoryUpdate_ge!=null){
+                        	queryMapReturn.put("mandatoryUpdate_ge", mandatoryUpdate_ge);
+						}
+						if(mandatoryUpdate_lt!=null){
+                        	queryMapReturn.put("mandatoryUpdate_lt", mandatoryUpdate_lt);
+						}
+						if(mandatoryUpdate_le!=null){
+                        	queryMapReturn.put("mandatoryUpdate_le", mandatoryUpdate_le);
+						}
+						if(mandatoryUpdate_in!=null){
+                        	queryMapReturn.put("mandatoryUpdate_in", mandatoryUpdate_in);
+						}
+						if(mandatoryUpdate!=null){
+                        	queryMapReturn.put("mandatoryUpdate", mandatoryUpdate);
+						}		
+																																String updateUrl_like = (String)contentreq.get("updateUrl_like");
+							String updateUrl_isNull = (String)contentreq.get("updateUrl_isNull");
+							String updateUrl_isNotNull = (String)contentreq.get("updateUrl_isNotNull");
+							String updateUrl_in = (String)contentreq.get("updateUrl_in");
+							String updateUrl = (String)contentreq.get("updateUrl");
+							if(updateUrl_like!=null){
+	                        	queryMapReturn.put("updateUrl_like", updateUrl_like);
+							}
+							if(updateUrl_isNull!=null){
+	                        	queryMapReturn.put("updateUrl_isNull", updateUrl_isNull);
+							}
+							if(updateUrl_isNotNull!=null){
+	                        	queryMapReturn.put("updateUrl_isNotNull", updateUrl_isNotNull);
+							}
+							if(updateUrl_in!=null){
+	                        	queryMapReturn.put("updateUrl_in", updateUrl_in);
+							}
+							if(updateUrl!=null){
+	                        	queryMapReturn.put("updateUrl", updateUrl);
+							}						           
+																																							String lastVersion_like = (String)contentreq.get("lastVersion_like");
+							String lastVersion_isNull = (String)contentreq.get("lastVersion_isNull");
+							String lastVersion_isNotNull = (String)contentreq.get("lastVersion_isNotNull");
+							String lastVersion_in = (String)contentreq.get("lastVersion_in");
+							String lastVersion = (String)contentreq.get("lastVersion");
+							if(lastVersion_like!=null){
+	                        	queryMapReturn.put("lastVersion_like", lastVersion_like);
+							}
+							if(lastVersion_isNull!=null){
+	                        	queryMapReturn.put("lastVersion_isNull", lastVersion_isNull);
+							}
+							if(lastVersion_isNotNull!=null){
+	                        	queryMapReturn.put("lastVersion_isNotNull", lastVersion_isNotNull);
+							}
+							if(lastVersion_in!=null){
+	                        	queryMapReturn.put("lastVersion_in", lastVersion_in);
+							}
+							if(lastVersion!=null){
+	                        	queryMapReturn.put("lastVersion", lastVersion);
+							}						           
+																																							String redundantField1_like = (String)contentreq.get("redundantField1_like");
+							String redundantField1_isNull = (String)contentreq.get("redundantField1_isNull");
+							String redundantField1_isNotNull = (String)contentreq.get("redundantField1_isNotNull");
+							String redundantField1_in = (String)contentreq.get("redundantField1_in");
+							String redundantField1 = (String)contentreq.get("redundantField1");
+							if(redundantField1_like!=null){
+	                        	queryMapReturn.put("redundantField1_like", redundantField1_like);
+							}
+							if(redundantField1_isNull!=null){
+	                        	queryMapReturn.put("redundantField1_isNull", redundantField1_isNull);
+							}
+							if(redundantField1_isNotNull!=null){
+	                        	queryMapReturn.put("redundantField1_isNotNull", redundantField1_isNotNull);
+							}
+							if(redundantField1_in!=null){
+	                        	queryMapReturn.put("redundantField1_in", redundantField1_in);
+							}
+							if(redundantField1!=null){
+	                        	queryMapReturn.put("redundantField1", redundantField1);
+							}						           
+																																							String redundantField2_like = (String)contentreq.get("redundantField2_like");
+							String redundantField2_isNull = (String)contentreq.get("redundantField2_isNull");
+							String redundantField2_isNotNull = (String)contentreq.get("redundantField2_isNotNull");
+							String redundantField2_in = (String)contentreq.get("redundantField2_in");
+							String redundantField2 = (String)contentreq.get("redundantField2");
+							if(redundantField2_like!=null){
+	                        	queryMapReturn.put("redundantField2_like", redundantField2_like);
+							}
+							if(redundantField2_isNull!=null){
+	                        	queryMapReturn.put("redundantField2_isNull", redundantField2_isNull);
+							}
+							if(redundantField2_isNotNull!=null){
+	                        	queryMapReturn.put("redundantField2_isNotNull", redundantField2_isNotNull);
+							}
+							if(redundantField2_in!=null){
+	                        	queryMapReturn.put("redundantField2_in", redundantField2_in);
+							}
+							if(redundantField2!=null){
+	                        	queryMapReturn.put("redundantField2", redundantField2);
+							}						           
+																									
+											}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				}
+			}
+
+			if (actionReturn != null && !"".equals(actionReturn)) {
+				parseMap.put("action", actionReturn);
+			}
+			if (softInfoReturn != null) {
+				parseMap.put("softInfo", softInfoReturn);
+			}
+			if (softInfoListReturn != null && softInfoListReturn.size() > 0) {
+				parseMap.put("softInfoList", softInfoListReturn);
+			}
+			if (idReturn != null) {
+				parseMap.put("id", idReturn);
+			}	
+			if (orderListReturn != null && orderListReturn.size() > 0) {
+				parseMap.put("orderList", orderListReturn);
+			}		
+			if (queryMapReturn != null) {
+				parseMap.put("queryMap", queryMapReturn);
+			}
+			if (pagenoReturn > 0) {
+				parseMap.put("pageno", pagenoReturn);
+			}
+			if (pagesizeReturn > 0) {
+				parseMap.put("pagesize", pagesizeReturn);
+			}
+			
+			
+						
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByXml(String command,String reqStr,
+			HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

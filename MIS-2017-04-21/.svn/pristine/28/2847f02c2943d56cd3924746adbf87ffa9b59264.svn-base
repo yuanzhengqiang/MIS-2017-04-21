@@ -1,0 +1,414 @@
+package fsk.entity.employee;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import com.framework.system.common.entity.user.UserEntity;
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+import fsk.entity.site.SiteEntity;
+import fsk.entity.wechat.WechatEntity;
+
+/**
+ * @Title: Entity
+ * @Description: 员工信息表
+ * @author feng.gu
+ * @date 2016-10-18 15:42:48
+ * @version V1.0
+ * 
+ */
+@TableDescription(name = "B_EMPLOYEE")
+public class EmployeeEntity implements java.io.Serializable {
+	public final static String ID = "ID";
+	public final static String USER_ID = "USER_ID";
+	public final static String LEADER_EMPLOYEE_ID = "LEADER_EMPLOYEE_ID";
+	public final static String MAIN_PHOTO = "MAIN_PHOTO";
+	public final static String NAME = "NAME";
+	public final static String IDNUMBER = "IDNUMBER";
+	public final static String GENDER = "GENDER";
+	public final static String MOBILE_TEL = "MOBILE_TEL";
+	public final static String HOME_TEL = "HOME_TEL";
+	public final static String BIRTHDATE = "BIRTHDATE";
+	public final static String STAR_LEVEL = "STAR_LEVEL";
+	public final static String INDEX_NUM = "INDEX_NUM";
+	public final static String DEPARTMENT = "DEPARTMENT";
+	public final static String SECOND_DEPARTMENT_ID = "SECOND_DEPARTMENT_ID";
+	public final static String WECHAT_ID = "WECHAT_ID";
+	public final static String WECHAT_NAME = "WECHAT_NAME";
+	public final static String WECHAT_OPENID = "WECHAT_OPENID";
+
+	/**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+	/**
+	 * 账号ID
+	 */
+	@ColumnDescription(name = "USER_ID")
+	private Integer userId;
+	/**
+	 * 组长员工ID
+	 */
+	@ColumnDescription(name = "LEADER_EMPLOYEE_ID")
+	private Integer leaderEmployeeId;
+	/**
+	 * 头像
+	 */
+	@ColumnDescription(name = "MAIN_PHOTO")
+	private String mainPhoto;
+	/**
+	 * 姓名
+	 */
+	@ColumnDescription(name = "NAME")
+	private String name;
+	/**
+	 * 身份证号
+	 */
+	@ColumnDescription(name = "IDNUMBER")
+	private String idnumber;
+	/**
+	 * 性别
+	 */
+	@ColumnDescription(name = "GENDER")
+	private String gender;
+	/**
+	 * 手机
+	 */
+	@ColumnDescription(name = "MOBILE_TEL")
+	private String mobileTel;
+	/**
+	 * 固话
+	 */
+	@ColumnDescription(name = "HOME_TEL")
+	private String homeTel;
+	/**
+	 * 出生日期
+	 */
+	@ColumnDescription(name = "BIRTHDATE")
+	private String birthdate;
+	/**
+	 * 星级
+	 */
+	@ColumnDescription(name = "STAR_LEVEL")
+	private BigDecimal starLevel;
+	/**
+	 * 员工编号
+	 */
+	@ColumnDescription(name = "INDEX_NUM")
+	private String indexNum;
+	/**
+	 * 部门
+	 */
+	@ColumnDescription(name = "DEPARTMENT")
+	private Integer department;
+	/**
+	 * 部门2
+	 */
+	@ColumnDescription(name = "SECOND_DEPARTMENT_ID")
+	private Integer secondDepartmentId;
+	/**
+	 * WECHAT_ID
+	 */
+	@ColumnDescription(name = "WECHAT_ID")
+	private Integer wechatId;
+	/**
+	 * 微信昵称
+	 */
+	@ColumnDescription(name = "WECHAT_NAME")
+	private String wechatName;
+	/**
+	 * 微信openid
+	 */
+	@ColumnDescription(name = "WECHAT_OPENID")
+	private String wechatOpenid;
+
+	/* 新增字段peihouxuan */
+	private String roleIds;
+
+	private String roleNames;
+
+	private String zhanghaoId;
+
+	private String zhichengs;
+
+	private String siteStreetName;
+
+	public String getRoleIds() {
+		return roleIds;
+	}
+
+	public void setRoleIds(String roleIds) {
+		this.roleIds = roleIds;
+	}
+
+	public String getRoleNames() {
+		return roleNames;
+	}
+
+	public void setRoleNames(String roleNames) {
+		this.roleNames = roleNames;
+	}
+
+	public String getZhanghaoId() {
+		return zhanghaoId;
+	}
+
+	public void setZhanghaoId(String zhanghaoId) {
+		this.zhanghaoId = zhanghaoId;
+	}
+
+	public String getZhichengs() {
+		return zhichengs;
+	}
+
+	public void setZhichengs(String zhichengs) {
+		this.zhichengs = zhichengs;
+	}
+
+	public String getSiteStreetName() {
+		return siteStreetName;
+	}
+
+	public void setSiteStreetName(String siteStreetName) {
+		this.siteStreetName = siteStreetName;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Integer getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+
+	public Integer getLeaderEmployeeId() {
+		return leaderEmployeeId;
+	}
+
+	public void setLeaderEmployeeId(Integer leaderEmployeeId) {
+		this.leaderEmployeeId = leaderEmployeeId;
+	}
+
+	public String getMainPhoto() {
+		return mainPhoto;
+	}
+
+	public void setMainPhoto(String mainPhoto) {
+		this.mainPhoto = mainPhoto;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getIdnumber() {
+		return idnumber;
+	}
+
+	public void setIdnumber(String idnumber) {
+		this.idnumber = idnumber;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public String getMobileTel() {
+		return mobileTel;
+	}
+
+	public void setMobileTel(String mobileTel) {
+		this.mobileTel = mobileTel;
+	}
+
+	public String getHomeTel() {
+		return homeTel;
+	}
+
+	public void setHomeTel(String homeTel) {
+		this.homeTel = homeTel;
+	}
+
+	public String getBirthdate() {
+		return birthdate;
+	}
+
+	public void setBirthdate(String birthdate) {
+		this.birthdate = birthdate;
+	}
+
+	public BigDecimal getStarLevel() {
+		return starLevel;
+	}
+
+	public void setStarLevel(BigDecimal starLevel) {
+		this.starLevel = starLevel;
+	}
+
+	public String getIndexNum() {
+		return indexNum;
+	}
+
+	public void setIndexNum(String indexNum) {
+		this.indexNum = indexNum;
+	}
+
+	public Integer getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(Integer department) {
+		this.department = department;
+	}
+
+	public Integer getSecondDepartmentId() {
+		return secondDepartmentId;
+	}
+
+	public void setSecondDepartmentId(Integer secondDepartmentId) {
+		this.secondDepartmentId = secondDepartmentId;
+	}
+
+	public Integer getWechatId() {
+		return wechatId;
+	}
+
+	public void setWechatId(Integer wechatId) {
+		this.wechatId = wechatId;
+	}
+
+	public String getWechatName() {
+		return wechatName;
+	}
+
+	public void setWechatName(String wechatName) {
+		this.wechatName = wechatName;
+	}
+
+	public String getWechatOpenid() {
+		return wechatOpenid;
+	}
+
+	public void setWechatOpenid(String wechatOpenid) {
+		this.wechatOpenid = wechatOpenid;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "ManyToOne", joinEntity = "UserEntity", joinColumn = "ID")
+	private UserEntity user;
+
+	public UserEntity getUser() {
+		return user;
+	}
+
+	public void setUser(UserEntity user) {
+		this.user = user;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "ManyToOne", joinEntity = "EmployeeEntity", joinColumn = "ID")
+	private EmployeeEntity leaderEmployee;
+
+	public EmployeeEntity getLeaderEmployee() {
+		return leaderEmployee;
+	}
+
+	public void setLeaderEmployee(EmployeeEntity leaderEmployee) {
+		this.leaderEmployee = leaderEmployee;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "ManyToOne", joinEntity = "WechatEntity", joinColumn = "ID")
+	private WechatEntity wechat;
+
+	public WechatEntity getWechat() {
+		return wechat;
+	}
+
+	public void setWechat(WechatEntity wechat) {
+		this.wechat = wechat;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "ManyToMany", joinEntity = "SiteEmployeeEntity", joinColumn = "EMPLOYEE_ID", inverseJoinColumn = "SITE_ID", inverseJoinEntity = "SiteEntity")
+	private List<SiteEntity> siteList;
+
+	public List<SiteEntity> getSiteList() {
+		return siteList;
+	}
+
+	public void setSiteList(List<SiteEntity> siteList) {
+		this.siteList = siteList;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "ManyToMany", joinEntity = "EmployeeDataDicEntity", joinColumn = "EMPLOYEE_ID", inverseJoinColumn = "DATA_DIC_ID", inverseJoinEntity = "DataDicEntity")
+	private List<DataDicEntity> dataDicList;
+
+	public List<DataDicEntity> getDataDicList() {
+		return dataDicList;
+	}
+
+	public void setDataDicList(List<DataDicEntity> dataDicList) {
+		this.dataDicList = dataDicList;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "ManyToOne", joinEntity = "DataDicEntity", joinColumn = "ID")
+	private DataDicEntity firstDepartment;
+
+	public DataDicEntity getFirstDepartment() {
+		return firstDepartment;
+	}
+
+	public void setFirstDepartment(DataDicEntity firstDepartment) {
+		this.firstDepartment = firstDepartment;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "ManyToOne", joinEntity = "DataDicEntity", joinColumn = "ID")
+	private DataDicEntity secondDepartment;
+
+	public DataDicEntity getSecondDepartment() {
+		return secondDepartment;
+	}
+
+	public void setSecondDepartment(DataDicEntity secondDepartment) {
+		this.secondDepartment = secondDepartment;
+	}
+
+}

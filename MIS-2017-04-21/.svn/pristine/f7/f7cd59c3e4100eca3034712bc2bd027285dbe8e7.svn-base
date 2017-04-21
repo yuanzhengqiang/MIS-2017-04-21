@@ -1,0 +1,137 @@
+/*     */ package fsk.entity.vo.gateway;
+/*     */ 
+/*     */ public class FWsd
+/*     */ {
+/*     */   private String id;
+/*     */   private String type;
+/*     */   private String tempTime;
+/*     */   private String temp;
+/*     */   private String humiTime;
+/*     */   private String humi;
+/*     */   private String tempStatus;
+/*     */   private String humiStatus;
+/*     */   private String normal;
+/*     */   private String voltage;
+/*     */   private String offline;
+/*     */   private String time;
+/*     */   private String alarm;
+/*     */   private String mode;
+/*     */ 
+/*     */   public String getAlarm()
+/*     */   {
+/*  39 */     return this.alarm;
+/*     */   }
+/*     */ 
+/*     */   public void setAlarm(String alarm) {
+/*  43 */     this.alarm = alarm;
+/*     */   }
+/*     */ 
+/*     */   public String getMode() {
+/*  47 */     return this.mode;
+/*     */   }
+/*     */ 
+/*     */   public void setMode(String mode) {
+/*  51 */     this.mode = mode;
+/*     */   }
+/*     */ 
+/*     */   public String getTime() {
+/*  55 */     return this.time;
+/*     */   }
+/*     */ 
+/*     */   public void setTime(String time) {
+/*  59 */     this.time = time;
+/*     */   }
+/*     */ 
+/*     */   public String getNormal() {
+/*  63 */     return this.normal;
+/*     */   }
+/*     */ 
+/*     */   public void setNormal(String normal) {
+/*  67 */     this.normal = normal;
+/*     */   }
+/*     */ 
+/*     */   public String getVoltage() {
+/*  71 */     return this.voltage;
+/*     */   }
+/*     */ 
+/*     */   public void setVoltage(String voltage) {
+/*  75 */     this.voltage = voltage;
+/*     */   }
+/*     */ 
+/*     */   public String getOffline() {
+/*  79 */     return this.offline;
+/*     */   }
+/*     */ 
+/*     */   public void setOffline(String offline) {
+/*  83 */     this.offline = offline;
+/*     */   }
+/*     */ 
+/*     */   public String getId() {
+/*  87 */     return this.id;
+/*     */   }
+/*     */ 
+/*     */   public void setId(String id) {
+/*  91 */     this.id = id;
+/*     */   }
+/*     */ 
+/*     */   public String getType() {
+/*  95 */     return this.type;
+/*     */   }
+/*     */ 
+/*     */   public void setType(String type) {
+/*  99 */     this.type = type;
+/*     */   }
+/*     */ 
+/*     */   public String getTemp() {
+/* 103 */     return this.temp;
+/*     */   }
+/*     */ 
+/*     */   public void setTemp(String temp) {
+/* 107 */     this.temp = temp;
+/*     */   }
+/*     */ 
+/*     */   public String getTempTime() {
+/* 111 */     return this.tempTime;
+/*     */   }
+/*     */ 
+/*     */   public void setTempTime(String tempTime) {
+/* 115 */     this.tempTime = tempTime;
+/*     */   }
+/*     */ 
+/*     */   public String getHumiTime() {
+/* 119 */     return this.humiTime;
+/*     */   }
+/*     */ 
+/*     */   public void setHumiTime(String humiTime) {
+/* 123 */     this.humiTime = humiTime;
+/*     */   }
+/*     */ 
+/*     */   public String getHumi() {
+/* 127 */     return this.humi;
+/*     */   }
+/*     */ 
+/*     */   public void setHumi(String humi) {
+/* 131 */     this.humi = humi;
+/*     */   }
+/*     */ 
+/*     */   public String getTempStatus() {
+/* 135 */     return this.tempStatus;
+/*     */   }
+/*     */ 
+/*     */   public void setTempStatus(String tempStatus) {
+/* 139 */     this.tempStatus = tempStatus;
+/*     */   }
+/*     */ 
+/*     */   public String getHumiStatus() {
+/* 143 */     return this.humiStatus;
+/*     */   }
+/*     */ 
+/*     */   public void setHumiStatus(String humiStatus) {
+/* 147 */     this.humiStatus = humiStatus;
+/*     */   }
+/*     */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.entity.vo.gateway.FWsd
+ * JD-Core Version:    0.6.1
+ */

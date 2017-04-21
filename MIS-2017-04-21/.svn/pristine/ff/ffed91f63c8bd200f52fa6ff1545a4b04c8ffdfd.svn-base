@@ -1,0 +1,53 @@
+package fsk.controller.older;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import fsk.init.SystemInit;
+
+@RequestMapping("/InputSource")
+@Controller	
+public class InputSourceController {
+	/**
+	 * 系统录入页
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "sysInput")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = null;
+		if (SystemInit.ecgpage != null) {
+			mav = new ModelAndView("/fsk/older/SystemInputOlderList");
+		}
+		
+		return mav;
+	}
+	
+	/**
+	 * 微信录入页
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "WxInput")
+	public ModelAndView centerDetails(HttpServletRequest request) {
+		ModelAndView mav = null;
+		if (SystemInit.ecgpage != null) {
+			mav = new ModelAndView("/fsk/older/WeixinInputOlderList");
+		}
+		return mav;
+	}
+	
+	/**
+	 * 长护险代理新增老人页
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "longActingInsuranceAgent")
+	public ModelAndView longActingInsuranceAgent(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/older/longActingInsuranceAgentOlderList");
+		return mav;
+	}
+}

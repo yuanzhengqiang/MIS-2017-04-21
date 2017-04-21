@@ -1,0 +1,377 @@
+package fsk.entity.review;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.older.OlderEntity;
+import fsk.entity.site.SiteEntity;
+import fsk.entity.employee.EmployeeEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 回访记录
+ * @author feng.gu
+ * @date 2016-11-17 10:38:46
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_REVIEW")
+public class ReviewEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String RECORD_CODE = "RECORD_CODE";
+    public final static String OLDER_ID = "OLDER_ID";
+    public final static String OLDER_NAME = "OLDER_NAME";
+    public final static String STATUS = "STATUS";
+    public final static String METHOD = "METHOD";
+    public final static String SOURCE = "SOURCE";
+    public final static String SITE_ID = "SITE_ID";
+    public final static String SITE_NAME = "SITE_NAME";
+    public final static String EMPLOYEE_ID = "EMPLOYEE_ID";
+    public final static String EMPLOYEE_NAME = "EMPLOYEE_NAME";
+    public final static String ESTIMATED_REVIEW_TIME = "ESTIMATED_REVIEW_TIME";
+    public final static String REAL_REVIEW_TIME = "REAL_REVIEW_TIME";
+    public final static String QUESTION1 = "QUESTION1";
+    public final static String QUESTION2 = "QUESTION2";
+    public final static String QUESTION3 = "QUESTION3";
+    public final static String QUESTION4 = "QUESTION4";
+    public final static String QUESTION5 = "QUESTION5";
+    public final static String QUESTION6 = "QUESTION6";
+    public final static String QUESTION7 = "QUESTION7";
+    public final static String QUESTION8 = "QUESTION8";
+    public final static String SATISFIED = "SATISFIED";
+    public final static String CREATE_TIME = "CREATE_TIME";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 记录编号(自动生成)
+	 */
+	@ColumnDescription(name = "RECORD_CODE")
+	private String recordCode;
+    /**
+	 * 回访老人ID
+	 */
+	@ColumnDescription(name = "OLDER_ID")
+	private Integer olderId;
+    /**
+	 * 回访老人姓名
+	 */
+	@ColumnDescription(name = "OLDER_NAME")
+	private String olderName;
+    /**
+	 * 回访状态(1-未回访 2-已回访)
+	 */
+	@ColumnDescription(name = "STATUS")
+	private String status;
+    /**
+	 * 回访方式(1-电话 2-入户 3-机构)
+	 */
+	@ColumnDescription(name = "METHOD")
+	private String method;
+    /**
+	 * 回访来源(1-站点 2-品保部)
+	 */
+	@ColumnDescription(name = "SOURCE")
+	private String source;
+    /**
+	 * 服务站点ID
+	 */
+	@ColumnDescription(name = "SITE_ID")
+	private Integer siteId;
+    /**
+	 * 服务站点名称
+	 */
+	@ColumnDescription(name = "SITE_NAME")
+	private String siteName;
+    /**
+	 * 回访人ID
+	 */
+	@ColumnDescription(name = "EMPLOYEE_ID")
+	private Integer employeeId;
+    /**
+	 * 回访人姓名
+	 */
+	@ColumnDescription(name = "EMPLOYEE_NAME")
+	private String employeeName;
+    /**
+	 * 预计回访时间
+	 */
+	@ColumnDescription(name = "ESTIMATED_REVIEW_TIME")
+	private String estimatedReviewTime;
+    /**
+	 * 实际回访时间
+	 */
+	@ColumnDescription(name = "REAL_REVIEW_TIME")
+	private String realReviewTime;
+    /**
+	 * 问题1：服务中存在的问题(多选)
+	 */
+	@ColumnDescription(name = "QUESTION1")
+	private String question1;
+    /**
+	 * 问题2：服务评价是否是您真实意思的表示(1-是2-否)
+	 */
+	@ColumnDescription(name = "QUESTION2")
+	private String question2;
+    /**
+	 * 问题3：精神面貌是否满意(1-是2-否)
+	 */
+	@ColumnDescription(name = "QUESTION3")
+	private String question3;
+    /**
+	 * 问题4：服务人员仪容及穿着您是否满意(1-是2-否)
+	 */
+	@ColumnDescription(name = "QUESTION4")
+	private String question4;
+    /**
+	 * 问题5：服务人员的专业技术您是否满意(1-是2-否)
+	 */
+	@ColumnDescription(name = "QUESTION5")
+	private String question5;
+    /**
+	 * 问题6：总体满意度(1-很满意2-满意3-一般4-中5-差)
+	 */
+	@ColumnDescription(name = "QUESTION6")
+	private String question6;
+    /**
+	 * 问题7：您对服务有何意见和建议
+	 */
+	@ColumnDescription(name = "QUESTION7")
+	private String question7;
+    /**
+	 * 问题8：您对服务有何特别的要求和需求
+	 */
+	@ColumnDescription(name = "QUESTION8")
+	private String question8;
+    /**
+	 * 调查中是否有不满意的地方(1-有2-无)
+	 */
+	@ColumnDescription(name = "SATISFIED")
+	private String satisfied;
+    /**
+	 * 创建时间
+	 */
+	@ColumnDescription(name = "CREATE_TIME")
+	private String createTime;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public String getRecordCode() {
+		return recordCode;
+	}
+
+	public void setRecordCode(String recordCode) {
+		this.recordCode = recordCode;
+	}
+    public Integer getOlderId() {
+		return olderId;
+	}
+
+	public void setOlderId(Integer olderId) {
+		this.olderId = olderId;
+	}
+    public String getOlderName() {
+		return olderName;
+	}
+
+	public void setOlderName(String olderName) {
+		this.olderName = olderName;
+	}
+    public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+    public String getMethod() {
+		return method;
+	}
+
+	public void setMethod(String method) {
+		this.method = method;
+	}
+    public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+    public Integer getSiteId() {
+		return siteId;
+	}
+
+	public void setSiteId(Integer siteId) {
+		this.siteId = siteId;
+	}
+    public String getSiteName() {
+		return siteName;
+	}
+
+	public void setSiteName(String siteName) {
+		this.siteName = siteName;
+	}
+    public Integer getEmployeeId() {
+		return employeeId;
+	}
+
+	public void setEmployeeId(Integer employeeId) {
+		this.employeeId = employeeId;
+	}
+    public String getEmployeeName() {
+		return employeeName;
+	}
+
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
+	}
+    public String getEstimatedReviewTime() {
+		return estimatedReviewTime;
+	}
+
+	public void setEstimatedReviewTime(String estimatedReviewTime) {
+		this.estimatedReviewTime = estimatedReviewTime;
+	}
+    public String getRealReviewTime() {
+		return realReviewTime;
+	}
+
+	public void setRealReviewTime(String realReviewTime) {
+		this.realReviewTime = realReviewTime;
+	}
+    public String getQuestion1() {
+		return question1;
+	}
+
+	public void setQuestion1(String question1) {
+		this.question1 = question1;
+	}
+    public String getQuestion2() {
+		return question2;
+	}
+
+	public void setQuestion2(String question2) {
+		this.question2 = question2;
+	}
+    public String getQuestion3() {
+		return question3;
+	}
+
+	public void setQuestion3(String question3) {
+		this.question3 = question3;
+	}
+    public String getQuestion4() {
+		return question4;
+	}
+
+	public void setQuestion4(String question4) {
+		this.question4 = question4;
+	}
+    public String getQuestion5() {
+		return question5;
+	}
+
+	public void setQuestion5(String question5) {
+		this.question5 = question5;
+	}
+    public String getQuestion6() {
+		return question6;
+	}
+
+	public void setQuestion6(String question6) {
+		this.question6 = question6;
+	}
+    public String getQuestion7() {
+		return question7;
+	}
+
+	public void setQuestion7(String question7) {
+		this.question7 = question7;
+	}
+    public String getQuestion8() {
+		return question8;
+	}
+
+	public void setQuestion8(String question8) {
+		this.question8 = question8;
+	}
+    public String getSatisfied() {
+		return satisfied;
+	}
+
+	public void setSatisfied(String satisfied) {
+		this.satisfied = satisfied;
+	}
+    public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="OlderEntity"	,joinColumn="ID"	)
+			
+			
+		private OlderEntity older;
+	        
+	public OlderEntity getOlder() {
+		return older;
+    }
+	
+	public void setOlder(OlderEntity older) {
+		this.older = older;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="SiteEntity"	,joinColumn="ID"	)
+			
+			
+		private SiteEntity site;
+	        
+	public SiteEntity getSite() {
+		return site;
+    }
+	
+	public void setSite(SiteEntity site) {
+		this.site = site;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="EmployeeEntity"	,joinColumn="ID"	)
+			
+			
+		private EmployeeEntity employee;
+	        
+	public EmployeeEntity getEmployee() {
+		return employee;
+    }
+	
+	public void setEmployee(EmployeeEntity employee) {
+		this.employee = employee;
+	}
+			
+}

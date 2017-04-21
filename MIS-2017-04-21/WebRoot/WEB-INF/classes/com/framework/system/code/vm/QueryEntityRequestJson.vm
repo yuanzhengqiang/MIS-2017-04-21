@@ -1,0 +1,30 @@
+{"action":"QUERY_${requestMap.entityInfo.tableUpperName}_INFO_REQUEST",
+ "content":{
+#set ($i=$requestMap.relationList.size())
+#set($a=0)
+            "id":1#if($i==$a)#else,#set($a=$a+1)#end
+            
+#foreach($relation in $requestMap.relationList)
+#if(${relation.relation}=="ManyToMany")
+            "${relation.joinColumn}List_show":"true"#if($i==$a)#else,#set($a=$a+1)#end   
+                                                  
+#end
+#if(${relation.relation}=="OneToMany")
+            "${relation.joinColumn}List_show":"true"#if($i==$a)#else,#set($a=$a+1)#end 
+            
+#end
+#if(${relation.relation}=="ManyToOne")
+            "${relation.joinColumn}_show":"true"#if($i==$a)#else,#set($a=$a+1)#end     
+                
+#end
+#if(${relation.relation}=="ParentToOne")
+            "parent${requestMap.entityInfo.entityName}_show":"true"#if($i==$a)#else,#set($a=$a+1)#end   
+                
+#end
+#if(${relation.relation}=="OneToOne")
+		    "${relation.joinColumn}_show":"true"#if($i==$a)#else,#set($a=$a+1)#end 
+		       
+#end
+#end                 
+           }
+}

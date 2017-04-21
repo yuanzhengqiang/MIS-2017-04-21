@@ -1,0 +1,3192 @@
+package fsk.service.dailyLife;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+
+import fsk.entity.older.OlderEntity;
+
+import fsk.entity.dailyLife.DailyLifeEntity;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+/**
+ * @Title: Service
+ * @Description: 日常生活记录服务类
+ * @author feng.gu
+ * @date 2016-07-11 16:34:25
+ * @version V1.0
+ * 
+ */
+public class DailyLifeService {
+	private static Logger logger = Logger.getLogger(DailyLifeService.class);
+	private DBManager dbManager = DBManager.getInstance();
+
+	private static DailyLifeService dailyLifeService;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static DailyLifeService getInstance() {
+		if (dailyLifeService == null) {
+			dailyLifeService = new DailyLifeService();
+		}
+		return dailyLifeService;
+	}
+
+	/**
+	 * 保存记录
+	 * 
+	 * @param obj
+	 */
+	public boolean save(DailyLifeEntity dailyLife) {
+		boolean result = false;
+		if (dailyLife != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 关联信息保存
+				OlderEntity older = dailyLife.getOlder();
+				if (older != null) {
+					dbManager.saveNoTransaction(older);
+					dailyLife.setOlderId(older.getId());
+				}
+				result = dbManager.saveNoTransaction(dailyLife);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量保存记录
+	 * 
+	 * @param list
+	 */
+	public boolean saveList(List<DailyLifeEntity> dailyLifeList) {
+		boolean result = false;
+		if (dailyLifeList != null && dailyLifeList.size() > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				for (DailyLifeEntity dailyLife : dailyLifeList) {
+					if (dailyLife != null) {
+						// 关联信息保存
+						OlderEntity older = dailyLife.getOlder();
+						if (older != null) {
+							dbManager.saveNoTransaction(older);
+							dailyLife.setOlderId(older.getId());
+						}
+						result = dbManager.saveNoTransaction(dailyLife);
+					}
+				}
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public DailyLifeEntity getById(Integer id) {
+		DailyLifeEntity obj = null;
+		if (id != null) {
+			obj = (DailyLifeEntity) dbManager
+					.getById(id, DailyLifeEntity.class);
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param olderShow
+	 *            是否查询关联信息
+	 * @param obj
+	 */
+	public DailyLifeEntity getById(Integer id, Boolean olderShow) {
+		DailyLifeEntity obj = null;
+		if (id != null) {
+			obj = (DailyLifeEntity) dbManager
+					.getById(id, DailyLifeEntity.class);
+			// 查询关联内容
+			if (olderShow != null && olderShow.booleanValue() && obj != null
+					&& obj.getOlderId() != null && obj.getOlderId() > 0) {
+				OlderEntity older = (OlderEntity) dbManager.getById(
+						obj.getOlderId(), OlderEntity.class);
+				obj.setOlder(older);
+			}
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @return
+	 */
+	public List<DailyLifeEntity> getListByCondition(Map<String, Object> queryMap) {
+		List<DailyLifeEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object olderId = queryMap.get("olderId");
+		Object olderId_gt = queryMap.get("olderId_gt");
+		Object olderId_ge = queryMap.get("olderId_ge");
+		Object olderId_lt = queryMap.get("olderId_lt");
+		Object olderId_le = queryMap.get("olderId_le");
+		Object olderId_in = queryMap.get("olderId_in");
+		Object createTime_gt = queryMap.get("createTime_gt");
+		Object createTime_ge = queryMap.get("createTime_ge");
+		Object createTime_lt = queryMap.get("createTime_lt");
+		Object createTime_le = queryMap.get("createTime_le");
+		Object createPerson = queryMap.get("createPerson");
+		Object createPerson_like = queryMap.get("createPerson_like");
+		Object createPerson_isNull = queryMap.get("createPerson_isNull");
+		Object createPerson_isNotNull = queryMap.get("createPerson_isNotNull");
+		Object createPerson_in = queryMap.get("createPerson_in");
+		Object dailyWater = queryMap.get("dailyWater");
+		Object dailyWater_like = queryMap.get("dailyWater_like");
+		Object dailyWater_isNull = queryMap.get("dailyWater_isNull");
+		Object dailyWater_isNotNull = queryMap.get("dailyWater_isNotNull");
+		Object dailyWater_in = queryMap.get("dailyWater_in");
+		Object dailyDrinking = queryMap.get("dailyDrinking");
+		Object dailyDrinking_like = queryMap.get("dailyDrinking_like");
+		Object dailyDrinking_isNull = queryMap.get("dailyDrinking_isNull");
+		Object dailyDrinking_isNotNull = queryMap
+				.get("dailyDrinking_isNotNull");
+		Object dailyDrinking_in = queryMap.get("dailyDrinking_in");
+		Object mainFood = queryMap.get("mainFood");
+		Object mainFood_like = queryMap.get("mainFood_like");
+		Object mainFood_isNull = queryMap.get("mainFood_isNull");
+		Object mainFood_isNotNull = queryMap.get("mainFood_isNotNull");
+		Object mainFood_in = queryMap.get("mainFood_in");
+		Object fruitsVegetables = queryMap.get("fruitsVegetables");
+		Object fruitsVegetables_like = queryMap.get("fruitsVegetables_like");
+		Object fruitsVegetables_isNull = queryMap
+				.get("fruitsVegetables_isNull");
+		Object fruitsVegetables_isNotNull = queryMap
+				.get("fruitsVegetables_isNotNull");
+		Object fruitsVegetables_in = queryMap.get("fruitsVegetables_in");
+		Object salt = queryMap.get("salt");
+		Object salt_like = queryMap.get("salt_like");
+		Object salt_isNull = queryMap.get("salt_isNull");
+		Object salt_isNotNull = queryMap.get("salt_isNotNull");
+		Object salt_in = queryMap.get("salt_in");
+		Object oil = queryMap.get("oil");
+		Object oil_like = queryMap.get("oil_like");
+		Object oil_isNull = queryMap.get("oil_isNull");
+		Object oil_isNotNull = queryMap.get("oil_isNotNull");
+		Object oil_in = queryMap.get("oil_in");
+		Object fish = queryMap.get("fish");
+		Object fish_like = queryMap.get("fish_like");
+		Object fish_isNull = queryMap.get("fish_isNull");
+		Object fish_isNotNull = queryMap.get("fish_isNotNull");
+		Object fish_in = queryMap.get("fish_in");
+		Object meat = queryMap.get("meat");
+		Object meat_like = queryMap.get("meat_like");
+		Object meat_isNull = queryMap.get("meat_isNull");
+		Object meat_isNotNull = queryMap.get("meat_isNotNull");
+		Object meat_in = queryMap.get("meat_in");
+		Object beanProducts = queryMap.get("beanProducts");
+		Object beanProducts_like = queryMap.get("beanProducts_like");
+		Object beanProducts_isNull = queryMap.get("beanProducts_isNull");
+		Object beanProducts_isNotNull = queryMap.get("beanProducts_isNotNull");
+		Object beanProducts_in = queryMap.get("beanProducts_in");
+		Object milk = queryMap.get("milk");
+		Object milk_like = queryMap.get("milk_like");
+		Object milk_isNull = queryMap.get("milk_isNull");
+		Object milk_isNotNull = queryMap.get("milk_isNotNull");
+		Object milk_in = queryMap.get("milk_in");
+		Object urine = queryMap.get("urine");
+		Object urine_like = queryMap.get("urine_like");
+		Object urine_isNull = queryMap.get("urine_isNull");
+		Object urine_isNotNull = queryMap.get("urine_isNotNull");
+		Object urine_in = queryMap.get("urine_in");
+		Object urineNum = queryMap.get("urineNum");
+		Object urineNum_like = queryMap.get("urineNum_like");
+		Object urineNum_isNull = queryMap.get("urineNum_isNull");
+		Object urineNum_isNotNull = queryMap.get("urineNum_isNotNull");
+		Object urineNum_in = queryMap.get("urineNum_in");
+		Object shit = queryMap.get("shit");
+		Object shit_like = queryMap.get("shit_like");
+		Object shit_isNull = queryMap.get("shit_isNull");
+		Object shit_isNotNull = queryMap.get("shit_isNotNull");
+		Object shit_in = queryMap.get("shit_in");
+		Object shitDay = queryMap.get("shitDay");
+		Object shitDay_like = queryMap.get("shitDay_like");
+		Object shitDay_isNull = queryMap.get("shitDay_isNull");
+		Object shitDay_isNotNull = queryMap.get("shitDay_isNotNull");
+		Object shitDay_in = queryMap.get("shitDay_in");
+		Object sleepHour = queryMap.get("sleepHour");
+		Object sleepHour_like = queryMap.get("sleepHour_like");
+		Object sleepHour_isNull = queryMap.get("sleepHour_isNull");
+		Object sleepHour_isNotNull = queryMap.get("sleepHour_isNotNull");
+		Object sleepHour_in = queryMap.get("sleepHour_in");
+		Object sleepQuality = queryMap.get("sleepQuality");
+		Object sleepQuality_like = queryMap.get("sleepQuality_like");
+		Object sleepQuality_isNull = queryMap.get("sleepQuality_isNull");
+		Object sleepQuality_isNotNull = queryMap.get("sleepQuality_isNotNull");
+		Object sleepQuality_in = queryMap.get("sleepQuality_in");
+		Object morningSpirit = queryMap.get("morningSpirit");
+		Object morningSpirit_like = queryMap.get("morningSpirit_like");
+		Object morningSpirit_isNull = queryMap.get("morningSpirit_isNull");
+		Object morningSpirit_isNotNull = queryMap
+				.get("morningSpirit_isNotNull");
+		Object morningSpirit_in = queryMap.get("morningSpirit_in");
+
+		QueryCondition qc = new QueryCondition(DailyLifeEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (olderId != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.eq, olderId));
+		}
+		if (olderId_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.gt, olderId_gt));
+		}
+		if (olderId_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.ge, olderId_ge));
+		}
+		if (olderId_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.lt, olderId_lt));
+		}
+		if (olderId_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.le, olderId_le));
+		}
+		if (olderId_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.in, olderId_in));
+		}
+		if (createTime_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.gt, createTime_gt));
+		}
+		if (createTime_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.ge, createTime_ge));
+		}
+		if (createTime_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.lt, createTime_lt));
+		}
+		if (createTime_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.le, createTime_le));
+		}
+		if (createPerson != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.eq, createPerson));
+		}
+		if (createPerson_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.like, createPerson_like));
+		}
+		if (createPerson_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.isNull, createPerson_isNull));
+		}
+		if (createPerson_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.isNotNull, createPerson_isNotNull));
+		}
+		if (createPerson_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.in, createPerson_in));
+		}
+		if (dailyWater != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.eq, dailyWater));
+		}
+		if (dailyWater_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.like, dailyWater_like));
+		}
+		if (dailyWater_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.isNull, dailyWater_isNull));
+		}
+		if (dailyWater_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.isNotNull, dailyWater_isNotNull));
+		}
+		if (dailyWater_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.in, dailyWater_in));
+		}
+		if (dailyDrinking != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.eq, dailyDrinking));
+		}
+		if (dailyDrinking_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.like, dailyDrinking_like));
+		}
+		if (dailyDrinking_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.isNull, dailyDrinking_isNull));
+		}
+		if (dailyDrinking_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.isNotNull, dailyDrinking_isNotNull));
+		}
+		if (dailyDrinking_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.in, dailyDrinking_in));
+		}
+		if (mainFood != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.eq, mainFood));
+		}
+		if (mainFood_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.like, mainFood_like));
+		}
+		if (mainFood_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.isNull, mainFood_isNull));
+		}
+		if (mainFood_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.isNotNull, mainFood_isNotNull));
+		}
+		if (mainFood_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.in, mainFood_in));
+		}
+		if (fruitsVegetables != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.eq,
+					fruitsVegetables));
+		}
+		if (fruitsVegetables_like != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.like,
+					fruitsVegetables_like));
+		}
+		if (fruitsVegetables_isNull != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.isNull,
+					fruitsVegetables_isNull));
+		}
+		if (fruitsVegetables_isNotNull != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES,
+					QueryCondition.isNotNull, fruitsVegetables_isNotNull));
+		}
+		if (fruitsVegetables_in != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.in,
+					fruitsVegetables_in));
+		}
+		if (salt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.eq, salt));
+		}
+		if (salt_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.like, salt_like));
+		}
+		if (salt_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.isNull, salt_isNull));
+		}
+		if (salt_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.isNotNull, salt_isNotNull));
+		}
+		if (salt_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.in, salt_in));
+		}
+		if (oil != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.eq, oil));
+		}
+		if (oil_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.like, oil_like));
+		}
+		if (oil_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.isNull, oil_isNull));
+		}
+		if (oil_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.isNotNull, oil_isNotNull));
+		}
+		if (oil_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.in, oil_in));
+		}
+		if (fish != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.eq, fish));
+		}
+		if (fish_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.like, fish_like));
+		}
+		if (fish_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.isNull, fish_isNull));
+		}
+		if (fish_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.isNotNull, fish_isNotNull));
+		}
+		if (fish_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.in, fish_in));
+		}
+		if (meat != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.eq, meat));
+		}
+		if (meat_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.like, meat_like));
+		}
+		if (meat_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.isNull, meat_isNull));
+		}
+		if (meat_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.isNotNull, meat_isNotNull));
+		}
+		if (meat_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.in, meat_in));
+		}
+		if (beanProducts != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.eq, beanProducts));
+		}
+		if (beanProducts_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.like, beanProducts_like));
+		}
+		if (beanProducts_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.isNull, beanProducts_isNull));
+		}
+		if (beanProducts_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.isNotNull, beanProducts_isNotNull));
+		}
+		if (beanProducts_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.in, beanProducts_in));
+		}
+		if (milk != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.eq, milk));
+		}
+		if (milk_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.like, milk_like));
+		}
+		if (milk_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.isNull, milk_isNull));
+		}
+		if (milk_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.isNotNull, milk_isNotNull));
+		}
+		if (milk_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.in, milk_in));
+		}
+		if (urine != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.eq, urine));
+		}
+		if (urine_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.like, urine_like));
+		}
+		if (urine_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.isNull, urine_isNull));
+		}
+		if (urine_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.isNotNull, urine_isNotNull));
+		}
+		if (urine_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.in, urine_in));
+		}
+		if (urineNum != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.eq, urineNum));
+		}
+		if (urineNum_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.like, urineNum_like));
+		}
+		if (urineNum_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.isNull, urineNum_isNull));
+		}
+		if (urineNum_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.isNotNull, urineNum_isNotNull));
+		}
+		if (urineNum_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.in, urineNum_in));
+		}
+		if (shit != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.eq, shit));
+		}
+		if (shit_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.like, shit_like));
+		}
+		if (shit_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.isNull, shit_isNull));
+		}
+		if (shit_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.isNotNull, shit_isNotNull));
+		}
+		if (shit_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.in, shit_in));
+		}
+		if (shitDay != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.eq, shitDay));
+		}
+		if (shitDay_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.like, shitDay_like));
+		}
+		if (shitDay_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.isNull, shitDay_isNull));
+		}
+		if (shitDay_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.isNotNull, shitDay_isNotNull));
+		}
+		if (shitDay_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.in, shitDay_in));
+		}
+		if (sleepHour != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.eq, sleepHour));
+		}
+		if (sleepHour_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.like, sleepHour_like));
+		}
+		if (sleepHour_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.isNull, sleepHour_isNull));
+		}
+		if (sleepHour_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.isNotNull, sleepHour_isNotNull));
+		}
+		if (sleepHour_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.in, sleepHour_in));
+		}
+		if (sleepQuality != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.eq, sleepQuality));
+		}
+		if (sleepQuality_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.like, sleepQuality_like));
+		}
+		if (sleepQuality_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.isNull, sleepQuality_isNull));
+		}
+		if (sleepQuality_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.isNotNull, sleepQuality_isNotNull));
+		}
+		if (sleepQuality_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.in, sleepQuality_in));
+		}
+		if (morningSpirit != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.eq, morningSpirit));
+		}
+		if (morningSpirit_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.like, morningSpirit_like));
+		}
+		if (morningSpirit_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.isNull, morningSpirit_isNull));
+		}
+		if (morningSpirit_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.isNotNull, morningSpirit_isNotNull));
+		}
+		if (morningSpirit_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.in, morningSpirit_in));
+		}
+
+		list = dbManager.queryByCondition(DailyLifeEntity.class, qc);
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<DailyLifeEntity>();
+			for (Object obj : list) {
+				returnlist.add((DailyLifeEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param olderShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public List<DailyLifeEntity> getListByCondition(
+			Map<String, Object> queryMap, List<OrderVO> orderList,
+			Boolean olderShow) {
+		List<DailyLifeEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object olderId = queryMap.get("olderId");
+		Object olderId_gt = queryMap.get("olderId_gt");
+		Object olderId_ge = queryMap.get("olderId_ge");
+		Object olderId_lt = queryMap.get("olderId_lt");
+		Object olderId_le = queryMap.get("olderId_le");
+		Object olderId_in = queryMap.get("olderId_in");
+		Object createTime_gt = queryMap.get("createTime_gt");
+		Object createTime_ge = queryMap.get("createTime_ge");
+		Object createTime_lt = queryMap.get("createTime_lt");
+		Object createTime_le = queryMap.get("createTime_le");
+		Object createPerson = queryMap.get("createPerson");
+		Object createPerson_like = queryMap.get("createPerson_like");
+		Object createPerson_isNull = queryMap.get("createPerson_isNull");
+		Object createPerson_isNotNull = queryMap.get("createPerson_isNotNull");
+		Object createPerson_in = queryMap.get("createPerson_in");
+		Object dailyWater = queryMap.get("dailyWater");
+		Object dailyWater_like = queryMap.get("dailyWater_like");
+		Object dailyWater_isNull = queryMap.get("dailyWater_isNull");
+		Object dailyWater_isNotNull = queryMap.get("dailyWater_isNotNull");
+		Object dailyWater_in = queryMap.get("dailyWater_in");
+		Object dailyDrinking = queryMap.get("dailyDrinking");
+		Object dailyDrinking_like = queryMap.get("dailyDrinking_like");
+		Object dailyDrinking_isNull = queryMap.get("dailyDrinking_isNull");
+		Object dailyDrinking_isNotNull = queryMap
+				.get("dailyDrinking_isNotNull");
+		Object dailyDrinking_in = queryMap.get("dailyDrinking_in");
+		Object mainFood = queryMap.get("mainFood");
+		Object mainFood_like = queryMap.get("mainFood_like");
+		Object mainFood_isNull = queryMap.get("mainFood_isNull");
+		Object mainFood_isNotNull = queryMap.get("mainFood_isNotNull");
+		Object mainFood_in = queryMap.get("mainFood_in");
+		Object fruitsVegetables = queryMap.get("fruitsVegetables");
+		Object fruitsVegetables_like = queryMap.get("fruitsVegetables_like");
+		Object fruitsVegetables_isNull = queryMap
+				.get("fruitsVegetables_isNull");
+		Object fruitsVegetables_isNotNull = queryMap
+				.get("fruitsVegetables_isNotNull");
+		Object fruitsVegetables_in = queryMap.get("fruitsVegetables_in");
+		Object salt = queryMap.get("salt");
+		Object salt_like = queryMap.get("salt_like");
+		Object salt_isNull = queryMap.get("salt_isNull");
+		Object salt_isNotNull = queryMap.get("salt_isNotNull");
+		Object salt_in = queryMap.get("salt_in");
+		Object oil = queryMap.get("oil");
+		Object oil_like = queryMap.get("oil_like");
+		Object oil_isNull = queryMap.get("oil_isNull");
+		Object oil_isNotNull = queryMap.get("oil_isNotNull");
+		Object oil_in = queryMap.get("oil_in");
+		Object fish = queryMap.get("fish");
+		Object fish_like = queryMap.get("fish_like");
+		Object fish_isNull = queryMap.get("fish_isNull");
+		Object fish_isNotNull = queryMap.get("fish_isNotNull");
+		Object fish_in = queryMap.get("fish_in");
+		Object meat = queryMap.get("meat");
+		Object meat_like = queryMap.get("meat_like");
+		Object meat_isNull = queryMap.get("meat_isNull");
+		Object meat_isNotNull = queryMap.get("meat_isNotNull");
+		Object meat_in = queryMap.get("meat_in");
+		Object beanProducts = queryMap.get("beanProducts");
+		Object beanProducts_like = queryMap.get("beanProducts_like");
+		Object beanProducts_isNull = queryMap.get("beanProducts_isNull");
+		Object beanProducts_isNotNull = queryMap.get("beanProducts_isNotNull");
+		Object beanProducts_in = queryMap.get("beanProducts_in");
+		Object milk = queryMap.get("milk");
+		Object milk_like = queryMap.get("milk_like");
+		Object milk_isNull = queryMap.get("milk_isNull");
+		Object milk_isNotNull = queryMap.get("milk_isNotNull");
+		Object milk_in = queryMap.get("milk_in");
+		Object urine = queryMap.get("urine");
+		Object urine_like = queryMap.get("urine_like");
+		Object urine_isNull = queryMap.get("urine_isNull");
+		Object urine_isNotNull = queryMap.get("urine_isNotNull");
+		Object urine_in = queryMap.get("urine_in");
+		Object urineNum = queryMap.get("urineNum");
+		Object urineNum_like = queryMap.get("urineNum_like");
+		Object urineNum_isNull = queryMap.get("urineNum_isNull");
+		Object urineNum_isNotNull = queryMap.get("urineNum_isNotNull");
+		Object urineNum_in = queryMap.get("urineNum_in");
+		Object shit = queryMap.get("shit");
+		Object shit_like = queryMap.get("shit_like");
+		Object shit_isNull = queryMap.get("shit_isNull");
+		Object shit_isNotNull = queryMap.get("shit_isNotNull");
+		Object shit_in = queryMap.get("shit_in");
+		Object shitDay = queryMap.get("shitDay");
+		Object shitDay_like = queryMap.get("shitDay_like");
+		Object shitDay_isNull = queryMap.get("shitDay_isNull");
+		Object shitDay_isNotNull = queryMap.get("shitDay_isNotNull");
+		Object shitDay_in = queryMap.get("shitDay_in");
+		Object sleepHour = queryMap.get("sleepHour");
+		Object sleepHour_like = queryMap.get("sleepHour_like");
+		Object sleepHour_isNull = queryMap.get("sleepHour_isNull");
+		Object sleepHour_isNotNull = queryMap.get("sleepHour_isNotNull");
+		Object sleepHour_in = queryMap.get("sleepHour_in");
+		Object sleepQuality = queryMap.get("sleepQuality");
+		Object sleepQuality_like = queryMap.get("sleepQuality_like");
+		Object sleepQuality_isNull = queryMap.get("sleepQuality_isNull");
+		Object sleepQuality_isNotNull = queryMap.get("sleepQuality_isNotNull");
+		Object sleepQuality_in = queryMap.get("sleepQuality_in");
+		Object morningSpirit = queryMap.get("morningSpirit");
+		Object morningSpirit_like = queryMap.get("morningSpirit_like");
+		Object morningSpirit_isNull = queryMap.get("morningSpirit_isNull");
+		Object morningSpirit_isNotNull = queryMap
+				.get("morningSpirit_isNotNull");
+		Object morningSpirit_in = queryMap.get("morningSpirit_in");
+
+		QueryCondition qc = new QueryCondition(DailyLifeEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (olderId != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.eq, olderId));
+		}
+		if (olderId_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.gt, olderId_gt));
+		}
+		if (olderId_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.ge, olderId_ge));
+		}
+		if (olderId_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.lt, olderId_lt));
+		}
+		if (olderId_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.le, olderId_le));
+		}
+		if (olderId_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.in, olderId_in));
+		}
+		if (createTime_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.gt, createTime_gt));
+		}
+		if (createTime_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.ge, createTime_ge));
+		}
+		if (createTime_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.lt, createTime_lt));
+		}
+		if (createTime_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.le, createTime_le));
+		}
+		if (createPerson != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.eq, createPerson));
+		}
+		if (createPerson_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.like, createPerson_like));
+		}
+		if (createPerson_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.isNull, createPerson_isNull));
+		}
+		if (createPerson_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.isNotNull, createPerson_isNotNull));
+		}
+		if (createPerson_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.in, createPerson_in));
+		}
+		if (dailyWater != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.eq, dailyWater));
+		}
+		if (dailyWater_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.like, dailyWater_like));
+		}
+		if (dailyWater_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.isNull, dailyWater_isNull));
+		}
+		if (dailyWater_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.isNotNull, dailyWater_isNotNull));
+		}
+		if (dailyWater_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.in, dailyWater_in));
+		}
+		if (dailyDrinking != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.eq, dailyDrinking));
+		}
+		if (dailyDrinking_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.like, dailyDrinking_like));
+		}
+		if (dailyDrinking_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.isNull, dailyDrinking_isNull));
+		}
+		if (dailyDrinking_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.isNotNull, dailyDrinking_isNotNull));
+		}
+		if (dailyDrinking_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.in, dailyDrinking_in));
+		}
+		if (mainFood != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.eq, mainFood));
+		}
+		if (mainFood_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.like, mainFood_like));
+		}
+		if (mainFood_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.isNull, mainFood_isNull));
+		}
+		if (mainFood_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.isNotNull, mainFood_isNotNull));
+		}
+		if (mainFood_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.in, mainFood_in));
+		}
+		if (fruitsVegetables != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.eq,
+					fruitsVegetables));
+		}
+		if (fruitsVegetables_like != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.like,
+					fruitsVegetables_like));
+		}
+		if (fruitsVegetables_isNull != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.isNull,
+					fruitsVegetables_isNull));
+		}
+		if (fruitsVegetables_isNotNull != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES,
+					QueryCondition.isNotNull, fruitsVegetables_isNotNull));
+		}
+		if (fruitsVegetables_in != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.in,
+					fruitsVegetables_in));
+		}
+		if (salt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.eq, salt));
+		}
+		if (salt_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.like, salt_like));
+		}
+		if (salt_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.isNull, salt_isNull));
+		}
+		if (salt_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.isNotNull, salt_isNotNull));
+		}
+		if (salt_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.in, salt_in));
+		}
+		if (oil != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.eq, oil));
+		}
+		if (oil_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.like, oil_like));
+		}
+		if (oil_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.isNull, oil_isNull));
+		}
+		if (oil_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.isNotNull, oil_isNotNull));
+		}
+		if (oil_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.in, oil_in));
+		}
+		if (fish != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.eq, fish));
+		}
+		if (fish_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.like, fish_like));
+		}
+		if (fish_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.isNull, fish_isNull));
+		}
+		if (fish_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.isNotNull, fish_isNotNull));
+		}
+		if (fish_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.in, fish_in));
+		}
+		if (meat != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.eq, meat));
+		}
+		if (meat_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.like, meat_like));
+		}
+		if (meat_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.isNull, meat_isNull));
+		}
+		if (meat_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.isNotNull, meat_isNotNull));
+		}
+		if (meat_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.in, meat_in));
+		}
+		if (beanProducts != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.eq, beanProducts));
+		}
+		if (beanProducts_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.like, beanProducts_like));
+		}
+		if (beanProducts_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.isNull, beanProducts_isNull));
+		}
+		if (beanProducts_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.isNotNull, beanProducts_isNotNull));
+		}
+		if (beanProducts_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.in, beanProducts_in));
+		}
+		if (milk != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.eq, milk));
+		}
+		if (milk_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.like, milk_like));
+		}
+		if (milk_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.isNull, milk_isNull));
+		}
+		if (milk_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.isNotNull, milk_isNotNull));
+		}
+		if (milk_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.in, milk_in));
+		}
+		if (urine != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.eq, urine));
+		}
+		if (urine_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.like, urine_like));
+		}
+		if (urine_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.isNull, urine_isNull));
+		}
+		if (urine_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.isNotNull, urine_isNotNull));
+		}
+		if (urine_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.in, urine_in));
+		}
+		if (urineNum != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.eq, urineNum));
+		}
+		if (urineNum_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.like, urineNum_like));
+		}
+		if (urineNum_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.isNull, urineNum_isNull));
+		}
+		if (urineNum_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.isNotNull, urineNum_isNotNull));
+		}
+		if (urineNum_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.in, urineNum_in));
+		}
+		if (shit != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.eq, shit));
+		}
+		if (shit_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.like, shit_like));
+		}
+		if (shit_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.isNull, shit_isNull));
+		}
+		if (shit_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.isNotNull, shit_isNotNull));
+		}
+		if (shit_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.in, shit_in));
+		}
+		if (shitDay != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.eq, shitDay));
+		}
+		if (shitDay_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.like, shitDay_like));
+		}
+		if (shitDay_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.isNull, shitDay_isNull));
+		}
+		if (shitDay_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.isNotNull, shitDay_isNotNull));
+		}
+		if (shitDay_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.in, shitDay_in));
+		}
+		if (sleepHour != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.eq, sleepHour));
+		}
+		if (sleepHour_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.like, sleepHour_like));
+		}
+		if (sleepHour_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.isNull, sleepHour_isNull));
+		}
+		if (sleepHour_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.isNotNull, sleepHour_isNotNull));
+		}
+		if (sleepHour_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.in, sleepHour_in));
+		}
+		if (sleepQuality != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.eq, sleepQuality));
+		}
+		if (sleepQuality_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.like, sleepQuality_like));
+		}
+		if (sleepQuality_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.isNull, sleepQuality_isNull));
+		}
+		if (sleepQuality_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.isNotNull, sleepQuality_isNotNull));
+		}
+		if (sleepQuality_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.in, sleepQuality_in));
+		}
+		if (morningSpirit != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.eq, morningSpirit));
+		}
+		if (morningSpirit_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.like, morningSpirit_like));
+		}
+		if (morningSpirit_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.isNull, morningSpirit_isNull));
+		}
+		if (morningSpirit_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.isNotNull, morningSpirit_isNotNull));
+		}
+		if (morningSpirit_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.in, morningSpirit_in));
+		}
+
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order
+							.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt,
+								orderType));
+					}
+				}
+
+			}
+		}
+		list = dbManager.queryByConditions(DailyLifeEntity.class, qc, oc);
+		int a = 0;
+		if (olderShow != null && olderShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && list != null && list.size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < list.size(); i++) {
+				DailyLifeEntity obj = (DailyLifeEntity) list.get(i);
+				// 查询关联内容
+				if (olderShow != null && olderShow.booleanValue()
+						&& obj != null && obj.getOlderId() != null
+						&& obj.getOlderId() > 0) {
+					OlderEntity older = (OlderEntity) dbManager.getById(
+							obj.getOlderId(), OlderEntity.class);
+					obj.setOlder(older);
+				}
+				result.add(obj);
+			}
+			list = result;
+		}
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<DailyLifeEntity>();
+			for (Object obj : list) {
+				returnlist.add((DailyLifeEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap,
+			int pageno, int pagesize) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object olderId = queryMap.get("olderId");
+		Object olderId_gt = queryMap.get("olderId_gt");
+		Object olderId_ge = queryMap.get("olderId_ge");
+		Object olderId_lt = queryMap.get("olderId_lt");
+		Object olderId_le = queryMap.get("olderId_le");
+		Object olderId_in = queryMap.get("olderId_in");
+		Object createTime_gt = queryMap.get("createTime_gt");
+		Object createTime_ge = queryMap.get("createTime_ge");
+		Object createTime_lt = queryMap.get("createTime_lt");
+		Object createTime_le = queryMap.get("createTime_le");
+		Object createPerson = queryMap.get("createPerson");
+		Object createPerson_like = queryMap.get("createPerson_like");
+		Object createPerson_isNull = queryMap.get("createPerson_isNull");
+		Object createPerson_isNotNull = queryMap.get("createPerson_isNotNull");
+		Object createPerson_in = queryMap.get("createPerson_in");
+		Object dailyWater = queryMap.get("dailyWater");
+		Object dailyWater_like = queryMap.get("dailyWater_like");
+		Object dailyWater_isNull = queryMap.get("dailyWater_isNull");
+		Object dailyWater_isNotNull = queryMap.get("dailyWater_isNotNull");
+		Object dailyWater_in = queryMap.get("dailyWater_in");
+		Object dailyDrinking = queryMap.get("dailyDrinking");
+		Object dailyDrinking_like = queryMap.get("dailyDrinking_like");
+		Object dailyDrinking_isNull = queryMap.get("dailyDrinking_isNull");
+		Object dailyDrinking_isNotNull = queryMap
+				.get("dailyDrinking_isNotNull");
+		Object dailyDrinking_in = queryMap.get("dailyDrinking_in");
+		Object mainFood = queryMap.get("mainFood");
+		Object mainFood_like = queryMap.get("mainFood_like");
+		Object mainFood_isNull = queryMap.get("mainFood_isNull");
+		Object mainFood_isNotNull = queryMap.get("mainFood_isNotNull");
+		Object mainFood_in = queryMap.get("mainFood_in");
+		Object fruitsVegetables = queryMap.get("fruitsVegetables");
+		Object fruitsVegetables_like = queryMap.get("fruitsVegetables_like");
+		Object fruitsVegetables_isNull = queryMap
+				.get("fruitsVegetables_isNull");
+		Object fruitsVegetables_isNotNull = queryMap
+				.get("fruitsVegetables_isNotNull");
+		Object fruitsVegetables_in = queryMap.get("fruitsVegetables_in");
+		Object salt = queryMap.get("salt");
+		Object salt_like = queryMap.get("salt_like");
+		Object salt_isNull = queryMap.get("salt_isNull");
+		Object salt_isNotNull = queryMap.get("salt_isNotNull");
+		Object salt_in = queryMap.get("salt_in");
+		Object oil = queryMap.get("oil");
+		Object oil_like = queryMap.get("oil_like");
+		Object oil_isNull = queryMap.get("oil_isNull");
+		Object oil_isNotNull = queryMap.get("oil_isNotNull");
+		Object oil_in = queryMap.get("oil_in");
+		Object fish = queryMap.get("fish");
+		Object fish_like = queryMap.get("fish_like");
+		Object fish_isNull = queryMap.get("fish_isNull");
+		Object fish_isNotNull = queryMap.get("fish_isNotNull");
+		Object fish_in = queryMap.get("fish_in");
+		Object meat = queryMap.get("meat");
+		Object meat_like = queryMap.get("meat_like");
+		Object meat_isNull = queryMap.get("meat_isNull");
+		Object meat_isNotNull = queryMap.get("meat_isNotNull");
+		Object meat_in = queryMap.get("meat_in");
+		Object beanProducts = queryMap.get("beanProducts");
+		Object beanProducts_like = queryMap.get("beanProducts_like");
+		Object beanProducts_isNull = queryMap.get("beanProducts_isNull");
+		Object beanProducts_isNotNull = queryMap.get("beanProducts_isNotNull");
+		Object beanProducts_in = queryMap.get("beanProducts_in");
+		Object milk = queryMap.get("milk");
+		Object milk_like = queryMap.get("milk_like");
+		Object milk_isNull = queryMap.get("milk_isNull");
+		Object milk_isNotNull = queryMap.get("milk_isNotNull");
+		Object milk_in = queryMap.get("milk_in");
+		Object urine = queryMap.get("urine");
+		Object urine_like = queryMap.get("urine_like");
+		Object urine_isNull = queryMap.get("urine_isNull");
+		Object urine_isNotNull = queryMap.get("urine_isNotNull");
+		Object urine_in = queryMap.get("urine_in");
+		Object urineNum = queryMap.get("urineNum");
+		Object urineNum_like = queryMap.get("urineNum_like");
+		Object urineNum_isNull = queryMap.get("urineNum_isNull");
+		Object urineNum_isNotNull = queryMap.get("urineNum_isNotNull");
+		Object urineNum_in = queryMap.get("urineNum_in");
+		Object shit = queryMap.get("shit");
+		Object shit_like = queryMap.get("shit_like");
+		Object shit_isNull = queryMap.get("shit_isNull");
+		Object shit_isNotNull = queryMap.get("shit_isNotNull");
+		Object shit_in = queryMap.get("shit_in");
+		Object shitDay = queryMap.get("shitDay");
+		Object shitDay_like = queryMap.get("shitDay_like");
+		Object shitDay_isNull = queryMap.get("shitDay_isNull");
+		Object shitDay_isNotNull = queryMap.get("shitDay_isNotNull");
+		Object shitDay_in = queryMap.get("shitDay_in");
+		Object sleepHour = queryMap.get("sleepHour");
+		Object sleepHour_like = queryMap.get("sleepHour_like");
+		Object sleepHour_isNull = queryMap.get("sleepHour_isNull");
+		Object sleepHour_isNotNull = queryMap.get("sleepHour_isNotNull");
+		Object sleepHour_in = queryMap.get("sleepHour_in");
+		Object sleepQuality = queryMap.get("sleepQuality");
+		Object sleepQuality_like = queryMap.get("sleepQuality_like");
+		Object sleepQuality_isNull = queryMap.get("sleepQuality_isNull");
+		Object sleepQuality_isNotNull = queryMap.get("sleepQuality_isNotNull");
+		Object sleepQuality_in = queryMap.get("sleepQuality_in");
+		Object morningSpirit = queryMap.get("morningSpirit");
+		Object morningSpirit_like = queryMap.get("morningSpirit_like");
+		Object morningSpirit_isNull = queryMap.get("morningSpirit_isNull");
+		Object morningSpirit_isNotNull = queryMap
+				.get("morningSpirit_isNotNull");
+		Object morningSpirit_in = queryMap.get("morningSpirit_in");
+
+		QueryCondition qc = new QueryCondition(DailyLifeEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (olderId != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.eq, olderId));
+		}
+		if (olderId_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.gt, olderId_gt));
+		}
+		if (olderId_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.ge, olderId_ge));
+		}
+		if (olderId_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.lt, olderId_lt));
+		}
+		if (olderId_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.le, olderId_le));
+		}
+		if (olderId_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.in, olderId_in));
+		}
+		if (createTime_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.gt, createTime_gt));
+		}
+		if (createTime_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.ge, createTime_ge));
+		}
+		if (createTime_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.lt, createTime_lt));
+		}
+		if (createTime_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.le, createTime_le));
+		}
+		if (createPerson != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.eq, createPerson));
+		}
+		if (createPerson_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.like, createPerson_like));
+		}
+		if (createPerson_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.isNull, createPerson_isNull));
+		}
+		if (createPerson_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.isNotNull, createPerson_isNotNull));
+		}
+		if (createPerson_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.in, createPerson_in));
+		}
+		if (dailyWater != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.eq, dailyWater));
+		}
+		if (dailyWater_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.like, dailyWater_like));
+		}
+		if (dailyWater_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.isNull, dailyWater_isNull));
+		}
+		if (dailyWater_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.isNotNull, dailyWater_isNotNull));
+		}
+		if (dailyWater_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.in, dailyWater_in));
+		}
+		if (dailyDrinking != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.eq, dailyDrinking));
+		}
+		if (dailyDrinking_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.like, dailyDrinking_like));
+		}
+		if (dailyDrinking_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.isNull, dailyDrinking_isNull));
+		}
+		if (dailyDrinking_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.isNotNull, dailyDrinking_isNotNull));
+		}
+		if (dailyDrinking_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.in, dailyDrinking_in));
+		}
+		if (mainFood != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.eq, mainFood));
+		}
+		if (mainFood_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.like, mainFood_like));
+		}
+		if (mainFood_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.isNull, mainFood_isNull));
+		}
+		if (mainFood_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.isNotNull, mainFood_isNotNull));
+		}
+		if (mainFood_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.in, mainFood_in));
+		}
+		if (fruitsVegetables != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.eq,
+					fruitsVegetables));
+		}
+		if (fruitsVegetables_like != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.like,
+					fruitsVegetables_like));
+		}
+		if (fruitsVegetables_isNull != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.isNull,
+					fruitsVegetables_isNull));
+		}
+		if (fruitsVegetables_isNotNull != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES,
+					QueryCondition.isNotNull, fruitsVegetables_isNotNull));
+		}
+		if (fruitsVegetables_in != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.in,
+					fruitsVegetables_in));
+		}
+		if (salt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.eq, salt));
+		}
+		if (salt_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.like, salt_like));
+		}
+		if (salt_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.isNull, salt_isNull));
+		}
+		if (salt_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.isNotNull, salt_isNotNull));
+		}
+		if (salt_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.in, salt_in));
+		}
+		if (oil != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.eq, oil));
+		}
+		if (oil_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.like, oil_like));
+		}
+		if (oil_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.isNull, oil_isNull));
+		}
+		if (oil_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.isNotNull, oil_isNotNull));
+		}
+		if (oil_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.in, oil_in));
+		}
+		if (fish != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.eq, fish));
+		}
+		if (fish_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.like, fish_like));
+		}
+		if (fish_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.isNull, fish_isNull));
+		}
+		if (fish_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.isNotNull, fish_isNotNull));
+		}
+		if (fish_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.in, fish_in));
+		}
+		if (meat != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.eq, meat));
+		}
+		if (meat_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.like, meat_like));
+		}
+		if (meat_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.isNull, meat_isNull));
+		}
+		if (meat_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.isNotNull, meat_isNotNull));
+		}
+		if (meat_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.in, meat_in));
+		}
+		if (beanProducts != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.eq, beanProducts));
+		}
+		if (beanProducts_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.like, beanProducts_like));
+		}
+		if (beanProducts_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.isNull, beanProducts_isNull));
+		}
+		if (beanProducts_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.isNotNull, beanProducts_isNotNull));
+		}
+		if (beanProducts_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.in, beanProducts_in));
+		}
+		if (milk != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.eq, milk));
+		}
+		if (milk_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.like, milk_like));
+		}
+		if (milk_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.isNull, milk_isNull));
+		}
+		if (milk_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.isNotNull, milk_isNotNull));
+		}
+		if (milk_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.in, milk_in));
+		}
+		if (urine != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.eq, urine));
+		}
+		if (urine_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.like, urine_like));
+		}
+		if (urine_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.isNull, urine_isNull));
+		}
+		if (urine_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.isNotNull, urine_isNotNull));
+		}
+		if (urine_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.in, urine_in));
+		}
+		if (urineNum != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.eq, urineNum));
+		}
+		if (urineNum_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.like, urineNum_like));
+		}
+		if (urineNum_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.isNull, urineNum_isNull));
+		}
+		if (urineNum_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.isNotNull, urineNum_isNotNull));
+		}
+		if (urineNum_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.in, urineNum_in));
+		}
+		if (shit != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.eq, shit));
+		}
+		if (shit_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.like, shit_like));
+		}
+		if (shit_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.isNull, shit_isNull));
+		}
+		if (shit_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.isNotNull, shit_isNotNull));
+		}
+		if (shit_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.in, shit_in));
+		}
+		if (shitDay != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.eq, shitDay));
+		}
+		if (shitDay_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.like, shitDay_like));
+		}
+		if (shitDay_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.isNull, shitDay_isNull));
+		}
+		if (shitDay_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.isNotNull, shitDay_isNotNull));
+		}
+		if (shitDay_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.in, shitDay_in));
+		}
+		if (sleepHour != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.eq, sleepHour));
+		}
+		if (sleepHour_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.like, sleepHour_like));
+		}
+		if (sleepHour_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.isNull, sleepHour_isNull));
+		}
+		if (sleepHour_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.isNotNull, sleepHour_isNotNull));
+		}
+		if (sleepHour_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.in, sleepHour_in));
+		}
+		if (sleepQuality != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.eq, sleepQuality));
+		}
+		if (sleepQuality_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.like, sleepQuality_like));
+		}
+		if (sleepQuality_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.isNull, sleepQuality_isNull));
+		}
+		if (sleepQuality_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.isNotNull, sleepQuality_isNotNull));
+		}
+		if (sleepQuality_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.in, sleepQuality_in));
+		}
+		if (morningSpirit != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.eq, morningSpirit));
+		}
+		if (morningSpirit_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.like, morningSpirit_like));
+		}
+		if (morningSpirit_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.isNull, morningSpirit_isNull));
+		}
+		if (morningSpirit_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.isNotNull, morningSpirit_isNotNull));
+		}
+		if (morningSpirit_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.in, morningSpirit_in));
+		}
+
+		pagelist = dbManager.queryByCondition(DailyLifeEntity.class, qc,
+				pageno, pagesize);
+		return pagelist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @param olderShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap,
+			List<OrderVO> orderList, int pageno, int pagesize, Boolean olderShow) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object olderId = queryMap.get("olderId");
+		Object olderId_gt = queryMap.get("olderId_gt");
+		Object olderId_ge = queryMap.get("olderId_ge");
+		Object olderId_lt = queryMap.get("olderId_lt");
+		Object olderId_le = queryMap.get("olderId_le");
+		Object olderId_in = queryMap.get("olderId_in");
+		Object createTime_gt = queryMap.get("createTime_gt");
+		Object createTime_ge = queryMap.get("createTime_ge");
+		Object createTime_lt = queryMap.get("createTime_lt");
+		Object createTime_le = queryMap.get("createTime_le");
+		Object createPerson = queryMap.get("createPerson");
+		Object createPerson_like = queryMap.get("createPerson_like");
+		Object createPerson_isNull = queryMap.get("createPerson_isNull");
+		Object createPerson_isNotNull = queryMap.get("createPerson_isNotNull");
+		Object createPerson_in = queryMap.get("createPerson_in");
+		Object dailyWater = queryMap.get("dailyWater");
+		Object dailyWater_like = queryMap.get("dailyWater_like");
+		Object dailyWater_isNull = queryMap.get("dailyWater_isNull");
+		Object dailyWater_isNotNull = queryMap.get("dailyWater_isNotNull");
+		Object dailyWater_in = queryMap.get("dailyWater_in");
+		Object dailyDrinking = queryMap.get("dailyDrinking");
+		Object dailyDrinking_like = queryMap.get("dailyDrinking_like");
+		Object dailyDrinking_isNull = queryMap.get("dailyDrinking_isNull");
+		Object dailyDrinking_isNotNull = queryMap
+				.get("dailyDrinking_isNotNull");
+		Object dailyDrinking_in = queryMap.get("dailyDrinking_in");
+		Object mainFood = queryMap.get("mainFood");
+		Object mainFood_like = queryMap.get("mainFood_like");
+		Object mainFood_isNull = queryMap.get("mainFood_isNull");
+		Object mainFood_isNotNull = queryMap.get("mainFood_isNotNull");
+		Object mainFood_in = queryMap.get("mainFood_in");
+		Object fruitsVegetables = queryMap.get("fruitsVegetables");
+		Object fruitsVegetables_like = queryMap.get("fruitsVegetables_like");
+		Object fruitsVegetables_isNull = queryMap
+				.get("fruitsVegetables_isNull");
+		Object fruitsVegetables_isNotNull = queryMap
+				.get("fruitsVegetables_isNotNull");
+		Object fruitsVegetables_in = queryMap.get("fruitsVegetables_in");
+		Object salt = queryMap.get("salt");
+		Object salt_like = queryMap.get("salt_like");
+		Object salt_isNull = queryMap.get("salt_isNull");
+		Object salt_isNotNull = queryMap.get("salt_isNotNull");
+		Object salt_in = queryMap.get("salt_in");
+		Object oil = queryMap.get("oil");
+		Object oil_like = queryMap.get("oil_like");
+		Object oil_isNull = queryMap.get("oil_isNull");
+		Object oil_isNotNull = queryMap.get("oil_isNotNull");
+		Object oil_in = queryMap.get("oil_in");
+		Object fish = queryMap.get("fish");
+		Object fish_like = queryMap.get("fish_like");
+		Object fish_isNull = queryMap.get("fish_isNull");
+		Object fish_isNotNull = queryMap.get("fish_isNotNull");
+		Object fish_in = queryMap.get("fish_in");
+		Object meat = queryMap.get("meat");
+		Object meat_like = queryMap.get("meat_like");
+		Object meat_isNull = queryMap.get("meat_isNull");
+		Object meat_isNotNull = queryMap.get("meat_isNotNull");
+		Object meat_in = queryMap.get("meat_in");
+		Object beanProducts = queryMap.get("beanProducts");
+		Object beanProducts_like = queryMap.get("beanProducts_like");
+		Object beanProducts_isNull = queryMap.get("beanProducts_isNull");
+		Object beanProducts_isNotNull = queryMap.get("beanProducts_isNotNull");
+		Object beanProducts_in = queryMap.get("beanProducts_in");
+		Object milk = queryMap.get("milk");
+		Object milk_like = queryMap.get("milk_like");
+		Object milk_isNull = queryMap.get("milk_isNull");
+		Object milk_isNotNull = queryMap.get("milk_isNotNull");
+		Object milk_in = queryMap.get("milk_in");
+		Object urine = queryMap.get("urine");
+		Object urine_like = queryMap.get("urine_like");
+		Object urine_isNull = queryMap.get("urine_isNull");
+		Object urine_isNotNull = queryMap.get("urine_isNotNull");
+		Object urine_in = queryMap.get("urine_in");
+		Object urineNum = queryMap.get("urineNum");
+		Object urineNum_like = queryMap.get("urineNum_like");
+		Object urineNum_isNull = queryMap.get("urineNum_isNull");
+		Object urineNum_isNotNull = queryMap.get("urineNum_isNotNull");
+		Object urineNum_in = queryMap.get("urineNum_in");
+		Object shit = queryMap.get("shit");
+		Object shit_like = queryMap.get("shit_like");
+		Object shit_isNull = queryMap.get("shit_isNull");
+		Object shit_isNotNull = queryMap.get("shit_isNotNull");
+		Object shit_in = queryMap.get("shit_in");
+		Object shitDay = queryMap.get("shitDay");
+		Object shitDay_like = queryMap.get("shitDay_like");
+		Object shitDay_isNull = queryMap.get("shitDay_isNull");
+		Object shitDay_isNotNull = queryMap.get("shitDay_isNotNull");
+		Object shitDay_in = queryMap.get("shitDay_in");
+		Object sleepHour = queryMap.get("sleepHour");
+		Object sleepHour_like = queryMap.get("sleepHour_like");
+		Object sleepHour_isNull = queryMap.get("sleepHour_isNull");
+		Object sleepHour_isNotNull = queryMap.get("sleepHour_isNotNull");
+		Object sleepHour_in = queryMap.get("sleepHour_in");
+		Object sleepQuality = queryMap.get("sleepQuality");
+		Object sleepQuality_like = queryMap.get("sleepQuality_like");
+		Object sleepQuality_isNull = queryMap.get("sleepQuality_isNull");
+		Object sleepQuality_isNotNull = queryMap.get("sleepQuality_isNotNull");
+		Object sleepQuality_in = queryMap.get("sleepQuality_in");
+		Object morningSpirit = queryMap.get("morningSpirit");
+		Object morningSpirit_like = queryMap.get("morningSpirit_like");
+		Object morningSpirit_isNull = queryMap.get("morningSpirit_isNull");
+		Object morningSpirit_isNotNull = queryMap
+				.get("morningSpirit_isNotNull");
+		Object morningSpirit_in = queryMap.get("morningSpirit_in");
+
+		QueryCondition qc = new QueryCondition(DailyLifeEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (olderId != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.eq, olderId));
+		}
+		if (olderId_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.gt, olderId_gt));
+		}
+		if (olderId_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.ge, olderId_ge));
+		}
+		if (olderId_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.lt, olderId_lt));
+		}
+		if (olderId_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.le, olderId_le));
+		}
+		if (olderId_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.in, olderId_in));
+		}
+		if (createTime_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.gt, createTime_gt));
+		}
+		if (createTime_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.ge, createTime_ge));
+		}
+		if (createTime_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.lt, createTime_lt));
+		}
+		if (createTime_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.le, createTime_le));
+		}
+		if (createPerson != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.eq, createPerson));
+		}
+		if (createPerson_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.like, createPerson_like));
+		}
+		if (createPerson_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.isNull, createPerson_isNull));
+		}
+		if (createPerson_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.isNotNull, createPerson_isNotNull));
+		}
+		if (createPerson_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.in, createPerson_in));
+		}
+		if (dailyWater != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.eq, dailyWater));
+		}
+		if (dailyWater_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.like, dailyWater_like));
+		}
+		if (dailyWater_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.isNull, dailyWater_isNull));
+		}
+		if (dailyWater_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.isNotNull, dailyWater_isNotNull));
+		}
+		if (dailyWater_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.in, dailyWater_in));
+		}
+		if (dailyDrinking != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.eq, dailyDrinking));
+		}
+		if (dailyDrinking_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.like, dailyDrinking_like));
+		}
+		if (dailyDrinking_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.isNull, dailyDrinking_isNull));
+		}
+		if (dailyDrinking_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.isNotNull, dailyDrinking_isNotNull));
+		}
+		if (dailyDrinking_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.in, dailyDrinking_in));
+		}
+		if (mainFood != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.eq, mainFood));
+		}
+		if (mainFood_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.like, mainFood_like));
+		}
+		if (mainFood_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.isNull, mainFood_isNull));
+		}
+		if (mainFood_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.isNotNull, mainFood_isNotNull));
+		}
+		if (mainFood_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.in, mainFood_in));
+		}
+		if (fruitsVegetables != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.eq,
+					fruitsVegetables));
+		}
+		if (fruitsVegetables_like != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.like,
+					fruitsVegetables_like));
+		}
+		if (fruitsVegetables_isNull != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.isNull,
+					fruitsVegetables_isNull));
+		}
+		if (fruitsVegetables_isNotNull != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES,
+					QueryCondition.isNotNull, fruitsVegetables_isNotNull));
+		}
+		if (fruitsVegetables_in != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.in,
+					fruitsVegetables_in));
+		}
+		if (salt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.eq, salt));
+		}
+		if (salt_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.like, salt_like));
+		}
+		if (salt_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.isNull, salt_isNull));
+		}
+		if (salt_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.isNotNull, salt_isNotNull));
+		}
+		if (salt_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.in, salt_in));
+		}
+		if (oil != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.eq, oil));
+		}
+		if (oil_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.like, oil_like));
+		}
+		if (oil_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.isNull, oil_isNull));
+		}
+		if (oil_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.isNotNull, oil_isNotNull));
+		}
+		if (oil_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.in, oil_in));
+		}
+		if (fish != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.eq, fish));
+		}
+		if (fish_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.like, fish_like));
+		}
+		if (fish_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.isNull, fish_isNull));
+		}
+		if (fish_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.isNotNull, fish_isNotNull));
+		}
+		if (fish_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.in, fish_in));
+		}
+		if (meat != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.eq, meat));
+		}
+		if (meat_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.like, meat_like));
+		}
+		if (meat_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.isNull, meat_isNull));
+		}
+		if (meat_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.isNotNull, meat_isNotNull));
+		}
+		if (meat_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.in, meat_in));
+		}
+		if (beanProducts != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.eq, beanProducts));
+		}
+		if (beanProducts_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.like, beanProducts_like));
+		}
+		if (beanProducts_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.isNull, beanProducts_isNull));
+		}
+		if (beanProducts_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.isNotNull, beanProducts_isNotNull));
+		}
+		if (beanProducts_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.in, beanProducts_in));
+		}
+		if (milk != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.eq, milk));
+		}
+		if (milk_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.like, milk_like));
+		}
+		if (milk_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.isNull, milk_isNull));
+		}
+		if (milk_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.isNotNull, milk_isNotNull));
+		}
+		if (milk_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.in, milk_in));
+		}
+		if (urine != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.eq, urine));
+		}
+		if (urine_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.like, urine_like));
+		}
+		if (urine_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.isNull, urine_isNull));
+		}
+		if (urine_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.isNotNull, urine_isNotNull));
+		}
+		if (urine_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.in, urine_in));
+		}
+		if (urineNum != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.eq, urineNum));
+		}
+		if (urineNum_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.like, urineNum_like));
+		}
+		if (urineNum_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.isNull, urineNum_isNull));
+		}
+		if (urineNum_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.isNotNull, urineNum_isNotNull));
+		}
+		if (urineNum_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.in, urineNum_in));
+		}
+		if (shit != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.eq, shit));
+		}
+		if (shit_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.like, shit_like));
+		}
+		if (shit_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.isNull, shit_isNull));
+		}
+		if (shit_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.isNotNull, shit_isNotNull));
+		}
+		if (shit_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.in, shit_in));
+		}
+		if (shitDay != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.eq, shitDay));
+		}
+		if (shitDay_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.like, shitDay_like));
+		}
+		if (shitDay_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.isNull, shitDay_isNull));
+		}
+		if (shitDay_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.isNotNull, shitDay_isNotNull));
+		}
+		if (shitDay_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.in, shitDay_in));
+		}
+		if (sleepHour != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.eq, sleepHour));
+		}
+		if (sleepHour_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.like, sleepHour_like));
+		}
+		if (sleepHour_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.isNull, sleepHour_isNull));
+		}
+		if (sleepHour_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.isNotNull, sleepHour_isNotNull));
+		}
+		if (sleepHour_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.in, sleepHour_in));
+		}
+		if (sleepQuality != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.eq, sleepQuality));
+		}
+		if (sleepQuality_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.like, sleepQuality_like));
+		}
+		if (sleepQuality_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.isNull, sleepQuality_isNull));
+		}
+		if (sleepQuality_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.isNotNull, sleepQuality_isNotNull));
+		}
+		if (sleepQuality_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.in, sleepQuality_in));
+		}
+		if (morningSpirit != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.eq, morningSpirit));
+		}
+		if (morningSpirit_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.like, morningSpirit_like));
+		}
+		if (morningSpirit_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.isNull, morningSpirit_isNull));
+		}
+		if (morningSpirit_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.isNotNull, morningSpirit_isNotNull));
+		}
+		if (morningSpirit_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.in, morningSpirit_in));
+		}
+
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order
+							.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt,
+								orderType));
+					}
+				}
+
+			}
+		}
+		pagelist = dbManager.queryByConditions(DailyLifeEntity.class, qc, oc,
+				pageno, pagesize);
+		int a = 0;
+		if (olderShow != null && olderShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && pagelist != null && pagelist.getResultList() != null
+				&& pagelist.getResultList().size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < pagelist.getResultList().size(); i++) {
+				DailyLifeEntity obj = (DailyLifeEntity) pagelist
+						.getResultList().get(i);
+				// 查询关联内容
+				if (olderShow != null && olderShow.booleanValue()
+						&& obj != null && obj.getOlderId() != null
+						&& obj.getOlderId() > 0) {
+					OlderEntity older = (OlderEntity) dbManager.getById(
+							obj.getOlderId(), OlderEntity.class);
+					obj.setOlder(older);
+				}
+				result.add(obj);
+			}
+			pagelist.setResultList(result);
+		}
+		return pagelist;
+	}
+
+	/**
+	 * 删除记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public boolean del(Integer id, Boolean delOlder) {
+		boolean result = false;
+		if (id != null && id > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delOlder != null && delOlder.booleanValue()) {
+					DailyLifeEntity dailyLife = (DailyLifeEntity) dbManager
+							.getById(id, DailyLifeEntity.class);
+					if (dailyLife != null && dailyLife.getOlderId() != null) {
+						dbManager.delNoTransaction(dailyLife.getOlderId(),
+								OlderEntity.class);
+					}
+				}
+				result = dbManager.delNoTransaction(id, DailyLifeEntity.class);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量删除记录
+	 * 
+	 * @param ids
+	 *            主键 英文逗号间隔
+	 * @param obj
+	 */
+	public boolean del(String ids) {
+		boolean result = false;
+		if (ids != null && !"".equals(ids.trim())) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				QueryCondition qc = new QueryCondition(DailyLifeEntity.ID,
+						QueryCondition.in, ids);
+				result = dbManager.delByConditionsNoTransaction(
+						DailyLifeEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量条件删除记录
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 */
+	public boolean delList(Map<String, Object> queryMap, Boolean delOlder) {
+		boolean result = false;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object olderId = queryMap.get("olderId");
+		Object olderId_gt = queryMap.get("olderId_gt");
+		Object olderId_ge = queryMap.get("olderId_ge");
+		Object olderId_lt = queryMap.get("olderId_lt");
+		Object olderId_le = queryMap.get("olderId_le");
+		Object olderId_in = queryMap.get("olderId_in");
+		Object createTime_gt = queryMap.get("createTime_gt");
+		Object createTime_ge = queryMap.get("createTime_ge");
+		Object createTime_lt = queryMap.get("createTime_lt");
+		Object createTime_le = queryMap.get("createTime_le");
+		Object createPerson = queryMap.get("createPerson");
+		Object createPerson_like = queryMap.get("createPerson_like");
+		Object createPerson_isNull = queryMap.get("createPerson_isNull");
+		Object createPerson_isNotNull = queryMap.get("createPerson_isNotNull");
+		Object createPerson_in = queryMap.get("createPerson_in");
+		Object dailyWater = queryMap.get("dailyWater");
+		Object dailyWater_like = queryMap.get("dailyWater_like");
+		Object dailyWater_isNull = queryMap.get("dailyWater_isNull");
+		Object dailyWater_isNotNull = queryMap.get("dailyWater_isNotNull");
+		Object dailyWater_in = queryMap.get("dailyWater_in");
+		Object dailyDrinking = queryMap.get("dailyDrinking");
+		Object dailyDrinking_like = queryMap.get("dailyDrinking_like");
+		Object dailyDrinking_isNull = queryMap.get("dailyDrinking_isNull");
+		Object dailyDrinking_isNotNull = queryMap
+				.get("dailyDrinking_isNotNull");
+		Object dailyDrinking_in = queryMap.get("dailyDrinking_in");
+		Object mainFood = queryMap.get("mainFood");
+		Object mainFood_like = queryMap.get("mainFood_like");
+		Object mainFood_isNull = queryMap.get("mainFood_isNull");
+		Object mainFood_isNotNull = queryMap.get("mainFood_isNotNull");
+		Object mainFood_in = queryMap.get("mainFood_in");
+		Object fruitsVegetables = queryMap.get("fruitsVegetables");
+		Object fruitsVegetables_like = queryMap.get("fruitsVegetables_like");
+		Object fruitsVegetables_isNull = queryMap
+				.get("fruitsVegetables_isNull");
+		Object fruitsVegetables_isNotNull = queryMap
+				.get("fruitsVegetables_isNotNull");
+		Object fruitsVegetables_in = queryMap.get("fruitsVegetables_in");
+		Object salt = queryMap.get("salt");
+		Object salt_like = queryMap.get("salt_like");
+		Object salt_isNull = queryMap.get("salt_isNull");
+		Object salt_isNotNull = queryMap.get("salt_isNotNull");
+		Object salt_in = queryMap.get("salt_in");
+		Object oil = queryMap.get("oil");
+		Object oil_like = queryMap.get("oil_like");
+		Object oil_isNull = queryMap.get("oil_isNull");
+		Object oil_isNotNull = queryMap.get("oil_isNotNull");
+		Object oil_in = queryMap.get("oil_in");
+		Object fish = queryMap.get("fish");
+		Object fish_like = queryMap.get("fish_like");
+		Object fish_isNull = queryMap.get("fish_isNull");
+		Object fish_isNotNull = queryMap.get("fish_isNotNull");
+		Object fish_in = queryMap.get("fish_in");
+		Object meat = queryMap.get("meat");
+		Object meat_like = queryMap.get("meat_like");
+		Object meat_isNull = queryMap.get("meat_isNull");
+		Object meat_isNotNull = queryMap.get("meat_isNotNull");
+		Object meat_in = queryMap.get("meat_in");
+		Object beanProducts = queryMap.get("beanProducts");
+		Object beanProducts_like = queryMap.get("beanProducts_like");
+		Object beanProducts_isNull = queryMap.get("beanProducts_isNull");
+		Object beanProducts_isNotNull = queryMap.get("beanProducts_isNotNull");
+		Object beanProducts_in = queryMap.get("beanProducts_in");
+		Object milk = queryMap.get("milk");
+		Object milk_like = queryMap.get("milk_like");
+		Object milk_isNull = queryMap.get("milk_isNull");
+		Object milk_isNotNull = queryMap.get("milk_isNotNull");
+		Object milk_in = queryMap.get("milk_in");
+		Object urine = queryMap.get("urine");
+		Object urine_like = queryMap.get("urine_like");
+		Object urine_isNull = queryMap.get("urine_isNull");
+		Object urine_isNotNull = queryMap.get("urine_isNotNull");
+		Object urine_in = queryMap.get("urine_in");
+		Object urineNum = queryMap.get("urineNum");
+		Object urineNum_like = queryMap.get("urineNum_like");
+		Object urineNum_isNull = queryMap.get("urineNum_isNull");
+		Object urineNum_isNotNull = queryMap.get("urineNum_isNotNull");
+		Object urineNum_in = queryMap.get("urineNum_in");
+		Object shit = queryMap.get("shit");
+		Object shit_like = queryMap.get("shit_like");
+		Object shit_isNull = queryMap.get("shit_isNull");
+		Object shit_isNotNull = queryMap.get("shit_isNotNull");
+		Object shit_in = queryMap.get("shit_in");
+		Object shitDay = queryMap.get("shitDay");
+		Object shitDay_like = queryMap.get("shitDay_like");
+		Object shitDay_isNull = queryMap.get("shitDay_isNull");
+		Object shitDay_isNotNull = queryMap.get("shitDay_isNotNull");
+		Object shitDay_in = queryMap.get("shitDay_in");
+		Object sleepHour = queryMap.get("sleepHour");
+		Object sleepHour_like = queryMap.get("sleepHour_like");
+		Object sleepHour_isNull = queryMap.get("sleepHour_isNull");
+		Object sleepHour_isNotNull = queryMap.get("sleepHour_isNotNull");
+		Object sleepHour_in = queryMap.get("sleepHour_in");
+		Object sleepQuality = queryMap.get("sleepQuality");
+		Object sleepQuality_like = queryMap.get("sleepQuality_like");
+		Object sleepQuality_isNull = queryMap.get("sleepQuality_isNull");
+		Object sleepQuality_isNotNull = queryMap.get("sleepQuality_isNotNull");
+		Object sleepQuality_in = queryMap.get("sleepQuality_in");
+		Object morningSpirit = queryMap.get("morningSpirit");
+		Object morningSpirit_like = queryMap.get("morningSpirit_like");
+		Object morningSpirit_isNull = queryMap.get("morningSpirit_isNull");
+		Object morningSpirit_isNotNull = queryMap
+				.get("morningSpirit_isNotNull");
+		Object morningSpirit_in = queryMap.get("morningSpirit_in");
+
+		QueryCondition qc = new QueryCondition(DailyLifeEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (olderId != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.eq, olderId));
+		}
+		if (olderId_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.gt, olderId_gt));
+		}
+		if (olderId_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.ge, olderId_ge));
+		}
+		if (olderId_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.lt, olderId_lt));
+		}
+		if (olderId_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.le, olderId_le));
+		}
+		if (olderId_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OLDER_ID,
+					QueryCondition.in, olderId_in));
+		}
+		if (createTime_gt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.gt, createTime_gt));
+		}
+		if (createTime_ge != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.ge, createTime_ge));
+		}
+		if (createTime_lt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.lt, createTime_lt));
+		}
+		if (createTime_le != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_TIME,
+					QueryCondition.le, createTime_le));
+		}
+		if (createPerson != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.eq, createPerson));
+		}
+		if (createPerson_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.like, createPerson_like));
+		}
+		if (createPerson_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.isNull, createPerson_isNull));
+		}
+		if (createPerson_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.isNotNull, createPerson_isNotNull));
+		}
+		if (createPerson_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.CREATE_PERSON,
+					QueryCondition.in, createPerson_in));
+		}
+		if (dailyWater != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.eq, dailyWater));
+		}
+		if (dailyWater_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.like, dailyWater_like));
+		}
+		if (dailyWater_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.isNull, dailyWater_isNull));
+		}
+		if (dailyWater_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.isNotNull, dailyWater_isNotNull));
+		}
+		if (dailyWater_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_WATER,
+					QueryCondition.in, dailyWater_in));
+		}
+		if (dailyDrinking != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.eq, dailyDrinking));
+		}
+		if (dailyDrinking_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.like, dailyDrinking_like));
+		}
+		if (dailyDrinking_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.isNull, dailyDrinking_isNull));
+		}
+		if (dailyDrinking_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.isNotNull, dailyDrinking_isNotNull));
+		}
+		if (dailyDrinking_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.DAILY_DRINKING,
+					QueryCondition.in, dailyDrinking_in));
+		}
+		if (mainFood != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.eq, mainFood));
+		}
+		if (mainFood_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.like, mainFood_like));
+		}
+		if (mainFood_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.isNull, mainFood_isNull));
+		}
+		if (mainFood_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.isNotNull, mainFood_isNotNull));
+		}
+		if (mainFood_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MAIN_FOOD,
+					QueryCondition.in, mainFood_in));
+		}
+		if (fruitsVegetables != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.eq,
+					fruitsVegetables));
+		}
+		if (fruitsVegetables_like != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.like,
+					fruitsVegetables_like));
+		}
+		if (fruitsVegetables_isNull != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.isNull,
+					fruitsVegetables_isNull));
+		}
+		if (fruitsVegetables_isNotNull != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES,
+					QueryCondition.isNotNull, fruitsVegetables_isNotNull));
+		}
+		if (fruitsVegetables_in != null) {
+			qc.andCondition(new QueryCondition(
+					DailyLifeEntity.FRUITS_VEGETABLES, QueryCondition.in,
+					fruitsVegetables_in));
+		}
+		if (salt != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.eq, salt));
+		}
+		if (salt_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.like, salt_like));
+		}
+		if (salt_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.isNull, salt_isNull));
+		}
+		if (salt_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.isNotNull, salt_isNotNull));
+		}
+		if (salt_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SALT,
+					QueryCondition.in, salt_in));
+		}
+		if (oil != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.eq, oil));
+		}
+		if (oil_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.like, oil_like));
+		}
+		if (oil_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.isNull, oil_isNull));
+		}
+		if (oil_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.isNotNull, oil_isNotNull));
+		}
+		if (oil_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.OIL,
+					QueryCondition.in, oil_in));
+		}
+		if (fish != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.eq, fish));
+		}
+		if (fish_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.like, fish_like));
+		}
+		if (fish_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.isNull, fish_isNull));
+		}
+		if (fish_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.isNotNull, fish_isNotNull));
+		}
+		if (fish_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.FISH,
+					QueryCondition.in, fish_in));
+		}
+		if (meat != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.eq, meat));
+		}
+		if (meat_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.like, meat_like));
+		}
+		if (meat_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.isNull, meat_isNull));
+		}
+		if (meat_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.isNotNull, meat_isNotNull));
+		}
+		if (meat_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MEAT,
+					QueryCondition.in, meat_in));
+		}
+		if (beanProducts != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.eq, beanProducts));
+		}
+		if (beanProducts_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.like, beanProducts_like));
+		}
+		if (beanProducts_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.isNull, beanProducts_isNull));
+		}
+		if (beanProducts_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.isNotNull, beanProducts_isNotNull));
+		}
+		if (beanProducts_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.BEAN_PRODUCTS,
+					QueryCondition.in, beanProducts_in));
+		}
+		if (milk != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.eq, milk));
+		}
+		if (milk_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.like, milk_like));
+		}
+		if (milk_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.isNull, milk_isNull));
+		}
+		if (milk_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.isNotNull, milk_isNotNull));
+		}
+		if (milk_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MILK,
+					QueryCondition.in, milk_in));
+		}
+		if (urine != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.eq, urine));
+		}
+		if (urine_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.like, urine_like));
+		}
+		if (urine_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.isNull, urine_isNull));
+		}
+		if (urine_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.isNotNull, urine_isNotNull));
+		}
+		if (urine_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE,
+					QueryCondition.in, urine_in));
+		}
+		if (urineNum != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.eq, urineNum));
+		}
+		if (urineNum_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.like, urineNum_like));
+		}
+		if (urineNum_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.isNull, urineNum_isNull));
+		}
+		if (urineNum_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.isNotNull, urineNum_isNotNull));
+		}
+		if (urineNum_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.URINE_NUM,
+					QueryCondition.in, urineNum_in));
+		}
+		if (shit != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.eq, shit));
+		}
+		if (shit_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.like, shit_like));
+		}
+		if (shit_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.isNull, shit_isNull));
+		}
+		if (shit_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.isNotNull, shit_isNotNull));
+		}
+		if (shit_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT,
+					QueryCondition.in, shit_in));
+		}
+		if (shitDay != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.eq, shitDay));
+		}
+		if (shitDay_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.like, shitDay_like));
+		}
+		if (shitDay_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.isNull, shitDay_isNull));
+		}
+		if (shitDay_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.isNotNull, shitDay_isNotNull));
+		}
+		if (shitDay_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SHIT_DAY,
+					QueryCondition.in, shitDay_in));
+		}
+		if (sleepHour != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.eq, sleepHour));
+		}
+		if (sleepHour_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.like, sleepHour_like));
+		}
+		if (sleepHour_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.isNull, sleepHour_isNull));
+		}
+		if (sleepHour_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.isNotNull, sleepHour_isNotNull));
+		}
+		if (sleepHour_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_HOUR,
+					QueryCondition.in, sleepHour_in));
+		}
+		if (sleepQuality != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.eq, sleepQuality));
+		}
+		if (sleepQuality_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.like, sleepQuality_like));
+		}
+		if (sleepQuality_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.isNull, sleepQuality_isNull));
+		}
+		if (sleepQuality_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.isNotNull, sleepQuality_isNotNull));
+		}
+		if (sleepQuality_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.SLEEP_QUALITY,
+					QueryCondition.in, sleepQuality_in));
+		}
+		if (morningSpirit != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.eq, morningSpirit));
+		}
+		if (morningSpirit_like != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.like, morningSpirit_like));
+		}
+		if (morningSpirit_isNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.isNull, morningSpirit_isNull));
+		}
+		if (morningSpirit_isNotNull != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.isNotNull, morningSpirit_isNotNull));
+		}
+		if (morningSpirit_in != null) {
+			qc.andCondition(new QueryCondition(DailyLifeEntity.MORNING_SPIRIT,
+					QueryCondition.in, morningSpirit_in));
+		}
+
+		if (qc.getQueryNextCondition() != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delOlder != null && delOlder.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									DailyLifeEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							DailyLifeEntity entity = (DailyLifeEntity) obj;
+							strIds += entity.getOlderId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(OlderEntity.ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								OlderEntity.class, qc1);
+					}
+
+				}
+				result = dbManager.delByConditionsNoTransaction(
+						DailyLifeEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+}

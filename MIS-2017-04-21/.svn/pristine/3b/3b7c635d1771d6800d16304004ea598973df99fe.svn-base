@@ -1,0 +1,144 @@
+package fsk.handler.medNotice;
+
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import fsk.entity.medNotice.MedNoticeEntity;
+import fsk.pack.medNotice.MedNoticePack;
+import fsk.parse.medNotice.MedNoticeParse;
+import fsk.service.medNotice.MedNoticeService;
+import com.framework.system.common.service.SystemService;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.db.query.OrderVO;
+
+ /**   
+ * @Title: Handler
+ * @Description: 服药提醒业务处理器
+ * @author feng.gu
+ * @date 2016-10-19 16:11:44
+ * @version V1.0   
+ *
+ */
+public class MedNoticeHandler extends BaseHandler{
+	private static Logger logger = Logger.getLogger(MedNoticeService.class);
+	/**
+	 * 解析器
+	 */
+	private MedNoticeParse medNoticeParse = MedNoticeParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private MedNoticeService medNoticeService = MedNoticeService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private MedNoticePack medNoticePack = MedNoticePack.getInstance();
+
+	private static MedNoticeHandler medNoticeHandler;
+	
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static MedNoticeHandler getInstance() {
+		if (medNoticeHandler == null) {
+			medNoticeHandler = new MedNoticeHandler();
+		}
+		return medNoticeHandler;
+	}
+
+	/**
+	 * 
+	 * @param type 1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type,String command,String reqStr, HttpServletRequest request,
+			HttpServletResponse response) {		
+		logger.debug("请求消息："+reqStr);
+		String resultStr="";
+		try {
+			// 解析
+			Map<String, Object> parseMap = medNoticeParse.parse(type,command,reqStr,request);		
+			String action = (String) parseMap.get("action");
+			MedNoticeEntity medNotice = (MedNoticeEntity) parseMap.get("medNotice");
+			List<MedNoticeEntity> medNoticeList = (List<MedNoticeEntity>) parseMap.get("medNoticeList");
+			Integer id = (Integer) parseMap.get("id");			
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			Integer pageno = (Integer) parseMap.get("pageno");
+			Integer pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+			
+															Boolean medPlanShow = (Boolean) parseMap.get("medPlanShow");
+			Boolean delMedPlan = (Boolean) parseMap.get("delMedPlan");
+															
+			// 业务处理
+			Object result=null;
+			if ("save".equals(action)) {
+				result = medNoticeService.save(medNotice);
+			} else if ("saveList".equals(action)) {
+				result = medNoticeService.saveList(medNoticeList);
+			} else if ("getById".equals(action)) {
+				result = medNoticeService.getById(id,medPlanShow);
+			} else if ("getListByCondition".equals(action)) {
+			    //根据数据权限 增加查询条件
+				queryMap = systemService.addDataRuleByRoles("MedNoticeEntity",queryMap,request);
+				result = medNoticeService.getListByCondition(queryMap,orderList, pageno,
+						pagesize,medPlanShow);
+			} else if ("del".equals(action)) {
+				result = medNoticeService.del(id,delMedPlan);
+			} else if ("delList".equals(action)) {
+				result = medNoticeService.delList(queryMap,delMedPlan);
+			}
+			// 封装
+			Map<String, Object> packMap = medNoticePack.pack(type,action,result,medNotice);
+			String actionBack = (String)packMap.get("action");
+			String resultBack = (String)packMap.get("result");
+			String desBack = (String)packMap.get("des");
+			JSONObject pageBack = (JSONObject)packMap.get("page");
+			JSONObject contentBack = (JSONObject)packMap.get("content");
+			
+			JSONObject repJson = new JSONObject();
+			if(actionBack!=null&&!"".equals(actionBack)){
+				repJson.put("action", actionBack);
+			}
+			if(resultBack!=null&&!"".equals(resultBack)){
+				repJson.put("result", resultBack);
+			}
+			if(desBack!=null&&!"".equals(desBack)){
+				repJson.put("des", desBack);
+			}
+			if(pageBack!=null){
+				repJson.put("page", pageBack);
+			}
+			if(contentBack!=null&&!"".equals(contentBack)){
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息："+repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

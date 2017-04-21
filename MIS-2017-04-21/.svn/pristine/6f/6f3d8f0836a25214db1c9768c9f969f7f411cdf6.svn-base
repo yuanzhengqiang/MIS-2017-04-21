@@ -1,0 +1,218 @@
+package com.framework.system.common.controller.role;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import com.framework.system.common.entity.json.AjaxJson;
+import com.framework.system.common.entity.module.ModuleEntity;
+import com.framework.system.common.entity.role.RoleEntity;
+import com.framework.system.common.entity.user.UserEntity;
+import com.framework.system.common.handler.role.RoleHandler;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.common.service.role.RoleService;
+import com.framework.system.util.JsonUtil;
+
+@RequestMapping("/systemRole")
+@Controller
+public class RoleController {
+	private static Logger logger = Logger.getLogger(RoleController.class);
+	/**
+	 * 处理器
+	 */
+	private RoleHandler roleHandler = RoleHandler.getInstance();
+	/**
+	 * 服务类
+	 */
+	private RoleService roleService = RoleService.getInstance();
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/system/role/RoleList");
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService
+					.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService
+						.getHTMLModulesByRoleIdsAndModuleId(roleIds,
+								htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		return mav;
+	}
+
+	/**
+	 * 批量删除 ids英文逗号间隔
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "del")
+	@ResponseBody
+	public AjaxJson del(HttpServletRequest request) {
+		AjaxJson j = new AjaxJson();
+		String result = "failure";
+		String des = "删除失败";
+		String ids = request.getParameter("ids");
+		if (ids != null && !"".equals(ids)) {
+			boolean falg = roleService.del(ids);
+			if (falg) {
+				result = "success";
+				des = "删除成功";
+			}
+		}
+		j.setResult(result);
+		j.setDes(des);
+		return j;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handler")
+	@ResponseBody
+	public String query(HttpServletRequest request, HttpServletResponse response) {
+		String msg = "";
+		String reqmsg = request.getParameter("reqmsg");
+		Map reqParams = JsonUtil.getMap4Json(reqmsg);
+		if (reqParams == null) {
+			return msg;
+		}
+		String action = (String) reqParams.get("action");
+
+		// 校验账号名称是否存在，新增和编辑
+		if (action.equals("ADD_ROLE_INFO_REQUEST")) {
+
+			JSONObject content = (JSONObject) reqParams.get("content");
+			int id = 0;
+			if (content.get("id") != null) {
+				id = (Integer) content.get("id");
+			}
+			String name = (String) content.get("name");
+
+			if (id == 0) {// 新增
+				Map<String, Object> queryMap = new HashMap<String, Object>();
+				queryMap.put("name", name);
+				List<Object> entiy = roleService.getListByCondition(queryMap);
+				if (entiy != null && entiy.size() > 0) {
+					for (Object obj : entiy) {
+						RoleEntity devInfo = (RoleEntity) obj;
+						if (devInfo != null) {
+							JSONObject jsonResult = new JSONObject();
+							jsonResult.put("des", "have");
+							String json2return = jsonResult.toString();
+							try {
+								json2return = new String(
+										json2return.getBytes("utf-8"),
+										"iso-8859-1");
+							} catch (UnsupportedEncodingException e) {
+
+							}
+							return json2return;
+						}
+					}
+				}
+			} else {// 编辑
+				Map<String, Object> queryMap = new HashMap<String, Object>();
+				queryMap.put("name", name);
+				List<Object> entiy = roleService.getListByCondition(queryMap);
+				if (entiy != null && entiy.size() > 0) {
+					for (Object obj : entiy) {
+						RoleEntity devInfo = (RoleEntity) obj;
+						if (devInfo != null)
+							if (!devInfo.getId().equals(id)) {
+								JSONObject jsonResult = new JSONObject();
+								jsonResult.put("des", "have");
+								String json2return = jsonResult.toString();
+								try {
+									json2return = new String(
+											json2return.getBytes("utf-8"),
+											"iso-8859-1");
+								} catch (UnsupportedEncodingException e) {
+
+								}
+								return json2return;
+							}
+					}
+				}
+			}
+		}
+
+		try {
+			String rep = roleHandler.doHandler(1, action, reqmsg, request,
+					response);
+			msg = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+
+		return msg;
+	}
+	/**
+	 * 消息体格式请求处理
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handlercontent")
+	public void queryApp(HttpServletRequest request,HttpServletResponse response) {
+		try {			
+			InputStream is = request.getInputStream();
+  	        byte[] bis = IOUtils.toByteArray(is);
+  	        String reqmsg = new String(bis, "UTF-8"); 	     
+		    Map reqParams = JsonUtil.getMap4Json(reqmsg);
+		    if (reqParams == null) {
+		      return;
+		    }
+		    String action = (String)reqParams.get("action");
+		    String rep = roleHandler.doHandler(1, action, reqmsg, request, response);
+		    OutputStream os = response.getOutputStream();
+		    os.write(rep.toString().getBytes("UTF-8"));
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}	
+	}
+}

@@ -1,0 +1,106 @@
+/*     */ package fsk.entity.vo.gateway;
+/*     */ 
+/*     */ public class FBed
+/*     */ {
+/*     */   private String id;
+/*     */   private String time;
+/*     */   private String status;
+/*     */   private String type;
+/*     */   private String start;
+/*     */   private String end;
+/*     */   private String yz;
+/*     */   private String normal;
+/*     */   private String voltage;
+/*     */   private String offline;
+/*     */   private String alarm;
+/*     */   private String mode;
+/*     */ 
+/*     */   public String getAlarm()
+/*     */   {
+/*  49 */     return this.alarm;
+/*     */   }
+/*     */ 
+/*     */   public void setAlarm(String alarm) {
+/*  53 */     this.alarm = alarm;
+/*     */   }
+/*     */ 
+/*     */   public String getMode() {
+/*  57 */     return this.mode;
+/*     */   }
+/*     */ 
+/*     */   public void setMode(String mode) {
+/*  61 */     this.mode = mode;
+/*     */   }
+/*     */ 
+/*     */   public String getNormal() {
+/*  65 */     return this.normal;
+/*     */   }
+/*     */ 
+/*     */   public void setNormal(String normal) {
+/*  69 */     this.normal = normal;
+/*     */   }
+/*     */ 
+/*     */   public String getVoltage() {
+/*  73 */     return this.voltage;
+/*     */   }
+/*     */ 
+/*     */   public void setVoltage(String voltage) {
+/*  77 */     this.voltage = voltage;
+/*     */   }
+/*     */ 
+/*     */   public String getOffline() {
+/*  81 */     return this.offline;
+/*     */   }
+/*     */ 
+/*     */   public void setOffline(String offline) {
+/*  85 */     this.offline = offline;
+/*     */   }
+/*     */ 
+/*     */   public String getId() {
+/*  89 */     return this.id;
+/*     */   }
+/*     */   public void setId(String id) {
+/*  92 */     this.id = id;
+/*     */   }
+/*     */   public String getTime() {
+/*  95 */     return this.time;
+/*     */   }
+/*     */   public void setTime(String time) {
+/*  98 */     this.time = time;
+/*     */   }
+/*     */   public String getStatus() {
+/* 101 */     return this.status;
+/*     */   }
+/*     */   public void setStatus(String status) {
+/* 104 */     this.status = status;
+/*     */   }
+/*     */   public String getType() {
+/* 107 */     return this.type;
+/*     */   }
+/*     */   public void setType(String type) {
+/* 110 */     this.type = type;
+/*     */   }
+/*     */   public String getStart() {
+/* 113 */     return this.start;
+/*     */   }
+/*     */   public void setStart(String start) {
+/* 116 */     this.start = start;
+/*     */   }
+/*     */   public String getEnd() {
+/* 119 */     return this.end;
+/*     */   }
+/*     */   public void setEnd(String end) {
+/* 122 */     this.end = end;
+/*     */   }
+/*     */   public String getYz() {
+/* 125 */     return this.yz;
+/*     */   }
+/*     */   public void setYz(String yz) {
+/* 128 */     this.yz = yz;
+/*     */   }
+/*     */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.entity.vo.gateway.FBed
+ * JD-Core Version:    0.6.1
+ */

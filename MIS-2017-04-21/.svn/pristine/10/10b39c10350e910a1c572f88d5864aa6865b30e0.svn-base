@@ -1,0 +1,629 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%> 
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="images/logo.png">
+
+    <title>护理计划</title>
+  
+    <!-- Bootstrap core CSS -->
+    <link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+	<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.js"></script>
+    <![endif]-->
+	    <link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+
+  <link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
+  <link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
+	<link rel="stylesheet" type="text/css" href="js/intro.js/introjs.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
+  <!-- Custom styles for this template -->
+  <link href="css/style.css" rel="stylesheet" />
+  <style type="text/css">
+.hideul{position:absolute;top:33px;z-index:200;right:15px;left:15px;display:none}
+.hideul ul{ border:1px solid #ccc;width:100%;background:#f4f4f4;padding-left:0}
+.hideul ul li{ list-style-type:none;text-indent:20px}
+.hideul ul li:hover{ background:#ddd}
+  </style>
+</head>
+<body>
+
+			<div class="row" style="margin:0">
+				<div class="col-md-12">
+					<div class="block-flat">
+						<h3>护理计划详细统计</h3>
+								    <!-- 查询框开始 -->
+								<form class="form-horizontal" >
+								<div class="form-group" style="margin-bottom:0">
+								<label class="col-sm-2 control-label">老人会员</label>
+								<div class="col-sm-4 "  style="position:relative">
+										<div class="input-group " >
+											<input class="form-control"  type="text" id="olderinput_search" onclick="getolderName()" oninput="getolderName()" >
+											<span class="input-group-btn"><button class="btn btn-primary " type="button"><span class="fa fa-search"></span></button></span>
+										</div>
+										<div class="hideul" id="hideul-1"  onmouseover="javascript:$('#hideul-1').show();" onmouseout="javascript:$('#hideul-1').hide();">
+											<ul id="hideul_nei1"></ul>
+										</div>
+								</div>
+								</div>
+								
+								<div class="form-group"  style="margin-bottom:0">
+									<div class="col-sm-2 control-label" >
+										<label>审核通过时间</label>
+									</div>
+									<div class="col-sm-4" >
+                  						 	<div class="input-group">
+											<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>                    
+				                     		 <input class="form-control datetime" size="16" type="text" id="startcheck_input"  data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD" readonly/>
+				                      		 <span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+				                       </div>
+              							 </div>
+									<div style="float:left" class="control-label">
+										~
+									</div>
+									<div class="col-sm-4 "  >
+										<div class="input-group">
+											<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>                    
+				                     		 <input class="form-control datetime" size="16" type="text" id="endcheck_input" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD" readonly/>
+				                      		 <span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+				                       </div>
+									</div>
+									</div>
+								</form>
+								
+									<!-- 查询框结束 -->
+									<!-- 操作按钮开始 -->
+									<div class="row">
+										<div class="col-sm-12">
+											
+											<button class="btn btn-primary" style= "margin-left:0;" onclick="query()">查询</button>										   
+										</div>
+									</div>
+									<!-- 操作按钮结束 -->
+									<!-- 柱状图开始 -->
+									<div class="row">
+										<div class="col-sm-12">
+											<div id="container" style="min-width:400px;height:400px;margin:20px 0"></div>
+											 								   
+										</div>
+									</div>
+									<!-- 柱状图结束 -->
+                                    <!-- 数据表格开始 -->
+									<div class="row">
+										<div class="col-sm-12">							
+											<table class="table table-bordered dataTable hover" id="datatable" aria-describedby="datatable_info">
+											<caption style="color:#333;font-size:18px;">完成情况一览</caption>
+												<thead>
+													<tr role="row">
+														<th><strong>计划标号</strong></th>
+														<th><strong>老人</strong></th>
+														<th><strong>添加人</strong></th>
+														<th><strong>状态</strong></th>
+														<th><strong>开始时间</strong></th>
+														<th><strong>截止时间</strong></th>
+														<th><strong>审核通过时间</strong></th>
+														<th><strong>查看</strong></th>
+													</tr>
+												</thead>
+												<tbody id="datacontainer" role="alert" aria-live="polite" aria-relevant="all">																														
+												</tbody>
+											</table>
+										</div>
+									</div>
+									<!-- 数据表格结束 -->
+								    <!-- 数据条数提示开始 -->
+									<div class="row">
+										<div class="col-sm-12">
+											<div class="pull-left">
+												<div id="datatable_info" class="dataTables_info">
+													当前显示0 条总记录中的第0-0条
+												</div>
+											</div>
+											<div class="clearfix"></div>
+										</div>
+									</div>
+									<!-- 数据条数提示结束 -->
+								    <!-- 分页条开始 -->
+									<div class="row">
+										<div class="col-sm-4">
+											<div class="" id="datatable2_length">
+											<label style="margin-top:18px;">每页 <select id="pageSizeSelector" class=""  size="1" name="datatable2_length" onchange="query_list()"><option selected="selected" value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> 条</label>
+											</div>
+										</div>
+										<div class="col-sm-8">
+											<div class="pull-right">
+												<div class="dataTables_paginate paging_bs_normal">
+													<ul id="paginationArea" class="pagination">
+													<li class="prev disabled"><a href="#"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+													<li class="active"><a href="#">1</a></li>
+													<li class="next"><a href="#">下一页&nbsp;<span class="fa fa-angle-right"></span></a></li></ul>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- 分页条结束 -->
+								</div>
+							</div>
+						</div>
+					<div id="getHeight"></div>
+
+	
+	
+	<!-- Nifty Modal -->
+	
+
+	
+	<div class="md-overlay"></div> <!-- Nifty Modal的遮罩层-->
+	
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+<script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+<script type="text/javascript" src="js/behaviour/general.js"></script>
+<script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
+<script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+<script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
+<script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
+<script src="js/skycons/skycons.js" type="text/javascript"></script>
+<script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
+<script src="js/intro.js/intro.js" type="text/javascript"></script> 
+<script src="js/behaviour/voice-commands.js"></script>
+<script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+<script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>
+<script type="text/javascript" src="js/highcharts.js"></script>
+<script type="text/javascript">
+		//iframe内嵌页面设置高度
+    	function reset() {
+  			window.parent.reset();
+		}
+		
+//时间转化yyyy-mm-dd 转为yyyymmdd
+ function formatTime(time){
+ 	var times = "";
+	times = String(time);
+	if(times == null || times == ""){
+		return "";
+	}
+	times = times.split("-")[0] + times.split("-")[1] + String(times.split("-")[2]).substr(0,2);
+	return times;
+ }
+      
+    $(document).ready(function(){       
+      	query();
+      	
+		App.init();
+	
+    	$(".deleteThisTime").click(function(){               //清除日期框中的值
+    	       $(this).parent().prev()[0].value = "";
+    	    });        
+
+	});
+		
+function query(){
+	query_list();
+	query_tubiao();
+}
+
+//图表
+function query_tubiao() {
+	var olderinput_search = $("#olderinput_search").val();
+	var startcheck_input = $("#startcheck_input").val();
+	var endcheck_input = $("#endcheck_input").val();
+	if((startcheck_input != null && startcheck_input != "") && (endcheck_input == null || endcheck_input == "")){
+		alert("请填写截止日期");
+		return;
+	}
+	if((endcheck_input != null && endcheck_input != "") && (startcheck_input == null || startcheck_input == "")){
+		alert("请填写开始日期");
+		return;
+	}
+	
+	if(startcheck_input != null && startcheck_input != ""){
+		startcheck_input = formatTime(startcheck_input) + "000001";
+	}
+	if(endcheck_input != null && endcheck_input != ""){
+		endcheck_input = formatTime(endcheck_input) + "235959";
+	}
+	if(startcheck_input != null && startcheck_input != "" && endcheck_input != null && endcheck_input != ""){
+		if(startcheck_input > endcheck_input){
+			alert("开始时间不能大于结束时间");
+			return;
+		}
+	}
+	
+    jQuery.ajax({
+          type : "post",
+          async:true,
+          url : "nursingPlan.do?handlerQueryCount",
+          dataType : "json",
+          data: {
+               "name":olderinput_search,
+               "startTime":startcheck_input,
+               "endTime":endcheck_input
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  if(data.content != null){
+            	  		var dates = "[";//["2016-09-10","2016-09-11",]
+						var nums = "[";//[49, 71, 106, 129, 144, 176, 135]
+						if(data.content.dayList != null){
+							jQuery.each(data.content.dayList, function(i, item) {
+								dates += "\"" + formateTime4(item.day) + "\",";
+								nums += item.num + ",";
+							});
+						}
+						if(dates != "["){
+							dates = dates.substr(0,dates.length-1);
+						}
+						if(nums != "["){
+							nums = nums.substr(0,nums.length-1);
+						}
+						dates += "]";
+						nums += "]";
+						tubiao(dates,nums);
+            	  }
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+
+
+//列表
+var currentshownpage_list = 1;
+function query_list() {
+	go2page_list(1);
+}
+function go2page_list(pagenumber){
+	var pagesize = $("#pageSizeSelector option:selected").val();
+	var olderinput_search = $.trim($("#olderinput_search").val());
+	var startcheck_input = $("#startcheck_input").val();
+	var endcheck_input = $("#endcheck_input").val();
+
+	var reqmsg="{'action':'QUERY_NURSING_PLAN_LIST_REQUEST','page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+	
+	if (olderinput_search != null && olderinput_search != "") {
+		reqmsg += "\"olderName_like\":\"" + olderinput_search + "\",";
+	}
+	if (startcheck_input != null && startcheck_input != "") {
+		reqmsg += "\"checkTime_ge\":\"" + formatTime(startcheck_input) + "000001" + "\",";
+	}
+	if (endcheck_input != null && endcheck_input != "") {
+		reqmsg += "\"checkTime_le\":\"" + formatTime(endcheck_input) + "235959" + "\",";
+	}
+	
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:true,
+          url : "nursingPlan.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  changeData_list(data);
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+function changeData_list(data){
+	var htmlcode = "";
+	if (data.content != null) {
+		jQuery.each(data.content.nursingPlanList, function(i, item) {
+			htmlcode += "<tr>";		
+		    htmlcode += "<td>" + item.code + "</td>";	
+		    htmlcode += "<td>" + item.olderName + "</td>";
+		    htmlcode += "<td>" + item.addEmployeeName + "</td>";
+		    htmlcode += "<td>" + changeState(item.status) + "</td>";		
+		    htmlcode += "<td>" + formateTime2(item.startDate) + "</td>";	
+		    htmlcode += "<td>" + formateTime2(item.endDate) + "</td>";	
+		    htmlcode += "<td>" + formateTime3(item.checkTime) + "</td>";	
+		   
+			htmlcode += "<td><div class=\"btn-group\">";
+			htmlcode += "<button class=\"btn btn-default btn-xs\" type=\"button\">操作</button>";
+			htmlcode += "<button data-toggle=\"dropdown\" class=\"btn btn-xs btn-primary dropdown-toggle\" type=\"button\">";
+			htmlcode += "<span class=\"caret\" style=\"padding:0;\"></span>";
+			htmlcode += "<span class=\"sr-only\">Toggle Dropdown</span>";
+			htmlcode += "</button>";
+			htmlcode += "<ul role=\"menu\" class=\"dropdown-menu pull-right\">";
+			var headUrl = "<%=request.getContextPath()%>";
+			htmlcode += "<li><a href=\""+headUrl+"/nursingPlan.do?mainAdd&id="+item.id+"\" target=\"_blank\">查看详情</a></li>";
+			htmlcode += "</ul>";
+			htmlcode += "</div></td>";		
+			htmlcode += "</tr>";
+		});
+	}
+	$("#datacontainer").html(htmlcode);
+	if (data.page != null) {
+		genaratePaginateHtml_list(data.page.pageno, data.page.pageCount);
+		genarateRecordNumberHtml_list(data.page.pageno, data.page.pagesize, data.page.recordCount);
+	} else {
+		genaratePaginateHtml_list(1, 1);
+		genarateRecordNumberHtml_list(1, 10, 0);
+	}
+	reset();
+}
+/**
+ * 生成记录数信息
+ * @method genarateRecordNumberHtml_list
+ * @param {Number} currentpage 当前页
+ * @param {Number} pagesize 每页记录条目数
+ * @param {Number} totalRecord 总记录数
+ */
+function genarateRecordNumberHtml_list(currentpage, pagesize, totalRecord) {
+	var recordInfos = "";
+	if (totalRecord > 0) {
+	    recordInfos = "当前显示" + totalRecord + "条总记录";
+		recordInfos += "中第" + ((currentpage - 1) * pagesize + 1) + "-";
+		if (currentpage * pagesize > totalRecord) {
+			recordInfos += totalRecord;
+		} else {
+			recordInfos += currentpage * pagesize;
+		}
+		recordInfos += "条 ";
+	} else {
+		recordInfos = "当前显示0 条总记录中的第0-0条";
+	}
+	
+	$("#datatable_info").html(recordInfos);
+}
+
+/**
+ * 生成分页信息
+ * @method genaratePaginateHtml_list
+ * @param {Number} currentpage 当前页
+ * @param {Number} totalpage 总页数
+ */
+function genaratePaginateHtml_list(currentpage, totalpage, pagesize) {
+	currentshownpage_list = currentpage;
+
+	var htmlcode = "";
+	
+	//上一页
+	if (currentpage > 1) {
+		htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page_list('1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+		htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page_list('" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+	} else {
+		htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+		htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+	}
+	
+	//具体页码
+	if (totalpage <= 5) {
+		for (var i = 1; i <= totalpage; i++) {
+			if (currentpage == i) {
+				htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+			} else {
+				htmlcode += "<li><a href=\"#\" onclick=\"go2page_list('" + i + "')\">" + i + "</a></li>";
+			}
+		}
+	} else {
+		var startpage = currentpage;
+		var endpage = currentpage;
+		while (true) {
+			if (endpage - startpage >= 4) {
+				break;
+			} else {
+				if (startpage > 1) {
+					startpage = startpage - 1;
+				}
+				if (endpage < totalpage) {
+					endpage = endpage - (-1);
+				}
+			}
+		}
+		
+		for (var i = startpage; i <= endpage; i++) {
+			if (currentpage == i) {
+				htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+			} else {
+				htmlcode += "<li><a href=\"#\" onclick=\"go2page_list('" + i + "')\">" + i + "</a></li>";
+			}
+		}
+	}
+	
+	//下一页
+	if (totalpage > currentpage) {
+		htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page_list('" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page_list('" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+	} else {
+		htmlcode += "<li class=\"next disabled\"><a href=\"#\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		htmlcode += "<li class=\"next disabled\"><a href=\"#\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+	}
+	$("#paginationArea").html(htmlcode);
+}
+function changeState(state){
+     	var name = "未知";
+     	switch (state)
+		{
+			case 0:
+  			name = "制定中";
+  			break;
+  			
+			case 1:
+  			name = "待审核";
+  			break;
+
+			case 2:
+  			name = "有效";
+  			break;
+  			
+  			case 3:
+  			name = "无效";
+  			break;
+  			
+  			default:
+  			break;
+		}
+		return name;
+}
+/**
+ * 格式化时间
+ * @method formateTime2
+ * @param {String} time 时间信息(YYYYMMDDHHmmSS)
+ * @return 格式化的时间(YYYY-MM-DD)
+ */
+function formateTime2(time) {
+	if (time != null && time.length == 14) {
+		return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8);
+	} else {
+		return time;
+	}
+}
+/**
+ * 格式化时间
+ * @method formateTime3
+ * @param {String} time 时间信息(YYYYMMDDHHmmSS)
+ * @return 格式化的时间(YYYY-MM-DD hh:mm)
+ */
+function formateTime3(time) {
+	if (time != null && time.length == 14) {
+		return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8) + " " + time.substring(8, 10) + ":" + time.substring(10, 12);
+	} else {
+		return time;
+	}
+}
+/**
+ * 格式化时间
+ * @method formateTime4
+ * @param {String} time 时间信息(YYYYMMDD)
+ * @return 格式化的时间(YYYY-MM-DD)
+ */
+function formateTime4(time) {
+	if (time != null && time.length == 8) {
+		return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8);
+	} else {
+		return time;
+	}
+}
+
+//实时获取老人姓名
+function getolderName(){
+	var reqmsg="{'action':'QUERY_OLDER_LIST_REQUEST','page':{'pageno':'1','pagesize':'5'},'content':{";
+	var name = $.trim($("#olderinput_search").val());
+	if (name != null && name != "") {
+		reqmsg += "\"name_like\":\"" + name + "\"";
+	}else{
+		$("#hideul_nei1").html("");
+		$("#hideul-1").hide();
+		return;
+	}
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "older.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.olderList != null){
+            	  		jQuery.each(data.content.olderList, function(i, item) {
+            	  				if(item != null){
+		    						htmlcode += "<li onclick=\"olderNamefuzhi('" + item.name + "')\">" + item.name + "</li>";		
+            	  				}	
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#hideul_nei1").html(htmlcode);
+		    	  $("#hideul-1").show();
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//老人姓名赋值
+function olderNamefuzhi(name){
+	$("#olderinput_search").val(name);
+	$("#hideul_nei1").html("");
+	$("#hideul-1").hide();
+}
+
+</script>
+<script type="text/javascript">
+function tubiao(date,num) {
+	var datas_date = JSON.parse(date);
+	var datas_num = JSON.parse(num);
+    $('#container').highcharts({
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: '护理计划数据统计'
+        },
+        xAxis: {
+            categories: datas_date,
+            crosshair: true
+        },
+        yAxis: {
+            title: {
+                text: ' '
+            }
+        },
+        tooltip: {
+            headerFormat: '{point.key}</br>',
+            pointFormat: '<span style="color:{series.color};padding:0">{series.name}: </span>' +
+            '<span style="padding:0"><b>{point.y}</b> 个</span>',          
+            shared: true,
+            useHTML: true
+        },
+        credits: {
+		     enabled: false
+		},
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: '护理计划',
+            data: datas_num
+        }]
+    });
+}
+
+</script>
+		
+  </body>
+</html>

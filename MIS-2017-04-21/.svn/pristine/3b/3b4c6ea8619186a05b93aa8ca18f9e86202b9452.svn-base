@@ -1,0 +1,329 @@
+package fsk.entity.recharge;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.older.OlderEntity;
+import fsk.entity.service.ServiceEntity;
+import fsk.entity.site.SiteEntity;
+import fsk.entity.employee.EmployeeEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 充值记录
+ * @author feng.gu
+ * @date 2016-10-20 09:07:24
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_RECHARGE")
+public class RechargeEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String SERIAL_NUMBER = "SERIAL_NUMBER";
+    public final static String OLDER_ID = "OLDER_ID";
+    public final static String OLDER_NAME = "OLDER_NAME";
+    public final static String OLDER_MEMBER_NUM = "OLDER_MEMBER_NUM";
+    public final static String CREATE_TIME = "CREATE_TIME";
+    public final static String TYPE = "TYPE";
+    public final static String AMOUNT = "AMOUNT";
+    public final static String SERVICE_TASK_CODE = "SERVICE_TASK_CODE";
+    public final static String SERVICE_ID = "SERVICE_ID";
+    public final static String SERVICE_NAME = "SERVICE_NAME";
+    public final static String SERVICE_SITE_ID = "SERVICE_SITE_ID";
+    public final static String SERVICE_SITE_NAME = "SERVICE_SITE_NAME";
+    public final static String RECHARGE_TYPE = "RECHARGE_TYPE";
+    public final static String RECHARGE_EMPLOYEE_ID = "RECHARGE_EMPLOYEE_ID";
+    public final static String RECHARGE_EMPLOYEE_NAME = "RECHARGE_EMPLOYEE_NAME";
+    public final static String RECHARGE_EMPLOYEE_INDEX_NUM = "RECHARGE_EMPLOYEE_INDEX_NUM";
+    public final static String RECHARGE_METHOD = "RECHARGE_METHOD";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 流水号
+	 */
+	@ColumnDescription(name = "SERIAL_NUMBER")
+	private String serialNumber;
+    /**
+	 * 关联老人ID
+	 */
+	@ColumnDescription(name = "OLDER_ID")
+	private Integer olderId;
+    /**
+	 * 关联老人姓名
+	 */
+	@ColumnDescription(name = "OLDER_NAME")
+	private String olderName;
+    /**
+	 * 关联老人会员号
+	 */
+	@ColumnDescription(name = "OLDER_MEMBER_NUM")
+	private String olderMemberNum;
+    /**
+	 * 时间
+	 */
+	@ColumnDescription(name = "CREATE_TIME")
+	private String createTime;
+    /**
+	 * 类型(1-充值 2-消费)
+	 */
+	@ColumnDescription(name = "TYPE")
+	private Integer type;
+    /**
+	 * 金额
+	 */
+	@ColumnDescription(name = "AMOUNT")
+	private BigDecimal amount;
+    /**
+	 * 关联工单编号
+	 */
+	@ColumnDescription(name = "SERVICE_TASK_CODE")
+	private String serviceTaskCode;
+    /**
+	 * 关联服务项目ID
+	 */
+	@ColumnDescription(name = "SERVICE_ID")
+	private Integer serviceId;
+    /**
+	 * 关联服务项目名称
+	 */
+	@ColumnDescription(name = "SERVICE_NAME")
+	private String serviceName;
+    /**
+	 * 服务站点ID
+	 */
+	@ColumnDescription(name = "SERVICE_SITE_ID")
+	private Integer serviceSiteId;
+    /**
+	 * 服务站点名称
+	 */
+	@ColumnDescription(name = "SERVICE_SITE_NAME")
+	private String serviceSiteName;
+    /**
+	 * 充值人类型(1-微信2-工作人员)
+	 */
+	@ColumnDescription(name = "RECHARGE_TYPE")
+	private Integer rechargeType;
+    /**
+	 * 充值人ID
+	 */
+	@ColumnDescription(name = "RECHARGE_EMPLOYEE_ID")
+	private Integer rechargeEmployeeId;
+    /**
+	 * 充值人姓名
+	 */
+	@ColumnDescription(name = "RECHARGE_EMPLOYEE_NAME")
+	private String rechargeEmployeeName;
+    /**
+	 * 充值人员工编号
+	 */
+	@ColumnDescription(name = "RECHARGE_EMPLOYEE_INDEX_NUM")
+	private String rechargeEmployeeIndexNum;
+    /**
+	 * 充值扣款方式(1-自动扣款 2-前台扣款 3-微信充值 4-前台充值 5-其他充值 6-其他扣款)
+	 */
+	@ColumnDescription(name = "RECHARGE_METHOD")
+	private Integer rechargeMethod;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public String getSerialNumber() {
+		return serialNumber;
+	}
+
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
+	}
+    public Integer getOlderId() {
+		return olderId;
+	}
+
+	public void setOlderId(Integer olderId) {
+		this.olderId = olderId;
+	}
+    public String getOlderName() {
+		return olderName;
+	}
+
+	public void setOlderName(String olderName) {
+		this.olderName = olderName;
+	}
+    public String getOlderMemberNum() {
+		return olderMemberNum;
+	}
+
+	public void setOlderMemberNum(String olderMemberNum) {
+		this.olderMemberNum = olderMemberNum;
+	}
+    public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+    public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+    public BigDecimal getAmount() {
+		return amount;
+	}
+
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
+	}
+    public String getServiceTaskCode() {
+		return serviceTaskCode;
+	}
+
+	public void setServiceTaskCode(String serviceTaskCode) {
+		this.serviceTaskCode = serviceTaskCode;
+	}
+    public Integer getServiceId() {
+		return serviceId;
+	}
+
+	public void setServiceId(Integer serviceId) {
+		this.serviceId = serviceId;
+	}
+    public String getServiceName() {
+		return serviceName;
+	}
+
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+    public Integer getServiceSiteId() {
+		return serviceSiteId;
+	}
+
+	public void setServiceSiteId(Integer serviceSiteId) {
+		this.serviceSiteId = serviceSiteId;
+	}
+    public String getServiceSiteName() {
+		return serviceSiteName;
+	}
+
+	public void setServiceSiteName(String serviceSiteName) {
+		this.serviceSiteName = serviceSiteName;
+	}
+    public Integer getRechargeType() {
+		return rechargeType;
+	}
+
+	public void setRechargeType(Integer rechargeType) {
+		this.rechargeType = rechargeType;
+	}
+    public Integer getRechargeEmployeeId() {
+		return rechargeEmployeeId;
+	}
+
+	public void setRechargeEmployeeId(Integer rechargeEmployeeId) {
+		this.rechargeEmployeeId = rechargeEmployeeId;
+	}
+    public String getRechargeEmployeeName() {
+		return rechargeEmployeeName;
+	}
+
+	public void setRechargeEmployeeName(String rechargeEmployeeName) {
+		this.rechargeEmployeeName = rechargeEmployeeName;
+	}
+    public String getRechargeEmployeeIndexNum() {
+		return rechargeEmployeeIndexNum;
+	}
+
+	public void setRechargeEmployeeIndexNum(String rechargeEmployeeIndexNum) {
+		this.rechargeEmployeeIndexNum = rechargeEmployeeIndexNum;
+	}
+    public Integer getRechargeMethod() {
+		return rechargeMethod;
+	}
+
+	public void setRechargeMethod(Integer rechargeMethod) {
+		this.rechargeMethod = rechargeMethod;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="OlderEntity"	,joinColumn="ID"	)
+			
+			
+		private OlderEntity older;
+	        
+	public OlderEntity getOlder() {
+		return older;
+    }
+	
+	public void setOlder(OlderEntity older) {
+		this.older = older;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="ServiceEntity"	,joinColumn="ID"	)
+			
+			
+		private ServiceEntity service;
+	        
+	public ServiceEntity getService() {
+		return service;
+    }
+	
+	public void setService(ServiceEntity service) {
+		this.service = service;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="SiteEntity"	,joinColumn="ID"	)
+			
+			
+		private SiteEntity serviceSite;
+	        
+	public SiteEntity getServiceSite() {
+		return serviceSite;
+    }
+	
+	public void setServiceSite(SiteEntity serviceSite) {
+		this.serviceSite = serviceSite;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="EmployeeEntity"	,joinColumn="ID"	)
+			
+			
+		private EmployeeEntity rechargeEmployee;
+	        
+	public EmployeeEntity getRechargeEmployee() {
+		return rechargeEmployee;
+    }
+	
+	public void setRechargeEmployee(EmployeeEntity rechargeEmployee) {
+		this.rechargeEmployee = rechargeEmployee;
+	}
+			
+}

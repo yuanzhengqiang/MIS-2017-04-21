@@ -1,0 +1,587 @@
+package fsk.service.sore;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+
+
+
+import fsk.entity.sore.SoreEntity;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+
+
+/**   
+ * @Title: Service
+ * @Description: 压疮风险评估服务类
+ * @author feng.gu
+ * @date 2016-07-19 11:09:14
+ * @version V1.0   
+ *
+ */
+public class SoreService {
+	   private static Logger logger = Logger.getLogger(SoreService.class);
+	   private DBManager dbManager = DBManager.getInstance();
+    		
+	   private static SoreService soreService;
+	   /**
+	    * 获取实例	
+	    * @return
+	    */
+	   public static SoreService getInstance(){
+		if(soreService==null){
+			soreService = new SoreService();
+		}
+		return soreService;
+	   }
+	                 	                 				     				     				     				     
+				     	 
+	   /**
+		 * 保存记录
+		 * 
+		 * @param obj
+		 */
+		public boolean save(SoreEntity sore) {			
+			boolean result =false;
+			if(sore!=null){
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					 tx.beginTransaction();					 					 
+					 					 result=dbManager.saveNoTransaction(sore);	
+					 tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {				    
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  			
+			}	
+			return result;
+		}
+		
+		/**
+		 * 批量保存记录
+		 * 
+		 * @param list
+		 */
+		public boolean saveList(List<SoreEntity> soreList) {
+			boolean result = false;
+			if (soreList != null && soreList.size() > 0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 
+					for(SoreEntity sore:soreList){
+						if(sore!=null){												  								 
+								 								 result=dbManager.saveNoTransaction(sore);								 			
+						}	
+					}
+				    tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+				
+		
+		/**
+		 * 根据id读取记录
+		 * @param id 主键
+		 		 * @param obj
+		 */
+		public SoreEntity getById(Integer id) {
+			SoreEntity obj = null;
+			if (id!=null) {
+				obj = (SoreEntity)dbManager.getById(id, SoreEntity.class);
+							}
+			return obj;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合		
+		 * @return
+		 */
+		public List<SoreEntity> getListByCondition(Map<String,Object> queryMap) {
+		    List<SoreEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																					Object countPoint=queryMap.get("countPoint");
+					Object countPoint_like=queryMap.get("countPoint_like");
+					Object countPoint_isNull=queryMap.get("countPoint_isNull");
+					Object countPoint_isNotNull=queryMap.get("countPoint_isNotNull");
+					Object countPoint_in=queryMap.get("countPoint_in");
+																										Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+																					Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+							
+			
+
+						
+			
+			QueryCondition qc = new QueryCondition(SoreEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.in, id_in));}
+															  					if(countPoint!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+		            if(countPoint_like!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.like, countPoint_like));}
+		            if(countPoint_isNull!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.isNull, countPoint_isNull));}
+		            if(countPoint_isNotNull!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.isNotNull, countPoint_isNotNull));}
+				    if(countPoint_in!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+				  															  					if(des!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.in, status_in));}
+										
+			            list = dbManager.queryByCondition(SoreEntity.class,qc);    
+            if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<SoreEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((SoreEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		
+		/**
+		 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 		 * @return
+		 */
+		public List<SoreEntity> getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList) {
+			List<SoreEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																					Object countPoint=queryMap.get("countPoint");
+					Object countPoint_like=queryMap.get("countPoint_like");
+					Object countPoint_isNull=queryMap.get("countPoint_isNull");
+					Object countPoint_isNotNull=queryMap.get("countPoint_isNotNull");
+					Object countPoint_in=queryMap.get("countPoint_in");
+																										Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+																					Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+							
+			
+
+						
+			
+			QueryCondition qc = new QueryCondition(SoreEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.in, id_in));}
+															  					if(countPoint!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+		            if(countPoint_like!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.like, countPoint_like));}
+		            if(countPoint_isNull!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.isNull, countPoint_isNull));}
+		            if(countPoint_isNotNull!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.isNotNull, countPoint_isNotNull));}
+				    if(countPoint_in!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+				  															  					if(des!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.in, status_in));}
+										
+						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}			
+            list = dbManager.queryByConditions(SoreEntity.class,qc,oc);
+                        					    			if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<SoreEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((SoreEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数		
+		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,int pageno,int pagesize) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+															  					Object countPoint=queryMap.get("countPoint");
+					Object countPoint_like=queryMap.get("countPoint_like");
+					Object countPoint_isNull=queryMap.get("countPoint_isNull");
+					Object countPoint_isNotNull=queryMap.get("countPoint_isNotNull");
+					Object countPoint_in=queryMap.get("countPoint_in");
+				   															  					Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+				   																Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+							
+			
+
+						
+			
+			QueryCondition qc = new QueryCondition(SoreEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.in, id_in));}
+															  					if(countPoint!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+		            if(countPoint_like!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.like, countPoint_like));}
+		            if(countPoint_isNull!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.isNull, countPoint_isNull));}
+		            if(countPoint_isNotNull!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.isNotNull, countPoint_isNotNull));}
+				    if(countPoint_in!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+				  															  					if(des!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.in, status_in));}
+										
+			            pagelist = dbManager.queryByCondition(SoreEntity.class,qc,pageno,pagesize);	                      			
+			return pagelist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数
+		 		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,int pageno,int pagesize) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+															  					Object countPoint=queryMap.get("countPoint");
+					Object countPoint_like=queryMap.get("countPoint_like");
+					Object countPoint_isNull=queryMap.get("countPoint_isNull");
+					Object countPoint_isNotNull=queryMap.get("countPoint_isNotNull");
+					Object countPoint_in=queryMap.get("countPoint_in");
+				   															  					Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+				   																Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+							
+			
+
+						
+			
+			QueryCondition qc = new QueryCondition(SoreEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.in, id_in));}
+															  					if(countPoint!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+		            if(countPoint_like!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.like, countPoint_like));}
+		            if(countPoint_isNull!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.isNull, countPoint_isNull));}
+		            if(countPoint_isNotNull!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.isNotNull, countPoint_isNotNull));}
+				    if(countPoint_in!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+				  															  					if(des!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.in, status_in));}
+										
+						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}		
+            pagelist = dbManager.queryByConditions(SoreEntity.class,qc,oc,pageno,pagesize);	           
+                        					    			return pagelist;
+		}
+		
+		/**
+		 * 删除记录
+		 * 
+		 * @param id 主键
+		 * @param obj
+		 */
+		public boolean del(Integer id) {
+			boolean result = false;
+			if (id !=null&&id>0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 					
+										result = dbManager.delNoTransaction(id, SoreEntity.class);
+					tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		/**
+		 * 批量删除记录
+		 * 
+		 * @param ids
+		 *            主键 英文逗号间隔
+		 * @param obj
+		 */
+		public boolean del(String ids) {
+			boolean result = false;
+			if (ids != null && !"".equals(ids.trim())) {
+				TransactionManager tx = DbUtils.getTranManager();
+				try {
+					tx.beginTransaction();
+					QueryCondition qc = new QueryCondition(SoreEntity.ID,QueryCondition.in, ids);
+					result = dbManager.delByConditionsNoTransaction(SoreEntity.class, qc);
+					tx.commitAndClose();
+				} catch (Exception e) {
+					logger.error("数据库提交失败！");
+					logger.error(e);
+					result = false;
+					try {
+						tx.rollbackAndClose();
+					} catch (Exception ex) {
+						logger.error("数据库回滚失败！");
+						logger.error(ex);
+					}
+				}
+			}
+			return result;
+		}
+
+		/**
+		 * 批量条件删除记录
+		 * @param queryMap 查询条件集合
+		 */
+		public boolean delList(Map<String,Object> queryMap) {
+			boolean result = false;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+															  					Object countPoint=queryMap.get("countPoint");
+					Object countPoint_like=queryMap.get("countPoint_like");
+					Object countPoint_isNull=queryMap.get("countPoint_isNull");
+					Object countPoint_isNotNull=queryMap.get("countPoint_isNotNull");
+					Object countPoint_in=queryMap.get("countPoint_in");
+				  															  					Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+				  																Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+													
+			QueryCondition qc = new QueryCondition(SoreEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(SoreEntity.ID, QueryCondition.in, id_in));}
+															  					if(countPoint!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+		            if(countPoint_like!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.like, countPoint_like));}
+		            if(countPoint_isNull!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.isNull, countPoint_isNull));}
+		            if(countPoint_isNotNull!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.isNotNull, countPoint_isNotNull));}
+				    if(countPoint_in!=null){qc.andCondition(new QueryCondition(SoreEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+				  															  					if(des!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(SoreEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(SoreEntity.STATUS, QueryCondition.in, status_in));}
+										
+						if (qc.getQueryNextCondition()!=null) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 						
+										result = dbManager.delByConditionsNoTransaction(SoreEntity.class,qc);				
+					tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		
+}

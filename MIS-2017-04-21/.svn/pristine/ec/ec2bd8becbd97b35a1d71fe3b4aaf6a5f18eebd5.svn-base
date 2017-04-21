@@ -1,0 +1,148 @@
+package fsk.entity.sendReceivePhoto;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.sendReceive.SendReceiveEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 交接班图片
+ * @author feng.gu
+ * @date 2016-10-19 13:13:14
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_SEND_RECEIVE_PHOTO")
+public class SendReceivePhotoEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String URL = "URL";
+    public final static String NAME = "NAME";
+    public final static String DES = "DES";
+    public final static String SHOW_INDEX = "SHOW_INDEX";
+    public final static String SEND_RECEIVE_ID = "SEND_RECEIVE_ID";
+    public final static String CREATE_PERSON = "CREATE_PERSON";
+    public final static String CREATE_TIME = "CREATE_TIME";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 图片地址
+	 */
+	@ColumnDescription(name = "URL")
+	private String url;
+    /**
+	 * 图片名称
+	 */
+	@ColumnDescription(name = "NAME")
+	private String name;
+    /**
+	 * 图片备注
+	 */
+	@ColumnDescription(name = "DES")
+	private String des;
+    /**
+	 * 显示顺序
+	 */
+	@ColumnDescription(name = "SHOW_INDEX")
+	private Integer showIndex;
+    /**
+	 * 交接班记录ID
+	 */
+	@ColumnDescription(name = "SEND_RECEIVE_ID")
+	private Integer sendReceiveId;
+    /**
+	 * 创建人
+	 */
+	@ColumnDescription(name = "CREATE_PERSON")
+	private String createPerson;
+    /**
+	 * 创建时间
+	 */
+	@ColumnDescription(name = "CREATE_TIME")
+	private String createTime;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+    public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+    public String getDes() {
+		return des;
+	}
+
+	public void setDes(String des) {
+		this.des = des;
+	}
+    public Integer getShowIndex() {
+		return showIndex;
+	}
+
+	public void setShowIndex(Integer showIndex) {
+		this.showIndex = showIndex;
+	}
+    public Integer getSendReceiveId() {
+		return sendReceiveId;
+	}
+
+	public void setSendReceiveId(Integer sendReceiveId) {
+		this.sendReceiveId = sendReceiveId;
+	}
+    public String getCreatePerson() {
+		return createPerson;
+	}
+
+	public void setCreatePerson(String createPerson) {
+		this.createPerson = createPerson;
+	}
+    public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="SendReceiveEntity"	,joinColumn="ID"	)
+			
+			
+		private SendReceiveEntity sendReceive;
+	        
+	public SendReceiveEntity getSendReceive() {
+		return sendReceive;
+    }
+	
+	public void setSendReceive(SendReceiveEntity sendReceive) {
+		this.sendReceive = sendReceive;
+	}
+			
+}

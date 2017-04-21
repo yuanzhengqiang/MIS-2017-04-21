@@ -1,0 +1,424 @@
+package fsk.controller.recharge;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.framework.system.common.entity.json.AjaxJson;
+import com.framework.system.common.entity.module.ModuleEntity;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.common.tools.Datetools;
+import com.framework.system.db.query.PageList;
+import com.framework.system.util.JsonUtil;
+
+import fsk.entity.recharge.RechargeEntity;
+import fsk.handler.recharge.RechargeHandler;
+import fsk.service.recharge.RechargeService;
+
+@RequestMapping("/recharge")
+@Controller
+public class RechargeController {
+	private static Logger logger = Logger.getLogger(RechargeController.class);
+	/**
+	 * 处理器
+	 */
+	private RechargeHandler rechargeHandler = RechargeHandler.getInstance();
+	/**
+	 * 服务类
+	 */
+	private RechargeService rechargeService = RechargeService.getInstance();
+
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 充值/消费明细列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/recharge/RechargeList");
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService.getHTMLModulesByRoleIdsAndModuleId(roleIds, htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		return mav;
+	}
+
+	/**
+	 * 充值/扣款列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "mainDebit")
+	public ModelAndView centerDebit(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/recharge/RechargeDebitList");
+		Integer userId = (Integer) request.getSession().getAttribute("userId");// 登录用户ID
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService.getHTMLModulesByRoleIdsAndModuleId(roleIds, htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		mav.addObject("userId", userId);
+		return mav;
+	}
+
+	/**
+	 * 批量删除 ids英文逗号间隔
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "del")
+	@ResponseBody
+	public AjaxJson del(HttpServletRequest request) {
+		AjaxJson j = new AjaxJson();
+		String result = "failure";
+		String des = "删除失败";
+		String ids = request.getParameter("ids");
+		if (ids != null && !"".equals(ids)) {
+			boolean falg = rechargeService.del(ids);
+			if (falg) {
+				result = "success";
+				des = "删除成功";
+				Object userId = request.getSession().getAttribute("userId");
+				String ip = request.getRemoteAddr();
+				logger.debug("删除记录：userId为" + userId + "的用户删除了id为" + ids + "的recharge," + "来自ip: " + ip);
+			}
+		}
+		j.setResult(result);
+		j.setDes(des);
+		return j;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handler")
+	@ResponseBody
+	public String query(HttpServletRequest request, HttpServletResponse response) {
+		String msg = "";
+		try {
+			String reqmsg = request.getParameter("reqmsg");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return msg;
+			}
+			String action = (String) reqParams.get("action");
+			String rep = rechargeHandler.doHandler(1, action, reqmsg, request, response);
+			msg = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+
+		return msg;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handlercontent")
+	public void queryApp(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			InputStream is = request.getInputStream();
+			byte[] bis = IOUtils.toByteArray(is);
+			String reqmsg = new String(bis, "UTF-8");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return;
+			}
+			String action = (String) reqParams.get("action");
+			String rep = rechargeHandler.doHandler(1, action, reqmsg, request, response);
+			OutputStream os = response.getOutputStream();
+			os.write(rep.toString().getBytes("UTF-8"));
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+	}
+
+	/**
+	 * 导出充值/消费明细信息为 xls 文件
+	 * 
+	 * @param request
+	 * @param response
+	 * @param olderId
+	 * @param serialNumber
+	 * @param type
+	 * @param minMoney
+	 * @param maxMoney
+	 * @param time_input_start
+	 * @param time_input_end
+	 * @param relevanceProjectId
+	 * @param serviceSiteId
+	 * @param way
+	 */
+	@RequestMapping(params = "exportxls")
+	public void exportXls(HttpServletRequest request, HttpServletResponse response, String olderId, String serialNumber, String type, String minMoney,
+	        String maxMoney, String time_input_start, String time_input_end, String relevanceProjectId, String serviceSiteId, String way) {
+
+		int pageno = 1;
+		int pagesize = 10;
+
+		Map<String, Object> query = new HashMap<String, Object>();
+		if (olderId != null && !"".equals(olderId) && !"0".equals(olderId)) {
+			query.put("olderId", olderId);
+		}
+		if (serialNumber != null && !"".equals(serialNumber)) {
+			query.put("serialNumber_like", serialNumber);
+		}
+		if (type != null && !"".equals(type)) {
+			query.put("type", type);
+		}
+		if (minMoney != null && !"".equals(minMoney)) {
+			query.put("amount_ge", minMoney);
+		}
+		if (maxMoney != null && !"".equals(maxMoney)) {
+			query.put("amount_le", maxMoney);
+		}
+		if (time_input_start != null && !"".equals(time_input_start)) {
+			query.put("createTime_ge", time_input_start);
+		}
+		if (time_input_end != null && !"".equals(time_input_end)) {
+			query.put("createTime_le", time_input_end);
+		}
+		if (relevanceProjectId != null && !"".equals(relevanceProjectId) && !"0".equals(relevanceProjectId)) {
+			query.put("serviceId", relevanceProjectId);
+		}
+		if (serviceSiteId != null && !"".equals(serviceSiteId) && !"0".equals(serviceSiteId)) {
+			query.put("serviceSiteId", serviceSiteId);
+		}
+		if (way != null && !"".equals(way)) {
+			query.put("rechargeMethod", way);
+		}
+
+		try {
+			query = systemService.addDataRuleByRoles("RechargeEntity", query, request);
+			PageList rechargeList = rechargeService.getListByCondition(query, null, pageno, pagesize, false, false, false, false);
+			JSONObject jsonResult = new JSONObject();
+			List<Object> objlist = null;
+			if (rechargeList != null && rechargeList.getResultList() != null && rechargeList.getResultList().size() > 0) {
+				objlist = rechargeList.getResultList();
+			}
+			String filepath = request.getSession().getServletContext().getRealPath("/view/source");
+			File file = new File(filepath, "充值消费明细导出模板.xls");
+
+			HSSFWorkbook workbook2003 = null;
+			if (file.exists()) {
+				try {
+					workbook2003 = new HSSFWorkbook(new FileInputStream(file));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				HSSFSheet sheet = workbook2003.getSheet("Sheet1");
+				if (objlist != null && objlist.size() > 0) {
+					for (int i = 0; i < objlist.size(); i++) {
+						HSSFRow row = sheet.createRow(i + 1);
+						// 开始创建单元格并赋值
+
+						RechargeEntity Recharges = (RechargeEntity) objlist.get(i);
+
+						HSSFCell serialNumberCell = row.createCell(0);
+						if (Recharges.getSerialNumber() == null) {
+							serialNumberCell.setCellValue("无");// 流水号
+						} else {
+							serialNumberCell.setCellValue(Recharges.getSerialNumber());// 流水号
+						}
+
+						HSSFCell olderCell = row.createCell(1);
+						if (Recharges.getOlderName() == null) {
+							olderCell.setCellValue("无");// 老人
+						} else {
+							olderCell.setCellValue(Recharges.getOlderName() + " " + Recharges.getOlderMemberNum());// 老人
+						}
+
+						HSSFCell typeCell = row.createCell(2);
+						if (Recharges.getType() == null) {
+							typeCell.setCellValue("无");// 类型
+						} else {
+							typeCell.setCellValue(changeType(Recharges.getType()));// 类型
+						}
+
+						HSSFCell moneyCell = row.createCell(3);
+						if (Recharges.getAmount() == null) {
+							moneyCell.setCellValue("无");// 金额
+						} else {
+							moneyCell.setCellValue((Recharges.getAmount() + ""));// 金额
+						}
+
+						HSSFCell gongdanCell = row.createCell(4);
+						if (Recharges.getServiceTaskCode() == null) {
+							gongdanCell.setCellValue("无");// 关联工单
+						} else {
+							gongdanCell.setCellValue(Recharges.getServiceTaskCode() + " " + Recharges.getServiceName());// 关联工单
+						}
+
+						HSSFCell fuwuzhandianCell = row.createCell(5);
+						if (Recharges.getServiceSiteName() == null) {
+							fuwuzhandianCell.setCellValue("无");// 服务站点
+						} else {
+							fuwuzhandianCell.setCellValue(Recharges.getServiceSiteName());// 服务站点
+						}
+
+						HSSFCell rechargeNameCell = row.createCell(6);
+						if (Recharges.getRechargeEmployeeName() == null) {
+							rechargeNameCell.setCellValue("无");// 充值人
+						} else {
+							rechargeNameCell.setCellValue(Recharges.getRechargeEmployeeName() + " " + Recharges.getRechargeEmployeeIndexNum());// 充值人
+						}
+
+						HSSFCell wayCell = row.createCell(7);
+						if (Recharges.getRechargeMethod() == null) {
+							wayCell.setCellValue("无");// 方式
+						} else {
+							wayCell.setCellValue(changeWay(Recharges.getRechargeMethod()));// 方式
+						}
+
+						HSSFCell timeCell = row.createCell(8);
+						if (Recharges.getCreateTime() == null) {
+							timeCell.setCellValue("无");// 时间
+						} else {
+							timeCell.setCellValue(Datetools.formateDate(Recharges.getCreateTime()));// 时间
+						}
+
+					}
+				}
+				response.setContentType("application/octet-stream");
+				String time = Datetools.getCurrentDate();
+				time = time.substring(0, 4) + "_" + time.substring(4, 6) + "_" + time.substring(6, 8) + " " + time.substring(8, 10) + "."
+				        + time.substring(10, 12) + "." + time.substring(12, 14);
+				response.addHeader("Content-Disposition", "attachment; filename=RechargeConsumptionDetail_" + time + ".xls");
+				OutputStream os = response.getOutputStream();
+				workbook2003.write(os);
+			}
+		} catch (Exception e) {
+
+		}
+	}
+
+	/**
+	 * 根据充值/消费转化名称
+	 * 
+	 * @return 名称
+	 */
+	public String changeType(Integer type) {
+		String name = "未知";
+		if (type == null || "".equals(type)) {
+			name = "";
+			return name;
+		}
+		switch (type) {
+		case 1:
+			name = "充值";
+			break;
+		case 2:
+			name = "消费";
+			break;
+		default:
+			name = "未知";
+			break;
+		}
+
+		return name;
+	}
+
+	/**
+	 * 根据充值扣款方式转化名称
+	 * 
+	 * @return 名称
+	 */
+	public String changeWay(Integer way) {
+		String name = "未知";
+		if (way == null || "".equals(way)) {
+			name = "";
+			return name;
+		}
+		switch (way) {
+		case 1:
+			name = "自动扣款";
+			break;
+		case 2:
+			name = "前台扣款";
+			break;
+		case 3:
+			name = "微信充值";
+			break;
+		case 4:
+			name = "前台充值";
+			break;
+		case 5:
+			name = "其他充值";
+			break;
+		case 6:
+			name = "其他扣款";
+			break;
+		default:
+			name = "未知";
+			break;
+		}
+
+		return name;
+	}
+
+}

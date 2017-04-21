@@ -1,0 +1,551 @@
+package fsk.controller.employee;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import com.framework.system.common.entity.json.AjaxJson;
+import com.framework.system.common.entity.module.ModuleEntity;
+import com.framework.system.common.entity.role.RoleEntity;
+import com.framework.system.common.entity.userRole.UserRoleEntity;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.common.service.dataDic.DataDicService;
+import com.framework.system.common.service.role.RoleService;
+import com.framework.system.common.service.userRole.UserRoleService;
+import com.framework.system.common.tools.Datetools;
+import com.framework.system.db.query.PageList;
+import com.framework.system.util.JsonUtil;
+
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.employeePositionalTitle.EmployeePositionalTitleEntity;
+import fsk.entity.site.SiteEntity;
+import fsk.entity.siteEmployee.SiteEmployeeEntity;
+import fsk.handler.employee.EmployeeHandler;
+import fsk.service.employee.EmployeeService;
+import fsk.service.employeePositionalTitle.EmployeePositionalTitleService;
+import fsk.service.siteEmployee.SiteEmployeeService;
+
+@RequestMapping("/employee")
+@Controller
+public class EmployeeController {
+	private static Logger logger = Logger.getLogger(EmployeeController.class);
+	/**
+	 * 处理器
+	 */
+	private EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
+	/**
+	 * 服务类
+	 */
+	private EmployeeService employeeService = EmployeeService.getInstance();
+	private DataDicService dataDicService = DataDicService.getInstance();
+	private UserRoleService userRoleService = UserRoleService.getInstance();
+	private RoleService roleService = RoleService.getInstance();
+	private EmployeePositionalTitleService employeePositionalTitleService = EmployeePositionalTitleService.getInstance();
+	private SiteEmployeeService siteEmployeeService = SiteEmployeeService.getInstance();
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/employee/EmployeeList");
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService.getHTMLModulesByRoleIdsAndModuleId(roleIds, htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		return mav;
+	}
+
+	/**
+	 * 批量删除 ids英文逗号间隔
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "del")
+	@ResponseBody
+	public AjaxJson del(HttpServletRequest request) {
+		AjaxJson j = new AjaxJson();
+		String result = "failure";
+		String des = "删除失败";
+		String ids = request.getParameter("ids");
+		if (ids != null && !"".equals(ids)) {
+			// 同时删除user表
+			Map<String, Object> delmap = new HashMap<String, Object>();
+			delmap.put("id_in", ids);
+			boolean falg = employeeService.delList(delmap, true, false, false, false, false, false, false);
+			if (falg) {
+				result = "success";
+				des = "删除成功";
+				Object userId = request.getSession().getAttribute("userId");
+				String ip = request.getRemoteAddr();
+				logger.debug("删除记录：userId为" + userId + "的用户删除了id为" + ids + "的employee," + "来自ip: " + ip);
+			}
+		}
+		j.setResult(result);
+		j.setDes(des);
+		return j;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handler")
+	@ResponseBody
+	public String query(HttpServletRequest request, HttpServletResponse response) {
+		String msg = "";
+		try {
+			String reqmsg = request.getParameter("reqmsg");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return msg;
+			}
+			String action = (String) reqParams.get("action");
+			String rep = employeeHandler.doHandler(1, action, reqmsg, request, response);
+			msg = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+
+		return msg;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handlercontent")
+	public void queryApp(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			InputStream is = request.getInputStream();
+			byte[] bis = IOUtils.toByteArray(is);
+			String reqmsg = new String(bis, "UTF-8");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return;
+			}
+			String action = (String) reqParams.get("action");
+			String rep = employeeHandler.doHandler(1, action, reqmsg, request, response);
+			OutputStream os = response.getOutputStream();
+			os.write(rep.toString().getBytes("UTF-8"));
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+	}
+
+	/**
+	 * 导出员工信息为 xls 文件
+	 * 
+	 * @param request
+	 * @param response
+	 * @param name_input
+	 * @param zhandian_input
+	 * @param ssbumen_input
+	 * @param ssbumen_input2
+	 * @param xingji_input
+	 * @param juese_input
+	 * @param zhicheng2_input
+	 */
+	@RequestMapping(params = "exportxls")
+	public void exportXls(HttpServletRequest request, HttpServletResponse response, String name_input, String zhandian_input, String ssbumen_input,
+	        String ssbumen_input2, String xingji_input, String juese_input, String zhicheng2_input) {
+		int pageno = 1;
+		int pagesize = 10;
+
+		if (name_input != null && name_input != "") {
+			try {
+				byte source[] = name_input.getBytes("iso8859-1");
+				name_input = new String(source, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}
+		Map<String, Object> query = new HashMap<String, Object>();
+		if (name_input != null && name_input != "") {
+			query.put("name_like", name_input);
+		}
+		if (ssbumen_input != null && ssbumen_input != "") {
+			query.put("department", ssbumen_input);
+		}
+		if (ssbumen_input2 != null && ssbumen_input2 != "") {
+			query.put("secondDepartmentId", ssbumen_input2);
+		}
+		if (xingji_input != null && xingji_input != "") {
+			query.put("starLevel", xingji_input);
+		}
+
+		String zhichengString = "";
+		if (zhicheng2_input != null && zhicheng2_input != "") {
+			Map<String, Object> query2 = new HashMap<String, Object>();
+			query2.put("positionalTitleId_in", zhicheng2_input);
+			List<EmployeePositionalTitleEntity> employeePositionalTitleEntity = employeePositionalTitleService.getListByCondition(query2);
+			if (employeePositionalTitleEntity != null && employeePositionalTitleEntity.size() > 0) {
+				for (int i = 0; i < employeePositionalTitleEntity.size(); i++) {
+					zhichengString += employeePositionalTitleEntity.get(i).getEmployeeId() + ",";
+					zhichengString = zhichengString.replaceAll(",,", ",");
+				}
+				if (zhichengString != "") {
+					zhichengString = zhichengString.substring(0, zhichengString.length() - 1);
+				}
+			}
+		}
+
+		String zhandianString = "";
+		if (zhandian_input != null && zhandian_input != "") {
+			Map<String, Object> query4 = new HashMap<String, Object>();
+			if (zhichengString != "") {
+				query4.put("employeeId_in", zhichengString);
+			}
+			query4.put("siteId_in", zhandian_input);
+			List<SiteEmployeeEntity> siteEmployeeEntity = siteEmployeeService.getListByCondition(query4);
+			if (siteEmployeeEntity != null && siteEmployeeEntity.size() > 0) {
+				for (int i = 0; i < siteEmployeeEntity.size(); i++) {
+					zhandianString += siteEmployeeEntity.get(i).getEmployeeId() + ",";
+					zhandianString = zhandianString.replaceAll(",,", ",");
+				}
+				if (zhandianString != "") {
+					zhandianString = zhandianString.substring(0, zhandianString.length() - 1);
+				}
+			}
+		}
+
+		String jueseString = "";
+		if (juese_input != null && juese_input != "") {
+			Map<String, Object> query3 = new HashMap<String, Object>();
+			query3.put("roleId_in", juese_input);
+			List<UserRoleEntity> userRoleEntity = userRoleService.getListByCondition(query3);
+			if (userRoleEntity != null && userRoleEntity.size() > 0) {
+				for (int i = 0; i < userRoleEntity.size(); i++) {
+					jueseString += userRoleEntity.get(i).getUserId() + ",";
+					jueseString = jueseString.replaceAll(",,", ",");
+				}
+				if (jueseString != "") {
+					jueseString = jueseString.substring(0, jueseString.length() - 1);
+				}
+			}
+		}
+		if (jueseString != "") {
+			query.put("userId_in", jueseString);
+		}
+
+		if (zhandianString != "") {
+			query.put("id_in", zhandianString);
+		} else {
+			if (zhichengString != "") {
+				query.put("id_in", zhichengString);
+			}
+		}
+
+		query = systemService.addDataRuleByRoles("EmployeeEntity", query, request);
+		List<EmployeeEntity> sizeList = employeeService.getListByCondition(query);
+		int pageListSize = 0;
+		if (sizeList != null && sizeList.size() > 0) {
+			pageListSize = sizeList.size();
+		}
+		PageList employeeEntityTemp = employeeService.getListByCondition(query, null, 1, pageListSize + 1, false, false, false, true, true, false, false);
+		List<EmployeeEntity> employeeEntity = new ArrayList<EmployeeEntity>();
+		if (employeeEntityTemp != null) {
+			if (employeeEntityTemp.getResultList() != null && employeeEntityTemp.getResultList().size() > 0) {
+				for (Object obj : employeeEntityTemp.getResultList()) {
+					if (obj != null) {
+						EmployeeEntity empEntity = (EmployeeEntity) obj;
+						employeeEntity.add(empEntity);
+					}
+				}
+			}
+		}
+
+		List<SiteEntity> siteEntity = null;
+		List<DataDicEntity> dataDicEntity = null;
+		String siteNames = "";
+		String zhichengNames = "";
+
+		try {
+			String filepath = request.getSession().getServletContext().getRealPath("/view/source");
+			File file = new File(filepath, "员工信息导出模板.xls");
+
+			HSSFWorkbook workbook2003 = null;
+			if (file.exists()) {
+				try {
+					workbook2003 = new HSSFWorkbook(new FileInputStream(file));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				HSSFSheet sheet = workbook2003.getSheet("Sheet1");
+				if (employeeEntity != null && employeeEntity.size() > 0) {
+					for (int i = 0; i < employeeEntity.size(); i++) {
+						HSSFRow row = sheet.createRow(i + 1);
+						// 开始创建单元格并赋值
+
+						HSSFCell nameCell = row.createCell(0);
+						if (employeeEntity.get(i).getName() == null) {
+							nameCell.setCellValue("无");// 姓名
+						} else {
+							nameCell.setCellValue(employeeEntity.get(i).getName());// 姓名
+						}
+
+						HSSFCell gonghaoCell = row.createCell(1);
+						if (employeeEntity.get(i).getIndexNum() == null) {
+							gonghaoCell.setCellValue("无");// 工号
+						} else {
+							gonghaoCell.setCellValue(employeeEntity.get(i).getIndexNum());// 工号
+						}
+
+						HSSFCell mobileCell = row.createCell(2);
+						if (employeeEntity.get(i).getMobileTel() == null) {
+							mobileCell.setCellValue("无");// 联系方式
+						} else {
+							mobileCell.setCellValue(employeeEntity.get(i).getMobileTel());// 联系方式
+						}
+
+						HSSFCell suoshuzhandianCell = row.createCell(3);
+						if (employeeEntity.get(i).getSiteList() != null) {
+							siteEntity = employeeEntity.get(i).getSiteList();
+							if (siteEntity != null && siteEntity.size() > 0) {
+								for (SiteEntity sites : siteEntity) {
+									if (sites != null) {
+										siteNames += sites.getName() + ",";
+										siteNames = siteNames.replaceAll(",,", ",");
+									}
+								}
+								if (siteNames != "") {
+									siteNames = siteNames.substring(0, siteNames.length() - 1);
+									suoshuzhandianCell.setCellValue(siteNames);// 所属站点
+								} else {
+									suoshuzhandianCell.setCellValue("无");// 所属站点
+								}
+							} else {
+								suoshuzhandianCell.setCellValue("无");// 所属站点
+							}
+						} else {
+							suoshuzhandianCell.setCellValue("无");// 所属站点
+						}
+						siteNames = "";
+
+						HSSFCell suoshubumenCell = row.createCell(4);
+						if (employeeEntity.get(i).getDepartment() == null) {
+							suoshubumenCell.setCellValue("无");// 所属部门
+						} else {
+							suoshubumenCell.setCellValue(getNameBysjzdId(employeeEntity.get(i).getDepartment()) + "/"
+							        + getNameBysjzdId(employeeEntity.get(i).getSecondDepartmentId()));// 所属部门
+						}
+
+						HSSFCell zhichengCell = row.createCell(5);
+						if (employeeEntity.get(i).getDataDicList() != null) {
+							dataDicEntity = employeeEntity.get(i).getDataDicList();
+							if (dataDicEntity != null && dataDicEntity.size() > 0) {
+								for (DataDicEntity dataDic : dataDicEntity) {
+									if (dataDic != null) {
+										zhichengNames += (getNameBysjzdId(dataDic.getParentId()) + "/" + dataDic.getName()) + ",";
+										zhichengNames = zhichengNames.replaceAll(",,", ",");
+									}
+								}
+								if (zhichengNames != "") {
+									zhichengNames = zhichengNames.substring(0, zhichengNames.length() - 1);
+									zhichengCell.setCellValue(zhichengNames);// 职称
+								} else {
+									zhichengCell.setCellValue("无");// 职称
+								}
+							} else {
+								zhichengCell.setCellValue("无");// 职称
+							}
+						} else {
+							zhichengCell.setCellValue("无");// 职称
+						}
+						zhichengNames = "";
+
+						HSSFCell jueseCell = row.createCell(6);
+						if (employeeEntity.get(i).getUserId() == null) {
+							jueseCell.setCellValue("无");// 角色
+						} else {
+							jueseCell.setCellValue(getjueseByuserId(employeeEntity.get(i).getUserId()));// 角色
+						}
+
+						HSSFCell xingjiCell = row.createCell(7);
+						if (employeeEntity.get(i).getStarLevel() == null) {
+							xingjiCell.setCellValue("无");// 星级
+						} else {
+							employeeEntity.get(i).getStarLevel().intValue();
+							xingjiCell.setCellValue(pipeiStarLevel(employeeEntity.get(i).getStarLevel().intValue()));// 星级
+						}
+
+					}
+				}
+				response.setContentType("application/octet-stream");
+				String time = Datetools.getCurrentDate();
+				time = time.substring(0, 4) + "_" + time.substring(4, 6) + "_" + time.substring(6, 8) + " " + time.substring(8, 10) + "."
+				        + time.substring(10, 12) + "." + time.substring(12, 14);
+				response.addHeader("Content-Disposition", "attachment; filename=employeeInformation_" + time + ".xls");
+				OutputStream os = response.getOutputStream();
+				workbook2003.write(os);
+			}
+		} catch (Exception e) {
+
+		}
+	}
+
+	/**
+	 * 根据数据字典ID查询名称
+	 * 
+	 * @return 名称
+	 */
+	public String getNameBysjzdId(Integer id) {
+		String name = "未知";
+		if (id == null || id == 0) {
+			return name;
+		}
+		Map<String, Object> query = new HashMap<String, Object>();
+		if (id != null && id != 0) {
+			query.put("id", id);
+		}
+		List<Object> objects = dataDicService.getListByCondition(query);
+		if (objects != null && objects.size() > 0) {
+			for (Object obj : objects) {
+				DataDicEntity dataDicEntity = (DataDicEntity) obj;
+				if (dataDicEntity != null) {
+					name = dataDicEntity.getName();
+				}
+			}
+		}
+		return name;
+	}
+
+	/**
+	 * 根据账号ID查找对应角色
+	 * 
+	 * @return 名称
+	 */
+	public String getjueseByuserId(Integer userId) {
+		String roleNames = "";
+		if (userId == null || userId == 0) {
+			roleNames = "无";
+			return roleNames;
+		}
+		Map<String, Object> queryMapRole = new HashMap<String, Object>();
+		queryMapRole.put("userId", userId);
+		List<UserRoleEntity> userRoleList = userRoleService.getListByCondition(queryMapRole);
+
+		if (userRoleList != null && userRoleList.size() > 0) {
+			for (int i = 0; i < userRoleList.size(); i++) {
+				UserRoleEntity userRoleEntity = (UserRoleEntity) userRoleList.get(i);
+				roleNames += getjueseNameById(userRoleEntity.getRoleId()) + ",";
+				roleNames = roleNames.replaceAll(",,", ",");
+			}
+			if (roleNames != "") {
+				roleNames = roleNames.substring(0, roleNames.length() - 1);
+			}
+		}
+		return roleNames;
+	}
+
+	/**
+	 * 根据角色ID查找对应角色名称
+	 * 
+	 * @return 名称
+	 */
+	public String getjueseNameById(Integer id) {
+		String name = "未知";
+		if (id == null || id == 0) {
+			name = "";
+			return name;
+		}
+		Map<String, Object> queryMapRole = new HashMap<String, Object>();
+		queryMapRole.put("id", id);
+		List<Object> objects = roleService.getListByCondition(queryMapRole);
+
+		if (objects != null && objects.size() > 0) {
+			for (Object obj : objects) {
+				RoleEntity roleEntity = (RoleEntity) obj;
+				name = roleEntity.getName();
+			}
+		}
+
+		return name;
+	}
+
+	/**
+	 * 根据星级转化名称
+	 * 
+	 * @return 名称
+	 */
+	public String pipeiStarLevel(Integer id) {
+		String name = "未知";
+		if (id == null || id == 0) {
+			name = "";
+			return name;
+		}
+		switch (id) {
+		case 1:
+			name = "一星";
+			break;
+		case 2:
+			name = "二星";
+			break;
+		case 3:
+			name = "三星";
+			break;
+		case 4:
+			name = "四星";
+			break;
+		case 5:
+			name = "五星";
+			break;
+		default:
+			name = "未知";
+			break;
+		}
+
+		return name;
+	}
+
+}

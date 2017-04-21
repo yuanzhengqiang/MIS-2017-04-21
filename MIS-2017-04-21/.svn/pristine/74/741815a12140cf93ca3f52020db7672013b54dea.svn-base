@@ -1,0 +1,1317 @@
+package fsk.service.mmse;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+
+
+
+import fsk.entity.mmse.MmseEntity;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+
+
+/**   
+ * @Title: Service
+ * @Description: MMSE量表服务类
+ * @author feng.gu
+ * @date 2016-06-30 16:10:45
+ * @version V1.0   
+ *
+ */
+public class MmseService {
+	   private static Logger logger = Logger.getLogger(MmseService.class);
+	   private DBManager dbManager = DBManager.getInstance();
+    		
+	   private static MmseService mmseService;
+	   /**
+	    * 获取实例	
+	    * @return
+	    */
+	   public static MmseService getInstance(){
+		if(mmseService==null){
+			mmseService = new MmseService();
+		}
+		return mmseService;
+	   }
+	                 	                 				     				     				     				     
+				     	 
+	   /**
+		 * 保存记录
+		 * 
+		 * @param obj
+		 */
+		public boolean save(MmseEntity mmse) {			
+			boolean result =false;
+			if(mmse!=null){
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					 tx.beginTransaction();					 					 
+					 					 result=dbManager.saveNoTransaction(mmse);	
+					 tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {				    
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  			
+			}	
+			return result;
+		}
+		
+		/**
+		 * 批量保存记录
+		 * 
+		 * @param list
+		 */
+		public boolean saveList(List<MmseEntity> mmseList) {
+			boolean result = false;
+			if (mmseList != null && mmseList.size() > 0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 
+					for(MmseEntity mmse:mmseList){
+						if(mmse!=null){												  								 
+								 								 result=dbManager.saveNoTransaction(mmse);								 			
+						}	
+					}
+				    tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+				
+		
+		/**
+		 * 根据id读取记录
+		 * @param id 主键
+		 		 * @param obj
+		 */
+		public MmseEntity getById(Integer id) {
+			MmseEntity obj = null;
+			if (id!=null) {
+				obj = (MmseEntity)dbManager.getById(id, MmseEntity.class);
+							}
+			return obj;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合		
+		 * @return
+		 */
+		public List<MmseEntity> getListByCondition(Map<String,Object> queryMap) {
+		    List<MmseEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object countPoint=queryMap.get("countPoint");
+					Object countPoint_gt=queryMap.get("countPoint_gt");
+					Object countPoint_ge=queryMap.get("countPoint_ge");
+					Object countPoint_lt=queryMap.get("countPoint_lt");
+					Object countPoint_le=queryMap.get("countPoint_le");
+					Object countPoint_in=queryMap.get("countPoint_in");
+																					Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+																					Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+																Object directionalForce1=queryMap.get("directionalForce1");
+					Object directionalForce1_gt=queryMap.get("directionalForce1_gt");
+					Object directionalForce1_ge=queryMap.get("directionalForce1_ge");
+					Object directionalForce1_lt=queryMap.get("directionalForce1_lt");
+					Object directionalForce1_le=queryMap.get("directionalForce1_le");
+					Object directionalForce1_in=queryMap.get("directionalForce1_in");
+																Object directionalForce2=queryMap.get("directionalForce2");
+					Object directionalForce2_gt=queryMap.get("directionalForce2_gt");
+					Object directionalForce2_ge=queryMap.get("directionalForce2_ge");
+					Object directionalForce2_lt=queryMap.get("directionalForce2_lt");
+					Object directionalForce2_le=queryMap.get("directionalForce2_le");
+					Object directionalForce2_in=queryMap.get("directionalForce2_in");
+																Object memory1=queryMap.get("memory1");
+					Object memory1_gt=queryMap.get("memory1_gt");
+					Object memory1_ge=queryMap.get("memory1_ge");
+					Object memory1_lt=queryMap.get("memory1_lt");
+					Object memory1_le=queryMap.get("memory1_le");
+					Object memory1_in=queryMap.get("memory1_in");
+																Object attentionAndComputingPower1=queryMap.get("attentionAndComputingPower1");
+					Object attentionAndComputingPower1_gt=queryMap.get("attentionAndComputingPower1_gt");
+					Object attentionAndComputingPower1_ge=queryMap.get("attentionAndComputingPower1_ge");
+					Object attentionAndComputingPower1_lt=queryMap.get("attentionAndComputingPower1_lt");
+					Object attentionAndComputingPower1_le=queryMap.get("attentionAndComputingPower1_le");
+					Object attentionAndComputingPower1_in=queryMap.get("attentionAndComputingPower1_in");
+																Object memory2=queryMap.get("memory2");
+					Object memory2_gt=queryMap.get("memory2_gt");
+					Object memory2_ge=queryMap.get("memory2_ge");
+					Object memory2_lt=queryMap.get("memory2_lt");
+					Object memory2_le=queryMap.get("memory2_le");
+					Object memory2_in=queryMap.get("memory2_in");
+																Object languageSkill1=queryMap.get("languageSkill1");
+					Object languageSkill1_gt=queryMap.get("languageSkill1_gt");
+					Object languageSkill1_ge=queryMap.get("languageSkill1_ge");
+					Object languageSkill1_lt=queryMap.get("languageSkill1_lt");
+					Object languageSkill1_le=queryMap.get("languageSkill1_le");
+					Object languageSkill1_in=queryMap.get("languageSkill1_in");
+																Object languageSkill2=queryMap.get("languageSkill2");
+					Object languageSkill2_gt=queryMap.get("languageSkill2_gt");
+					Object languageSkill2_ge=queryMap.get("languageSkill2_ge");
+					Object languageSkill2_lt=queryMap.get("languageSkill2_lt");
+					Object languageSkill2_le=queryMap.get("languageSkill2_le");
+					Object languageSkill2_in=queryMap.get("languageSkill2_in");
+																Object languageSkill3=queryMap.get("languageSkill3");
+					Object languageSkill3_gt=queryMap.get("languageSkill3_gt");
+					Object languageSkill3_ge=queryMap.get("languageSkill3_ge");
+					Object languageSkill3_lt=queryMap.get("languageSkill3_lt");
+					Object languageSkill3_le=queryMap.get("languageSkill3_le");
+					Object languageSkill3_in=queryMap.get("languageSkill3_in");
+																Object languageSkill4=queryMap.get("languageSkill4");
+					Object languageSkill4_gt=queryMap.get("languageSkill4_gt");
+					Object languageSkill4_ge=queryMap.get("languageSkill4_ge");
+					Object languageSkill4_lt=queryMap.get("languageSkill4_lt");
+					Object languageSkill4_le=queryMap.get("languageSkill4_le");
+					Object languageSkill4_in=queryMap.get("languageSkill4_in");
+																Object languageSkill5=queryMap.get("languageSkill5");
+					Object languageSkill5_gt=queryMap.get("languageSkill5_gt");
+					Object languageSkill5_ge=queryMap.get("languageSkill5_ge");
+					Object languageSkill5_lt=queryMap.get("languageSkill5_lt");
+					Object languageSkill5_le=queryMap.get("languageSkill5_le");
+					Object languageSkill5_in=queryMap.get("languageSkill5_in");
+																Object languageSkill6=queryMap.get("languageSkill6");
+					Object languageSkill6_gt=queryMap.get("languageSkill6_gt");
+					Object languageSkill6_ge=queryMap.get("languageSkill6_ge");
+					Object languageSkill6_lt=queryMap.get("languageSkill6_lt");
+					Object languageSkill6_le=queryMap.get("languageSkill6_le");
+					Object languageSkill6_in=queryMap.get("languageSkill6_in");
+																Object languageSkill7=queryMap.get("languageSkill7");
+					Object languageSkill7_gt=queryMap.get("languageSkill7_gt");
+					Object languageSkill7_ge=queryMap.get("languageSkill7_ge");
+					Object languageSkill7_lt=queryMap.get("languageSkill7_lt");
+					Object languageSkill7_le=queryMap.get("languageSkill7_le");
+					Object languageSkill7_in=queryMap.get("languageSkill7_in");
+							
+			
+
+						
+			
+			QueryCondition qc = new QueryCondition(MmseEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.in, id_in));}
+																if(countPoint!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+					if(countPoint_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.gt, countPoint_gt));}
+					if(countPoint_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.ge, countPoint_ge));}
+					if(countPoint_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.lt, countPoint_lt));}
+					if(countPoint_le!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.le, countPoint_le));}
+					if(countPoint_in!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+															  					if(des!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.in, status_in));}
+																if(directionalForce1!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.eq, directionalForce1));}
+					if(directionalForce1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.gt, directionalForce1_gt));}
+					if(directionalForce1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.ge, directionalForce1_ge));}
+					if(directionalForce1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.lt, directionalForce1_lt));}
+					if(directionalForce1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.le, directionalForce1_le));}
+					if(directionalForce1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.in, directionalForce1_in));}
+																if(directionalForce2!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.eq, directionalForce2));}
+					if(directionalForce2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.gt, directionalForce2_gt));}
+					if(directionalForce2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.ge, directionalForce2_ge));}
+					if(directionalForce2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.lt, directionalForce2_lt));}
+					if(directionalForce2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.le, directionalForce2_le));}
+					if(directionalForce2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.in, directionalForce2_in));}
+																if(memory1!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.eq, memory1));}
+					if(memory1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.gt, memory1_gt));}
+					if(memory1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.ge, memory1_ge));}
+					if(memory1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.lt, memory1_lt));}
+					if(memory1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.le, memory1_le));}
+					if(memory1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.in, memory1_in));}
+																if(attentionAndComputingPower1!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.eq, attentionAndComputingPower1));}
+					if(attentionAndComputingPower1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.gt, attentionAndComputingPower1_gt));}
+					if(attentionAndComputingPower1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.ge, attentionAndComputingPower1_ge));}
+					if(attentionAndComputingPower1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.lt, attentionAndComputingPower1_lt));}
+					if(attentionAndComputingPower1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.le, attentionAndComputingPower1_le));}
+					if(attentionAndComputingPower1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.in, attentionAndComputingPower1_in));}
+																if(memory2!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.eq, memory2));}
+					if(memory2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.gt, memory2_gt));}
+					if(memory2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.ge, memory2_ge));}
+					if(memory2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.lt, memory2_lt));}
+					if(memory2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.le, memory2_le));}
+					if(memory2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.in, memory2_in));}
+																if(languageSkill1!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.eq, languageSkill1));}
+					if(languageSkill1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.gt, languageSkill1_gt));}
+					if(languageSkill1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.ge, languageSkill1_ge));}
+					if(languageSkill1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.lt, languageSkill1_lt));}
+					if(languageSkill1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.le, languageSkill1_le));}
+					if(languageSkill1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.in, languageSkill1_in));}
+																if(languageSkill2!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.eq, languageSkill2));}
+					if(languageSkill2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.gt, languageSkill2_gt));}
+					if(languageSkill2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.ge, languageSkill2_ge));}
+					if(languageSkill2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.lt, languageSkill2_lt));}
+					if(languageSkill2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.le, languageSkill2_le));}
+					if(languageSkill2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.in, languageSkill2_in));}
+																if(languageSkill3!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.eq, languageSkill3));}
+					if(languageSkill3_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.gt, languageSkill3_gt));}
+					if(languageSkill3_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.ge, languageSkill3_ge));}
+					if(languageSkill3_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.lt, languageSkill3_lt));}
+					if(languageSkill3_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.le, languageSkill3_le));}
+					if(languageSkill3_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.in, languageSkill3_in));}
+																if(languageSkill4!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.eq, languageSkill4));}
+					if(languageSkill4_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.gt, languageSkill4_gt));}
+					if(languageSkill4_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.ge, languageSkill4_ge));}
+					if(languageSkill4_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.lt, languageSkill4_lt));}
+					if(languageSkill4_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.le, languageSkill4_le));}
+					if(languageSkill4_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.in, languageSkill4_in));}
+																if(languageSkill5!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.eq, languageSkill5));}
+					if(languageSkill5_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.gt, languageSkill5_gt));}
+					if(languageSkill5_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.ge, languageSkill5_ge));}
+					if(languageSkill5_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.lt, languageSkill5_lt));}
+					if(languageSkill5_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.le, languageSkill5_le));}
+					if(languageSkill5_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.in, languageSkill5_in));}
+																if(languageSkill6!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.eq, languageSkill6));}
+					if(languageSkill6_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.gt, languageSkill6_gt));}
+					if(languageSkill6_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.ge, languageSkill6_ge));}
+					if(languageSkill6_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.lt, languageSkill6_lt));}
+					if(languageSkill6_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.le, languageSkill6_le));}
+					if(languageSkill6_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.in, languageSkill6_in));}
+																if(languageSkill7!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.eq, languageSkill7));}
+					if(languageSkill7_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.gt, languageSkill7_gt));}
+					if(languageSkill7_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.ge, languageSkill7_ge));}
+					if(languageSkill7_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.lt, languageSkill7_lt));}
+					if(languageSkill7_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.le, languageSkill7_le));}
+					if(languageSkill7_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.in, languageSkill7_in));}
+										
+			            list = dbManager.queryByCondition(MmseEntity.class,qc);    
+            if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<MmseEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((MmseEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		
+		/**
+		 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 		 * @return
+		 */
+		public List<MmseEntity> getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList) {
+			List<MmseEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object countPoint=queryMap.get("countPoint");
+					Object countPoint_gt=queryMap.get("countPoint_gt");
+					Object countPoint_ge=queryMap.get("countPoint_ge");
+					Object countPoint_lt=queryMap.get("countPoint_lt");
+					Object countPoint_le=queryMap.get("countPoint_le");
+					Object countPoint_in=queryMap.get("countPoint_in");
+																					Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+																					Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+																Object directionalForce1=queryMap.get("directionalForce1");
+					Object directionalForce1_gt=queryMap.get("directionalForce1_gt");
+					Object directionalForce1_ge=queryMap.get("directionalForce1_ge");
+					Object directionalForce1_lt=queryMap.get("directionalForce1_lt");
+					Object directionalForce1_le=queryMap.get("directionalForce1_le");
+					Object directionalForce1_in=queryMap.get("directionalForce1_in");
+																Object directionalForce2=queryMap.get("directionalForce2");
+					Object directionalForce2_gt=queryMap.get("directionalForce2_gt");
+					Object directionalForce2_ge=queryMap.get("directionalForce2_ge");
+					Object directionalForce2_lt=queryMap.get("directionalForce2_lt");
+					Object directionalForce2_le=queryMap.get("directionalForce2_le");
+					Object directionalForce2_in=queryMap.get("directionalForce2_in");
+																Object memory1=queryMap.get("memory1");
+					Object memory1_gt=queryMap.get("memory1_gt");
+					Object memory1_ge=queryMap.get("memory1_ge");
+					Object memory1_lt=queryMap.get("memory1_lt");
+					Object memory1_le=queryMap.get("memory1_le");
+					Object memory1_in=queryMap.get("memory1_in");
+																Object attentionAndComputingPower1=queryMap.get("attentionAndComputingPower1");
+					Object attentionAndComputingPower1_gt=queryMap.get("attentionAndComputingPower1_gt");
+					Object attentionAndComputingPower1_ge=queryMap.get("attentionAndComputingPower1_ge");
+					Object attentionAndComputingPower1_lt=queryMap.get("attentionAndComputingPower1_lt");
+					Object attentionAndComputingPower1_le=queryMap.get("attentionAndComputingPower1_le");
+					Object attentionAndComputingPower1_in=queryMap.get("attentionAndComputingPower1_in");
+																Object memory2=queryMap.get("memory2");
+					Object memory2_gt=queryMap.get("memory2_gt");
+					Object memory2_ge=queryMap.get("memory2_ge");
+					Object memory2_lt=queryMap.get("memory2_lt");
+					Object memory2_le=queryMap.get("memory2_le");
+					Object memory2_in=queryMap.get("memory2_in");
+																Object languageSkill1=queryMap.get("languageSkill1");
+					Object languageSkill1_gt=queryMap.get("languageSkill1_gt");
+					Object languageSkill1_ge=queryMap.get("languageSkill1_ge");
+					Object languageSkill1_lt=queryMap.get("languageSkill1_lt");
+					Object languageSkill1_le=queryMap.get("languageSkill1_le");
+					Object languageSkill1_in=queryMap.get("languageSkill1_in");
+																Object languageSkill2=queryMap.get("languageSkill2");
+					Object languageSkill2_gt=queryMap.get("languageSkill2_gt");
+					Object languageSkill2_ge=queryMap.get("languageSkill2_ge");
+					Object languageSkill2_lt=queryMap.get("languageSkill2_lt");
+					Object languageSkill2_le=queryMap.get("languageSkill2_le");
+					Object languageSkill2_in=queryMap.get("languageSkill2_in");
+																Object languageSkill3=queryMap.get("languageSkill3");
+					Object languageSkill3_gt=queryMap.get("languageSkill3_gt");
+					Object languageSkill3_ge=queryMap.get("languageSkill3_ge");
+					Object languageSkill3_lt=queryMap.get("languageSkill3_lt");
+					Object languageSkill3_le=queryMap.get("languageSkill3_le");
+					Object languageSkill3_in=queryMap.get("languageSkill3_in");
+																Object languageSkill4=queryMap.get("languageSkill4");
+					Object languageSkill4_gt=queryMap.get("languageSkill4_gt");
+					Object languageSkill4_ge=queryMap.get("languageSkill4_ge");
+					Object languageSkill4_lt=queryMap.get("languageSkill4_lt");
+					Object languageSkill4_le=queryMap.get("languageSkill4_le");
+					Object languageSkill4_in=queryMap.get("languageSkill4_in");
+																Object languageSkill5=queryMap.get("languageSkill5");
+					Object languageSkill5_gt=queryMap.get("languageSkill5_gt");
+					Object languageSkill5_ge=queryMap.get("languageSkill5_ge");
+					Object languageSkill5_lt=queryMap.get("languageSkill5_lt");
+					Object languageSkill5_le=queryMap.get("languageSkill5_le");
+					Object languageSkill5_in=queryMap.get("languageSkill5_in");
+																Object languageSkill6=queryMap.get("languageSkill6");
+					Object languageSkill6_gt=queryMap.get("languageSkill6_gt");
+					Object languageSkill6_ge=queryMap.get("languageSkill6_ge");
+					Object languageSkill6_lt=queryMap.get("languageSkill6_lt");
+					Object languageSkill6_le=queryMap.get("languageSkill6_le");
+					Object languageSkill6_in=queryMap.get("languageSkill6_in");
+																Object languageSkill7=queryMap.get("languageSkill7");
+					Object languageSkill7_gt=queryMap.get("languageSkill7_gt");
+					Object languageSkill7_ge=queryMap.get("languageSkill7_ge");
+					Object languageSkill7_lt=queryMap.get("languageSkill7_lt");
+					Object languageSkill7_le=queryMap.get("languageSkill7_le");
+					Object languageSkill7_in=queryMap.get("languageSkill7_in");
+							
+			
+
+						
+			
+			QueryCondition qc = new QueryCondition(MmseEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.in, id_in));}
+																if(countPoint!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+					if(countPoint_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.gt, countPoint_gt));}
+					if(countPoint_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.ge, countPoint_ge));}
+					if(countPoint_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.lt, countPoint_lt));}
+					if(countPoint_le!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.le, countPoint_le));}
+					if(countPoint_in!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+															  					if(des!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.in, status_in));}
+																if(directionalForce1!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.eq, directionalForce1));}
+					if(directionalForce1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.gt, directionalForce1_gt));}
+					if(directionalForce1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.ge, directionalForce1_ge));}
+					if(directionalForce1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.lt, directionalForce1_lt));}
+					if(directionalForce1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.le, directionalForce1_le));}
+					if(directionalForce1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.in, directionalForce1_in));}
+																if(directionalForce2!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.eq, directionalForce2));}
+					if(directionalForce2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.gt, directionalForce2_gt));}
+					if(directionalForce2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.ge, directionalForce2_ge));}
+					if(directionalForce2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.lt, directionalForce2_lt));}
+					if(directionalForce2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.le, directionalForce2_le));}
+					if(directionalForce2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.in, directionalForce2_in));}
+																if(memory1!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.eq, memory1));}
+					if(memory1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.gt, memory1_gt));}
+					if(memory1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.ge, memory1_ge));}
+					if(memory1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.lt, memory1_lt));}
+					if(memory1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.le, memory1_le));}
+					if(memory1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.in, memory1_in));}
+																if(attentionAndComputingPower1!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.eq, attentionAndComputingPower1));}
+					if(attentionAndComputingPower1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.gt, attentionAndComputingPower1_gt));}
+					if(attentionAndComputingPower1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.ge, attentionAndComputingPower1_ge));}
+					if(attentionAndComputingPower1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.lt, attentionAndComputingPower1_lt));}
+					if(attentionAndComputingPower1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.le, attentionAndComputingPower1_le));}
+					if(attentionAndComputingPower1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.in, attentionAndComputingPower1_in));}
+																if(memory2!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.eq, memory2));}
+					if(memory2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.gt, memory2_gt));}
+					if(memory2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.ge, memory2_ge));}
+					if(memory2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.lt, memory2_lt));}
+					if(memory2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.le, memory2_le));}
+					if(memory2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.in, memory2_in));}
+																if(languageSkill1!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.eq, languageSkill1));}
+					if(languageSkill1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.gt, languageSkill1_gt));}
+					if(languageSkill1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.ge, languageSkill1_ge));}
+					if(languageSkill1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.lt, languageSkill1_lt));}
+					if(languageSkill1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.le, languageSkill1_le));}
+					if(languageSkill1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.in, languageSkill1_in));}
+																if(languageSkill2!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.eq, languageSkill2));}
+					if(languageSkill2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.gt, languageSkill2_gt));}
+					if(languageSkill2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.ge, languageSkill2_ge));}
+					if(languageSkill2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.lt, languageSkill2_lt));}
+					if(languageSkill2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.le, languageSkill2_le));}
+					if(languageSkill2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.in, languageSkill2_in));}
+																if(languageSkill3!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.eq, languageSkill3));}
+					if(languageSkill3_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.gt, languageSkill3_gt));}
+					if(languageSkill3_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.ge, languageSkill3_ge));}
+					if(languageSkill3_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.lt, languageSkill3_lt));}
+					if(languageSkill3_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.le, languageSkill3_le));}
+					if(languageSkill3_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.in, languageSkill3_in));}
+																if(languageSkill4!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.eq, languageSkill4));}
+					if(languageSkill4_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.gt, languageSkill4_gt));}
+					if(languageSkill4_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.ge, languageSkill4_ge));}
+					if(languageSkill4_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.lt, languageSkill4_lt));}
+					if(languageSkill4_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.le, languageSkill4_le));}
+					if(languageSkill4_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.in, languageSkill4_in));}
+																if(languageSkill5!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.eq, languageSkill5));}
+					if(languageSkill5_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.gt, languageSkill5_gt));}
+					if(languageSkill5_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.ge, languageSkill5_ge));}
+					if(languageSkill5_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.lt, languageSkill5_lt));}
+					if(languageSkill5_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.le, languageSkill5_le));}
+					if(languageSkill5_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.in, languageSkill5_in));}
+																if(languageSkill6!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.eq, languageSkill6));}
+					if(languageSkill6_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.gt, languageSkill6_gt));}
+					if(languageSkill6_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.ge, languageSkill6_ge));}
+					if(languageSkill6_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.lt, languageSkill6_lt));}
+					if(languageSkill6_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.le, languageSkill6_le));}
+					if(languageSkill6_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.in, languageSkill6_in));}
+																if(languageSkill7!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.eq, languageSkill7));}
+					if(languageSkill7_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.gt, languageSkill7_gt));}
+					if(languageSkill7_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.ge, languageSkill7_ge));}
+					if(languageSkill7_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.lt, languageSkill7_lt));}
+					if(languageSkill7_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.le, languageSkill7_le));}
+					if(languageSkill7_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.in, languageSkill7_in));}
+										
+						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}			
+            list = dbManager.queryByConditions(MmseEntity.class,qc,oc);
+                        					    			if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<MmseEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((MmseEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数		
+		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,int pageno,int pagesize) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object countPoint=queryMap.get("countPoint");
+					Object countPoint_gt=queryMap.get("countPoint_gt");
+					Object countPoint_ge=queryMap.get("countPoint_ge");
+					Object countPoint_lt=queryMap.get("countPoint_lt");
+					Object countPoint_le=queryMap.get("countPoint_le");
+					Object countPoint_in=queryMap.get("countPoint_in");
+															  					Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+				   																Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+																Object directionalForce1=queryMap.get("directionalForce1");
+					Object directionalForce1_gt=queryMap.get("directionalForce1_gt");
+					Object directionalForce1_ge=queryMap.get("directionalForce1_ge");
+					Object directionalForce1_lt=queryMap.get("directionalForce1_lt");
+					Object directionalForce1_le=queryMap.get("directionalForce1_le");
+					Object directionalForce1_in=queryMap.get("directionalForce1_in");
+																Object directionalForce2=queryMap.get("directionalForce2");
+					Object directionalForce2_gt=queryMap.get("directionalForce2_gt");
+					Object directionalForce2_ge=queryMap.get("directionalForce2_ge");
+					Object directionalForce2_lt=queryMap.get("directionalForce2_lt");
+					Object directionalForce2_le=queryMap.get("directionalForce2_le");
+					Object directionalForce2_in=queryMap.get("directionalForce2_in");
+																Object memory1=queryMap.get("memory1");
+					Object memory1_gt=queryMap.get("memory1_gt");
+					Object memory1_ge=queryMap.get("memory1_ge");
+					Object memory1_lt=queryMap.get("memory1_lt");
+					Object memory1_le=queryMap.get("memory1_le");
+					Object memory1_in=queryMap.get("memory1_in");
+																Object attentionAndComputingPower1=queryMap.get("attentionAndComputingPower1");
+					Object attentionAndComputingPower1_gt=queryMap.get("attentionAndComputingPower1_gt");
+					Object attentionAndComputingPower1_ge=queryMap.get("attentionAndComputingPower1_ge");
+					Object attentionAndComputingPower1_lt=queryMap.get("attentionAndComputingPower1_lt");
+					Object attentionAndComputingPower1_le=queryMap.get("attentionAndComputingPower1_le");
+					Object attentionAndComputingPower1_in=queryMap.get("attentionAndComputingPower1_in");
+																Object memory2=queryMap.get("memory2");
+					Object memory2_gt=queryMap.get("memory2_gt");
+					Object memory2_ge=queryMap.get("memory2_ge");
+					Object memory2_lt=queryMap.get("memory2_lt");
+					Object memory2_le=queryMap.get("memory2_le");
+					Object memory2_in=queryMap.get("memory2_in");
+																Object languageSkill1=queryMap.get("languageSkill1");
+					Object languageSkill1_gt=queryMap.get("languageSkill1_gt");
+					Object languageSkill1_ge=queryMap.get("languageSkill1_ge");
+					Object languageSkill1_lt=queryMap.get("languageSkill1_lt");
+					Object languageSkill1_le=queryMap.get("languageSkill1_le");
+					Object languageSkill1_in=queryMap.get("languageSkill1_in");
+																Object languageSkill2=queryMap.get("languageSkill2");
+					Object languageSkill2_gt=queryMap.get("languageSkill2_gt");
+					Object languageSkill2_ge=queryMap.get("languageSkill2_ge");
+					Object languageSkill2_lt=queryMap.get("languageSkill2_lt");
+					Object languageSkill2_le=queryMap.get("languageSkill2_le");
+					Object languageSkill2_in=queryMap.get("languageSkill2_in");
+																Object languageSkill3=queryMap.get("languageSkill3");
+					Object languageSkill3_gt=queryMap.get("languageSkill3_gt");
+					Object languageSkill3_ge=queryMap.get("languageSkill3_ge");
+					Object languageSkill3_lt=queryMap.get("languageSkill3_lt");
+					Object languageSkill3_le=queryMap.get("languageSkill3_le");
+					Object languageSkill3_in=queryMap.get("languageSkill3_in");
+																Object languageSkill4=queryMap.get("languageSkill4");
+					Object languageSkill4_gt=queryMap.get("languageSkill4_gt");
+					Object languageSkill4_ge=queryMap.get("languageSkill4_ge");
+					Object languageSkill4_lt=queryMap.get("languageSkill4_lt");
+					Object languageSkill4_le=queryMap.get("languageSkill4_le");
+					Object languageSkill4_in=queryMap.get("languageSkill4_in");
+																Object languageSkill5=queryMap.get("languageSkill5");
+					Object languageSkill5_gt=queryMap.get("languageSkill5_gt");
+					Object languageSkill5_ge=queryMap.get("languageSkill5_ge");
+					Object languageSkill5_lt=queryMap.get("languageSkill5_lt");
+					Object languageSkill5_le=queryMap.get("languageSkill5_le");
+					Object languageSkill5_in=queryMap.get("languageSkill5_in");
+																Object languageSkill6=queryMap.get("languageSkill6");
+					Object languageSkill6_gt=queryMap.get("languageSkill6_gt");
+					Object languageSkill6_ge=queryMap.get("languageSkill6_ge");
+					Object languageSkill6_lt=queryMap.get("languageSkill6_lt");
+					Object languageSkill6_le=queryMap.get("languageSkill6_le");
+					Object languageSkill6_in=queryMap.get("languageSkill6_in");
+																Object languageSkill7=queryMap.get("languageSkill7");
+					Object languageSkill7_gt=queryMap.get("languageSkill7_gt");
+					Object languageSkill7_ge=queryMap.get("languageSkill7_ge");
+					Object languageSkill7_lt=queryMap.get("languageSkill7_lt");
+					Object languageSkill7_le=queryMap.get("languageSkill7_le");
+					Object languageSkill7_in=queryMap.get("languageSkill7_in");
+							
+			
+
+						
+			
+			QueryCondition qc = new QueryCondition(MmseEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.in, id_in));}
+																if(countPoint!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+					if(countPoint_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.gt, countPoint_gt));}
+					if(countPoint_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.ge, countPoint_ge));}
+					if(countPoint_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.lt, countPoint_lt));}
+					if(countPoint_le!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.le, countPoint_le));}
+					if(countPoint_in!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+															  					if(des!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.in, status_in));}
+																if(directionalForce1!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.eq, directionalForce1));}
+					if(directionalForce1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.gt, directionalForce1_gt));}
+					if(directionalForce1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.ge, directionalForce1_ge));}
+					if(directionalForce1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.lt, directionalForce1_lt));}
+					if(directionalForce1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.le, directionalForce1_le));}
+					if(directionalForce1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.in, directionalForce1_in));}
+																if(directionalForce2!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.eq, directionalForce2));}
+					if(directionalForce2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.gt, directionalForce2_gt));}
+					if(directionalForce2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.ge, directionalForce2_ge));}
+					if(directionalForce2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.lt, directionalForce2_lt));}
+					if(directionalForce2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.le, directionalForce2_le));}
+					if(directionalForce2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.in, directionalForce2_in));}
+																if(memory1!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.eq, memory1));}
+					if(memory1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.gt, memory1_gt));}
+					if(memory1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.ge, memory1_ge));}
+					if(memory1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.lt, memory1_lt));}
+					if(memory1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.le, memory1_le));}
+					if(memory1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.in, memory1_in));}
+																if(attentionAndComputingPower1!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.eq, attentionAndComputingPower1));}
+					if(attentionAndComputingPower1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.gt, attentionAndComputingPower1_gt));}
+					if(attentionAndComputingPower1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.ge, attentionAndComputingPower1_ge));}
+					if(attentionAndComputingPower1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.lt, attentionAndComputingPower1_lt));}
+					if(attentionAndComputingPower1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.le, attentionAndComputingPower1_le));}
+					if(attentionAndComputingPower1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.in, attentionAndComputingPower1_in));}
+																if(memory2!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.eq, memory2));}
+					if(memory2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.gt, memory2_gt));}
+					if(memory2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.ge, memory2_ge));}
+					if(memory2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.lt, memory2_lt));}
+					if(memory2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.le, memory2_le));}
+					if(memory2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.in, memory2_in));}
+																if(languageSkill1!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.eq, languageSkill1));}
+					if(languageSkill1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.gt, languageSkill1_gt));}
+					if(languageSkill1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.ge, languageSkill1_ge));}
+					if(languageSkill1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.lt, languageSkill1_lt));}
+					if(languageSkill1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.le, languageSkill1_le));}
+					if(languageSkill1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.in, languageSkill1_in));}
+																if(languageSkill2!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.eq, languageSkill2));}
+					if(languageSkill2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.gt, languageSkill2_gt));}
+					if(languageSkill2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.ge, languageSkill2_ge));}
+					if(languageSkill2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.lt, languageSkill2_lt));}
+					if(languageSkill2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.le, languageSkill2_le));}
+					if(languageSkill2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.in, languageSkill2_in));}
+																if(languageSkill3!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.eq, languageSkill3));}
+					if(languageSkill3_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.gt, languageSkill3_gt));}
+					if(languageSkill3_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.ge, languageSkill3_ge));}
+					if(languageSkill3_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.lt, languageSkill3_lt));}
+					if(languageSkill3_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.le, languageSkill3_le));}
+					if(languageSkill3_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.in, languageSkill3_in));}
+																if(languageSkill4!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.eq, languageSkill4));}
+					if(languageSkill4_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.gt, languageSkill4_gt));}
+					if(languageSkill4_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.ge, languageSkill4_ge));}
+					if(languageSkill4_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.lt, languageSkill4_lt));}
+					if(languageSkill4_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.le, languageSkill4_le));}
+					if(languageSkill4_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.in, languageSkill4_in));}
+																if(languageSkill5!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.eq, languageSkill5));}
+					if(languageSkill5_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.gt, languageSkill5_gt));}
+					if(languageSkill5_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.ge, languageSkill5_ge));}
+					if(languageSkill5_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.lt, languageSkill5_lt));}
+					if(languageSkill5_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.le, languageSkill5_le));}
+					if(languageSkill5_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.in, languageSkill5_in));}
+																if(languageSkill6!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.eq, languageSkill6));}
+					if(languageSkill6_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.gt, languageSkill6_gt));}
+					if(languageSkill6_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.ge, languageSkill6_ge));}
+					if(languageSkill6_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.lt, languageSkill6_lt));}
+					if(languageSkill6_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.le, languageSkill6_le));}
+					if(languageSkill6_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.in, languageSkill6_in));}
+																if(languageSkill7!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.eq, languageSkill7));}
+					if(languageSkill7_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.gt, languageSkill7_gt));}
+					if(languageSkill7_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.ge, languageSkill7_ge));}
+					if(languageSkill7_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.lt, languageSkill7_lt));}
+					if(languageSkill7_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.le, languageSkill7_le));}
+					if(languageSkill7_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.in, languageSkill7_in));}
+										
+			            pagelist = dbManager.queryByCondition(MmseEntity.class,qc,pageno,pagesize);	                      			
+			return pagelist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数
+		 		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,int pageno,int pagesize) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object countPoint=queryMap.get("countPoint");
+					Object countPoint_gt=queryMap.get("countPoint_gt");
+					Object countPoint_ge=queryMap.get("countPoint_ge");
+					Object countPoint_lt=queryMap.get("countPoint_lt");
+					Object countPoint_le=queryMap.get("countPoint_le");
+					Object countPoint_in=queryMap.get("countPoint_in");
+															  					Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+				   																Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+																Object directionalForce1=queryMap.get("directionalForce1");
+					Object directionalForce1_gt=queryMap.get("directionalForce1_gt");
+					Object directionalForce1_ge=queryMap.get("directionalForce1_ge");
+					Object directionalForce1_lt=queryMap.get("directionalForce1_lt");
+					Object directionalForce1_le=queryMap.get("directionalForce1_le");
+					Object directionalForce1_in=queryMap.get("directionalForce1_in");
+																Object directionalForce2=queryMap.get("directionalForce2");
+					Object directionalForce2_gt=queryMap.get("directionalForce2_gt");
+					Object directionalForce2_ge=queryMap.get("directionalForce2_ge");
+					Object directionalForce2_lt=queryMap.get("directionalForce2_lt");
+					Object directionalForce2_le=queryMap.get("directionalForce2_le");
+					Object directionalForce2_in=queryMap.get("directionalForce2_in");
+																Object memory1=queryMap.get("memory1");
+					Object memory1_gt=queryMap.get("memory1_gt");
+					Object memory1_ge=queryMap.get("memory1_ge");
+					Object memory1_lt=queryMap.get("memory1_lt");
+					Object memory1_le=queryMap.get("memory1_le");
+					Object memory1_in=queryMap.get("memory1_in");
+																Object attentionAndComputingPower1=queryMap.get("attentionAndComputingPower1");
+					Object attentionAndComputingPower1_gt=queryMap.get("attentionAndComputingPower1_gt");
+					Object attentionAndComputingPower1_ge=queryMap.get("attentionAndComputingPower1_ge");
+					Object attentionAndComputingPower1_lt=queryMap.get("attentionAndComputingPower1_lt");
+					Object attentionAndComputingPower1_le=queryMap.get("attentionAndComputingPower1_le");
+					Object attentionAndComputingPower1_in=queryMap.get("attentionAndComputingPower1_in");
+																Object memory2=queryMap.get("memory2");
+					Object memory2_gt=queryMap.get("memory2_gt");
+					Object memory2_ge=queryMap.get("memory2_ge");
+					Object memory2_lt=queryMap.get("memory2_lt");
+					Object memory2_le=queryMap.get("memory2_le");
+					Object memory2_in=queryMap.get("memory2_in");
+																Object languageSkill1=queryMap.get("languageSkill1");
+					Object languageSkill1_gt=queryMap.get("languageSkill1_gt");
+					Object languageSkill1_ge=queryMap.get("languageSkill1_ge");
+					Object languageSkill1_lt=queryMap.get("languageSkill1_lt");
+					Object languageSkill1_le=queryMap.get("languageSkill1_le");
+					Object languageSkill1_in=queryMap.get("languageSkill1_in");
+																Object languageSkill2=queryMap.get("languageSkill2");
+					Object languageSkill2_gt=queryMap.get("languageSkill2_gt");
+					Object languageSkill2_ge=queryMap.get("languageSkill2_ge");
+					Object languageSkill2_lt=queryMap.get("languageSkill2_lt");
+					Object languageSkill2_le=queryMap.get("languageSkill2_le");
+					Object languageSkill2_in=queryMap.get("languageSkill2_in");
+																Object languageSkill3=queryMap.get("languageSkill3");
+					Object languageSkill3_gt=queryMap.get("languageSkill3_gt");
+					Object languageSkill3_ge=queryMap.get("languageSkill3_ge");
+					Object languageSkill3_lt=queryMap.get("languageSkill3_lt");
+					Object languageSkill3_le=queryMap.get("languageSkill3_le");
+					Object languageSkill3_in=queryMap.get("languageSkill3_in");
+																Object languageSkill4=queryMap.get("languageSkill4");
+					Object languageSkill4_gt=queryMap.get("languageSkill4_gt");
+					Object languageSkill4_ge=queryMap.get("languageSkill4_ge");
+					Object languageSkill4_lt=queryMap.get("languageSkill4_lt");
+					Object languageSkill4_le=queryMap.get("languageSkill4_le");
+					Object languageSkill4_in=queryMap.get("languageSkill4_in");
+																Object languageSkill5=queryMap.get("languageSkill5");
+					Object languageSkill5_gt=queryMap.get("languageSkill5_gt");
+					Object languageSkill5_ge=queryMap.get("languageSkill5_ge");
+					Object languageSkill5_lt=queryMap.get("languageSkill5_lt");
+					Object languageSkill5_le=queryMap.get("languageSkill5_le");
+					Object languageSkill5_in=queryMap.get("languageSkill5_in");
+																Object languageSkill6=queryMap.get("languageSkill6");
+					Object languageSkill6_gt=queryMap.get("languageSkill6_gt");
+					Object languageSkill6_ge=queryMap.get("languageSkill6_ge");
+					Object languageSkill6_lt=queryMap.get("languageSkill6_lt");
+					Object languageSkill6_le=queryMap.get("languageSkill6_le");
+					Object languageSkill6_in=queryMap.get("languageSkill6_in");
+																Object languageSkill7=queryMap.get("languageSkill7");
+					Object languageSkill7_gt=queryMap.get("languageSkill7_gt");
+					Object languageSkill7_ge=queryMap.get("languageSkill7_ge");
+					Object languageSkill7_lt=queryMap.get("languageSkill7_lt");
+					Object languageSkill7_le=queryMap.get("languageSkill7_le");
+					Object languageSkill7_in=queryMap.get("languageSkill7_in");
+							
+			
+
+						
+			
+			QueryCondition qc = new QueryCondition(MmseEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.in, id_in));}
+																if(countPoint!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+					if(countPoint_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.gt, countPoint_gt));}
+					if(countPoint_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.ge, countPoint_ge));}
+					if(countPoint_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.lt, countPoint_lt));}
+					if(countPoint_le!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.le, countPoint_le));}
+					if(countPoint_in!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+															  					if(des!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.in, status_in));}
+																if(directionalForce1!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.eq, directionalForce1));}
+					if(directionalForce1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.gt, directionalForce1_gt));}
+					if(directionalForce1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.ge, directionalForce1_ge));}
+					if(directionalForce1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.lt, directionalForce1_lt));}
+					if(directionalForce1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.le, directionalForce1_le));}
+					if(directionalForce1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.in, directionalForce1_in));}
+																if(directionalForce2!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.eq, directionalForce2));}
+					if(directionalForce2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.gt, directionalForce2_gt));}
+					if(directionalForce2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.ge, directionalForce2_ge));}
+					if(directionalForce2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.lt, directionalForce2_lt));}
+					if(directionalForce2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.le, directionalForce2_le));}
+					if(directionalForce2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.in, directionalForce2_in));}
+																if(memory1!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.eq, memory1));}
+					if(memory1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.gt, memory1_gt));}
+					if(memory1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.ge, memory1_ge));}
+					if(memory1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.lt, memory1_lt));}
+					if(memory1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.le, memory1_le));}
+					if(memory1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.in, memory1_in));}
+																if(attentionAndComputingPower1!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.eq, attentionAndComputingPower1));}
+					if(attentionAndComputingPower1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.gt, attentionAndComputingPower1_gt));}
+					if(attentionAndComputingPower1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.ge, attentionAndComputingPower1_ge));}
+					if(attentionAndComputingPower1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.lt, attentionAndComputingPower1_lt));}
+					if(attentionAndComputingPower1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.le, attentionAndComputingPower1_le));}
+					if(attentionAndComputingPower1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.in, attentionAndComputingPower1_in));}
+																if(memory2!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.eq, memory2));}
+					if(memory2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.gt, memory2_gt));}
+					if(memory2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.ge, memory2_ge));}
+					if(memory2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.lt, memory2_lt));}
+					if(memory2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.le, memory2_le));}
+					if(memory2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.in, memory2_in));}
+																if(languageSkill1!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.eq, languageSkill1));}
+					if(languageSkill1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.gt, languageSkill1_gt));}
+					if(languageSkill1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.ge, languageSkill1_ge));}
+					if(languageSkill1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.lt, languageSkill1_lt));}
+					if(languageSkill1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.le, languageSkill1_le));}
+					if(languageSkill1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.in, languageSkill1_in));}
+																if(languageSkill2!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.eq, languageSkill2));}
+					if(languageSkill2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.gt, languageSkill2_gt));}
+					if(languageSkill2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.ge, languageSkill2_ge));}
+					if(languageSkill2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.lt, languageSkill2_lt));}
+					if(languageSkill2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.le, languageSkill2_le));}
+					if(languageSkill2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.in, languageSkill2_in));}
+																if(languageSkill3!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.eq, languageSkill3));}
+					if(languageSkill3_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.gt, languageSkill3_gt));}
+					if(languageSkill3_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.ge, languageSkill3_ge));}
+					if(languageSkill3_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.lt, languageSkill3_lt));}
+					if(languageSkill3_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.le, languageSkill3_le));}
+					if(languageSkill3_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.in, languageSkill3_in));}
+																if(languageSkill4!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.eq, languageSkill4));}
+					if(languageSkill4_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.gt, languageSkill4_gt));}
+					if(languageSkill4_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.ge, languageSkill4_ge));}
+					if(languageSkill4_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.lt, languageSkill4_lt));}
+					if(languageSkill4_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.le, languageSkill4_le));}
+					if(languageSkill4_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.in, languageSkill4_in));}
+																if(languageSkill5!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.eq, languageSkill5));}
+					if(languageSkill5_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.gt, languageSkill5_gt));}
+					if(languageSkill5_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.ge, languageSkill5_ge));}
+					if(languageSkill5_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.lt, languageSkill5_lt));}
+					if(languageSkill5_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.le, languageSkill5_le));}
+					if(languageSkill5_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.in, languageSkill5_in));}
+																if(languageSkill6!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.eq, languageSkill6));}
+					if(languageSkill6_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.gt, languageSkill6_gt));}
+					if(languageSkill6_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.ge, languageSkill6_ge));}
+					if(languageSkill6_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.lt, languageSkill6_lt));}
+					if(languageSkill6_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.le, languageSkill6_le));}
+					if(languageSkill6_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.in, languageSkill6_in));}
+																if(languageSkill7!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.eq, languageSkill7));}
+					if(languageSkill7_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.gt, languageSkill7_gt));}
+					if(languageSkill7_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.ge, languageSkill7_ge));}
+					if(languageSkill7_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.lt, languageSkill7_lt));}
+					if(languageSkill7_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.le, languageSkill7_le));}
+					if(languageSkill7_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.in, languageSkill7_in));}
+										
+						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}		
+            pagelist = dbManager.queryByConditions(MmseEntity.class,qc,oc,pageno,pagesize);	           
+                        					    			return pagelist;
+		}
+		
+		/**
+		 * 删除记录
+		 * 
+		 * @param id 主键
+		 * @param obj
+		 */
+		public boolean del(Integer id) {
+			boolean result = false;
+			if (id !=null&&id>0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 					
+										result = dbManager.delNoTransaction(id, MmseEntity.class);
+					tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		/**
+		 * 批量删除记录
+		 * 
+		 * @param ids
+		 *            主键 英文逗号间隔
+		 * @param obj
+		 */
+		public boolean del(String ids) {
+			boolean result = false;
+			if (ids != null && !"".equals(ids.trim())) {
+				TransactionManager tx = DbUtils.getTranManager();
+				try {
+					tx.beginTransaction();
+					QueryCondition qc = new QueryCondition(MmseEntity.ID,QueryCondition.in, ids);
+					result = dbManager.delByConditionsNoTransaction(MmseEntity.class, qc);
+					tx.commitAndClose();
+				} catch (Exception e) {
+					logger.error("数据库提交失败！");
+					logger.error(e);
+					result = false;
+					try {
+						tx.rollbackAndClose();
+					} catch (Exception ex) {
+						logger.error("数据库回滚失败！");
+						logger.error(ex);
+					}
+				}
+			}
+			return result;
+		}
+
+		/**
+		 * 批量条件删除记录
+		 * @param queryMap 查询条件集合
+		 */
+		public boolean delList(Map<String,Object> queryMap) {
+			boolean result = false;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object countPoint=queryMap.get("countPoint");
+					Object countPoint_gt=queryMap.get("countPoint_gt");
+					Object countPoint_ge=queryMap.get("countPoint_ge");
+					Object countPoint_lt=queryMap.get("countPoint_lt");
+					Object countPoint_le=queryMap.get("countPoint_le");
+					Object countPoint_in=queryMap.get("countPoint_in");
+															  					Object des=queryMap.get("des");
+					Object des_like=queryMap.get("des_like");
+					Object des_isNull=queryMap.get("des_isNull");
+					Object des_isNotNull=queryMap.get("des_isNotNull");
+					Object des_in=queryMap.get("des_in");
+				  																Object status=queryMap.get("status");
+					Object status_gt=queryMap.get("status_gt");
+					Object status_ge=queryMap.get("status_ge");
+					Object status_lt=queryMap.get("status_lt");
+					Object status_le=queryMap.get("status_le");
+					Object status_in=queryMap.get("status_in");
+																Object directionalForce1=queryMap.get("directionalForce1");
+					Object directionalForce1_gt=queryMap.get("directionalForce1_gt");
+					Object directionalForce1_ge=queryMap.get("directionalForce1_ge");
+					Object directionalForce1_lt=queryMap.get("directionalForce1_lt");
+					Object directionalForce1_le=queryMap.get("directionalForce1_le");
+					Object directionalForce1_in=queryMap.get("directionalForce1_in");
+																Object directionalForce2=queryMap.get("directionalForce2");
+					Object directionalForce2_gt=queryMap.get("directionalForce2_gt");
+					Object directionalForce2_ge=queryMap.get("directionalForce2_ge");
+					Object directionalForce2_lt=queryMap.get("directionalForce2_lt");
+					Object directionalForce2_le=queryMap.get("directionalForce2_le");
+					Object directionalForce2_in=queryMap.get("directionalForce2_in");
+																Object memory1=queryMap.get("memory1");
+					Object memory1_gt=queryMap.get("memory1_gt");
+					Object memory1_ge=queryMap.get("memory1_ge");
+					Object memory1_lt=queryMap.get("memory1_lt");
+					Object memory1_le=queryMap.get("memory1_le");
+					Object memory1_in=queryMap.get("memory1_in");
+																Object attentionAndComputingPower1=queryMap.get("attentionAndComputingPower1");
+					Object attentionAndComputingPower1_gt=queryMap.get("attentionAndComputingPower1_gt");
+					Object attentionAndComputingPower1_ge=queryMap.get("attentionAndComputingPower1_ge");
+					Object attentionAndComputingPower1_lt=queryMap.get("attentionAndComputingPower1_lt");
+					Object attentionAndComputingPower1_le=queryMap.get("attentionAndComputingPower1_le");
+					Object attentionAndComputingPower1_in=queryMap.get("attentionAndComputingPower1_in");
+																Object memory2=queryMap.get("memory2");
+					Object memory2_gt=queryMap.get("memory2_gt");
+					Object memory2_ge=queryMap.get("memory2_ge");
+					Object memory2_lt=queryMap.get("memory2_lt");
+					Object memory2_le=queryMap.get("memory2_le");
+					Object memory2_in=queryMap.get("memory2_in");
+																Object languageSkill1=queryMap.get("languageSkill1");
+					Object languageSkill1_gt=queryMap.get("languageSkill1_gt");
+					Object languageSkill1_ge=queryMap.get("languageSkill1_ge");
+					Object languageSkill1_lt=queryMap.get("languageSkill1_lt");
+					Object languageSkill1_le=queryMap.get("languageSkill1_le");
+					Object languageSkill1_in=queryMap.get("languageSkill1_in");
+																Object languageSkill2=queryMap.get("languageSkill2");
+					Object languageSkill2_gt=queryMap.get("languageSkill2_gt");
+					Object languageSkill2_ge=queryMap.get("languageSkill2_ge");
+					Object languageSkill2_lt=queryMap.get("languageSkill2_lt");
+					Object languageSkill2_le=queryMap.get("languageSkill2_le");
+					Object languageSkill2_in=queryMap.get("languageSkill2_in");
+																Object languageSkill3=queryMap.get("languageSkill3");
+					Object languageSkill3_gt=queryMap.get("languageSkill3_gt");
+					Object languageSkill3_ge=queryMap.get("languageSkill3_ge");
+					Object languageSkill3_lt=queryMap.get("languageSkill3_lt");
+					Object languageSkill3_le=queryMap.get("languageSkill3_le");
+					Object languageSkill3_in=queryMap.get("languageSkill3_in");
+																Object languageSkill4=queryMap.get("languageSkill4");
+					Object languageSkill4_gt=queryMap.get("languageSkill4_gt");
+					Object languageSkill4_ge=queryMap.get("languageSkill4_ge");
+					Object languageSkill4_lt=queryMap.get("languageSkill4_lt");
+					Object languageSkill4_le=queryMap.get("languageSkill4_le");
+					Object languageSkill4_in=queryMap.get("languageSkill4_in");
+																Object languageSkill5=queryMap.get("languageSkill5");
+					Object languageSkill5_gt=queryMap.get("languageSkill5_gt");
+					Object languageSkill5_ge=queryMap.get("languageSkill5_ge");
+					Object languageSkill5_lt=queryMap.get("languageSkill5_lt");
+					Object languageSkill5_le=queryMap.get("languageSkill5_le");
+					Object languageSkill5_in=queryMap.get("languageSkill5_in");
+																Object languageSkill6=queryMap.get("languageSkill6");
+					Object languageSkill6_gt=queryMap.get("languageSkill6_gt");
+					Object languageSkill6_ge=queryMap.get("languageSkill6_ge");
+					Object languageSkill6_lt=queryMap.get("languageSkill6_lt");
+					Object languageSkill6_le=queryMap.get("languageSkill6_le");
+					Object languageSkill6_in=queryMap.get("languageSkill6_in");
+																Object languageSkill7=queryMap.get("languageSkill7");
+					Object languageSkill7_gt=queryMap.get("languageSkill7_gt");
+					Object languageSkill7_ge=queryMap.get("languageSkill7_ge");
+					Object languageSkill7_lt=queryMap.get("languageSkill7_lt");
+					Object languageSkill7_le=queryMap.get("languageSkill7_le");
+					Object languageSkill7_in=queryMap.get("languageSkill7_in");
+													
+			QueryCondition qc = new QueryCondition(MmseEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(MmseEntity.ID, QueryCondition.in, id_in));}
+																if(countPoint!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.eq, countPoint));}
+					if(countPoint_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.gt, countPoint_gt));}
+					if(countPoint_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.ge, countPoint_ge));}
+					if(countPoint_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.lt, countPoint_lt));}
+					if(countPoint_le!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.le, countPoint_le));}
+					if(countPoint_in!=null){qc.andCondition(new QueryCondition(MmseEntity.COUNT_POINT, QueryCondition.in, countPoint_in));}
+															  					if(des!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.eq, des));}
+		            if(des_like!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.like, des_like));}
+		            if(des_isNull!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.isNull, des_isNull));}
+		            if(des_isNotNull!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.isNotNull, des_isNotNull));}
+				    if(des_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DES, QueryCondition.in, des_in));}
+				  																if(status!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.eq, status));}
+					if(status_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.gt, status_gt));}
+					if(status_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.ge, status_ge));}
+					if(status_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.lt, status_lt));}
+					if(status_le!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.le, status_le));}
+					if(status_in!=null){qc.andCondition(new QueryCondition(MmseEntity.STATUS, QueryCondition.in, status_in));}
+																if(directionalForce1!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.eq, directionalForce1));}
+					if(directionalForce1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.gt, directionalForce1_gt));}
+					if(directionalForce1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.ge, directionalForce1_ge));}
+					if(directionalForce1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.lt, directionalForce1_lt));}
+					if(directionalForce1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.le, directionalForce1_le));}
+					if(directionalForce1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE1, QueryCondition.in, directionalForce1_in));}
+																if(directionalForce2!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.eq, directionalForce2));}
+					if(directionalForce2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.gt, directionalForce2_gt));}
+					if(directionalForce2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.ge, directionalForce2_ge));}
+					if(directionalForce2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.lt, directionalForce2_lt));}
+					if(directionalForce2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.le, directionalForce2_le));}
+					if(directionalForce2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.DIRECTIONAL_FORCE2, QueryCondition.in, directionalForce2_in));}
+																if(memory1!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.eq, memory1));}
+					if(memory1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.gt, memory1_gt));}
+					if(memory1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.ge, memory1_ge));}
+					if(memory1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.lt, memory1_lt));}
+					if(memory1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.le, memory1_le));}
+					if(memory1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY1, QueryCondition.in, memory1_in));}
+																if(attentionAndComputingPower1!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.eq, attentionAndComputingPower1));}
+					if(attentionAndComputingPower1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.gt, attentionAndComputingPower1_gt));}
+					if(attentionAndComputingPower1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.ge, attentionAndComputingPower1_ge));}
+					if(attentionAndComputingPower1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.lt, attentionAndComputingPower1_lt));}
+					if(attentionAndComputingPower1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.le, attentionAndComputingPower1_le));}
+					if(attentionAndComputingPower1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.ATTENTION_AND_COMPUTING_POWER1, QueryCondition.in, attentionAndComputingPower1_in));}
+																if(memory2!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.eq, memory2));}
+					if(memory2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.gt, memory2_gt));}
+					if(memory2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.ge, memory2_ge));}
+					if(memory2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.lt, memory2_lt));}
+					if(memory2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.le, memory2_le));}
+					if(memory2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.MEMORY2, QueryCondition.in, memory2_in));}
+																if(languageSkill1!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.eq, languageSkill1));}
+					if(languageSkill1_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.gt, languageSkill1_gt));}
+					if(languageSkill1_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.ge, languageSkill1_ge));}
+					if(languageSkill1_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.lt, languageSkill1_lt));}
+					if(languageSkill1_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.le, languageSkill1_le));}
+					if(languageSkill1_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL1, QueryCondition.in, languageSkill1_in));}
+																if(languageSkill2!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.eq, languageSkill2));}
+					if(languageSkill2_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.gt, languageSkill2_gt));}
+					if(languageSkill2_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.ge, languageSkill2_ge));}
+					if(languageSkill2_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.lt, languageSkill2_lt));}
+					if(languageSkill2_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.le, languageSkill2_le));}
+					if(languageSkill2_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL2, QueryCondition.in, languageSkill2_in));}
+																if(languageSkill3!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.eq, languageSkill3));}
+					if(languageSkill3_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.gt, languageSkill3_gt));}
+					if(languageSkill3_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.ge, languageSkill3_ge));}
+					if(languageSkill3_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.lt, languageSkill3_lt));}
+					if(languageSkill3_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.le, languageSkill3_le));}
+					if(languageSkill3_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL3, QueryCondition.in, languageSkill3_in));}
+																if(languageSkill4!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.eq, languageSkill4));}
+					if(languageSkill4_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.gt, languageSkill4_gt));}
+					if(languageSkill4_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.ge, languageSkill4_ge));}
+					if(languageSkill4_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.lt, languageSkill4_lt));}
+					if(languageSkill4_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.le, languageSkill4_le));}
+					if(languageSkill4_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL4, QueryCondition.in, languageSkill4_in));}
+																if(languageSkill5!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.eq, languageSkill5));}
+					if(languageSkill5_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.gt, languageSkill5_gt));}
+					if(languageSkill5_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.ge, languageSkill5_ge));}
+					if(languageSkill5_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.lt, languageSkill5_lt));}
+					if(languageSkill5_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.le, languageSkill5_le));}
+					if(languageSkill5_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL5, QueryCondition.in, languageSkill5_in));}
+																if(languageSkill6!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.eq, languageSkill6));}
+					if(languageSkill6_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.gt, languageSkill6_gt));}
+					if(languageSkill6_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.ge, languageSkill6_ge));}
+					if(languageSkill6_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.lt, languageSkill6_lt));}
+					if(languageSkill6_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.le, languageSkill6_le));}
+					if(languageSkill6_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL6, QueryCondition.in, languageSkill6_in));}
+																if(languageSkill7!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.eq, languageSkill7));}
+					if(languageSkill7_gt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.gt, languageSkill7_gt));}
+					if(languageSkill7_ge!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.ge, languageSkill7_ge));}
+					if(languageSkill7_lt!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.lt, languageSkill7_lt));}
+					if(languageSkill7_le!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.le, languageSkill7_le));}
+					if(languageSkill7_in!=null){qc.andCondition(new QueryCondition(MmseEntity.LANGUAGE_SKILL7, QueryCondition.in, languageSkill7_in));}
+										
+						if (qc.getQueryNextCondition()!=null) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 						
+										result = dbManager.delByConditionsNoTransaction(MmseEntity.class,qc);				
+					tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		
+}

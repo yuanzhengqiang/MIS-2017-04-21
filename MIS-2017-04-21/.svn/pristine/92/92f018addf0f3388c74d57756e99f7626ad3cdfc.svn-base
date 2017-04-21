@@ -1,0 +1,1414 @@
+package com.framework.system.common.service.userRole;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.common.entity.user.UserEntity;
+import com.framework.system.common.entity.user.UserEntity;
+import com.framework.system.common.entity.role.RoleEntity;
+
+import com.framework.system.common.entity.userRole.UserRoleEntity;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+/**
+ * @Title: Service
+ * @Description: 用户角色关联表服务类
+ * @author feng.gu
+ * @date 2016-05-03 12:58:37
+ * @version V1.0
+ * 
+ */
+public class UserRoleService {
+	private static Logger logger = Logger.getLogger(UserRoleService.class);
+	private DBManager dbManager = DBManager.getInstance();
+
+	private static UserRoleService userRoleService;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static UserRoleService getInstance() {
+		if (userRoleService == null) {
+			userRoleService = new UserRoleService();
+		}
+		return userRoleService;
+	}
+
+	/**
+	 * 保存记录
+	 * 
+	 * @param obj
+	 */
+	public boolean save(UserRoleEntity userRole) {
+		boolean result = false;
+		if (userRole != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 关联信息保存
+				UserEntity createUser = userRole.getCreateUser();
+				if (createUser != null) {
+					dbManager.saveNoTransaction(createUser);
+					userRole.setCreateUserId(createUser.getId());
+				}
+				// 关联信息保存
+				UserEntity user = userRole.getUser();
+				if (user != null) {
+					dbManager.saveNoTransaction(user);
+					userRole.setUserId(user.getId());
+				}
+				// 关联信息保存
+				RoleEntity role = userRole.getRole();
+				if (role != null) {
+					dbManager.saveNoTransaction(role);
+					userRole.setRoleId(role.getId());
+				}
+				result = dbManager.saveNoTransaction(userRole);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量保存记录
+	 * 
+	 * @param list
+	 */
+	public boolean saveList(List<UserRoleEntity> userRoleList) {
+		boolean result = false;
+		if (userRoleList != null && userRoleList.size() > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				for (UserRoleEntity userRole : userRoleList) {
+					if (userRole != null) {
+						// 关联信息保存
+						UserEntity createUser = userRole.getCreateUser();
+						if (createUser != null) {
+							dbManager.saveNoTransaction(createUser);
+							userRole.setCreateUserId(createUser.getId());
+						}
+						// 关联信息保存
+						UserEntity user = userRole.getUser();
+						if (user != null) {
+							dbManager.saveNoTransaction(user);
+							userRole.setUserId(user.getId());
+						}
+						// 关联信息保存
+						RoleEntity role = userRole.getRole();
+						if (role != null) {
+							dbManager.saveNoTransaction(role);
+							userRole.setRoleId(role.getId());
+						}
+						result = dbManager.saveNoTransaction(userRole);
+					}
+				}
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 保存
+	 * 
+	 * @param list
+	 */
+	public boolean saveList(String userId, String roleId, String userIds,
+			String roleIds) {
+		boolean result = false;
+		if (userId != null || roleId != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				if (userId != null && !"".equals(userId)) {
+					QueryCondition qc = new QueryCondition(
+							UserRoleEntity.USER_ID, QueryCondition.eq, userId);
+					result = dbManager.delByConditionsNoTransaction(
+							UserRoleEntity.class, qc);
+					if (result) {
+						if (roleIds != null && !"".equals(roleIds)) {
+							String[] sage = roleIds.split(",");
+							if (sage != null && sage.length > 0) {
+								for (int i = 0; i < sage.length; i++) {
+									UserRoleEntity entity = new UserRoleEntity();
+									entity.setUserId(Integer.valueOf(userId));
+									entity.setRoleId(Integer.valueOf(sage[i]));
+									result = dbManager
+											.saveNoTransaction(entity);
+								}
+							}
+						}
+					}
+				}
+				if (roleId != null && !"".equals(roleId)) {
+					QueryCondition qc = new QueryCondition(
+							UserRoleEntity.ROLE_ID, QueryCondition.eq, roleId);
+					result = dbManager.delByConditionsNoTransaction(
+							UserRoleEntity.class, qc);
+					if (result) {
+						if (userIds != null && !"".equals(userIds)) {
+							String[] sage = userIds.split(",");
+							if (sage != null && sage.length > 0) {
+								for (int i = 0; i < sage.length; i++) {
+									UserRoleEntity entity = new UserRoleEntity();
+									entity.setUserId(Integer.valueOf(sage[i]));
+									entity.setRoleId(Integer.valueOf(roleId));
+									result = dbManager
+											.saveNoTransaction(entity);
+								}
+							}
+						}
+					}
+				}
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public UserRoleEntity getById(Integer id) {
+		UserRoleEntity obj = null;
+		if (id != null) {
+			obj = (UserRoleEntity) dbManager.getById(id, UserRoleEntity.class);
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param createUserShow
+	 *            是否查询关联信息
+	 * @param userShow
+	 *            是否查询关联信息
+	 * @param roleShow
+	 *            是否查询关联信息
+	 * @param obj
+	 */
+	public UserRoleEntity getById(Integer id, Boolean createUserShow,
+			Boolean userShow, Boolean roleShow) {
+		UserRoleEntity obj = null;
+		if (id != null) {
+			obj = (UserRoleEntity) dbManager.getById(id, UserRoleEntity.class);
+			// 查询关联内容
+			if (createUserShow != null && createUserShow.booleanValue()
+					&& obj != null && obj.getCreateUserId() > 0) {
+				UserEntity createUser = (UserEntity) dbManager.getById(
+						obj.getCreateUserId(), UserEntity.class);
+				obj.setCreateUser(createUser);
+			}
+			// 查询关联内容
+			if (userShow != null && userShow.booleanValue() && obj != null
+					&& obj.getUserId() > 0) {
+				UserEntity user = (UserEntity) dbManager.getById(
+						obj.getUserId(), UserEntity.class);
+				obj.setUser(user);
+			}
+			// 查询关联内容
+			if (roleShow != null && roleShow.booleanValue() && obj != null
+					&& obj.getRoleId() > 0) {
+				RoleEntity role = (RoleEntity) dbManager.getById(
+						obj.getRoleId(), RoleEntity.class);
+				obj.setRole(role);
+			}
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @return
+	 */
+	public List<UserRoleEntity> getListByCondition(Map<String, Object> queryMap) {
+		List<UserRoleEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object userId = queryMap.get("userId");
+		Object userId_gt = queryMap.get("userId_gt");
+		Object userId_ge = queryMap.get("userId_ge");
+		Object userId_lt = queryMap.get("userId_lt");
+		Object userId_le = queryMap.get("userId_le");
+		Object userId_in = queryMap.get("userId_in");
+		Object roleId = queryMap.get("roleId");
+		Object roleId_gt = queryMap.get("roleId_gt");
+		Object roleId_ge = queryMap.get("roleId_ge");
+		Object roleId_lt = queryMap.get("roleId_lt");
+		Object roleId_le = queryMap.get("roleId_le");
+		Object roleId_in = queryMap.get("roleId_in");
+		Object createUserId = queryMap.get("createUserId");
+		Object createUserId_gt = queryMap.get("createUserId_gt");
+		Object createUserId_ge = queryMap.get("createUserId_ge");
+		Object createUserId_lt = queryMap.get("createUserId_lt");
+		Object createUserId_le = queryMap.get("createUserId_le");
+		Object createUserId_in = queryMap.get("createUserId_in");
+		Object createTime_gt = queryMap.get("createTime_gt");
+		Object createTime_ge = queryMap.get("createTime_ge");
+		Object createTime_lt = queryMap.get("createTime_lt");
+		Object createTime_le = queryMap.get("createTime_le");
+
+		QueryCondition qc = new QueryCondition(UserRoleEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (userId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.eq, userId));
+		}
+		if (userId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.gt, userId_gt));
+		}
+		if (userId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.ge, userId_ge));
+		}
+		if (userId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.lt, userId_lt));
+		}
+		if (userId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.le, userId_le));
+		}
+		if (userId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.in, userId_in));
+		}
+		if (roleId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.eq, roleId));
+		}
+		if (roleId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.gt, roleId_gt));
+		}
+		if (roleId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.ge, roleId_ge));
+		}
+		if (roleId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.lt, roleId_lt));
+		}
+		if (roleId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.le, roleId_le));
+		}
+		if (roleId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.in, roleId_in));
+		}
+		if (createUserId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.eq, createUserId));
+		}
+		if (createUserId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.gt, createUserId_gt));
+		}
+		if (createUserId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.ge, createUserId_ge));
+		}
+		if (createUserId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.lt, createUserId_lt));
+		}
+		if (createUserId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.le, createUserId_le));
+		}
+		if (createUserId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.in, createUserId_in));
+		}
+		if (createTime_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.gt, createTime_gt));
+		}
+		if (createTime_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.ge, createTime_ge));
+		}
+		if (createTime_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.lt, createTime_lt));
+		}
+		if (createTime_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.le, createTime_le));
+		}
+
+		list = dbManager.queryByCondition(UserRoleEntity.class, qc);
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<UserRoleEntity>();
+			for (Object obj : list) {
+				returnlist.add((UserRoleEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param createUserShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param userShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param roleShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public List<UserRoleEntity> getListByCondition(
+			Map<String, Object> queryMap, List<OrderVO> orderList,
+			Boolean createUserShow, Boolean userShow, Boolean roleShow) {
+		List<UserRoleEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object userId = queryMap.get("userId");
+		Object userId_gt = queryMap.get("userId_gt");
+		Object userId_ge = queryMap.get("userId_ge");
+		Object userId_lt = queryMap.get("userId_lt");
+		Object userId_le = queryMap.get("userId_le");
+		Object userId_in = queryMap.get("userId_in");
+		Object roleId = queryMap.get("roleId");
+		Object roleId_gt = queryMap.get("roleId_gt");
+		Object roleId_ge = queryMap.get("roleId_ge");
+		Object roleId_lt = queryMap.get("roleId_lt");
+		Object roleId_le = queryMap.get("roleId_le");
+		Object roleId_in = queryMap.get("roleId_in");
+		Object createUserId = queryMap.get("createUserId");
+		Object createUserId_gt = queryMap.get("createUserId_gt");
+		Object createUserId_ge = queryMap.get("createUserId_ge");
+		Object createUserId_lt = queryMap.get("createUserId_lt");
+		Object createUserId_le = queryMap.get("createUserId_le");
+		Object createUserId_in = queryMap.get("createUserId_in");
+		Object createTime_gt = queryMap.get("createTime_gt");
+		Object createTime_ge = queryMap.get("createTime_ge");
+		Object createTime_lt = queryMap.get("createTime_lt");
+		Object createTime_le = queryMap.get("createTime_le");
+
+		QueryCondition qc = new QueryCondition(UserRoleEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (userId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.eq, userId));
+		}
+		if (userId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.gt, userId_gt));
+		}
+		if (userId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.ge, userId_ge));
+		}
+		if (userId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.lt, userId_lt));
+		}
+		if (userId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.le, userId_le));
+		}
+		if (userId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.in, userId_in));
+		}
+		if (roleId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.eq, roleId));
+		}
+		if (roleId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.gt, roleId_gt));
+		}
+		if (roleId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.ge, roleId_ge));
+		}
+		if (roleId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.lt, roleId_lt));
+		}
+		if (roleId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.le, roleId_le));
+		}
+		if (roleId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.in, roleId_in));
+		}
+		if (createUserId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.eq, createUserId));
+		}
+		if (createUserId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.gt, createUserId_gt));
+		}
+		if (createUserId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.ge, createUserId_ge));
+		}
+		if (createUserId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.lt, createUserId_lt));
+		}
+		if (createUserId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.le, createUserId_le));
+		}
+		if (createUserId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.in, createUserId_in));
+		}
+		if (createTime_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.gt, createTime_gt));
+		}
+		if (createTime_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.ge, createTime_ge));
+		}
+		if (createTime_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.lt, createTime_lt));
+		}
+		if (createTime_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.le, createTime_le));
+		}
+
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order
+							.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt,
+								orderType));
+					}
+				}
+
+			}
+		}
+		list = dbManager.queryByConditions(UserRoleEntity.class, qc, oc);
+		int a = 0;
+		if (createUserShow != null && createUserShow.booleanValue()) {
+			a++;
+		}
+		if (userShow != null && userShow.booleanValue()) {
+			a++;
+		}
+		if (roleShow != null && roleShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && list != null && list.size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < list.size(); i++) {
+				UserRoleEntity obj = (UserRoleEntity) list.get(i);
+				// 查询关联内容
+				if (createUserShow != null && createUserShow.booleanValue()
+						&& obj != null && obj.getCreateUserId() > 0) {
+					UserEntity createUser = (UserEntity) dbManager.getById(
+							obj.getCreateUserId(), UserEntity.class);
+					obj.setCreateUser(createUser);
+				}
+				// 查询关联内容
+				if (userShow != null && userShow.booleanValue() && obj != null
+						&& obj.getUserId() > 0) {
+					UserEntity user = (UserEntity) dbManager.getById(
+							obj.getUserId(), UserEntity.class);
+					obj.setUser(user);
+				}
+				// 查询关联内容
+				if (roleShow != null && roleShow.booleanValue() && obj != null
+						&& obj.getRoleId() > 0) {
+					RoleEntity role = (RoleEntity) dbManager.getById(
+							obj.getRoleId(), RoleEntity.class);
+					obj.setRole(role);
+				}
+				result.add(obj);
+			}
+			list = result;
+		}
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<UserRoleEntity>();
+			for (Object obj : list) {
+				returnlist.add((UserRoleEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap,
+			int pageno, int pagesize) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object userId = queryMap.get("userId");
+		Object userId_gt = queryMap.get("userId_gt");
+		Object userId_ge = queryMap.get("userId_ge");
+		Object userId_lt = queryMap.get("userId_lt");
+		Object userId_le = queryMap.get("userId_le");
+		Object userId_in = queryMap.get("userId_in");
+		Object roleId = queryMap.get("roleId");
+		Object roleId_gt = queryMap.get("roleId_gt");
+		Object roleId_ge = queryMap.get("roleId_ge");
+		Object roleId_lt = queryMap.get("roleId_lt");
+		Object roleId_le = queryMap.get("roleId_le");
+		Object roleId_in = queryMap.get("roleId_in");
+		Object createUserId = queryMap.get("createUserId");
+		Object createUserId_gt = queryMap.get("createUserId_gt");
+		Object createUserId_ge = queryMap.get("createUserId_ge");
+		Object createUserId_lt = queryMap.get("createUserId_lt");
+		Object createUserId_le = queryMap.get("createUserId_le");
+		Object createUserId_in = queryMap.get("createUserId_in");
+		Object createTime_gt = queryMap.get("createTime_gt");
+		Object createTime_ge = queryMap.get("createTime_ge");
+		Object createTime_lt = queryMap.get("createTime_lt");
+		Object createTime_le = queryMap.get("createTime_le");
+
+		QueryCondition qc = new QueryCondition(UserRoleEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (userId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.eq, userId));
+		}
+		if (userId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.gt, userId_gt));
+		}
+		if (userId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.ge, userId_ge));
+		}
+		if (userId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.lt, userId_lt));
+		}
+		if (userId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.le, userId_le));
+		}
+		if (userId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.in, userId_in));
+		}
+		if (roleId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.eq, roleId));
+		}
+		if (roleId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.gt, roleId_gt));
+		}
+		if (roleId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.ge, roleId_ge));
+		}
+		if (roleId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.lt, roleId_lt));
+		}
+		if (roleId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.le, roleId_le));
+		}
+		if (roleId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.in, roleId_in));
+		}
+		if (createUserId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.eq, createUserId));
+		}
+		if (createUserId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.gt, createUserId_gt));
+		}
+		if (createUserId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.ge, createUserId_ge));
+		}
+		if (createUserId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.lt, createUserId_lt));
+		}
+		if (createUserId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.le, createUserId_le));
+		}
+		if (createUserId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.in, createUserId_in));
+		}
+		if (createTime_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.gt, createTime_gt));
+		}
+		if (createTime_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.ge, createTime_ge));
+		}
+		if (createTime_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.lt, createTime_lt));
+		}
+		if (createTime_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.le, createTime_le));
+		}
+
+		pagelist = dbManager.queryByCondition(UserRoleEntity.class, qc, pageno,
+				pagesize);
+		return pagelist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @param createUserShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param userShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param roleShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap,
+			List<OrderVO> orderList, int pageno, int pagesize,
+			Boolean createUserShow, Boolean userShow, Boolean roleShow) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object userId = queryMap.get("userId");
+		Object userId_gt = queryMap.get("userId_gt");
+		Object userId_ge = queryMap.get("userId_ge");
+		Object userId_lt = queryMap.get("userId_lt");
+		Object userId_le = queryMap.get("userId_le");
+		Object userId_in = queryMap.get("userId_in");
+		Object roleId = queryMap.get("roleId");
+		Object roleId_gt = queryMap.get("roleId_gt");
+		Object roleId_ge = queryMap.get("roleId_ge");
+		Object roleId_lt = queryMap.get("roleId_lt");
+		Object roleId_le = queryMap.get("roleId_le");
+		Object roleId_in = queryMap.get("roleId_in");
+		Object createUserId = queryMap.get("createUserId");
+		Object createUserId_gt = queryMap.get("createUserId_gt");
+		Object createUserId_ge = queryMap.get("createUserId_ge");
+		Object createUserId_lt = queryMap.get("createUserId_lt");
+		Object createUserId_le = queryMap.get("createUserId_le");
+		Object createUserId_in = queryMap.get("createUserId_in");
+		Object createTime_gt = queryMap.get("createTime_gt");
+		Object createTime_ge = queryMap.get("createTime_ge");
+		Object createTime_lt = queryMap.get("createTime_lt");
+		Object createTime_le = queryMap.get("createTime_le");
+
+		QueryCondition qc = new QueryCondition(UserRoleEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (userId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.eq, userId));
+		}
+		if (userId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.gt, userId_gt));
+		}
+		if (userId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.ge, userId_ge));
+		}
+		if (userId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.lt, userId_lt));
+		}
+		if (userId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.le, userId_le));
+		}
+		if (userId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.in, userId_in));
+		}
+		if (roleId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.eq, roleId));
+		}
+		if (roleId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.gt, roleId_gt));
+		}
+		if (roleId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.ge, roleId_ge));
+		}
+		if (roleId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.lt, roleId_lt));
+		}
+		if (roleId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.le, roleId_le));
+		}
+		if (roleId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.in, roleId_in));
+		}
+		if (createUserId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.eq, createUserId));
+		}
+		if (createUserId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.gt, createUserId_gt));
+		}
+		if (createUserId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.ge, createUserId_ge));
+		}
+		if (createUserId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.lt, createUserId_lt));
+		}
+		if (createUserId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.le, createUserId_le));
+		}
+		if (createUserId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.in, createUserId_in));
+		}
+		if (createTime_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.gt, createTime_gt));
+		}
+		if (createTime_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.ge, createTime_ge));
+		}
+		if (createTime_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.lt, createTime_lt));
+		}
+		if (createTime_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.le, createTime_le));
+		}
+
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order
+							.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt,
+								orderType));
+					}
+				}
+
+			}
+		}
+		pagelist = dbManager.queryByConditions(UserRoleEntity.class, qc, oc,
+				pageno, pagesize);
+		int a = 0;
+		if (createUserShow != null && createUserShow.booleanValue()) {
+			a++;
+		}
+		if (userShow != null && userShow.booleanValue()) {
+			a++;
+		}
+		if (roleShow != null && roleShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && pagelist != null && pagelist.getResultList() != null
+				&& pagelist.getResultList().size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < pagelist.getResultList().size(); i++) {
+				UserRoleEntity obj = (UserRoleEntity) pagelist.getResultList()
+						.get(i);
+				// 查询关联内容
+				if (createUserShow != null && createUserShow.booleanValue()
+						&& obj != null && obj.getCreateUserId() > 0) {
+					UserEntity createUser = (UserEntity) dbManager.getById(
+							obj.getCreateUserId(), UserEntity.class);
+					obj.setCreateUser(createUser);
+				}
+				// 查询关联内容
+				if (userShow != null && userShow.booleanValue() && obj != null
+						&& obj.getUserId() > 0) {
+					UserEntity user = (UserEntity) dbManager.getById(
+							obj.getUserId(), UserEntity.class);
+					obj.setUser(user);
+				}
+				// 查询关联内容
+				if (roleShow != null && roleShow.booleanValue() && obj != null
+						&& obj.getRoleId() > 0) {
+					RoleEntity role = (RoleEntity) dbManager.getById(
+							obj.getRoleId(), RoleEntity.class);
+					obj.setRole(role);
+				}
+				result.add(obj);
+			}
+			pagelist.setResultList(result);
+		}
+		return pagelist;
+	}
+
+	/**
+	 * 删除记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public boolean del(Integer id, Boolean delCreateUser, Boolean delUser,
+			Boolean delRole) {
+		boolean result = false;
+		if (id != null && id > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delCreateUser != null && delCreateUser.booleanValue()) {
+					UserRoleEntity userRole = (UserRoleEntity) dbManager
+							.getById(id, UserRoleEntity.class);
+					if (userRole != null && userRole.getCreateUserId() != null) {
+						dbManager.delNoTransaction(userRole.getCreateUserId(),
+								UserEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delUser != null && delUser.booleanValue()) {
+					UserRoleEntity userRole = (UserRoleEntity) dbManager
+							.getById(id, UserRoleEntity.class);
+					if (userRole != null && userRole.getUserId() != null) {
+						dbManager.delNoTransaction(userRole.getUserId(),
+								UserEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delRole != null && delRole.booleanValue()) {
+					UserRoleEntity userRole = (UserRoleEntity) dbManager
+							.getById(id, UserRoleEntity.class);
+					if (userRole != null && userRole.getRoleId() != null) {
+						dbManager.delNoTransaction(userRole.getRoleId(),
+								RoleEntity.class);
+					}
+				}
+				result = dbManager.delNoTransaction(id, UserRoleEntity.class);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量删除记录
+	 * 
+	 * @param ids
+	 *            主键 英文逗号间隔
+	 * @param obj
+	 */
+	public boolean del(String ids) {
+		boolean result = false;
+		if (ids != null && !"".equals(ids.trim())) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				QueryCondition qc = new QueryCondition(UserRoleEntity.ID,
+						QueryCondition.in, ids);
+				result = dbManager.delByConditionsNoTransaction(
+						UserRoleEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量条件删除记录
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 */
+	public boolean delList(Map<String, Object> queryMap, Boolean delCreateUser,
+			Boolean delUser, Boolean delRole) {
+		boolean result = false;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object userId = queryMap.get("userId");
+		Object userId_gt = queryMap.get("userId_gt");
+		Object userId_ge = queryMap.get("userId_ge");
+		Object userId_lt = queryMap.get("userId_lt");
+		Object userId_le = queryMap.get("userId_le");
+		Object userId_in = queryMap.get("userId_in");
+		Object roleId = queryMap.get("roleId");
+		Object roleId_gt = queryMap.get("roleId_gt");
+		Object roleId_ge = queryMap.get("roleId_ge");
+		Object roleId_lt = queryMap.get("roleId_lt");
+		Object roleId_le = queryMap.get("roleId_le");
+		Object roleId_in = queryMap.get("roleId_in");
+		Object createUserId = queryMap.get("createUserId");
+		Object createUserId_gt = queryMap.get("createUserId_gt");
+		Object createUserId_ge = queryMap.get("createUserId_ge");
+		Object createUserId_lt = queryMap.get("createUserId_lt");
+		Object createUserId_le = queryMap.get("createUserId_le");
+		Object createUserId_in = queryMap.get("createUserId_in");
+		Object createTime_gt = queryMap.get("createTime_gt");
+		Object createTime_ge = queryMap.get("createTime_ge");
+		Object createTime_lt = queryMap.get("createTime_lt");
+		Object createTime_le = queryMap.get("createTime_le");
+
+		QueryCondition qc = new QueryCondition(UserRoleEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (userId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.eq, userId));
+		}
+		if (userId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.gt, userId_gt));
+		}
+		if (userId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.ge, userId_ge));
+		}
+		if (userId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.lt, userId_lt));
+		}
+		if (userId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.le, userId_le));
+		}
+		if (userId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.USER_ID,
+					QueryCondition.in, userId_in));
+		}
+		if (roleId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.eq, roleId));
+		}
+		if (roleId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.gt, roleId_gt));
+		}
+		if (roleId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.ge, roleId_ge));
+		}
+		if (roleId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.lt, roleId_lt));
+		}
+		if (roleId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.le, roleId_le));
+		}
+		if (roleId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.ROLE_ID,
+					QueryCondition.in, roleId_in));
+		}
+		if (createUserId != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.eq, createUserId));
+		}
+		if (createUserId_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.gt, createUserId_gt));
+		}
+		if (createUserId_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.ge, createUserId_ge));
+		}
+		if (createUserId_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.lt, createUserId_lt));
+		}
+		if (createUserId_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.le, createUserId_le));
+		}
+		if (createUserId_in != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_USER_ID,
+					QueryCondition.in, createUserId_in));
+		}
+		if (createTime_gt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.gt, createTime_gt));
+		}
+		if (createTime_ge != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.ge, createTime_ge));
+		}
+		if (createTime_lt != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.lt, createTime_lt));
+		}
+		if (createTime_le != null) {
+			qc.andCondition(new QueryCondition(UserRoleEntity.CREATE_TIME,
+					QueryCondition.le, createTime_le));
+		}
+
+		if (qc.getQueryNextCondition() != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delCreateUser != null && delCreateUser.booleanValue()) {
+					List<Object> list = dbManager.queryByCondition(
+							UserRoleEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							UserRoleEntity entity = (UserRoleEntity) obj;
+							strIds += entity.getCreateUserId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(UserEntity.ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								UserEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delUser != null && delUser.booleanValue()) {
+					List<Object> list = dbManager.queryByCondition(
+							UserRoleEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							UserRoleEntity entity = (UserRoleEntity) obj;
+							strIds += entity.getUserId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(UserEntity.ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								UserEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delRole != null && delRole.booleanValue()) {
+					List<Object> list = dbManager.queryByCondition(
+							UserRoleEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							UserRoleEntity entity = (UserRoleEntity) obj;
+							strIds += entity.getRoleId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(RoleEntity.ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								RoleEntity.class, qc1);
+					}
+
+				}
+				result = dbManager.delByConditionsNoTransaction(
+						UserRoleEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+}

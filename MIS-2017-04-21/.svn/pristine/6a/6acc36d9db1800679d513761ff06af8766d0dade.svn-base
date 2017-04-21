@@ -1,0 +1,172 @@
+package fsk.handler.assessmentTask;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.db.query.OrderVO;
+
+import fsk.entity.assessmentTask.AssessmentTaskEntity;
+import fsk.entity.healthAssessment.HealthAssessmentEntity;
+import fsk.pack.assessmentTask.AssessmentTaskPack;
+import fsk.parse.assessmentTask.AssessmentTaskParse;
+import fsk.service.assessmentTask.AssessmentTaskService;
+import fsk.service.healthAssessment.HealthAssessmentService;
+
+/**
+ * @Title: Handler
+ * @Description: 评估任务业务处理器
+ * @author feng.gu
+ * @date 2016-07-19 11:09:30
+ * @version V1.0
+ * 
+ */
+public class AssessmentTaskHandler extends BaseHandler {
+	private static Logger logger = Logger.getLogger(AssessmentTaskService.class);
+	/**
+	 * 解析器
+	 */
+	private AssessmentTaskParse assessmentTaskParse = AssessmentTaskParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private AssessmentTaskService assessmentTaskService = AssessmentTaskService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private AssessmentTaskPack assessmentTaskPack = AssessmentTaskPack.getInstance();
+	private HealthAssessmentService healthAssessmentService = HealthAssessmentService.getInstance();
+
+	private static AssessmentTaskHandler assessmentTaskHandler;
+
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static AssessmentTaskHandler getInstance() {
+		if (assessmentTaskHandler == null) {
+			assessmentTaskHandler = new AssessmentTaskHandler();
+		}
+		return assessmentTaskHandler;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type, String command, String reqStr, HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("请求消息：" + reqStr);
+		String resultStr = "";
+		try {
+			// 解析
+			Map<String, Object> parseMap = assessmentTaskParse.parse(type, command, reqStr, request);
+			String action = (String) parseMap.get("action");
+			AssessmentTaskEntity assessmentTask = (AssessmentTaskEntity) parseMap.get("assessmentTask");
+			List<AssessmentTaskEntity> assessmentTaskList = (List<AssessmentTaskEntity>) parseMap.get("assessmentTaskList");
+			Integer id = (Integer) parseMap.get("id");
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+
+			Boolean olderShow = (Boolean) parseMap.get("olderShow");
+			Boolean delOlder = (Boolean) parseMap.get("delOlder");
+			Boolean healthAssessmentShow = (Boolean) parseMap.get("healthAssessmentShow");
+			Boolean delHealthAssessment = (Boolean) parseMap.get("delHealthAssessment");
+			Boolean distributeEmployeeShow = (Boolean) parseMap.get("distributeEmployeeShow");
+			Boolean delDistributeEmployee = (Boolean) parseMap.get("delDistributeEmployee");
+			Boolean assessmentEmployeeShow = (Boolean) parseMap.get("assessmentEmployeeShow");
+			Boolean delAssessmentEmployee = (Boolean) parseMap.get("delAssessmentEmployee");
+			Boolean assessmentLogListShow = (Boolean) parseMap.get("assessmentLogListShow");
+			Boolean delAssessmentLogList = (Boolean) parseMap.get("delAssessmentLogList");
+
+			// 更新status pei
+			JSONObject reqStrjson = JSONObject.fromObject(reqStr);
+			JSONObject contentjson = (JSONObject) reqStrjson.get("content");
+			Integer healthAssessmentId = (Integer) contentjson.get("healthAssessmentId");
+			// 业务处理
+			Object result = null;
+			if ("save".equals(action)) {
+				// 更新status pei
+				if (healthAssessmentId != null && assessmentTask.getTaskStatus() != null) {
+					HealthAssessmentEntity entityTemp = healthAssessmentService.getById(healthAssessmentId);
+
+					if (entityTemp != null) {
+						if (assessmentTask.getHealthAssessmentStatus() != null) {
+							entityTemp.setStatus(assessmentTask.getHealthAssessmentStatus());
+						}
+						entityTemp.setTaskStatus(assessmentTask.getTaskStatus());
+						healthAssessmentService.save(entityTemp);
+					}
+				}
+				//
+				result = assessmentTaskService.save(assessmentTask);
+			} else if ("saveList".equals(action)) {
+				result = assessmentTaskService.saveList(assessmentTaskList);
+			} else if ("getById".equals(action)) {
+				result = assessmentTaskService.getById(id, olderShow, healthAssessmentShow, distributeEmployeeShow, assessmentEmployeeShow,
+						assessmentLogListShow);
+			} else if ("getListByCondition".equals(action)) {
+				// 根据数据权限 增加查询条件
+				queryMap = systemService.addDataRuleByRoles("AssessmentTaskEntity", queryMap, request);
+				result = assessmentTaskService.getListByCondition(queryMap, orderList, pageno, pagesize, olderShow, healthAssessmentShow,
+						distributeEmployeeShow, assessmentEmployeeShow, assessmentLogListShow);
+			} else if ("del".equals(action)) {
+				result = assessmentTaskService.del(id, delOlder, delHealthAssessment, delDistributeEmployee, delAssessmentEmployee, delAssessmentLogList);
+			} else if ("delList".equals(action)) {
+				result = assessmentTaskService.delList(queryMap, delOlder, delHealthAssessment, delDistributeEmployee, delAssessmentEmployee,
+						delAssessmentLogList);
+			}
+			// 封装
+			Map<String, Object> packMap = assessmentTaskPack.pack(type, action, result, assessmentTask);
+			String actionBack = (String) packMap.get("action");
+			String resultBack = (String) packMap.get("result");
+			String desBack = (String) packMap.get("des");
+			JSONObject pageBack = (JSONObject) packMap.get("page");
+			JSONObject contentBack = (JSONObject) packMap.get("content");
+
+			JSONObject repJson = new JSONObject();
+			if (actionBack != null && !"".equals(actionBack)) {
+				repJson.put("action", actionBack);
+			}
+			if (resultBack != null && !"".equals(resultBack)) {
+				repJson.put("result", resultBack);
+			}
+			if (desBack != null && !"".equals(desBack)) {
+				repJson.put("des", desBack);
+			}
+			if (pageBack != null) {
+				repJson.put("page", pageBack);
+			}
+			if (contentBack != null && !"".equals(contentBack)) {
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息：" + repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

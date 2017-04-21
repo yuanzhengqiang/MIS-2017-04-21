@@ -1,0 +1,1074 @@
+package fsk.service.wechat;
+
+import java.io.File;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.imageio.stream.FileImageOutputStream;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+import fsk.entity.older.OlderEntity;
+import fsk.entity.olderWechat.OlderWechatEntity;
+import fsk.entity.wechat.WechatEntity;
+import fsk.handler.wechat.WechatHandler;
+import fsk.init.SystemInit;
+import fsk.util.Base64Utils;
+import fsk.util.FileUtil;
+
+/**
+ * @Title: Service
+ * @Description: 微信信息表服务类
+ * @author feng.gu
+ * @date 2016-10-18 14:59:56
+ * @version V1.0
+ * 
+ */
+public class WechatService {
+	private static Logger logger = Logger.getLogger(WechatService.class);
+	private DBManager dbManager = DBManager.getInstance();
+
+	private static WechatService wechatService;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static WechatService getInstance() {
+		if (wechatService == null) {
+			wechatService = new WechatService();
+		}
+		return wechatService;
+	}
+
+	/**
+	 * 保存记录
+	 * 
+	 * @param obj
+	 */
+	public boolean save(WechatEntity wechat) {
+		boolean result = false;
+		if (wechat != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+
+				// 保存图片
+				String photourl = wechat.getPhotoUrl();
+				if (photourl != null) {
+					wechat.setPhotoUrl("http");
+				}
+				dbManager.saveNoTransaction(wechat);
+				if (photourl != null) {
+					String fileName = "wechat_" + wechat.getId() + "_" + ".jpg";
+					String url = savePhoto(photourl, fileName);
+					wechat.setPhotoUrl(url);
+					dbManager.saveNoTransaction(wechat);
+				}
+				if (wechat.getOlderList() != null
+						&& wechat.getOlderList().size() > 0) {
+					// 先删除原先绑定关系
+					QueryCondition qc = new QueryCondition(
+							OlderWechatEntity.WECHAT_ID, QueryCondition.eq,
+							wechat.getId());
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									OlderWechatEntity.class, qc);
+					if ((list != null) && (list.size() > 0)) {
+						for (Object obj : list) {
+							OlderWechatEntity entity = (OlderWechatEntity) obj;
+							dbManager.delNoTransaction(entity.getId(),
+									OlderWechatEntity.class);
+						}
+					}
+					// 绑定现在的关系
+					for (OlderEntity older : wechat.getOlderList()) {
+						Integer olderId = older.getId();
+						if (olderId != null) {
+							OlderWechatEntity entity = new OlderWechatEntity();
+							entity.setWechatId(wechat.getId());
+							entity.setOlderId(olderId);
+							dbManager.saveNoTransaction(entity);
+						}
+					}
+				}
+				result = dbManager.saveNoTransaction(wechat);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量保存记录
+	 * 
+	 * @param list
+	 */
+	public boolean saveList(List<WechatEntity> wechatList) {
+		boolean result = false;
+		if (wechatList != null && wechatList.size() > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				for (WechatEntity wechat : wechatList) {
+					if (wechat != null) {
+						if (wechat.getOlderList() != null
+								&& wechat.getOlderList().size() > 0) {
+							// 先删除原先绑定关系
+							QueryCondition qc = new QueryCondition(
+									OlderWechatEntity.WECHAT_ID,
+									QueryCondition.eq, wechat.getId());
+							List<Object> list = dbManager
+									.queryByConditionNoTransaction(
+											OlderWechatEntity.class, qc);
+							if ((list != null) && (list.size() > 0)) {
+								for (Object obj : list) {
+									OlderWechatEntity entity = (OlderWechatEntity) obj;
+									dbManager.delNoTransaction(entity.getId(),
+											OlderWechatEntity.class);
+								}
+							}
+							// 绑定现在的关系
+							for (OlderEntity older : wechat.getOlderList()) {
+								Integer olderId = older.getId();
+								if (olderId != null) {
+									OlderWechatEntity entity = new OlderWechatEntity();
+									entity.setWechatId(wechat.getId());
+									entity.setOlderId(olderId);
+									dbManager.saveNoTransaction(entity);
+								}
+							}
+						}
+						result = dbManager.saveNoTransaction(wechat);
+					}
+				}
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public WechatEntity getById(Integer id) {
+		WechatEntity obj = null;
+		if (id != null) {
+			obj = (WechatEntity) dbManager.getById(id, WechatEntity.class);
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param olderListShow
+	 *            是否查询关联信息
+	 * @param obj
+	 */
+	public WechatEntity getById(Integer id, Boolean olderListShow) {
+		WechatEntity obj = null;
+		if (id != null) {
+			obj = (WechatEntity) dbManager.getById(id, WechatEntity.class);
+			// 查询关联内容
+			if (olderListShow != null && olderListShow.booleanValue()
+					&& obj != null && obj.getId() != null && obj.getId() > 0) {
+				List<Object> rlist = dbManager.searchListByColumn(
+						OlderWechatEntity.class, OlderWechatEntity.WECHAT_ID,
+						String.valueOf(id));
+				if (rlist != null && rlist.size() > 0) {
+					for (Object robj : rlist) {
+						OlderWechatEntity robject = (OlderWechatEntity) robj;
+						Integer olderId = robject.getOlderId();
+						if (olderId != null) {
+							OlderEntity older = (OlderEntity) dbManager
+									.getById(olderId, OlderEntity.class);
+							List<OlderEntity> olderList = obj.getOlderList();
+							if (olderList == null || olderList.size() == 0) {
+								olderList = new ArrayList<OlderEntity>();
+							}
+							olderList.add(older);
+							obj.setOlderList(olderList);
+						}
+					}
+				}
+			}
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @return
+	 */
+	public List<WechatEntity> getListByCondition(Map<String, Object> queryMap) {
+		List<WechatEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		Object olderId = queryMap.get("olderId");
+		if (olderId != null) {
+			QueryCondition qc1 = new QueryCondition(OlderWechatEntity.OLDER_ID,
+					QueryCondition.eq, olderId);
+			List<Object> rlist = dbManager.queryByCondition(
+					OlderWechatEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					OlderWechatEntity entity = (OlderWechatEntity) rlist.get(i);
+					Integer temp = entity.getWechatId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(WechatEntity.ID,
+							QueryCondition.in, strIds));
+				}
+			} else {
+				return returnlist;
+			}
+		}
+		list = dbManager.queryByCondition(WechatEntity.class, qc);
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<WechatEntity>();
+			for (Object obj : list) {
+				returnlist.add((WechatEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param olderListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public List<WechatEntity> getListByCondition(Map<String, Object> queryMap,
+			List<OrderVO> orderList, Boolean olderListShow) {
+		List<WechatEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		Object olderId = queryMap.get("olderId");
+		if (olderId != null) {
+			QueryCondition qc1 = new QueryCondition(OlderWechatEntity.OLDER_ID,
+					QueryCondition.eq, olderId);
+			List<Object> rlist = dbManager.queryByCondition(
+					OlderWechatEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					OlderWechatEntity entity = (OlderWechatEntity) rlist.get(i);
+					Integer temp = entity.getWechatId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(WechatEntity.ID,
+							QueryCondition.in, strIds));
+				}
+			} else {
+				return returnlist;
+			}
+		}
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order
+							.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt,
+								orderType));
+					}
+				}
+
+			}
+		}
+		list = dbManager.queryByConditions(WechatEntity.class, qc, oc);
+		int a = 0;
+		if (olderListShow != null && olderListShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && list != null && list.size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < list.size(); i++) {
+				WechatEntity obj = (WechatEntity) list.get(i);
+				// 查询关联内容
+				if (olderListShow != null && olderListShow.booleanValue()
+						&& obj != null && obj.getId() != null
+						&& obj.getId() > 0) {
+					List<Object> rlist = dbManager.searchListByColumn(
+							OlderWechatEntity.class,
+							OlderWechatEntity.WECHAT_ID,
+							String.valueOf(obj.getId()));
+					if (rlist != null && rlist.size() > 0) {
+						for (Object robj : rlist) {
+							OlderWechatEntity robject = (OlderWechatEntity) robj;
+							Integer objId = robject.getOlderId();
+							if (objId != null) {
+								OlderEntity older = (OlderEntity) dbManager
+										.getById(objId, OlderEntity.class);
+								List<OlderEntity> olderList = obj
+										.getOlderList();
+								if (olderList == null || olderList.size() == 0) {
+									olderList = new ArrayList<OlderEntity>();
+								}
+								olderList.add(older);
+								obj.setOlderList(olderList);
+							}
+						}
+					}
+				}
+				result.add(obj);
+			}
+			list = result;
+		}
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<WechatEntity>();
+			for (Object obj : list) {
+				returnlist.add((WechatEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap,
+			int pageno, int pagesize) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		Object olderId = queryMap.get("olderId");
+		if (olderId != null) {
+			QueryCondition qc1 = new QueryCondition(OlderWechatEntity.OLDER_ID,
+					QueryCondition.eq, olderId);
+			List<Object> rlist = dbManager.queryByCondition(
+					OlderWechatEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					OlderWechatEntity entity = (OlderWechatEntity) rlist.get(i);
+					Integer temp = entity.getWechatId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(WechatEntity.ID,
+							QueryCondition.in, strIds));
+				}
+			} else {
+				return pagelist;
+			}
+		}
+		pagelist = dbManager.queryByCondition(WechatEntity.class, qc, pageno,
+				pagesize);
+		return pagelist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @param olderListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap,
+			List<OrderVO> orderList, int pageno, int pagesize,
+			Boolean olderListShow) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		Object olderId = queryMap.get("olderId");
+		if (olderId != null) {
+			QueryCondition qc1 = new QueryCondition(OlderWechatEntity.OLDER_ID,
+					QueryCondition.eq, olderId);
+			List<Object> rlist = dbManager.queryByCondition(
+					OlderWechatEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					OlderWechatEntity entity = (OlderWechatEntity) rlist.get(i);
+					Integer temp = entity.getWechatId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(WechatEntity.ID,
+							QueryCondition.in, strIds));
+				}
+			} else {
+				return pagelist;
+			}
+		}
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order
+							.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt,
+								orderType));
+					}
+				}
+
+			}
+		}
+		// 数据权限
+		List<QueryCondition> dataRuleQclist = null;
+		List<Map<String, Object>> dataRuleMapList = (List<Map<String, Object>>) queryMap
+				.get("dataRuleMapList");
+		if (dataRuleMapList != null && dataRuleMapList.size() > 0) {
+			dataRuleQclist = new ArrayList<QueryCondition>();
+			for (Map<String, Object> dataRuleMap : dataRuleMapList) {
+				QueryCondition dataRuleQc = changeMapToQc(dataRuleMap);
+				dataRuleQclist.add(dataRuleQc);
+			}
+		}
+		pagelist = dbManager.queryByConditions(WechatEntity.class, qc,
+				dataRuleQclist, oc, pageno, pagesize);
+		int a = 0;
+		if (olderListShow != null && olderListShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && pagelist != null && pagelist.getResultList() != null
+				&& pagelist.getResultList().size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < pagelist.getResultList().size(); i++) {
+				WechatEntity obj = (WechatEntity) pagelist.getResultList().get(
+						i);
+				// 查询关联内容
+				if (olderListShow != null && olderListShow.booleanValue()
+						&& obj != null && obj.getId() != null
+						&& obj.getId() > 0) {
+					List<Object> rlist = dbManager.searchListByColumn(
+							OlderWechatEntity.class,
+							OlderWechatEntity.WECHAT_ID,
+							String.valueOf(obj.getId()));
+					if (rlist != null && rlist.size() > 0) {
+						for (Object robj : rlist) {
+							OlderWechatEntity robject = (OlderWechatEntity) robj;
+							Integer objId = robject.getOlderId();
+							if (objId != null) {
+								OlderEntity older = (OlderEntity) dbManager
+										.getById(objId, OlderEntity.class);
+								List<OlderEntity> olderList = obj
+										.getOlderList();
+								if (olderList == null || olderList.size() == 0) {
+									olderList = new ArrayList<OlderEntity>();
+								}
+								olderList.add(older);
+								obj.setOlderList(olderList);
+							}
+						}
+					}
+				}
+				result.add(obj);
+			}
+			pagelist.setResultList(result);
+		}
+		return pagelist;
+	}
+
+	/**
+	 * 删除记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public boolean del(Integer id, Boolean delOlderWechatList) {
+		boolean result = false;
+		if (id != null && id > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delOlderWechatList != null
+						&& delOlderWechatList.booleanValue()) {
+					QueryCondition qc = new QueryCondition(
+							OlderWechatEntity.WECHAT_ID, QueryCondition.eq, id);
+					dbManager.delByConditionsNoTransaction(
+							OlderWechatEntity.class, qc);
+				}
+				result = dbManager.delNoTransaction(id, WechatEntity.class);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量删除记录
+	 * 
+	 * @param ids
+	 *            主键 英文逗号间隔
+	 * @param obj
+	 */
+	public boolean del(String ids) {
+		boolean result = false;
+		if (ids != null && !"".equals(ids.trim())) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				QueryCondition qc = new QueryCondition(WechatEntity.ID,
+						QueryCondition.in, ids);
+				result = dbManager.delByConditionsNoTransaction(
+						WechatEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量条件删除记录
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 */
+	public boolean delList(Map<String, Object> queryMap,
+			Boolean delOlderWechatList) {
+		boolean result = false;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		Object olderId = queryMap.get("olderId");
+		if (olderId != null) {
+			QueryCondition qc1 = new QueryCondition(OlderWechatEntity.OLDER_ID,
+					QueryCondition.eq, olderId);
+			List<Object> rlist = dbManager.queryByCondition(
+					OlderWechatEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					OlderWechatEntity entity = (OlderWechatEntity) rlist.get(i);
+					Integer temp = entity.getWechatId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(WechatEntity.ID,
+							QueryCondition.in, strIds));
+				}
+			} else {
+				return result;
+			}
+		}
+		if (qc.getQueryNextCondition() != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delOlderWechatList != null
+						&& delOlderWechatList.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(WechatEntity.class,
+									qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							WechatEntity entity = (WechatEntity) obj;
+							strIds += entity.getId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								OlderWechatEntity.WECHAT_ID, QueryCondition.in,
+								strIds);
+						dbManager.delByConditionsNoTransaction(
+								OlderWechatEntity.class, qc1);
+					}
+
+				}
+				result = dbManager.delByConditionsNoTransaction(
+						WechatEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	private QueryCondition changeMapToQc(Map<String, Object> queryMap) {
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object openid = queryMap.get("openid");
+		Object openid_like = queryMap.get("openid_like");
+		Object openid_isNull = queryMap.get("openid_isNull");
+		Object openid_isNotNull = queryMap.get("openid_isNotNull");
+		Object openid_in = queryMap.get("openid_in");
+		Object loginname = queryMap.get("loginname");
+		Object loginname_like = queryMap.get("loginname_like");
+		Object loginname_isNull = queryMap.get("loginname_isNull");
+		Object loginname_isNotNull = queryMap.get("loginname_isNotNull");
+		Object loginname_in = queryMap.get("loginname_in");
+		Object nickname = queryMap.get("nickname");
+		Object nickname_like = queryMap.get("nickname_like");
+		Object nickname_isNull = queryMap.get("nickname_isNull");
+		Object nickname_isNotNull = queryMap.get("nickname_isNotNull");
+		Object nickname_in = queryMap.get("nickname_in");
+		Object mobileTel = queryMap.get("mobileTel");
+		Object mobileTel_like = queryMap.get("mobileTel_like");
+		Object mobileTel_isNull = queryMap.get("mobileTel_isNull");
+		Object mobileTel_isNotNull = queryMap.get("mobileTel_isNotNull");
+		Object mobileTel_in = queryMap.get("mobileTel_in");
+		Object photoUrl = queryMap.get("photoUrl");
+		Object photoUrl_like = queryMap.get("photoUrl_like");
+		Object photoUrl_isNull = queryMap.get("photoUrl_isNull");
+		Object photoUrl_isNotNull = queryMap.get("photoUrl_isNotNull");
+		Object photoUrl_in = queryMap.get("photoUrl_in");
+		Object createTime_gt = queryMap.get("createTime_gt");
+		Object createTime_ge = queryMap.get("createTime_ge");
+		Object createTime_lt = queryMap.get("createTime_lt");
+		Object createTime_le = queryMap.get("createTime_le");
+		Object gender = queryMap.get("gender");
+		Object gender_like = queryMap.get("gender_like");
+		Object gender_isNull = queryMap.get("gender_isNull");
+		Object gender_isNotNull = queryMap.get("gender_isNotNull");
+		Object gender_in = queryMap.get("gender_in");
+		Object country = queryMap.get("country");
+		Object country_like = queryMap.get("country_like");
+		Object country_isNull = queryMap.get("country_isNull");
+		Object country_isNotNull = queryMap.get("country_isNotNull");
+		Object country_in = queryMap.get("country_in");
+		Object province = queryMap.get("province");
+		Object province_like = queryMap.get("province_like");
+		Object province_isNull = queryMap.get("province_isNull");
+		Object province_isNotNull = queryMap.get("province_isNotNull");
+		Object province_in = queryMap.get("province_in");
+		Object city = queryMap.get("city");
+		Object city_like = queryMap.get("city_like");
+		Object city_isNull = queryMap.get("city_isNull");
+		Object city_isNotNull = queryMap.get("city_isNotNull");
+		Object city_in = queryMap.get("city_in");
+
+		Object olderId = queryMap.get("olderId");
+
+		QueryCondition qc = new QueryCondition(WechatEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (openid != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.OPENID,
+					QueryCondition.eq, openid));
+		}
+		if (openid_like != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.OPENID,
+					QueryCondition.like, openid_like));
+		}
+		if (openid_isNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.OPENID,
+					QueryCondition.isNull, openid_isNull));
+		}
+		if (openid_isNotNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.OPENID,
+					QueryCondition.isNotNull, openid_isNotNull));
+		}
+		if (openid_in != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.OPENID,
+					QueryCondition.in, openid_in));
+		}
+		if (loginname != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.LOGINNAME,
+					QueryCondition.eq, loginname));
+		}
+		if (loginname_like != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.LOGINNAME,
+					QueryCondition.like, loginname_like));
+		}
+		if (loginname_isNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.LOGINNAME,
+					QueryCondition.isNull, loginname_isNull));
+		}
+		if (loginname_isNotNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.LOGINNAME,
+					QueryCondition.isNotNull, loginname_isNotNull));
+		}
+		if (loginname_in != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.LOGINNAME,
+					QueryCondition.in, loginname_in));
+		}
+		if (nickname != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.NICKNAME,
+					QueryCondition.eq, nickname));
+		}
+		if (nickname_like != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.NICKNAME,
+					QueryCondition.like, nickname_like));
+		}
+		if (nickname_isNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.NICKNAME,
+					QueryCondition.isNull, nickname_isNull));
+		}
+		if (nickname_isNotNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.NICKNAME,
+					QueryCondition.isNotNull, nickname_isNotNull));
+		}
+		if (nickname_in != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.NICKNAME,
+					QueryCondition.in, nickname_in));
+		}
+		if (mobileTel != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.MOBILE_TEL,
+					QueryCondition.eq, mobileTel));
+		}
+		if (mobileTel_like != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.MOBILE_TEL,
+					QueryCondition.like, mobileTel_like));
+		}
+		if (mobileTel_isNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.MOBILE_TEL,
+					QueryCondition.isNull, mobileTel_isNull));
+		}
+		if (mobileTel_isNotNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.MOBILE_TEL,
+					QueryCondition.isNotNull, mobileTel_isNotNull));
+		}
+		if (mobileTel_in != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.MOBILE_TEL,
+					QueryCondition.in, mobileTel_in));
+		}
+		if (photoUrl != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.PHOTO_URL,
+					QueryCondition.eq, photoUrl));
+		}
+		if (photoUrl_like != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.PHOTO_URL,
+					QueryCondition.like, photoUrl_like));
+		}
+		if (photoUrl_isNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.PHOTO_URL,
+					QueryCondition.isNull, photoUrl_isNull));
+		}
+		if (photoUrl_isNotNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.PHOTO_URL,
+					QueryCondition.isNotNull, photoUrl_isNotNull));
+		}
+		if (photoUrl_in != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.PHOTO_URL,
+					QueryCondition.in, photoUrl_in));
+		}
+		if (createTime_gt != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.CREATE_TIME,
+					QueryCondition.gt, createTime_gt));
+		}
+		if (createTime_ge != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.CREATE_TIME,
+					QueryCondition.ge, createTime_ge));
+		}
+		if (createTime_lt != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.CREATE_TIME,
+					QueryCondition.lt, createTime_lt));
+		}
+		if (createTime_le != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.CREATE_TIME,
+					QueryCondition.le, createTime_le));
+		}
+		if (gender != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.GENDER,
+					QueryCondition.eq, gender));
+		}
+		if (gender_like != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.GENDER,
+					QueryCondition.like, gender_like));
+		}
+		if (gender_isNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.GENDER,
+					QueryCondition.isNull, gender_isNull));
+		}
+		if (gender_isNotNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.GENDER,
+					QueryCondition.isNotNull, gender_isNotNull));
+		}
+		if (gender_in != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.GENDER,
+					QueryCondition.in, gender_in));
+		}
+		if (country != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.COUNTRY,
+					QueryCondition.eq, country));
+		}
+		if (country_like != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.COUNTRY,
+					QueryCondition.like, country_like));
+		}
+		if (country_isNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.COUNTRY,
+					QueryCondition.isNull, country_isNull));
+		}
+		if (country_isNotNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.COUNTRY,
+					QueryCondition.isNotNull, country_isNotNull));
+		}
+		if (country_in != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.COUNTRY,
+					QueryCondition.in, country_in));
+		}
+		if (province != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.PROVINCE,
+					QueryCondition.eq, province));
+		}
+		if (province_like != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.PROVINCE,
+					QueryCondition.like, province_like));
+		}
+		if (province_isNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.PROVINCE,
+					QueryCondition.isNull, province_isNull));
+		}
+		if (province_isNotNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.PROVINCE,
+					QueryCondition.isNotNull, province_isNotNull));
+		}
+		if (province_in != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.PROVINCE,
+					QueryCondition.in, province_in));
+		}
+		if (city != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.CITY,
+					QueryCondition.eq, city));
+		}
+		if (city_like != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.CITY,
+					QueryCondition.like, city_like));
+		}
+		if (city_isNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.CITY,
+					QueryCondition.isNull, city_isNull));
+		}
+		if (city_isNotNull != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.CITY,
+					QueryCondition.isNotNull, city_isNotNull));
+		}
+		if (city_in != null) {
+			qc.andCondition(new QueryCondition(WechatEntity.CITY,
+					QueryCondition.in, city_in));
+		}
+		return qc;
+	}
+
+	public static String savePhoto(String photo, String fileName) {
+		String returnPath = null;
+		try {
+			photo = photo.replaceAll("\n", "");
+			byte[] photobyte = Base64Utils.decode(photo);
+
+			String path = WechatHandler.class
+					.getResource("WechatHandler.class").toString();
+			String separator = FileUtil.getFileSeparator();
+			if ("file".equals(path.substring(0, 4))) {
+				if ("\\".equals(separator))
+					path = path.substring(6);
+				else {
+					path = path.substring(5);
+				}
+			}
+			String localPath = path.substring(0, path.indexOf("WEB-INF"))
+					+ "photos" + separator + "wechatPhotos" + separator
+					+ fileName;
+			localPath = URLDecoder.decode(localPath);
+			localPath = localPath.replace("/", separator);
+			localPath = localPath.replace("\\", separator);
+
+			returnPath = SystemInit.photourl + "/photos/" + "wechatPhotos/"
+					+ fileName;
+
+			byte2image(photobyte, localPath);
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+		return returnPath;
+	}
+
+	public static void byte2image(byte[] data, String path) {
+		if ((data.length < 3) || (path.equals("")))
+			return;
+		try {
+			FileImageOutputStream imageOutput = new FileImageOutputStream(
+					new File(path));
+			imageOutput.write(data, 0, data.length);
+			imageOutput.close();
+			System.out.println("Make Picture success,Please find image in "
+					+ path);
+		} catch (Exception ex) {
+			System.out.println("Exception: " + ex);
+			ex.printStackTrace();
+		}
+	}
+}

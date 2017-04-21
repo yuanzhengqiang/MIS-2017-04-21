@@ -1,0 +1,1140 @@
+package fsk.parse.examinationData;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.framework.system.util.JsonUtil;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+import fsk.entity.examinationData.ExaminationDataEntity;
+
+
+
+import fsk.entity.examinationRecord.ExaminationRecordEntity;
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import fsk.entity.examinationDataFile.ExaminationDataFileEntity;
+import fsk.entity.examinationDataPhoto.ExaminationDataPhotoEntity;
+
+import com.framework.system.util.JsonUtil;
+import com.framework.system.db.query.OrderVO;
+ /**   
+ * @Title: Parse
+ * @Description: 体检数据信息表解析器
+ * @author feng.gu
+ * @date 2016-10-11 15:23:02
+ * @version V1.0   
+ *
+ */
+public class ExaminationDataParse {
+	private static Logger logger = Logger.getLogger(ExaminationDataParse.class);
+	private static ExaminationDataParse examinationDataParse;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static ExaminationDataParse getInstance() {
+		if (examinationDataParse == null) {
+			examinationDataParse = new ExaminationDataParse();
+		}
+		return examinationDataParse;
+	}
+
+	public Map<String, Object> parse(int type, String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			parseMap = this.parseByJson(command,reqStr, request);
+		} else if (type == 2) {
+			// xml
+			parseMap = this.parseByXml(command,reqStr, request);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByJson(String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		try {
+			String actionReturn = null;
+			ExaminationDataEntity examinationDataReturn = null;
+			List<ExaminationDataEntity> examinationDataListReturn = null;
+			Integer idReturn = null;			
+			Map<String, Object> queryMapReturn = null;
+			int pagenoReturn = 1;
+			int pagesizeReturn = 10;
+			List<OrderVO> orderListReturn = null;
+			
+															Boolean examinationRecordShowReturn = false;
+			Boolean delExaminationRecordReturn = false;
+																								Boolean type1DataDicShowReturn = false;
+			Boolean delType1DataDicReturn = false;
+																								Boolean type2DataDicShowReturn = false;
+			Boolean delType2DataDicReturn = false;
+																		            Boolean examinationDataFileListShowReturn = false;
+            Boolean delExaminationDataFileListReturn = false;
+																					            Boolean examinationDataPhotoListShowReturn = false;
+            Boolean delExaminationDataPhotoListReturn = false;
+																		
+			//json
+			Map reqParams = JsonUtil.getMap4Json(reqStr);
+			JSONObject contentreq = (JSONObject)reqParams.get("content");
+			if ("ADD_EXAMINATION_DATA_INFO_REQUEST".equals(command)) {
+				actionReturn = "save";
+				examinationDataReturn = new ExaminationDataEntity();
+				if(true){
+					if(contentreq!=null){
+												    						    Integer id = (Integer)contentreq.get("id");
+	                		if(id!=null){
+			                	examinationDataReturn.setId(id);
+			                }
+						    												    						    Integer type1DataDicId = (Integer)contentreq.get("type1DataDicId");
+	                		if(type1DataDicId!=null){
+			                	examinationDataReturn.setType1DataDicId(type1DataDicId);
+			                }
+						    												    						    Integer type2DataDicId = (Integer)contentreq.get("type2DataDicId");
+	                		if(type2DataDicId!=null){
+			                	examinationDataReturn.setType2DataDicId(type2DataDicId);
+			                }
+						    												    						    String examinationItem = (String)contentreq.get("examinationItem");
+	                		if(examinationItem!=null){
+			                	examinationDataReturn.setExaminationItem(examinationItem);
+			                }
+						    												    						    String examinationResult = (String)contentreq.get("examinationResult");
+	                		if(examinationResult!=null){
+			                	examinationDataReturn.setExaminationResult(examinationResult);
+			                }
+						    												    						    String unit = (String)contentreq.get("unit");
+	                		if(unit!=null){
+			                	examinationDataReturn.setUnit(unit);
+			                }
+						    												    						    String abnormalPrompt = (String)contentreq.get("abnormalPrompt");
+	                		if(abnormalPrompt!=null){
+			                	examinationDataReturn.setAbnormalPrompt(abnormalPrompt);
+			                }
+						    												    						    String referenceRange = (String)contentreq.get("referenceRange");
+	                		if(referenceRange!=null){
+			                	examinationDataReturn.setReferenceRange(referenceRange);
+			                }
+						    												    						    String conclusion = (String)contentreq.get("conclusion");
+	                		if(conclusion!=null){
+			                	examinationDataReturn.setConclusion(conclusion);
+			                }
+						    												    						    String examinationTime = (String)contentreq.get("examinationTime");
+	                		if(examinationTime!=null){
+			                	examinationDataReturn.setExaminationTime(examinationTime);
+			                }
+						    												    						    String createTime = (String)contentreq.get("createTime");
+	                		if(createTime!=null){
+			                	examinationDataReturn.setCreateTime(createTime);
+			                }
+						    												    						    Integer examinationRecordId = (Integer)contentreq.get("examinationRecordId");
+	                		if(examinationRecordId!=null){
+			                	examinationDataReturn.setExaminationRecordId(examinationRecordId);
+			                }
+						    											}					
+				}
+																				if(true){
+					Object examinationRecord = contentreq.get("examinationRecord");
+					if(examinationRecord!=null){
+						JSONObject obj = (JSONObject)examinationRecord;
+						if(obj!=null){
+							ExaminationRecordEntity entity = new ExaminationRecordEntity();						
+																						    Integer id = (Integer)obj.get("id");
+		                		if(id!=null){
+				                	entity.setId(id);
+				                }
+							    																						    Integer olderId = (Integer)obj.get("olderId");
+		                		if(olderId!=null){
+				                	entity.setOlderId(olderId);
+				                }
+							    																						    String olderName = (String)obj.get("olderName");
+		                		if(olderName!=null){
+				                	entity.setOlderName(olderName);
+				                }
+							    																						    String olderAge = (String)obj.get("olderAge");
+		                		if(olderAge!=null){
+				                	entity.setOlderAge(olderAge);
+				                }
+							    																						    String examinationOrganization = (String)obj.get("examinationOrganization");
+		                		if(examinationOrganization!=null){
+				                	entity.setExaminationOrganization(examinationOrganization);
+				                }
+							    																						    String examinationTime = (String)obj.get("examinationTime");
+		                		if(examinationTime!=null){
+				                	entity.setExaminationTime(examinationTime);
+				                }
+							    																						    String createTime = (String)obj.get("createTime");
+		                		if(createTime!=null){
+				                	entity.setCreateTime(createTime);
+				                }
+							    																						    Integer createEmployeeId = (Integer)obj.get("createEmployeeId");
+		                		if(createEmployeeId!=null){
+				                	entity.setCreateEmployeeId(createEmployeeId);
+				                }
+							    																						    String createEmployeeName = (String)obj.get("createEmployeeName");
+		                		if(createEmployeeName!=null){
+				                	entity.setCreateEmployeeName(createEmployeeName);
+				                }
+							    																						    String contactTel = (String)obj.get("contactTel");
+		                		if(contactTel!=null){
+				                	entity.setContactTel(contactTel);
+				                }
+							    																						    String conclusion = (String)obj.get("conclusion");
+		                		if(conclusion!=null){
+				                	entity.setConclusion(conclusion);
+				                }
+							    																						    String suggestion = (String)obj.get("suggestion");
+		                		if(suggestion!=null){
+				                	entity.setSuggestion(suggestion);
+				                }
+							    														examinationDataReturn.setExaminationRecord(entity);
+						}						
+					}
+				}
+																																if(true){
+					Object type1DataDic = contentreq.get("type1DataDic");
+					if(type1DataDic!=null){
+						JSONObject obj = (JSONObject)type1DataDic;
+						if(obj!=null){
+							DataDicEntity entity = new DataDicEntity();						
+																						    Integer id = (Integer)obj.get("id");
+		                		if(id!=null){
+				                	entity.setId(id);
+				                }
+							    																						    String code = (String)obj.get("code");
+		                		if(code!=null){
+				                	entity.setCode(code);
+				                }
+							    																						    String name = (String)obj.get("name");
+		                		if(name!=null){
+				                	entity.setName(name);
+				                }
+							    																						    String value = (String)obj.get("value");
+		                		if(value!=null){
+				                	entity.setValue(value);
+				                }
+							    																						    String des = (String)obj.get("des");
+		                		if(des!=null){
+				                	entity.setDes(des);
+				                }
+							    																						    Integer parentId = (Integer)obj.get("parentId");
+		                		if(parentId!=null){
+				                	entity.setParentId(parentId);
+				                }
+							    																						    Integer createUserId = (Integer)obj.get("createUserId");
+		                		if(createUserId!=null){
+				                	entity.setCreateUserId(createUserId);
+				                }
+							    																						    String createTime = (String)obj.get("createTime");
+		                		if(createTime!=null){
+				                	entity.setCreateTime(createTime);
+				                }
+							    																						    Integer updateUserId = (Integer)obj.get("updateUserId");
+		                		if(updateUserId!=null){
+				                	entity.setUpdateUserId(updateUserId);
+				                }
+							    																						    String updateTime = (String)obj.get("updateTime");
+		                		if(updateTime!=null){
+				                	entity.setUpdateTime(updateTime);
+				                }
+							    														examinationDataReturn.setType1DataDic(entity);
+						}						
+					}
+				}
+																																if(true){
+					Object type2DataDic = contentreq.get("type2DataDic");
+					if(type2DataDic!=null){
+						JSONObject obj = (JSONObject)type2DataDic;
+						if(obj!=null){
+							DataDicEntity entity = new DataDicEntity();						
+																						    Integer id = (Integer)obj.get("id");
+		                		if(id!=null){
+				                	entity.setId(id);
+				                }
+							    																						    String code = (String)obj.get("code");
+		                		if(code!=null){
+				                	entity.setCode(code);
+				                }
+							    																						    String name = (String)obj.get("name");
+		                		if(name!=null){
+				                	entity.setName(name);
+				                }
+							    																						    String value = (String)obj.get("value");
+		                		if(value!=null){
+				                	entity.setValue(value);
+				                }
+							    																						    String des = (String)obj.get("des");
+		                		if(des!=null){
+				                	entity.setDes(des);
+				                }
+							    																						    Integer parentId = (Integer)obj.get("parentId");
+		                		if(parentId!=null){
+				                	entity.setParentId(parentId);
+				                }
+							    																						    Integer createUserId = (Integer)obj.get("createUserId");
+		                		if(createUserId!=null){
+				                	entity.setCreateUserId(createUserId);
+				                }
+							    																						    String createTime = (String)obj.get("createTime");
+		                		if(createTime!=null){
+				                	entity.setCreateTime(createTime);
+				                }
+							    																						    Integer updateUserId = (Integer)obj.get("updateUserId");
+		                		if(updateUserId!=null){
+				                	entity.setUpdateUserId(updateUserId);
+				                }
+							    																						    String updateTime = (String)obj.get("updateTime");
+		                		if(updateTime!=null){
+				                	entity.setUpdateTime(updateTime);
+				                }
+							    														examinationDataReturn.setType2DataDic(entity);
+						}						
+					}
+				}
+																												if(true){
+					Object examinationDataFileList = contentreq.get("examinationDataFileList");
+					if(examinationDataFileList!=null){
+						JSONArray list = (JSONArray)examinationDataFileList;
+						if(list!=null){
+							List<ExaminationDataFileEntity> entityList = new ArrayList<ExaminationDataFileEntity>();
+							for (int i = 0; i < list.size(); i++) {
+			  	              JSONObject obj = list.getJSONObject(i);
+			  	              if(obj!=null){
+									ExaminationDataFileEntity entity = new ExaminationDataFileEntity();						
+													
+												                											    Integer id = (Integer)obj.get("id");
+				                		if(id!=null){
+						                	entity.setId(id);
+						                }
+									    												                											    String url = (String)obj.get("url");
+				                		if(url!=null){
+						                	entity.setUrl(url);
+						                }
+									    												                											    String name = (String)obj.get("name");
+				                		if(name!=null){
+						                	entity.setName(name);
+						                }
+									    												                											    String des = (String)obj.get("des");
+				                		if(des!=null){
+						                	entity.setDes(des);
+						                }
+									    												                											    Integer showIndex = (Integer)obj.get("showIndex");
+				                		if(showIndex!=null){
+						                	entity.setShowIndex(showIndex);
+						                }
+									    												                											    Integer examinationDataId = (Integer)obj.get("examinationDataId");
+				                		if(examinationDataId!=null){
+						                	entity.setExaminationDataId(examinationDataId);
+						                }
+									    												                											    String createPerson = (String)obj.get("createPerson");
+				                		if(createPerson!=null){
+						                	entity.setCreatePerson(createPerson);
+						                }
+									    												                											    String createTime = (String)obj.get("createTime");
+				                		if(createTime!=null){
+						                	entity.setCreateTime(createTime);
+						                }
+									    																                entityList.add(entity);
+										}
+					  	            }
+							examinationDataReturn.setExaminationDataFileList(entityList);
+						}
+						
+					}
+				}
+																																if(true){
+					Object examinationDataPhotoList = contentreq.get("examinationDataPhotoList");
+					if(examinationDataPhotoList!=null){
+						JSONArray list = (JSONArray)examinationDataPhotoList;
+						if(list!=null){
+							List<ExaminationDataPhotoEntity> entityList = new ArrayList<ExaminationDataPhotoEntity>();
+							for (int i = 0; i < list.size(); i++) {
+			  	              JSONObject obj = list.getJSONObject(i);
+			  	              if(obj!=null){
+									ExaminationDataPhotoEntity entity = new ExaminationDataPhotoEntity();						
+													
+												                											    Integer id = (Integer)obj.get("id");
+				                		if(id!=null){
+						                	entity.setId(id);
+						                }
+									    												                											    String url = (String)obj.get("url");
+				                		if(url!=null){
+						                	entity.setUrl(url);
+						                }
+									    												                											    String name = (String)obj.get("name");
+				                		if(name!=null){
+						                	entity.setName(name);
+						                }
+									    												                											    String des = (String)obj.get("des");
+				                		if(des!=null){
+						                	entity.setDes(des);
+						                }
+									    												                											    Integer showIndex = (Integer)obj.get("showIndex");
+				                		if(showIndex!=null){
+						                	entity.setShowIndex(showIndex);
+						                }
+									    												                											    Integer examinationDataId = (Integer)obj.get("examinationDataId");
+				                		if(examinationDataId!=null){
+						                	entity.setExaminationDataId(examinationDataId);
+						                }
+									    												                											    String createPerson = (String)obj.get("createPerson");
+				                		if(createPerson!=null){
+						                	entity.setCreatePerson(createPerson);
+						                }
+									    												                											    String createTime = (String)obj.get("createTime");
+				                		if(createTime!=null){
+						                	entity.setCreateTime(createTime);
+						                }
+									    																                entityList.add(entity);
+										}
+					  	            }
+							examinationDataReturn.setExaminationDataPhotoList(entityList);
+						}
+						
+					}
+				}
+																							} else if ("QUERY_EXAMINATION_DATA_INFO_REQUEST".equals(command)) {
+				actionReturn = "getById";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");
+					        																												String examinationRecordShow = (String)contentreq.get("examinationRecordShow");
+							if("true".equals(examinationRecordShow)){
+								examinationRecordShowReturn = true;
+							}
+																																																								String type1DataDicShow = (String)contentreq.get("type1DataDicShow");
+							if("true".equals(type1DataDicShow)){
+								type1DataDicShowReturn = true;
+							}
+																																																								String type2DataDicShow = (String)contentreq.get("type2DataDicShow");
+							if("true".equals(type2DataDicShow)){
+								type2DataDicShowReturn = true;
+							}
+																																																	String examinationDataFileListShow = (String)contentreq.get("examinationDataFileListShow");
+							if("true".equals(examinationDataFileListShow)){
+								examinationDataFileListShowReturn = true;
+							}		           
+																																																								String examinationDataPhotoListShow = (String)contentreq.get("examinationDataPhotoListShow");
+							if("true".equals(examinationDataPhotoListShow)){
+								examinationDataPhotoListShowReturn = true;
+							}		           
+																																								}	
+				}
+			} else if ("QUERY_EXAMINATION_DATA_LIST_REQUEST".equals(command)) {
+				actionReturn = "getListByCondition";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																								Integer type1DataDicId_gt = (Integer)contentreq.get("type1DataDicId_gt");
+						Integer type1DataDicId_ge = (Integer)contentreq.get("type1DataDicId_ge");
+						Integer type1DataDicId_lt = (Integer)contentreq.get("type1DataDicId_lt");
+						Integer type1DataDicId_le = (Integer)contentreq.get("type1DataDicId_le");
+						String type1DataDicId_in = (String)contentreq.get("type1DataDicId_in");
+						Integer type1DataDicId = (Integer)contentreq.get("type1DataDicId");
+                        if(type1DataDicId_gt!=null){
+                        	queryMapReturn.put("type1DataDicId_gt", type1DataDicId_gt);
+						}
+						if(type1DataDicId_ge!=null){
+                        	queryMapReturn.put("type1DataDicId_ge", type1DataDicId_ge);
+						}
+						if(type1DataDicId_lt!=null){
+                        	queryMapReturn.put("type1DataDicId_lt", type1DataDicId_lt);
+						}
+						if(type1DataDicId_le!=null){
+                        	queryMapReturn.put("type1DataDicId_le", type1DataDicId_le);
+						}
+						if(type1DataDicId_in!=null){
+                        	queryMapReturn.put("type1DataDicId_in", type1DataDicId_in);
+						}
+						if(type1DataDicId!=null){
+                        	queryMapReturn.put("type1DataDicId", type1DataDicId);
+						}		
+																								Integer type2DataDicId_gt = (Integer)contentreq.get("type2DataDicId_gt");
+						Integer type2DataDicId_ge = (Integer)contentreq.get("type2DataDicId_ge");
+						Integer type2DataDicId_lt = (Integer)contentreq.get("type2DataDicId_lt");
+						Integer type2DataDicId_le = (Integer)contentreq.get("type2DataDicId_le");
+						String type2DataDicId_in = (String)contentreq.get("type2DataDicId_in");
+						Integer type2DataDicId = (Integer)contentreq.get("type2DataDicId");
+                        if(type2DataDicId_gt!=null){
+                        	queryMapReturn.put("type2DataDicId_gt", type2DataDicId_gt);
+						}
+						if(type2DataDicId_ge!=null){
+                        	queryMapReturn.put("type2DataDicId_ge", type2DataDicId_ge);
+						}
+						if(type2DataDicId_lt!=null){
+                        	queryMapReturn.put("type2DataDicId_lt", type2DataDicId_lt);
+						}
+						if(type2DataDicId_le!=null){
+                        	queryMapReturn.put("type2DataDicId_le", type2DataDicId_le);
+						}
+						if(type2DataDicId_in!=null){
+                        	queryMapReturn.put("type2DataDicId_in", type2DataDicId_in);
+						}
+						if(type2DataDicId!=null){
+                        	queryMapReturn.put("type2DataDicId", type2DataDicId);
+						}		
+																																String examinationItem_like = (String)contentreq.get("examinationItem_like");
+							String examinationItem_isNull = (String)contentreq.get("examinationItem_isNull");
+							String examinationItem_isNotNull = (String)contentreq.get("examinationItem_isNotNull");
+							String examinationItem_in = (String)contentreq.get("examinationItem_in");
+							String examinationItem = (String)contentreq.get("examinationItem");
+							if(examinationItem_like!=null){
+	                        	queryMapReturn.put("examinationItem_like", examinationItem_like);
+							}
+							if(examinationItem_isNull!=null){
+	                        	queryMapReturn.put("examinationItem_isNull", examinationItem_isNull);
+							}
+							if(examinationItem_isNotNull!=null){
+	                        	queryMapReturn.put("examinationItem_isNotNull", examinationItem_isNotNull);
+							}
+							if(examinationItem_in!=null){
+	                        	queryMapReturn.put("examinationItem_in", examinationItem_in);
+							}
+							if(examinationItem!=null){
+	                        	queryMapReturn.put("examinationItem", examinationItem);
+							}						           
+																																							String examinationResult_like = (String)contentreq.get("examinationResult_like");
+							String examinationResult_isNull = (String)contentreq.get("examinationResult_isNull");
+							String examinationResult_isNotNull = (String)contentreq.get("examinationResult_isNotNull");
+							String examinationResult_in = (String)contentreq.get("examinationResult_in");
+							String examinationResult = (String)contentreq.get("examinationResult");
+							if(examinationResult_like!=null){
+	                        	queryMapReturn.put("examinationResult_like", examinationResult_like);
+							}
+							if(examinationResult_isNull!=null){
+	                        	queryMapReturn.put("examinationResult_isNull", examinationResult_isNull);
+							}
+							if(examinationResult_isNotNull!=null){
+	                        	queryMapReturn.put("examinationResult_isNotNull", examinationResult_isNotNull);
+							}
+							if(examinationResult_in!=null){
+	                        	queryMapReturn.put("examinationResult_in", examinationResult_in);
+							}
+							if(examinationResult!=null){
+	                        	queryMapReturn.put("examinationResult", examinationResult);
+							}						           
+																																							String unit_like = (String)contentreq.get("unit_like");
+							String unit_isNull = (String)contentreq.get("unit_isNull");
+							String unit_isNotNull = (String)contentreq.get("unit_isNotNull");
+							String unit_in = (String)contentreq.get("unit_in");
+							String unit = (String)contentreq.get("unit");
+							if(unit_like!=null){
+	                        	queryMapReturn.put("unit_like", unit_like);
+							}
+							if(unit_isNull!=null){
+	                        	queryMapReturn.put("unit_isNull", unit_isNull);
+							}
+							if(unit_isNotNull!=null){
+	                        	queryMapReturn.put("unit_isNotNull", unit_isNotNull);
+							}
+							if(unit_in!=null){
+	                        	queryMapReturn.put("unit_in", unit_in);
+							}
+							if(unit!=null){
+	                        	queryMapReturn.put("unit", unit);
+							}						           
+																																							String abnormalPrompt_like = (String)contentreq.get("abnormalPrompt_like");
+							String abnormalPrompt_isNull = (String)contentreq.get("abnormalPrompt_isNull");
+							String abnormalPrompt_isNotNull = (String)contentreq.get("abnormalPrompt_isNotNull");
+							String abnormalPrompt_in = (String)contentreq.get("abnormalPrompt_in");
+							String abnormalPrompt = (String)contentreq.get("abnormalPrompt");
+							if(abnormalPrompt_like!=null){
+	                        	queryMapReturn.put("abnormalPrompt_like", abnormalPrompt_like);
+							}
+							if(abnormalPrompt_isNull!=null){
+	                        	queryMapReturn.put("abnormalPrompt_isNull", abnormalPrompt_isNull);
+							}
+							if(abnormalPrompt_isNotNull!=null){
+	                        	queryMapReturn.put("abnormalPrompt_isNotNull", abnormalPrompt_isNotNull);
+							}
+							if(abnormalPrompt_in!=null){
+	                        	queryMapReturn.put("abnormalPrompt_in", abnormalPrompt_in);
+							}
+							if(abnormalPrompt!=null){
+	                        	queryMapReturn.put("abnormalPrompt", abnormalPrompt);
+							}						           
+																																							String referenceRange_like = (String)contentreq.get("referenceRange_like");
+							String referenceRange_isNull = (String)contentreq.get("referenceRange_isNull");
+							String referenceRange_isNotNull = (String)contentreq.get("referenceRange_isNotNull");
+							String referenceRange_in = (String)contentreq.get("referenceRange_in");
+							String referenceRange = (String)contentreq.get("referenceRange");
+							if(referenceRange_like!=null){
+	                        	queryMapReturn.put("referenceRange_like", referenceRange_like);
+							}
+							if(referenceRange_isNull!=null){
+	                        	queryMapReturn.put("referenceRange_isNull", referenceRange_isNull);
+							}
+							if(referenceRange_isNotNull!=null){
+	                        	queryMapReturn.put("referenceRange_isNotNull", referenceRange_isNotNull);
+							}
+							if(referenceRange_in!=null){
+	                        	queryMapReturn.put("referenceRange_in", referenceRange_in);
+							}
+							if(referenceRange!=null){
+	                        	queryMapReturn.put("referenceRange", referenceRange);
+							}						           
+																																							String conclusion_like = (String)contentreq.get("conclusion_like");
+							String conclusion_isNull = (String)contentreq.get("conclusion_isNull");
+							String conclusion_isNotNull = (String)contentreq.get("conclusion_isNotNull");
+							String conclusion_in = (String)contentreq.get("conclusion_in");
+							String conclusion = (String)contentreq.get("conclusion");
+							if(conclusion_like!=null){
+	                        	queryMapReturn.put("conclusion_like", conclusion_like);
+							}
+							if(conclusion_isNull!=null){
+	                        	queryMapReturn.put("conclusion_isNull", conclusion_isNull);
+							}
+							if(conclusion_isNotNull!=null){
+	                        	queryMapReturn.put("conclusion_isNotNull", conclusion_isNotNull);
+							}
+							if(conclusion_in!=null){
+	                        	queryMapReturn.put("conclusion_in", conclusion_in);
+							}
+							if(conclusion!=null){
+	                        	queryMapReturn.put("conclusion", conclusion);
+							}						           
+																																							String examinationTime_gt = (String)contentreq.get("examinationTime_gt");
+							String examinationTime_ge = (String)contentreq.get("examinationTime_ge");
+							String examinationTime_lt = (String)contentreq.get("examinationTime_lt");
+							String examinationTime_le = (String)contentreq.get("examinationTime_le");
+	                        if(examinationTime_gt!=null){
+	                        	queryMapReturn.put("examinationTime_gt", examinationTime_gt);
+							}
+							if(examinationTime_ge!=null){
+	                        	queryMapReturn.put("examinationTime_ge", examinationTime_ge);
+							}
+							if(examinationTime_lt!=null){
+	                        	queryMapReturn.put("examinationTime_lt", examinationTime_lt);
+							}
+							if(examinationTime_le!=null){
+	                        	queryMapReturn.put("examinationTime_le", examinationTime_le);
+							} 
+																																							String createTime_gt = (String)contentreq.get("createTime_gt");
+							String createTime_ge = (String)contentreq.get("createTime_ge");
+							String createTime_lt = (String)contentreq.get("createTime_lt");
+							String createTime_le = (String)contentreq.get("createTime_le");
+	                        if(createTime_gt!=null){
+	                        	queryMapReturn.put("createTime_gt", createTime_gt);
+							}
+							if(createTime_ge!=null){
+	                        	queryMapReturn.put("createTime_ge", createTime_ge);
+							}
+							if(createTime_lt!=null){
+	                        	queryMapReturn.put("createTime_lt", createTime_lt);
+							}
+							if(createTime_le!=null){
+	                        	queryMapReturn.put("createTime_le", createTime_le);
+							} 
+																															Integer examinationRecordId_gt = (Integer)contentreq.get("examinationRecordId_gt");
+						Integer examinationRecordId_ge = (Integer)contentreq.get("examinationRecordId_ge");
+						Integer examinationRecordId_lt = (Integer)contentreq.get("examinationRecordId_lt");
+						Integer examinationRecordId_le = (Integer)contentreq.get("examinationRecordId_le");
+						String examinationRecordId_in = (String)contentreq.get("examinationRecordId_in");
+						Integer examinationRecordId = (Integer)contentreq.get("examinationRecordId");
+                        if(examinationRecordId_gt!=null){
+                        	queryMapReturn.put("examinationRecordId_gt", examinationRecordId_gt);
+						}
+						if(examinationRecordId_ge!=null){
+                        	queryMapReturn.put("examinationRecordId_ge", examinationRecordId_ge);
+						}
+						if(examinationRecordId_lt!=null){
+                        	queryMapReturn.put("examinationRecordId_lt", examinationRecordId_lt);
+						}
+						if(examinationRecordId_le!=null){
+                        	queryMapReturn.put("examinationRecordId_le", examinationRecordId_le);
+						}
+						if(examinationRecordId_in!=null){
+                        	queryMapReturn.put("examinationRecordId_in", examinationRecordId_in);
+						}
+						if(examinationRecordId!=null){
+                        	queryMapReturn.put("examinationRecordId", examinationRecordId);
+						}		
+															
+						    																																																																																				Integer examinationDataFileId = (Integer)contentreq.get("examinationDataFileId");
+	                        if(examinationDataFileId!=null){
+	                        	queryMapReturn.put("examinationDataFileId", examinationDataFileId);
+	                        }		           
+																																			Integer examinationDataPhotoId = (Integer)contentreq.get("examinationDataPhotoId");
+	                        if(examinationDataPhotoId!=null){
+	                        	queryMapReturn.put("examinationDataPhotoId", examinationDataPhotoId);
+	                        }		           
+																					
+																																			String examinationRecordShow = (String)contentreq.get("examinationRecordShow");
+							if("true".equals(examinationRecordShow)){
+								examinationRecordShowReturn = true;
+							}
+																																																								String type1DataDicShow = (String)contentreq.get("type1DataDicShow");
+							if("true".equals(type1DataDicShow)){
+								type1DataDicShowReturn = true;
+							}
+																																																								String type2DataDicShow = (String)contentreq.get("type2DataDicShow");
+							if("true".equals(type2DataDicShow)){
+								type2DataDicShowReturn = true;
+							}
+																																																	String examinationDataFileListShow = (String)contentreq.get("examinationDataFileListShow");
+							if("true".equals(examinationDataFileListShow)){
+								examinationDataFileListShowReturn = true;
+							}		           
+																																																								String examinationDataPhotoListShow = (String)contentreq.get("examinationDataPhotoListShow");
+							if("true".equals(examinationDataPhotoListShow)){
+								examinationDataPhotoListShowReturn = true;
+							}		           
+																																								}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				    Object orderreq = (Object) reqParams.get("order");
+					if (orderreq != null) {
+						JSONArray order = (JSONArray)orderreq;
+						orderListReturn = new ArrayList<OrderVO>();
+						for(int i=0;i<order.size();i++){
+							JSONObject obj = order.getJSONObject(i);
+							OrderVO orderVO = new OrderVO();
+							orderVO.setName((String)obj.get("column"));
+							orderVO.setOrderType((String)obj.get("type"));
+							orderListReturn.add(orderVO);
+						}						
+					}
+				}
+			} else if ("DEL_EXAMINATION_DATA_INFO_REQUEST".equals(command)) {
+				actionReturn = "del";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");	
+						    																												String delExaminationRecord = (String)contentreq.get("delExaminationRecord");
+							if("true".equals(delExaminationRecord)){
+								delExaminationRecordReturn = true;
+							}
+																																																								String delType1DataDic = (String)contentreq.get("delType1DataDic");
+							if("true".equals(delType1DataDic)){
+								delType1DataDicReturn = true;
+							}
+																																																								String delType2DataDic = (String)contentreq.get("delType2DataDic");
+							if("true".equals(delType2DataDic)){
+								delType2DataDicReturn = true;
+							}
+																																																	String delExaminationDataFileList = (String)contentreq.get("delExaminationDataFileList");
+							if("true".equals(delExaminationDataFileList)){
+								delExaminationDataFileListReturn = true;
+							}		           
+																																																								String delExaminationDataPhotoList = (String)contentreq.get("delExaminationDataPhotoList");
+							if("true".equals(delExaminationDataPhotoList)){
+								delExaminationDataPhotoListReturn = true;
+							}		           
+																																								}	
+				}
+			} else if ("DEL_EXAMINATION_DATA_LIST_REQUEST".equals(command)) {
+				actionReturn = "delList";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																								Integer type1DataDicId_gt = (Integer)contentreq.get("type1DataDicId_gt");
+						Integer type1DataDicId_ge = (Integer)contentreq.get("type1DataDicId_ge");
+						Integer type1DataDicId_lt = (Integer)contentreq.get("type1DataDicId_lt");
+						Integer type1DataDicId_le = (Integer)contentreq.get("type1DataDicId_le");
+						String type1DataDicId_in = (String)contentreq.get("type1DataDicId_in");
+						Integer type1DataDicId = (Integer)contentreq.get("type1DataDicId");
+                        if(type1DataDicId_gt!=null){
+                        	queryMapReturn.put("type1DataDicId_gt", type1DataDicId_gt);
+						}
+						if(type1DataDicId_ge!=null){
+                        	queryMapReturn.put("type1DataDicId_ge", type1DataDicId_ge);
+						}
+						if(type1DataDicId_lt!=null){
+                        	queryMapReturn.put("type1DataDicId_lt", type1DataDicId_lt);
+						}
+						if(type1DataDicId_le!=null){
+                        	queryMapReturn.put("type1DataDicId_le", type1DataDicId_le);
+						}
+						if(type1DataDicId_in!=null){
+                        	queryMapReturn.put("type1DataDicId_in", type1DataDicId_in);
+						}
+						if(type1DataDicId!=null){
+                        	queryMapReturn.put("type1DataDicId", type1DataDicId);
+						}		
+																								Integer type2DataDicId_gt = (Integer)contentreq.get("type2DataDicId_gt");
+						Integer type2DataDicId_ge = (Integer)contentreq.get("type2DataDicId_ge");
+						Integer type2DataDicId_lt = (Integer)contentreq.get("type2DataDicId_lt");
+						Integer type2DataDicId_le = (Integer)contentreq.get("type2DataDicId_le");
+						String type2DataDicId_in = (String)contentreq.get("type2DataDicId_in");
+						Integer type2DataDicId = (Integer)contentreq.get("type2DataDicId");
+                        if(type2DataDicId_gt!=null){
+                        	queryMapReturn.put("type2DataDicId_gt", type2DataDicId_gt);
+						}
+						if(type2DataDicId_ge!=null){
+                        	queryMapReturn.put("type2DataDicId_ge", type2DataDicId_ge);
+						}
+						if(type2DataDicId_lt!=null){
+                        	queryMapReturn.put("type2DataDicId_lt", type2DataDicId_lt);
+						}
+						if(type2DataDicId_le!=null){
+                        	queryMapReturn.put("type2DataDicId_le", type2DataDicId_le);
+						}
+						if(type2DataDicId_in!=null){
+                        	queryMapReturn.put("type2DataDicId_in", type2DataDicId_in);
+						}
+						if(type2DataDicId!=null){
+                        	queryMapReturn.put("type2DataDicId", type2DataDicId);
+						}		
+																																String examinationItem_like = (String)contentreq.get("examinationItem_like");
+							String examinationItem_isNull = (String)contentreq.get("examinationItem_isNull");
+							String examinationItem_isNotNull = (String)contentreq.get("examinationItem_isNotNull");
+							String examinationItem_in = (String)contentreq.get("examinationItem_in");
+							String examinationItem = (String)contentreq.get("examinationItem");
+							if(examinationItem_like!=null){
+	                        	queryMapReturn.put("examinationItem_like", examinationItem_like);
+							}
+							if(examinationItem_isNull!=null){
+	                        	queryMapReturn.put("examinationItem_isNull", examinationItem_isNull);
+							}
+							if(examinationItem_isNotNull!=null){
+	                        	queryMapReturn.put("examinationItem_isNotNull", examinationItem_isNotNull);
+							}
+							if(examinationItem_in!=null){
+	                        	queryMapReturn.put("examinationItem_in", examinationItem_in);
+							}
+							if(examinationItem!=null){
+	                        	queryMapReturn.put("examinationItem", examinationItem);
+							}						           
+																																							String examinationResult_like = (String)contentreq.get("examinationResult_like");
+							String examinationResult_isNull = (String)contentreq.get("examinationResult_isNull");
+							String examinationResult_isNotNull = (String)contentreq.get("examinationResult_isNotNull");
+							String examinationResult_in = (String)contentreq.get("examinationResult_in");
+							String examinationResult = (String)contentreq.get("examinationResult");
+							if(examinationResult_like!=null){
+	                        	queryMapReturn.put("examinationResult_like", examinationResult_like);
+							}
+							if(examinationResult_isNull!=null){
+	                        	queryMapReturn.put("examinationResult_isNull", examinationResult_isNull);
+							}
+							if(examinationResult_isNotNull!=null){
+	                        	queryMapReturn.put("examinationResult_isNotNull", examinationResult_isNotNull);
+							}
+							if(examinationResult_in!=null){
+	                        	queryMapReturn.put("examinationResult_in", examinationResult_in);
+							}
+							if(examinationResult!=null){
+	                        	queryMapReturn.put("examinationResult", examinationResult);
+							}						           
+																																							String unit_like = (String)contentreq.get("unit_like");
+							String unit_isNull = (String)contentreq.get("unit_isNull");
+							String unit_isNotNull = (String)contentreq.get("unit_isNotNull");
+							String unit_in = (String)contentreq.get("unit_in");
+							String unit = (String)contentreq.get("unit");
+							if(unit_like!=null){
+	                        	queryMapReturn.put("unit_like", unit_like);
+							}
+							if(unit_isNull!=null){
+	                        	queryMapReturn.put("unit_isNull", unit_isNull);
+							}
+							if(unit_isNotNull!=null){
+	                        	queryMapReturn.put("unit_isNotNull", unit_isNotNull);
+							}
+							if(unit_in!=null){
+	                        	queryMapReturn.put("unit_in", unit_in);
+							}
+							if(unit!=null){
+	                        	queryMapReturn.put("unit", unit);
+							}						           
+																																							String abnormalPrompt_like = (String)contentreq.get("abnormalPrompt_like");
+							String abnormalPrompt_isNull = (String)contentreq.get("abnormalPrompt_isNull");
+							String abnormalPrompt_isNotNull = (String)contentreq.get("abnormalPrompt_isNotNull");
+							String abnormalPrompt_in = (String)contentreq.get("abnormalPrompt_in");
+							String abnormalPrompt = (String)contentreq.get("abnormalPrompt");
+							if(abnormalPrompt_like!=null){
+	                        	queryMapReturn.put("abnormalPrompt_like", abnormalPrompt_like);
+							}
+							if(abnormalPrompt_isNull!=null){
+	                        	queryMapReturn.put("abnormalPrompt_isNull", abnormalPrompt_isNull);
+							}
+							if(abnormalPrompt_isNotNull!=null){
+	                        	queryMapReturn.put("abnormalPrompt_isNotNull", abnormalPrompt_isNotNull);
+							}
+							if(abnormalPrompt_in!=null){
+	                        	queryMapReturn.put("abnormalPrompt_in", abnormalPrompt_in);
+							}
+							if(abnormalPrompt!=null){
+	                        	queryMapReturn.put("abnormalPrompt", abnormalPrompt);
+							}						           
+																																							String referenceRange_like = (String)contentreq.get("referenceRange_like");
+							String referenceRange_isNull = (String)contentreq.get("referenceRange_isNull");
+							String referenceRange_isNotNull = (String)contentreq.get("referenceRange_isNotNull");
+							String referenceRange_in = (String)contentreq.get("referenceRange_in");
+							String referenceRange = (String)contentreq.get("referenceRange");
+							if(referenceRange_like!=null){
+	                        	queryMapReturn.put("referenceRange_like", referenceRange_like);
+							}
+							if(referenceRange_isNull!=null){
+	                        	queryMapReturn.put("referenceRange_isNull", referenceRange_isNull);
+							}
+							if(referenceRange_isNotNull!=null){
+	                        	queryMapReturn.put("referenceRange_isNotNull", referenceRange_isNotNull);
+							}
+							if(referenceRange_in!=null){
+	                        	queryMapReturn.put("referenceRange_in", referenceRange_in);
+							}
+							if(referenceRange!=null){
+	                        	queryMapReturn.put("referenceRange", referenceRange);
+							}						           
+																																							String conclusion_like = (String)contentreq.get("conclusion_like");
+							String conclusion_isNull = (String)contentreq.get("conclusion_isNull");
+							String conclusion_isNotNull = (String)contentreq.get("conclusion_isNotNull");
+							String conclusion_in = (String)contentreq.get("conclusion_in");
+							String conclusion = (String)contentreq.get("conclusion");
+							if(conclusion_like!=null){
+	                        	queryMapReturn.put("conclusion_like", conclusion_like);
+							}
+							if(conclusion_isNull!=null){
+	                        	queryMapReturn.put("conclusion_isNull", conclusion_isNull);
+							}
+							if(conclusion_isNotNull!=null){
+	                        	queryMapReturn.put("conclusion_isNotNull", conclusion_isNotNull);
+							}
+							if(conclusion_in!=null){
+	                        	queryMapReturn.put("conclusion_in", conclusion_in);
+							}
+							if(conclusion!=null){
+	                        	queryMapReturn.put("conclusion", conclusion);
+							}						           
+																																							String examinationTime_gt = (String)contentreq.get("examinationTime_gt");
+							String examinationTime_ge = (String)contentreq.get("examinationTime_ge");
+							String examinationTime_lt = (String)contentreq.get("examinationTime_lt");
+							String examinationTime_le = (String)contentreq.get("examinationTime_le");
+	                        if(examinationTime_gt!=null){
+	                        	queryMapReturn.put("examinationTime_gt", examinationTime_gt);
+							}
+							if(examinationTime_ge!=null){
+	                        	queryMapReturn.put("examinationTime_ge", examinationTime_ge);
+							}
+							if(examinationTime_lt!=null){
+	                        	queryMapReturn.put("examinationTime_lt", examinationTime_lt);
+							}
+							if(examinationTime_le!=null){
+	                        	queryMapReturn.put("examinationTime_le", examinationTime_le);
+							} 
+																																							String createTime_gt = (String)contentreq.get("createTime_gt");
+							String createTime_ge = (String)contentreq.get("createTime_ge");
+							String createTime_lt = (String)contentreq.get("createTime_lt");
+							String createTime_le = (String)contentreq.get("createTime_le");
+	                        if(createTime_gt!=null){
+	                        	queryMapReturn.put("createTime_gt", createTime_gt);
+							}
+							if(createTime_ge!=null){
+	                        	queryMapReturn.put("createTime_ge", createTime_ge);
+							}
+							if(createTime_lt!=null){
+	                        	queryMapReturn.put("createTime_lt", createTime_lt);
+							}
+							if(createTime_le!=null){
+	                        	queryMapReturn.put("createTime_le", createTime_le);
+							} 
+																															Integer examinationRecordId_gt = (Integer)contentreq.get("examinationRecordId_gt");
+						Integer examinationRecordId_ge = (Integer)contentreq.get("examinationRecordId_ge");
+						Integer examinationRecordId_lt = (Integer)contentreq.get("examinationRecordId_lt");
+						Integer examinationRecordId_le = (Integer)contentreq.get("examinationRecordId_le");
+						String examinationRecordId_in = (String)contentreq.get("examinationRecordId_in");
+						Integer examinationRecordId = (Integer)contentreq.get("examinationRecordId");
+                        if(examinationRecordId_gt!=null){
+                        	queryMapReturn.put("examinationRecordId_gt", examinationRecordId_gt);
+						}
+						if(examinationRecordId_ge!=null){
+                        	queryMapReturn.put("examinationRecordId_ge", examinationRecordId_ge);
+						}
+						if(examinationRecordId_lt!=null){
+                        	queryMapReturn.put("examinationRecordId_lt", examinationRecordId_lt);
+						}
+						if(examinationRecordId_le!=null){
+                        	queryMapReturn.put("examinationRecordId_le", examinationRecordId_le);
+						}
+						if(examinationRecordId_in!=null){
+                        	queryMapReturn.put("examinationRecordId_in", examinationRecordId_in);
+						}
+						if(examinationRecordId!=null){
+                        	queryMapReturn.put("examinationRecordId", examinationRecordId);
+						}		
+																		
+																														String delExaminationRecord = (String)contentreq.get("delExaminationRecord");
+						if("true".equals(delExaminationRecord)){
+							delExaminationRecordReturn = true;
+						}
+																																																String delType1DataDic = (String)contentreq.get("delType1DataDic");
+						if("true".equals(delType1DataDic)){
+							delType1DataDicReturn = true;
+						}
+																																																String delType2DataDic = (String)contentreq.get("delType2DataDic");
+						if("true".equals(delType2DataDic)){
+							delType2DataDicReturn = true;
+						}
+																																							            Integer examinationDataFileId = (Integer)contentreq.get("examinationDataFileId");
+                        if(examinationDataFileId!=null){
+                        	queryMapReturn.put("examinationDataFileId", examinationDataFileId);
+                        }
+                        String delExaminationDataFileList = (String)contentreq.get("delExaminationDataFileList");
+						if("true".equals(delExaminationDataFileList)){
+							delExaminationDataFileListReturn = true;
+						}
+																																													            Integer examinationDataPhotoId = (Integer)contentreq.get("examinationDataPhotoId");
+                        if(examinationDataPhotoId!=null){
+                        	queryMapReturn.put("examinationDataPhotoId", examinationDataPhotoId);
+                        }
+                        String delExaminationDataPhotoList = (String)contentreq.get("delExaminationDataPhotoList");
+						if("true".equals(delExaminationDataPhotoList)){
+							delExaminationDataPhotoListReturn = true;
+						}
+																																			}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				}
+			}
+
+			if (actionReturn != null && !"".equals(actionReturn)) {
+				parseMap.put("action", actionReturn);
+			}
+			if (examinationDataReturn != null) {
+				parseMap.put("examinationData", examinationDataReturn);
+			}
+			if (examinationDataListReturn != null && examinationDataListReturn.size() > 0) {
+				parseMap.put("examinationDataList", examinationDataListReturn);
+			}
+			if (idReturn != null) {
+				parseMap.put("id", idReturn);
+			}	
+			if (orderListReturn != null && orderListReturn.size() > 0) {
+				parseMap.put("orderList", orderListReturn);
+			}		
+			if (queryMapReturn != null) {
+				parseMap.put("queryMap", queryMapReturn);
+			}
+			if (pagenoReturn > 0) {
+				parseMap.put("pageno", pagenoReturn);
+			}
+			if (pagesizeReturn > 0) {
+				parseMap.put("pagesize", pagesizeReturn);
+			}
+			
+			
+															if (examinationRecordShowReturn != null) {
+				parseMap.put("examinationRecordShow", examinationRecordShowReturn);
+			}
+			if (delExaminationRecordReturn != null) {
+				parseMap.put("delExaminationRecord", delExaminationRecordReturn);
+			}
+																								if (type1DataDicShowReturn != null) {
+				parseMap.put("type1DataDicShow", type1DataDicShowReturn);
+			}
+			if (delType1DataDicReturn != null) {
+				parseMap.put("delType1DataDic", delType1DataDicReturn);
+			}
+																								if (type2DataDicShowReturn != null) {
+				parseMap.put("type2DataDicShow", type2DataDicShowReturn);
+			}
+			if (delType2DataDicReturn != null) {
+				parseMap.put("delType2DataDic", delType2DataDicReturn);
+			}
+																		            if (examinationDataFileListShowReturn != null) {
+				parseMap.put("examinationDataFileListShow", examinationDataFileListShowReturn);
+			}
+            if (delExaminationDataFileListReturn != null) {
+				parseMap.put("delExaminationDataFileList", delExaminationDataFileListReturn);
+			}
+																					            if (examinationDataPhotoListShowReturn != null) {
+				parseMap.put("examinationDataPhotoListShow", examinationDataPhotoListShowReturn);
+			}
+            if (delExaminationDataPhotoListReturn != null) {
+				parseMap.put("delExaminationDataPhotoList", delExaminationDataPhotoListReturn);
+			}
+																		
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByXml(String command,String reqStr,
+			HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

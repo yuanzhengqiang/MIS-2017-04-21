@@ -1,0 +1,1121 @@
+package com.framework.system.common.service.department;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+
+
+import com.framework.system.common.entity.user.UserEntity;
+import com.framework.system.common.entity.user.UserEntity;
+
+import com.framework.system.common.entity.department.DepartmentEntity;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+
+
+/**   
+ * @Title: Service
+ * @Description: 部门信息表服务类
+ * @author feng.gu
+ * @date 2015-12-03 17:36:50
+ * @version V1.0   
+ *
+ */
+public class DepartmentService {
+	   private static Logger logger = Logger.getLogger(DepartmentService.class);
+	   private DBManager dbManager = DBManager.getInstance();
+    		
+	   private static DepartmentService departmentService;
+	   /**
+	    * 获取实例	
+	    * @return
+	    */
+	   public static DepartmentService getInstance(){
+		if(departmentService==null){
+			departmentService = new DepartmentService();
+		}
+		return departmentService;
+	   }
+	                 	                 				     				     				     				     
+				     	 
+	   /**
+		 * 保存记录
+		 * 
+		 * @param obj
+		 */
+		public boolean save(DepartmentEntity department) {			
+			boolean result =false;
+			if(department!=null){
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					 tx.beginTransaction();					 					 
+					 					 				     				     				     				     					     //关联信息保存
+					     DepartmentEntity parentDepartment = department.getParentDepartment();
+						 if(parentDepartment!=null){						   
+							 dbManager.saveNoTransaction(parentDepartment);
+							 department.setParentId(parentDepartment.getId());
+						 }	
+						 //关联信息保存
+						 if(department.getChildDepartmentList()!=null&&department.getChildDepartmentList().size()>0){						   			    	            	    	           
+							    for(DepartmentEntity departmentEntity:department.getChildDepartmentList()){
+							    	dbManager.saveNoTransaction(departmentEntity);
+							    }
+						 }					 					
+				     					 					 				     				     					     //关联信息保存
+					     UserEntity createUser = department.getCreateUser();
+						 if(createUser!=null){						   
+							 dbManager.saveNoTransaction(createUser);
+							 department.setCreateUserId(createUser.getId());
+						 }						 
+				     				     				     					 					 				     				     					     //关联信息保存
+					     UserEntity updateUser = department.getUpdateUser();
+						 if(updateUser!=null){						   
+							 dbManager.saveNoTransaction(updateUser);
+							 department.setUpdateUserId(updateUser.getId());
+						 }						 
+				     				     				     					 					 result=dbManager.saveNoTransaction(department);	
+					 tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {				    
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  			
+			}	
+			return result;
+		}
+		
+		/**
+		 * 批量保存记录
+		 * 
+		 * @param list
+		 */
+		public boolean saveList(List<DepartmentEntity> departmentList) {
+			boolean result = false;
+			if (departmentList != null && departmentList.size() > 0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 
+					for(DepartmentEntity department:departmentList){
+						if(department!=null){												  								 
+								 									 					                 								     								     								     									     //关联信息保存
+									     DepartmentEntity parentDepartment = department.getParentDepartment();
+										 if(parentDepartment!=null){						   
+											 dbManager.saveNoTransaction(parentDepartment);
+											 department.setParentId(parentDepartment.getId());
+										 }	
+										  //关联信息保存	
+										 if(department.getChildDepartmentList()!=null&&department.getChildDepartmentList().size()>0){						   						    	               	           
+										    for(DepartmentEntity departmentEntity:department.getChildDepartmentList()){
+										    	dbManager.saveNoTransaction(departmentEntity);
+										    }
+									     }									 
+								     								 									 					                 								     								         //关联信息保存
+									     UserEntity createUser = department.getCreateUser();
+										 if(createUser!=null){						   
+											 dbManager.saveNoTransaction(createUser);
+											 department.setCreateUserId(createUser.getId());
+										 }									 
+								     								     								     								 									 					                 								     								         //关联信息保存
+									     UserEntity updateUser = department.getUpdateUser();
+										 if(updateUser!=null){						   
+											 dbManager.saveNoTransaction(updateUser);
+											 department.setUpdateUserId(updateUser.getId());
+										 }									 
+								     								     								     								 								 result=dbManager.saveNoTransaction(department);								 			
+						}	
+					}
+				    tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		/**
+		 * 根据id读取记录
+		 * 
+		 * @param id
+		 *            主键
+		 * @param obj
+		 */
+		public DepartmentEntity getById(Integer id) {
+			DepartmentEntity obj = null;
+			if (id != null) {
+				obj = (DepartmentEntity) dbManager.getById(id, DepartmentEntity.class);			
+			}
+			return obj;
+		}
+		
+		/**
+		 * 根据id读取记录
+		 * @param id 主键
+		 		             	                 				     				     				     		 * @param parentDepartmentShow 是否查询关联信息
+		   @param childDepartmentListShow 是否查询关联信息
+				     		 		             	                 				     		 * @param createUserShow 是否查询关联信息
+				     				     				     		 		             	                 				     		 * @param updateUserShow 是否查询关联信息
+				     				     				     		 		 * @param obj
+		 */
+		public DepartmentEntity getById(Integer id,Boolean parentDepartmentShow,Boolean childDepartmentListShow,Boolean createUserShow,Boolean updateUserShow) {
+			DepartmentEntity obj = null;
+			if (id!=null) {
+				obj = (DepartmentEntity)dbManager.getById(id, DepartmentEntity.class);
+									 	                 				     				     				     				        //查询关联内容
+						if(parentDepartmentShow!=null&&parentDepartmentShow.booleanValue()&&obj!=null&&obj.getParentId()>0){
+					        DepartmentEntity department = (DepartmentEntity)dbManager.getById(obj.getParentId(), DepartmentEntity.class);
+					        obj.setParentDepartment(department);        	  	  
+				        }
+				        //查询关联内容
+						if(childDepartmentListShow!=null&&childDepartmentListShow.booleanValue()&&obj!=null&&obj.getId()>0){
+							List<Object> list = dbManager.searchListByColumn(DepartmentEntity.class, DepartmentEntity.PARENT_ID, String.valueOf(id));
+			            	  if(list!=null&&list.size()>0){
+			            		  List<DepartmentEntity> childDepartmentList= new ArrayList<DepartmentEntity>();
+			            		  for(Object o:list){
+			            			  childDepartmentList.add((DepartmentEntity)o);
+			            		  }
+			            		  obj.setChildDepartmentList(childDepartmentList);          		  
+			            	  }	            	  	  
+						}
+				     				   					 	                 				     				        //查询关联内容
+						if(createUserShow!=null&&createUserShow.booleanValue()&&obj!=null&&obj.getCreateUserId()>0){
+							UserEntity createUser = (UserEntity)dbManager.getById(obj.getCreateUserId(), UserEntity.class);
+							obj.setCreateUser(createUser);        	  	  
+						}
+				     				     				     				   					 	                 				     				        //查询关联内容
+						if(updateUserShow!=null&&updateUserShow.booleanValue()&&obj!=null&&obj.getUpdateUserId()>0){
+							UserEntity updateUser = (UserEntity)dbManager.getById(obj.getUpdateUserId(), UserEntity.class);
+							obj.setUpdateUser(updateUser);        	  	  
+						}
+				     				     				     				   			}
+			return obj;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合		
+		 * @return
+		 */
+		public List<Object> getListByCondition(Map<String,Object> queryMap) {
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+																										Object code=queryMap.get("code");
+					Object code_like=queryMap.get("code_like");
+					Object code_isNull=queryMap.get("code_isNull");
+					Object code_isNotNull=queryMap.get("code_isNotNull");
+					Object code_in=queryMap.get("code_in");
+																					Object showIndex=queryMap.get("showIndex");
+					Object showIndex_gt=queryMap.get("showIndex_gt");
+					Object showIndex_ge=queryMap.get("showIndex_ge");
+					Object showIndex_lt=queryMap.get("showIndex_lt");
+					Object showIndex_le=queryMap.get("showIndex_le");
+					Object showIndex_in=queryMap.get("showIndex_in");
+																Object parentId=queryMap.get("parentId");
+					Object parentId_gt=queryMap.get("parentId_gt");
+					Object parentId_ge=queryMap.get("parentId_ge");
+					Object parentId_lt=queryMap.get("parentId_lt");
+					Object parentId_le=queryMap.get("parentId_le");
+					Object parentId_in=queryMap.get("parentId_in");
+																Object createUserId=queryMap.get("createUserId");
+					Object createUserId_gt=queryMap.get("createUserId_gt");
+					Object createUserId_ge=queryMap.get("createUserId_ge");
+					Object createUserId_lt=queryMap.get("createUserId_lt");
+					Object createUserId_le=queryMap.get("createUserId_le");
+					Object createUserId_in=queryMap.get("createUserId_in");
+																					Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+																					Object updateUserId=queryMap.get("updateUserId");
+					Object updateUserId_gt=queryMap.get("updateUserId_gt");
+					Object updateUserId_ge=queryMap.get("updateUserId_ge");
+					Object updateUserId_lt=queryMap.get("updateUserId_lt");
+					Object updateUserId_le=queryMap.get("updateUserId_le");
+					Object updateUserId_in=queryMap.get("updateUserId_in");
+																					Object updateTime_gt=queryMap.get("updateTime_gt");
+					Object updateTime_ge=queryMap.get("updateTime_ge");
+					Object updateTime_lt=queryMap.get("updateTime_lt");
+					Object updateTime_le=queryMap.get("updateTime_le");
+												
+			
+
+																											
+			
+			QueryCondition qc = new QueryCondition(DepartmentEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.in, name_in));}
+				  															  					if(code!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.eq, code));}
+		            if(code_like!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.like, code_like));}
+		            if(code_isNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.isNull, code_isNull));}
+		            if(code_isNotNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.isNotNull, code_isNotNull));}
+				    if(code_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.in, code_in));}
+				  																if(showIndex!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.eq, showIndex));}
+					if(showIndex_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.gt, showIndex_gt));}
+					if(showIndex_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.ge, showIndex_ge));}
+					if(showIndex_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.lt, showIndex_lt));}
+					if(showIndex_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.le, showIndex_le));}
+					if(showIndex_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.in, showIndex_in));}
+																if(parentId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.eq, parentId));}
+					if(parentId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.gt, parentId_gt));}
+					if(parentId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.ge, parentId_ge));}
+					if(parentId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.lt, parentId_lt));}
+					if(parentId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.le, parentId_le));}
+					if(parentId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.in, parentId_in));}
+																if(createUserId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.eq, createUserId));}
+					if(createUserId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.gt, createUserId_gt));}
+					if(createUserId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.ge, createUserId_ge));}
+					if(createUserId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.lt, createUserId_lt));}
+					if(createUserId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.le, createUserId_le));}
+					if(createUserId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.in, createUserId_in));}
+															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  																if(updateUserId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.eq, updateUserId));}
+					if(updateUserId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.gt, updateUserId_gt));}
+					if(updateUserId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.ge, updateUserId_ge));}
+					if(updateUserId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.lt, updateUserId_lt));}
+					if(updateUserId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.le, updateUserId_le));}
+					if(updateUserId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.in, updateUserId_in));}
+															  					if(updateTime_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.gt, updateTime_gt));}
+					if(updateTime_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.ge, updateTime_ge));}
+					if(updateTime_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.lt, updateTime_lt));}
+					if(updateTime_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.le, updateTime_le));}
+				  										
+						  						  						  			            list = dbManager.queryByCondition(DepartmentEntity.class,qc);           					
+			return list;
+		}
+		
+		
+		/**
+		 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 		             	                 				     				     				     		 * @param parentDepartmentShow 是否查询关联信息,默认false(当为true时注意效率)
+		   @param childDepartmentListShow 是否查询关联信息,默认false(当为true时注意效率)
+				     		 		             	                 				     		 * @param createUserShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		             	                 				     		 * @param updateUserShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		 * @return
+		 */
+		public List<Object> getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,Boolean parentDepartmentShow,Boolean childDepartmentListShow,Boolean createUserShow,Boolean updateUserShow) {
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+																										Object code=queryMap.get("code");
+					Object code_like=queryMap.get("code_like");
+					Object code_isNull=queryMap.get("code_isNull");
+					Object code_isNotNull=queryMap.get("code_isNotNull");
+					Object code_in=queryMap.get("code_in");
+																					Object showIndex=queryMap.get("showIndex");
+					Object showIndex_gt=queryMap.get("showIndex_gt");
+					Object showIndex_ge=queryMap.get("showIndex_ge");
+					Object showIndex_lt=queryMap.get("showIndex_lt");
+					Object showIndex_le=queryMap.get("showIndex_le");
+					Object showIndex_in=queryMap.get("showIndex_in");
+																Object parentId=queryMap.get("parentId");
+					Object parentId_gt=queryMap.get("parentId_gt");
+					Object parentId_ge=queryMap.get("parentId_ge");
+					Object parentId_lt=queryMap.get("parentId_lt");
+					Object parentId_le=queryMap.get("parentId_le");
+					Object parentId_in=queryMap.get("parentId_in");
+																Object createUserId=queryMap.get("createUserId");
+					Object createUserId_gt=queryMap.get("createUserId_gt");
+					Object createUserId_ge=queryMap.get("createUserId_ge");
+					Object createUserId_lt=queryMap.get("createUserId_lt");
+					Object createUserId_le=queryMap.get("createUserId_le");
+					Object createUserId_in=queryMap.get("createUserId_in");
+																					Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+																					Object updateUserId=queryMap.get("updateUserId");
+					Object updateUserId_gt=queryMap.get("updateUserId_gt");
+					Object updateUserId_ge=queryMap.get("updateUserId_ge");
+					Object updateUserId_lt=queryMap.get("updateUserId_lt");
+					Object updateUserId_le=queryMap.get("updateUserId_le");
+					Object updateUserId_in=queryMap.get("updateUserId_in");
+																					Object updateTime_gt=queryMap.get("updateTime_gt");
+					Object updateTime_ge=queryMap.get("updateTime_ge");
+					Object updateTime_lt=queryMap.get("updateTime_lt");
+					Object updateTime_le=queryMap.get("updateTime_le");
+												
+			
+
+																											
+			
+			QueryCondition qc = new QueryCondition(DepartmentEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.in, name_in));}
+				  															  					if(code!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.eq, code));}
+		            if(code_like!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.like, code_like));}
+		            if(code_isNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.isNull, code_isNull));}
+		            if(code_isNotNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.isNotNull, code_isNotNull));}
+				    if(code_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.in, code_in));}
+				  																if(showIndex!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.eq, showIndex));}
+					if(showIndex_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.gt, showIndex_gt));}
+					if(showIndex_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.ge, showIndex_ge));}
+					if(showIndex_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.lt, showIndex_lt));}
+					if(showIndex_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.le, showIndex_le));}
+					if(showIndex_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.in, showIndex_in));}
+																if(parentId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.eq, parentId));}
+					if(parentId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.gt, parentId_gt));}
+					if(parentId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.ge, parentId_ge));}
+					if(parentId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.lt, parentId_lt));}
+					if(parentId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.le, parentId_le));}
+					if(parentId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.in, parentId_in));}
+																if(createUserId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.eq, createUserId));}
+					if(createUserId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.gt, createUserId_gt));}
+					if(createUserId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.ge, createUserId_ge));}
+					if(createUserId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.lt, createUserId_lt));}
+					if(createUserId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.le, createUserId_le));}
+					if(createUserId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.in, createUserId_in));}
+															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  																if(updateUserId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.eq, updateUserId));}
+					if(updateUserId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.gt, updateUserId_gt));}
+					if(updateUserId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.ge, updateUserId_ge));}
+					if(updateUserId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.lt, updateUserId_lt));}
+					if(updateUserId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.le, updateUserId_le));}
+					if(updateUserId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.in, updateUserId_in));}
+															  					if(updateTime_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.gt, updateTime_gt));}
+					if(updateTime_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.ge, updateTime_ge));}
+					if(updateTime_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.lt, updateTime_lt));}
+					if(updateTime_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.le, updateTime_le));}
+				  										
+						  						  						  						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}			
+            list = dbManager.queryByConditions(DepartmentEntity.class,qc,oc);
+                                    int a=0;
+            					             	                 				     				     				     				     if(parentDepartmentShow!=null&&parentDepartmentShow.booleanValue()){
+						a++;
+					 }
+					 if(childDepartmentListShow!=null&&childDepartmentListShow.booleanValue()){
+						a++;
+					 }
+				     		    		             	                 				     				     if(createUserShow!=null&&createUserShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		             	                 				     				     if(updateUserShow!=null&&updateUserShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		                if(a>0&&list!=null&&list.size()>0){
+				List<Object> result = new ArrayList<Object>();
+				for(int i=0;i<list.size();i++){
+					DepartmentEntity obj = (DepartmentEntity)list.get(i);
+										 	                 				     				     				     				        //查询关联内容
+						if(parentDepartmentShow!=null&&parentDepartmentShow.booleanValue()&&obj!=null&&obj.getParentId()>0){
+					        DepartmentEntity department = (DepartmentEntity)dbManager.getById(obj.getParentId(), DepartmentEntity.class);
+					        obj.setParentDepartment(department);        	  	  
+				        }
+				        //查询关联内容
+						if(childDepartmentListShow!=null&&childDepartmentListShow.booleanValue()&&obj!=null&&obj.getId()>0){
+							List<Object> objList = dbManager.searchListByColumn(DepartmentEntity.class, DepartmentEntity.PARENT_ID, String.valueOf(obj.getId()));
+			            	  if(objList!=null&&objList.size()>0){
+			            		  List<DepartmentEntity> childDepartmentList= new ArrayList<DepartmentEntity>();
+			            		  for(Object o:objList){
+			            			  childDepartmentList.add((DepartmentEntity)o);
+			            		  }
+			            		  obj.setChildDepartmentList(childDepartmentList);          		  
+			            	  }	            	  	  
+						}
+				     				    					 	                 				     				        //查询关联内容
+						if(createUserShow!=null&&createUserShow.booleanValue()&&obj!=null&&obj.getCreateUserId()>0){
+							UserEntity createUser = (UserEntity)dbManager.getById(obj.getCreateUserId(), UserEntity.class);
+							obj.setCreateUser(createUser);        	  	  
+						}
+				     				     				     				    					 	                 				     				        //查询关联内容
+						if(updateUserShow!=null&&updateUserShow.booleanValue()&&obj!=null&&obj.getUpdateUserId()>0){
+							UserEntity updateUser = (UserEntity)dbManager.getById(obj.getUpdateUserId(), UserEntity.class);
+							obj.setUpdateUser(updateUser);        	  	  
+						}
+				     				     				     				    					result.add(obj);					
+				}
+				list=result;			
+		}	
+					return list;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数		
+		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,int pageno,int pagesize) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+															  					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+				   															  					Object code=queryMap.get("code");
+					Object code_like=queryMap.get("code_like");
+					Object code_isNull=queryMap.get("code_isNull");
+					Object code_isNotNull=queryMap.get("code_isNotNull");
+					Object code_in=queryMap.get("code_in");
+				   																Object showIndex=queryMap.get("showIndex");
+					Object showIndex_gt=queryMap.get("showIndex_gt");
+					Object showIndex_ge=queryMap.get("showIndex_ge");
+					Object showIndex_lt=queryMap.get("showIndex_lt");
+					Object showIndex_le=queryMap.get("showIndex_le");
+					Object showIndex_in=queryMap.get("showIndex_in");
+																Object parentId=queryMap.get("parentId");
+					Object parentId_gt=queryMap.get("parentId_gt");
+					Object parentId_ge=queryMap.get("parentId_ge");
+					Object parentId_lt=queryMap.get("parentId_lt");
+					Object parentId_le=queryMap.get("parentId_le");
+					Object parentId_in=queryMap.get("parentId_in");
+																Object createUserId=queryMap.get("createUserId");
+					Object createUserId_gt=queryMap.get("createUserId_gt");
+					Object createUserId_ge=queryMap.get("createUserId_ge");
+					Object createUserId_lt=queryMap.get("createUserId_lt");
+					Object createUserId_le=queryMap.get("createUserId_le");
+					Object createUserId_in=queryMap.get("createUserId_in");
+															  					Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+				  																Object updateUserId=queryMap.get("updateUserId");
+					Object updateUserId_gt=queryMap.get("updateUserId_gt");
+					Object updateUserId_ge=queryMap.get("updateUserId_ge");
+					Object updateUserId_lt=queryMap.get("updateUserId_lt");
+					Object updateUserId_le=queryMap.get("updateUserId_le");
+					Object updateUserId_in=queryMap.get("updateUserId_in");
+															  					Object updateTime_gt=queryMap.get("updateTime_gt");
+					Object updateTime_ge=queryMap.get("updateTime_ge");
+					Object updateTime_lt=queryMap.get("updateTime_lt");
+					Object updateTime_le=queryMap.get("updateTime_le");
+				  							
+			
+
+																											
+			
+			QueryCondition qc = new QueryCondition(DepartmentEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.in, name_in));}
+				  															  					if(code!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.eq, code));}
+		            if(code_like!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.like, code_like));}
+		            if(code_isNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.isNull, code_isNull));}
+		            if(code_isNotNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.isNotNull, code_isNotNull));}
+				    if(code_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.in, code_in));}
+				  																if(showIndex!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.eq, showIndex));}
+					if(showIndex_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.gt, showIndex_gt));}
+					if(showIndex_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.ge, showIndex_ge));}
+					if(showIndex_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.lt, showIndex_lt));}
+					if(showIndex_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.le, showIndex_le));}
+					if(showIndex_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.in, showIndex_in));}
+																if(parentId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.eq, parentId));}
+					if(parentId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.gt, parentId_gt));}
+					if(parentId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.ge, parentId_ge));}
+					if(parentId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.lt, parentId_lt));}
+					if(parentId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.le, parentId_le));}
+					if(parentId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.in, parentId_in));}
+																if(createUserId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.eq, createUserId));}
+					if(createUserId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.gt, createUserId_gt));}
+					if(createUserId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.ge, createUserId_ge));}
+					if(createUserId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.lt, createUserId_lt));}
+					if(createUserId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.le, createUserId_le));}
+					if(createUserId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.in, createUserId_in));}
+															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  																if(updateUserId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.eq, updateUserId));}
+					if(updateUserId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.gt, updateUserId_gt));}
+					if(updateUserId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.ge, updateUserId_ge));}
+					if(updateUserId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.lt, updateUserId_lt));}
+					if(updateUserId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.le, updateUserId_le));}
+					if(updateUserId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.in, updateUserId_in));}
+															  					if(updateTime_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.gt, updateTime_gt));}
+					if(updateTime_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.ge, updateTime_ge));}
+					if(updateTime_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.lt, updateTime_lt));}
+					if(updateTime_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.le, updateTime_le));}
+				  										
+						  						  						  			            pagelist = dbManager.queryByCondition(DepartmentEntity.class,qc,pageno,pagesize);	                      			
+			return pagelist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数
+		 		             	                 				     				     				     		 * @param parentDepartmentShow 是否查询关联信息,默认false(当为true时注意效率)
+		   @param childDepartmentListShow 是否查询关联信息,默认false(当为true时注意效率)
+				     		 		             	                 				     		 * @param createUserShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		             	                 				     		 * @param updateUserShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,int pageno,int pagesize,Boolean parentDepartmentShow,Boolean childDepartmentListShow,Boolean createUserShow,Boolean updateUserShow) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+															  					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+				   															  					Object code=queryMap.get("code");
+					Object code_like=queryMap.get("code_like");
+					Object code_isNull=queryMap.get("code_isNull");
+					Object code_isNotNull=queryMap.get("code_isNotNull");
+					Object code_in=queryMap.get("code_in");
+				   																Object showIndex=queryMap.get("showIndex");
+					Object showIndex_gt=queryMap.get("showIndex_gt");
+					Object showIndex_ge=queryMap.get("showIndex_ge");
+					Object showIndex_lt=queryMap.get("showIndex_lt");
+					Object showIndex_le=queryMap.get("showIndex_le");
+					Object showIndex_in=queryMap.get("showIndex_in");
+																Object parentId=queryMap.get("parentId");
+					Object parentId_gt=queryMap.get("parentId_gt");
+					Object parentId_ge=queryMap.get("parentId_ge");
+					Object parentId_lt=queryMap.get("parentId_lt");
+					Object parentId_le=queryMap.get("parentId_le");
+					Object parentId_in=queryMap.get("parentId_in");
+																Object createUserId=queryMap.get("createUserId");
+					Object createUserId_gt=queryMap.get("createUserId_gt");
+					Object createUserId_ge=queryMap.get("createUserId_ge");
+					Object createUserId_lt=queryMap.get("createUserId_lt");
+					Object createUserId_le=queryMap.get("createUserId_le");
+					Object createUserId_in=queryMap.get("createUserId_in");
+															  					Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+				  																Object updateUserId=queryMap.get("updateUserId");
+					Object updateUserId_gt=queryMap.get("updateUserId_gt");
+					Object updateUserId_ge=queryMap.get("updateUserId_ge");
+					Object updateUserId_lt=queryMap.get("updateUserId_lt");
+					Object updateUserId_le=queryMap.get("updateUserId_le");
+					Object updateUserId_in=queryMap.get("updateUserId_in");
+															  					Object updateTime_gt=queryMap.get("updateTime_gt");
+					Object updateTime_ge=queryMap.get("updateTime_ge");
+					Object updateTime_lt=queryMap.get("updateTime_lt");
+					Object updateTime_le=queryMap.get("updateTime_le");
+				  							
+			
+
+																											
+			
+			QueryCondition qc = new QueryCondition(DepartmentEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.in, name_in));}
+				  															  					if(code!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.eq, code));}
+		            if(code_like!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.like, code_like));}
+		            if(code_isNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.isNull, code_isNull));}
+		            if(code_isNotNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.isNotNull, code_isNotNull));}
+				    if(code_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.in, code_in));}
+				  																if(showIndex!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.eq, showIndex));}
+					if(showIndex_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.gt, showIndex_gt));}
+					if(showIndex_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.ge, showIndex_ge));}
+					if(showIndex_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.lt, showIndex_lt));}
+					if(showIndex_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.le, showIndex_le));}
+					if(showIndex_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.in, showIndex_in));}
+																if(parentId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.eq, parentId));}
+					if(parentId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.gt, parentId_gt));}
+					if(parentId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.ge, parentId_ge));}
+					if(parentId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.lt, parentId_lt));}
+					if(parentId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.le, parentId_le));}
+					if(parentId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.in, parentId_in));}
+																if(createUserId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.eq, createUserId));}
+					if(createUserId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.gt, createUserId_gt));}
+					if(createUserId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.ge, createUserId_ge));}
+					if(createUserId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.lt, createUserId_lt));}
+					if(createUserId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.le, createUserId_le));}
+					if(createUserId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.in, createUserId_in));}
+															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  																if(updateUserId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.eq, updateUserId));}
+					if(updateUserId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.gt, updateUserId_gt));}
+					if(updateUserId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.ge, updateUserId_ge));}
+					if(updateUserId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.lt, updateUserId_lt));}
+					if(updateUserId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.le, updateUserId_le));}
+					if(updateUserId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.in, updateUserId_in));}
+															  					if(updateTime_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.gt, updateTime_gt));}
+					if(updateTime_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.ge, updateTime_ge));}
+					if(updateTime_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.lt, updateTime_lt));}
+					if(updateTime_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.le, updateTime_le));}
+				  										
+						  						  						  						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}		
+            pagelist = dbManager.queryByConditions(DepartmentEntity.class,qc,oc,pageno,pagesize);	           
+                                    int a=0;
+            					             	                 				     				     				     				     if(parentDepartmentShow!=null&&parentDepartmentShow.booleanValue()){
+						a++;
+					 }
+					 if(childDepartmentListShow!=null&&childDepartmentListShow.booleanValue()){
+						a++;
+					 }
+				     		    		             	                 				     				     if(createUserShow!=null&&createUserShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		             	                 				     				     if(updateUserShow!=null&&updateUserShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		                if(a>0&&pagelist!=null&&pagelist.getResultList()!=null&&pagelist.getResultList().size()>0){
+				List<Object> result = new ArrayList<Object>();
+				for(int i=0;i<pagelist.getResultList().size();i++){
+					DepartmentEntity obj = (DepartmentEntity)pagelist.getResultList().get(i);
+										 	                 				     				     				     				        //查询关联内容
+						if(parentDepartmentShow!=null&&parentDepartmentShow.booleanValue()&&obj!=null&&obj.getParentId()>0){
+					        DepartmentEntity department = (DepartmentEntity)dbManager.getById(obj.getParentId(), DepartmentEntity.class);
+					        obj.setParentDepartment(department);        	  	  
+				        }
+				        //查询关联内容
+						if(childDepartmentListShow!=null&&childDepartmentListShow.booleanValue()&&obj!=null&&obj.getId()>0){
+							List<Object> objList = dbManager.searchListByColumn(DepartmentEntity.class, DepartmentEntity.PARENT_ID, String.valueOf(obj.getId()));
+			            	  if(objList!=null&&objList.size()>0){
+			            		  List<DepartmentEntity> childDepartmentList= new ArrayList<DepartmentEntity>();
+			            		  for(Object o:objList){
+			            			  childDepartmentList.add((DepartmentEntity)o);
+			            		  }
+			            		  obj.setChildDepartmentList(childDepartmentList);          		  
+			            	  }	            	  	  
+						}
+				     				    					 	                 				     				        //查询关联内容
+						if(createUserShow!=null&&createUserShow.booleanValue()&&obj!=null&&obj.getCreateUserId()>0){
+							UserEntity createUser = (UserEntity)dbManager.getById(obj.getCreateUserId(), UserEntity.class);
+							obj.setCreateUser(createUser);        	  	  
+						}
+				     				     				     				    					 	                 				     				        //查询关联内容
+						if(updateUserShow!=null&&updateUserShow.booleanValue()&&obj!=null&&obj.getUpdateUserId()>0){
+							UserEntity updateUser = (UserEntity)dbManager.getById(obj.getUpdateUserId(), UserEntity.class);
+							obj.setUpdateUser(updateUser);        	  	  
+						}
+				     				     				     				    					result.add(obj);					
+				}
+				pagelist.setResultList(result);			
+		}	
+					return pagelist;
+		}
+		
+		/**
+		 * 删除记录
+		 * 
+		 * @param id 主键
+		 * @param obj
+		 */
+		public boolean del(Integer id,Boolean delParentDepartment,Boolean delChildDepartmentList,Boolean delCreateUser,Boolean delUpdateUser) {
+			boolean result = false;
+			if (id !=null&&id>0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 					
+										 	                 				     				     				     					    //删除关联信息
+						if(delParentDepartment!=null&&delParentDepartment.booleanValue()){	
+						    DepartmentEntity department = (DepartmentEntity)dbManager.getById(id, DepartmentEntity.class);
+						    if(department.getParentId()!=null){
+							dbManager.delNoTransaction(department.getParentId(), DepartmentEntity.class);
+						    }						
+					    }
+					    //删除关联信息
+						if(delChildDepartmentList!=null&&delChildDepartmentList.booleanValue()){
+							QueryCondition qc = new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.eq, id);
+							dbManager.delByConditionsNoTransaction(DepartmentEntity.class, qc);
+						}
+				     										 	                 				     					    //删除关联信息
+						if(delCreateUser!=null&&delCreateUser.booleanValue()){	
+							DepartmentEntity department = (DepartmentEntity)dbManager.getById(id, DepartmentEntity.class);
+							if(department!=null&&department.getCreateUserId()!=null){
+								dbManager.delNoTransaction(department.getCreateUserId(), UserEntity.class);
+							}						
+						}
+				     				     				     										 	                 				     					    //删除关联信息
+						if(delUpdateUser!=null&&delUpdateUser.booleanValue()){	
+							DepartmentEntity department = (DepartmentEntity)dbManager.getById(id, DepartmentEntity.class);
+							if(department!=null&&department.getUpdateUserId()!=null){
+								dbManager.delNoTransaction(department.getUpdateUserId(), UserEntity.class);
+							}						
+						}
+				     				     				     										result = dbManager.delNoTransaction(id, DepartmentEntity.class);
+					tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		/**
+		 * 批量删除记录
+		 * 
+		 * @param ids
+		 *            主键 英文逗号间隔
+		 * @param obj
+		 */
+		public boolean del(String ids) {
+			boolean result = false;
+			if (ids != null && !"".equals(ids.trim())) {
+				TransactionManager tx = DbUtils.getTranManager();
+				try {
+					tx.beginTransaction();
+					QueryCondition qc = new QueryCondition(DepartmentEntity.ID,QueryCondition.in, ids);
+					result = dbManager.delByConditionsNoTransaction(DepartmentEntity.class, qc);
+					tx.commitAndClose();
+				} catch (Exception e) {
+					logger.error("数据库提交失败！");
+					logger.error(e);
+					result = false;
+					try {
+						tx.rollbackAndClose();
+					} catch (Exception ex) {
+						logger.error("数据库回滚失败！");
+						logger.error(ex);
+					}
+				}
+			}
+			return result;
+		}
+
+		/**
+		 * 批量条件删除记录
+		 * @param queryMap 查询条件集合
+		 */
+		public boolean delList(Map<String,Object> queryMap,Boolean delParentDepartmentList,Boolean delChildDepartmentList,Boolean delCreateUser,Boolean delUpdateUser) {
+			boolean result = false;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+															  					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+				  															  					Object code=queryMap.get("code");
+					Object code_like=queryMap.get("code_like");
+					Object code_isNull=queryMap.get("code_isNull");
+					Object code_isNotNull=queryMap.get("code_isNotNull");
+					Object code_in=queryMap.get("code_in");
+				  																Object showIndex=queryMap.get("showIndex");
+					Object showIndex_gt=queryMap.get("showIndex_gt");
+					Object showIndex_ge=queryMap.get("showIndex_ge");
+					Object showIndex_lt=queryMap.get("showIndex_lt");
+					Object showIndex_le=queryMap.get("showIndex_le");
+					Object showIndex_in=queryMap.get("showIndex_in");
+																Object parentId=queryMap.get("parentId");
+					Object parentId_gt=queryMap.get("parentId_gt");
+					Object parentId_ge=queryMap.get("parentId_ge");
+					Object parentId_lt=queryMap.get("parentId_lt");
+					Object parentId_le=queryMap.get("parentId_le");
+					Object parentId_in=queryMap.get("parentId_in");
+																Object createUserId=queryMap.get("createUserId");
+					Object createUserId_gt=queryMap.get("createUserId_gt");
+					Object createUserId_ge=queryMap.get("createUserId_ge");
+					Object createUserId_lt=queryMap.get("createUserId_lt");
+					Object createUserId_le=queryMap.get("createUserId_le");
+					Object createUserId_in=queryMap.get("createUserId_in");
+															  					Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+				  																Object updateUserId=queryMap.get("updateUserId");
+					Object updateUserId_gt=queryMap.get("updateUserId_gt");
+					Object updateUserId_ge=queryMap.get("updateUserId_ge");
+					Object updateUserId_lt=queryMap.get("updateUserId_lt");
+					Object updateUserId_le=queryMap.get("updateUserId_le");
+					Object updateUserId_in=queryMap.get("updateUserId_in");
+															  					Object updateTime_gt=queryMap.get("updateTime_gt");
+					Object updateTime_ge=queryMap.get("updateTime_ge");
+					Object updateTime_lt=queryMap.get("updateTime_lt");
+					Object updateTime_le=queryMap.get("updateTime_le");
+				  																																		
+			QueryCondition qc = new QueryCondition(DepartmentEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.NAME, QueryCondition.in, name_in));}
+				  															  					if(code!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.eq, code));}
+		            if(code_like!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.like, code_like));}
+		            if(code_isNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.isNull, code_isNull));}
+		            if(code_isNotNull!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.isNotNull, code_isNotNull));}
+				    if(code_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CODE, QueryCondition.in, code_in));}
+				  																if(showIndex!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.eq, showIndex));}
+					if(showIndex_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.gt, showIndex_gt));}
+					if(showIndex_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.ge, showIndex_ge));}
+					if(showIndex_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.lt, showIndex_lt));}
+					if(showIndex_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.le, showIndex_le));}
+					if(showIndex_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.SHOW_INDEX, QueryCondition.in, showIndex_in));}
+																if(parentId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.eq, parentId));}
+					if(parentId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.gt, parentId_gt));}
+					if(parentId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.ge, parentId_ge));}
+					if(parentId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.lt, parentId_lt));}
+					if(parentId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.le, parentId_le));}
+					if(parentId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.in, parentId_in));}
+																if(createUserId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.eq, createUserId));}
+					if(createUserId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.gt, createUserId_gt));}
+					if(createUserId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.ge, createUserId_ge));}
+					if(createUserId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.lt, createUserId_lt));}
+					if(createUserId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.le, createUserId_le));}
+					if(createUserId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_USER_ID, QueryCondition.in, createUserId_in));}
+															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  																if(updateUserId!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.eq, updateUserId));}
+					if(updateUserId_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.gt, updateUserId_gt));}
+					if(updateUserId_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.ge, updateUserId_ge));}
+					if(updateUserId_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.lt, updateUserId_lt));}
+					if(updateUserId_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.le, updateUserId_le));}
+					if(updateUserId_in!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_USER_ID, QueryCondition.in, updateUserId_in));}
+															  					if(updateTime_gt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.gt, updateTime_gt));}
+					if(updateTime_ge!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.ge, updateTime_ge));}
+					if(updateTime_lt!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.lt, updateTime_lt));}
+					if(updateTime_le!=null){qc.andCondition(new QueryCondition(DepartmentEntity.UPDATE_TIME, QueryCondition.le, updateTime_le));}
+				  										
+				            				            				            						if (qc.getQueryNextCondition()!=null) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 						
+										 	                 				     				     				     					     //删除关联信息
+						if(delParentDepartmentList!=null&&delParentDepartmentList.booleanValue()){						
+								List<Object> list = dbManager.queryByCondition(DepartmentEntity.class,qc);
+								String strIds="";
+								if(list!=null&&list.size()>0){
+									for(Object obj:list){
+										DepartmentEntity entity=(DepartmentEntity)obj;
+										strIds += entity.getParentId()+",";
+									}
+									strIds = strIds.substring(0, strIds.length()-1);
+								}
+								if(strIds!=null&&!"".equals(strIds)){
+									QueryCondition qc1 = new QueryCondition(DepartmentEntity.ID, QueryCondition.in, strIds);
+									dbManager.delByConditionsNoTransaction(DepartmentEntity.class, qc1);
+								}					
+					    }
+					     //删除关联信息
+						if(delChildDepartmentList!=null&&delChildDepartmentList.booleanValue()){
+							List<Object> list=dbManager.queryByCondition(DepartmentEntity.class,qc);
+							String strIds="";
+							if(list!=null&&list.size()>0){
+								for(Object obj:list){
+									DepartmentEntity entity=(DepartmentEntity)obj;
+									strIds += entity.getId()+",";
+								}
+								strIds = strIds.substring(0, strIds.length()-1);
+							}
+							if(strIds!=null&&!"".equals(strIds)){
+								QueryCondition qc1 = new QueryCondition(DepartmentEntity.PARENT_ID, QueryCondition.in, strIds);
+								dbManager.delByConditionsNoTransaction(DepartmentEntity.class, qc1);
+							}
+							
+						}
+				     										 	                 				     					     //删除关联信息
+						if(delCreateUser!=null&&delCreateUser.booleanValue()){
+							List<Object> list=dbManager.queryByCondition(DepartmentEntity.class,qc);
+							String strIds="";
+							if(list!=null&&list.size()>0){
+								for(Object obj:list){
+									DepartmentEntity entity=(DepartmentEntity)obj;
+									strIds += entity.getCreateUserId()+",";
+								}
+								strIds = strIds.substring(0, strIds.length()-1);
+							}
+							if(strIds!=null&&!"".equals(strIds)){
+								QueryCondition qc1 = new QueryCondition(UserEntity.ID, QueryCondition.in, strIds);
+								dbManager.delByConditionsNoTransaction(UserEntity.class, qc1);
+							}
+							
+						}
+				     				     				     										 	                 				     					     //删除关联信息
+						if(delUpdateUser!=null&&delUpdateUser.booleanValue()){
+							List<Object> list=dbManager.queryByCondition(DepartmentEntity.class,qc);
+							String strIds="";
+							if(list!=null&&list.size()>0){
+								for(Object obj:list){
+									DepartmentEntity entity=(DepartmentEntity)obj;
+									strIds += entity.getUpdateUserId()+",";
+								}
+								strIds = strIds.substring(0, strIds.length()-1);
+							}
+							if(strIds!=null&&!"".equals(strIds)){
+								QueryCondition qc1 = new QueryCondition(UserEntity.ID, QueryCondition.in, strIds);
+								dbManager.delByConditionsNoTransaction(UserEntity.class, qc1);
+							}
+							
+						}
+				     				     				     										result = dbManager.delByConditionsNoTransaction(DepartmentEntity.class,qc);				
+					tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		
+}

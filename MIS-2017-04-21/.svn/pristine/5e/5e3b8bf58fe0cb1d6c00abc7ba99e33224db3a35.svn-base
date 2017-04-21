@@ -1,0 +1,32 @@
+package weixin.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+@RequestMapping("/wechatHealthyQuery")
+@Controller
+public class WeixinHealthyQueryController {
+	
+	/**
+	 * 微信健康咨询页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView(
+				"/weixin/weixinHealthyQuery/weixinHealthyQueryList");
+		String openid = "";
+		if(request.getSession().getAttribute("weixinopenid") != null && !"".equals(request.getSession().getAttribute("weixinopenid"))){
+			openid = (String)request.getSession().getAttribute("weixinopenid");
+		}
+		String olderId = request.getParameter("olderId");
+		mav.addObject("olderId", olderId);
+		mav.addObject("openid", openid);
+		return mav;
+	}
+}

@@ -1,0 +1,148 @@
+package fsk.entity.serviceTaskPhoto;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.serviceTask.ServiceTaskEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 服务照片
+ * @author feng.gu
+ * @date 2016-07-27 15:35:54
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_SERVICE_TASK_PHOTO")
+public class ServiceTaskPhotoEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String SERVICE_TASK_ID = "SERVICE_TASK_ID";
+    public final static String TITLE = "TITLE";
+    public final static String DES = "DES";
+    public final static String CREATE_TIME = "CREATE_TIME";
+    public final static String CREATE_PERSON = "CREATE_PERSON";
+    public final static String PHOTO_URL = "PHOTO_URL";
+    public final static String SHOW_INDEX = "SHOW_INDEX";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 服务工单ID
+	 */
+	@ColumnDescription(name = "SERVICE_TASK_ID")
+	private Integer serviceTaskId;
+    /**
+	 * 照片标题
+	 */
+	@ColumnDescription(name = "TITLE")
+	private String title;
+    /**
+	 * 照片备注
+	 */
+	@ColumnDescription(name = "DES")
+	private String des;
+    /**
+	 * 照片上传时间
+	 */
+	@ColumnDescription(name = "CREATE_TIME")
+	private String createTime;
+    /**
+	 * 照片上传人
+	 */
+	@ColumnDescription(name = "CREATE_PERSON")
+	private String createPerson;
+    /**
+	 * 图片URL
+	 */
+	@ColumnDescription(name = "PHOTO_URL")
+	private String photoUrl;
+    /**
+	 * 显示顺序
+	 */
+	@ColumnDescription(name = "SHOW_INDEX")
+	private Integer showIndex;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getServiceTaskId() {
+		return serviceTaskId;
+	}
+
+	public void setServiceTaskId(Integer serviceTaskId) {
+		this.serviceTaskId = serviceTaskId;
+	}
+    public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+    public String getDes() {
+		return des;
+	}
+
+	public void setDes(String des) {
+		this.des = des;
+	}
+    public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+    public String getCreatePerson() {
+		return createPerson;
+	}
+
+	public void setCreatePerson(String createPerson) {
+		this.createPerson = createPerson;
+	}
+    public String getPhotoUrl() {
+		return photoUrl;
+	}
+
+	public void setPhotoUrl(String photoUrl) {
+		this.photoUrl = photoUrl;
+	}
+    public Integer getShowIndex() {
+		return showIndex;
+	}
+
+	public void setShowIndex(Integer showIndex) {
+		this.showIndex = showIndex;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="ServiceTaskEntity"	,joinColumn="ID"	)
+			
+			
+		private ServiceTaskEntity serviceTask;
+	        
+	public ServiceTaskEntity getServiceTask() {
+		return serviceTask;
+    }
+	
+	public void setServiceTask(ServiceTaskEntity serviceTask) {
+		this.serviceTask = serviceTask;
+	}
+			
+}

@@ -1,0 +1,2016 @@
+package fsk.entity.older;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import com.framework.system.common.entity.user.UserEntity;
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.olderSite.OlderSiteEntity;
+import fsk.entity.olderAddress.OlderAddressEntity;
+import fsk.entity.olderContact.OlderContactEntity;
+import fsk.entity.caseRecord.CaseRecordEntity;
+import fsk.entity.dailyLife.DailyLifeEntity;
+import fsk.entity.employee.EmployeeEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 老人信息表
+ * @author feng.gu
+ * @date 2017-03-07 14:57:18
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_OLDER")
+public class OlderEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String NURSE_EMPLOYEE_ID = "NURSE_EMPLOYEE_ID";
+    public final static String USER_ID = "USER_ID";
+    public final static String MEMBER_NUM = "MEMBER_NUM";
+    public final static String MEMBER_CARD = "MEMBER_CARD";
+    public final static String MEMBER_SOURCE = "MEMBER_SOURCE";
+    public final static String ATTENTION_POINT = "ATTENTION_POINT";
+    public final static String NURSE_LEVEL = "NURSE_LEVEL";
+    public final static String MEMBER_STATUS = "MEMBER_STATUS";
+    public final static String LAST_ASSESSMENT_DATE = "LAST_ASSESSMENT_DATE";
+    public final static String ASSESSMENT_CYCLE = "ASSESSMENT_CYCLE";
+    public final static String CHARGE_MONTH = "CHARGE_MONTH";
+    public final static String REQUIRED_SERVICE_TIMES = "REQUIRED_SERVICE_TIMES";
+    public final static String ALREADY_SERVICE_TIMES = "ALREADY_SERVICE_TIMES";
+    public final static String MAIN_PHOTO = "MAIN_PHOTO";
+    public final static String NAME = "NAME";
+    public final static String IDNUMBER = "IDNUMBER";
+    public final static String SOCIAL_SECURITY_NUMBER = "SOCIAL_SECURITY_NUMBER";
+    public final static String GENDER = "GENDER";
+    public final static String BIRTHDATE = "BIRTHDATE";
+    public final static String NATION = "NATION";
+    public final static String EDUCATION = "EDUCATION";
+    public final static String MARITAL_STATUS = "MARITAL_STATUS";
+    public final static String OCCUPATION = "OCCUPATION";
+    public final static String HOME_TEL = "HOME_TEL";
+    public final static String MOBILE_TEL = "MOBILE_TEL";
+    public final static String BLOOD_TYPE = "BLOOD_TYPE";
+    public final static String SYMPTOM = "SYMPTOM";
+    public final static String SYMPTOM_OTHER = "SYMPTOM_OTHER";
+    public final static String DRUG_ALLERGY = "DRUG_ALLERGY";
+    public final static String DRUG_ALLERGY_OTHER = "DRUG_ALLERGY_OTHER";
+    public final static String COGNITIVE = "COGNITIVE";
+    public final static String EMOTION = "EMOTION";
+    public final static String SPORTS_FRE = "SPORTS_FRE";
+    public final static String SPORTS_TIME = "SPORTS_TIME";
+    public final static String HOLD_SPORTS_TIME = "HOLD_SPORTS_TIME";
+    public final static String SPORTS_TYPE = "SPORTS_TYPE";
+    public final static String DIET = "DIET";
+    public final static String SMOKING = "SMOKING";
+    public final static String SMOKING_DAY = "SMOKING_DAY";
+    public final static String QUIT_ALCOHOL = "QUIT_ALCOHOL";
+    public final static String QUIT_ALCOHOL_AGE = "QUIT_ALCOHOL_AGE";
+    public final static String START_ALCOHOL_AGE = "START_ALCOHOL_AGE";
+    public final static String DRUNK_YEAR = "DRUNK_YEAR";
+    public final static String ALCOHOL_TYPE = "ALCOHOL_TYPE";
+    public final static String ALCOHOL_TYPE_OTHER = "ALCOHOL_TYPE_OTHER";
+    public final static String BRAIN_BLOOD_VESSEL = "BRAIN_BLOOD_VESSEL";
+    public final static String BRAIN_BLOOD_VESSEL_OTHER = "BRAIN_BLOOD_VESSEL_OTHER";
+    public final static String KINDNEY = "KINDNEY";
+    public final static String KINDNEY_OTHER = "KINDNEY_OTHER";
+    public final static String HEART = "HEART";
+    public final static String HEART_OTHER = "HEART_OTHER";
+    public final static String BLOOD_VESSEL = "BLOOD_VESSEL";
+    public final static String BLOOD_VESSEL_OTHER = "BLOOD_VESSEL_OTHER";
+    public final static String EYE = "EYE";
+    public final static String EYE_OTHER = "EYE_OTHER";
+    public final static String OTHER_DISEASE = "OTHER_DISEASE";
+    public final static String SERVICE_PROVINCE_ID = "SERVICE_PROVINCE_ID";
+    public final static String SERVICE_CITY_ID = "SERVICE_CITY_ID";
+    public final static String SERVICE_AREA_ID = "SERVICE_AREA_ID";
+    public final static String SERVICE_STREET_ID = "SERVICE_STREET_ID";
+    public final static String FAMILY_COMPOSITION = "FAMILY_COMPOSITION";
+    public final static String LIVE = "LIVE";
+    public final static String LIVE_OTHER = "LIVE_OTHER";
+    public final static String ECONOMIC = "ECONOMIC";
+    public final static String ECONOMIC_OTHER = "ECONOMIC_OTHER";
+    public final static String HOUSE = "HOUSE";
+    public final static String HOUSE_OTHER = "HOUSE_OTHER";
+    public final static String INTEREST = "INTEREST";
+    public final static String LIFE_EXPERIENCE = "LIFE_EXPERIENCE";
+    public final static String SPECIAL_EXPERIENCE = "SPECIAL_EXPERIENCE";
+    public final static String SPECIAL_EXPERIENCE_OTHER = "SPECIAL_EXPERIENCE_OTHER";
+    public final static String RESIDENCE = "RESIDENCE";
+    public final static String ELEVATOR = "ELEVATOR";
+    public final static String STEP = "STEP";
+    public final static String STEP_OTHER = "STEP_OTHER";
+    public final static String RESTROOM = "RESTROOM";
+    public final static String RESTROOM_OTHER = "RESTROOM_OTHER";
+    public final static String BATHROOM_TUB = "BATHROOM_TUB";
+    public final static String BATHROOM_SHOWER = "BATHROOM_SHOWER";
+    public final static String BATHROOM_STRIP = "BATHROOM_STRIP";
+    public final static String KITCHEN_OTHER = "KITCHEN_OTHER";
+    public final static String KITCHEN = "KITCHEN";
+    public final static String CLEAN = "CLEAN";
+    public final static String SHOPPING = "SHOPPING";
+    public final static String SHOPPING_TRAFFIC = "SHOPPING_TRAFFIC";
+    public final static String SHOPPING_ACCESSIBILITY = "SHOPPING_ACCESSIBILITY";
+    public final static String SHOPPING_OTHER = "SHOPPING_OTHER";
+    public final static String LIVING_ENVIRONMENT_DEFECT = "LIVING_ENVIRONMENT_DEFECT";
+    public final static String DAILY_WATER = "DAILY_WATER";
+    public final static String DAILY_DRINKING = "DAILY_DRINKING";
+    public final static String DRINKING = "DRINKING";
+    public final static String GADGET = "GADGET";
+    public final static String MAIN_FOOD = "MAIN_FOOD";
+    public final static String FRUITS_VEGETABLES = "FRUITS_VEGETABLES";
+    public final static String SALT = "SALT";
+    public final static String OIL = "OIL";
+    public final static String FISH = "FISH";
+    public final static String MEAT = "MEAT";
+    public final static String BEAN_PRODUCTS = "BEAN_PRODUCTS";
+    public final static String MILK = "MILK";
+    public final static String FOOD_FORM = "FOOD_FORM";
+    public final static String DYSPHAGIA = "DYSPHAGIA";
+    public final static String MORNING_SIT = "MORNING_SIT";
+    public final static String NOON_SIT = "NOON_SIT";
+    public final static String NIGHT_SIT = "NIGHT_SIT";
+    public final static String LATE_AFTERNOON_TEA = "LATE_AFTERNOON_TEA";
+    public final static String URINE = "URINE";
+    public final static String URINE_NUM = "URINE_NUM";
+    public final static String URINE_METHOD = "URINE_METHOD";
+    public final static String URINE_TYPE = "URINE_TYPE";
+    public final static String URINE_TYPE_OTHER = "URINE_TYPE_OTHER";
+    public final static String SHIT = "SHIT";
+    public final static String SHIT_DAY = "SHIT_DAY";
+    public final static String SHIT_METHOD = "SHIT_METHOD";
+    public final static String SHIT_TYPE = "SHIT_TYPE";
+    public final static String SHIT_TYPE_OTHER = "SHIT_TYPE_OTHER";
+    public final static String SPORTS_FORM = "SPORTS_FORM";
+    public final static String SPORTS_T = "SPORTS_T";
+    public final static String SPORTS_F = "SPORTS_F";
+    public final static String SPORTS_NO = "SPORTS_NO";
+    public final static String BATH_NUM = "BATH_NUM";
+    public final static String BATH_METHOD = "BATH_METHOD";
+    public final static String GO_OUT = "GO_OUT";
+    public final static String GO_OUT_OTHER = "GO_OUT_OTHER";
+    public final static String BRUSH = "BRUSH";
+    public final static String COMMUNICATION = "COMMUNICATION";
+    public final static String SLEEP_HOUR = "SLEEP_HOUR";
+    public final static String SLEEP_QUALITY = "SLEEP_QUALITY";
+    public final static String MORNING_SPIRIT = "MORNING_SPIRIT";
+    public final static String ACCOUNT_NUM = "ACCOUNT_NUM";
+    public final static String LAST_CHAT_TIME = "LAST_CHAT_TIME";
+    public final static String LAST_CHAT_CONTENT = "LAST_CHAT_CONTENT";
+    public final static String HAS_NEW_NOTICE = "HAS_NEW_NOTICE";
+    public final static String CHRONIC_DISEASE = "CHRONIC_DISEASE";
+    public final static String CREATE_TIME = "CREATE_TIME";
+    public final static String UPDATE_TIME = "UPDATE_TIME";
+    public final static String LAST_REVIEW_TIME = "LAST_REVIEW_TIME";
+    public final static String SOURCE = "SOURCE";
+    public final static String LIVING_CONDITION = "LIVING_CONDITION";
+    public final static String ID_FRONT = "ID_FRONT";
+    public final static String ID_BACK = "ID_BACK";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 护理员工ID
+	 */
+	@ColumnDescription(name = "NURSE_EMPLOYEE_ID")
+	private Integer nurseEmployeeId;
+    /**
+	 * 账号ID
+	 */
+	@ColumnDescription(name = "USER_ID")
+	private Integer userId;
+    /**
+	 * 会员号
+	 */
+	@ColumnDescription(name = "MEMBER_NUM")
+	private String memberNum;
+    /**
+	 * 会员卡号
+	 */
+	@ColumnDescription(name = "MEMBER_CARD")
+	private String memberCard;
+    /**
+	 * 客户来源
+	 */
+	@ColumnDescription(name = "MEMBER_SOURCE")
+	private String memberSource;
+    /**
+	 * 服务注意点
+	 */
+	@ColumnDescription(name = "ATTENTION_POINT")
+	private String attentionPoint;
+    /**
+	 * 护理级别
+	 */
+	@ColumnDescription(name = "NURSE_LEVEL")
+	private Integer nurseLevel;
+    /**
+	 * 客户状态(0-正常,1-停用,2-待评估)
+	 */
+	@ColumnDescription(name = "MEMBER_STATUS")
+	private Integer memberStatus;
+    /**
+	 * 最后一次评估日期
+	 */
+	@ColumnDescription(name = "LAST_ASSESSMENT_DATE")
+	private String lastAssessmentDate;
+    /**
+	 * 评估周期
+	 */
+	@ColumnDescription(name = "ASSESSMENT_CYCLE")
+	private Integer assessmentCycle;
+    /**
+	 * 单月服务费用
+	 */
+	@ColumnDescription(name = "CHARGE_MONTH")
+	private BigDecimal chargeMonth;
+    /**
+	 * 需要服务次数
+	 */
+	@ColumnDescription(name = "REQUIRED_SERVICE_TIMES")
+	private Integer requiredServiceTimes;
+    /**
+	 * 已经服务次数
+	 */
+	@ColumnDescription(name = "ALREADY_SERVICE_TIMES")
+	private Integer alreadyServiceTimes;
+    /**
+	 * 头像
+	 */
+	@ColumnDescription(name = "MAIN_PHOTO")
+	private String mainPhoto;
+    /**
+	 * 姓名
+	 */
+	@ColumnDescription(name = "NAME")
+	private String name;
+    /**
+	 * 身份证号
+	 */
+	@ColumnDescription(name = "IDNUMBER")
+	private String idnumber;
+    /**
+	 * 社保号码
+	 */
+	@ColumnDescription(name = "SOCIAL_SECURITY_NUMBER")
+	private String socialSecurityNumber;
+    /**
+	 * 性别
+	 */
+	@ColumnDescription(name = "GENDER")
+	private String gender;
+    /**
+	 * 出生年月
+	 */
+	@ColumnDescription(name = "BIRTHDATE")
+	private String birthdate;
+    /**
+	 * 民族
+	 */
+	@ColumnDescription(name = "NATION")
+	private String nation;
+    /**
+	 * 文化程度
+	 */
+	@ColumnDescription(name = "EDUCATION")
+	private String education;
+    /**
+	 * 婚姻状况
+	 */
+	@ColumnDescription(name = "MARITAL_STATUS")
+	private String maritalStatus;
+    /**
+	 * 职业
+	 */
+	@ColumnDescription(name = "OCCUPATION")
+	private String occupation;
+    /**
+	 * 固话
+	 */
+	@ColumnDescription(name = "HOME_TEL")
+	private String homeTel;
+    /**
+	 * 手机
+	 */
+	@ColumnDescription(name = "MOBILE_TEL")
+	private String mobileTel;
+    /**
+	 * 血型
+	 */
+	@ColumnDescription(name = "BLOOD_TYPE")
+	private String bloodType;
+    /**
+	 * 症状
+	 */
+	@ColumnDescription(name = "SYMPTOM")
+	private String symptom;
+    /**
+	 * 症状其他
+	 */
+	@ColumnDescription(name = "SYMPTOM_OTHER")
+	private String symptomOther;
+    /**
+	 * 药物过敏史
+	 */
+	@ColumnDescription(name = "DRUG_ALLERGY")
+	private String drugAllergy;
+    /**
+	 * 药物过敏史其他
+	 */
+	@ColumnDescription(name = "DRUG_ALLERGY_OTHER")
+	private String drugAllergyOther;
+    /**
+	 * 老年人认知功能
+	 */
+	@ColumnDescription(name = "COGNITIVE")
+	private String cognitive;
+    /**
+	 * 老年人情感状态
+	 */
+	@ColumnDescription(name = "EMOTION")
+	private String emotion;
+    /**
+	 * 体育锻炼频率
+	 */
+	@ColumnDescription(name = "SPORTS_FRE")
+	private String sportsFre;
+    /**
+	 * 体育锻炼时间
+	 */
+	@ColumnDescription(name = "SPORTS_TIME")
+	private Integer sportsTime;
+    /**
+	 * 坚持锻炼时间
+	 */
+	@ColumnDescription(name = "HOLD_SPORTS_TIME")
+	private Integer holdSportsTime;
+    /**
+	 * 锻炼方式
+	 */
+	@ColumnDescription(name = "SPORTS_TYPE")
+	private String sportsType;
+    /**
+	 * 饮食习惯
+	 */
+	@ColumnDescription(name = "DIET")
+	private String diet;
+    /**
+	 * 吸烟状况
+	 */
+	@ColumnDescription(name = "SMOKING")
+	private String smoking;
+    /**
+	 * 日吸烟量
+	 */
+	@ColumnDescription(name = "SMOKING_DAY")
+	private Integer smokingDay;
+    /**
+	 * 是否戒酒
+	 */
+	@ColumnDescription(name = "QUIT_ALCOHOL")
+	private String quitAlcohol;
+    /**
+	 * 戒酒年龄
+	 */
+	@ColumnDescription(name = "QUIT_ALCOHOL_AGE")
+	private Integer quitAlcoholAge;
+    /**
+	 * 开始饮酒年龄
+	 */
+	@ColumnDescription(name = "START_ALCOHOL_AGE")
+	private Integer startAlcoholAge;
+    /**
+	 * 一年内是否醉酒
+	 */
+	@ColumnDescription(name = "DRUNK_YEAR")
+	private Integer drunkYear;
+    /**
+	 * 饮酒种类
+	 */
+	@ColumnDescription(name = "ALCOHOL_TYPE")
+	private String alcoholType;
+    /**
+	 * 饮酒种类其他
+	 */
+	@ColumnDescription(name = "ALCOHOL_TYPE_OTHER")
+	private String alcoholTypeOther;
+    /**
+	 * 脑血管疾病
+	 */
+	@ColumnDescription(name = "BRAIN_BLOOD_VESSEL")
+	private String brainBloodVessel;
+    /**
+	 * 脑血管疾病其他
+	 */
+	@ColumnDescription(name = "BRAIN_BLOOD_VESSEL_OTHER")
+	private String brainBloodVesselOther;
+    /**
+	 * 肾脏疾病
+	 */
+	@ColumnDescription(name = "KINDNEY")
+	private String kindney;
+    /**
+	 * 肾脏疾病其他
+	 */
+	@ColumnDescription(name = "KINDNEY_OTHER")
+	private String kindneyOther;
+    /**
+	 * 心脏疾病
+	 */
+	@ColumnDescription(name = "HEART")
+	private String heart;
+    /**
+	 * 心脏疾病其他
+	 */
+	@ColumnDescription(name = "HEART_OTHER")
+	private String heartOther;
+    /**
+	 * 血管疾病
+	 */
+	@ColumnDescription(name = "BLOOD_VESSEL")
+	private String bloodVessel;
+    /**
+	 * 血管疾病其他
+	 */
+	@ColumnDescription(name = "BLOOD_VESSEL_OTHER")
+	private String bloodVesselOther;
+    /**
+	 * 眼部疾病
+	 */
+	@ColumnDescription(name = "EYE")
+	private String eye;
+    /**
+	 * 眼部疾病其他
+	 */
+	@ColumnDescription(name = "EYE_OTHER")
+	private String eyeOther;
+    /**
+	 * 其他疾病
+	 */
+	@ColumnDescription(name = "OTHER_DISEASE")
+	private String otherDisease;
+    /**
+	 * 服务区域省ID（数据字典）
+	 */
+	@ColumnDescription(name = "SERVICE_PROVINCE_ID")
+	private Integer serviceProvinceId;
+    /**
+	 * 服务区域市ID（数据字典）
+	 */
+	@ColumnDescription(name = "SERVICE_CITY_ID")
+	private Integer serviceCityId;
+    /**
+	 * 服务区域区ID（数据字典）
+	 */
+	@ColumnDescription(name = "SERVICE_AREA_ID")
+	private Integer serviceAreaId;
+    /**
+	 * 服务区域街道ID（数据字典）
+	 */
+	@ColumnDescription(name = "SERVICE_STREET_ID")
+	private Integer serviceStreetId;
+    /**
+	 * 家庭构成与看护能力
+	 */
+	@ColumnDescription(name = "FAMILY_COMPOSITION")
+	private String familyComposition;
+    /**
+	 * 居住
+	 */
+	@ColumnDescription(name = "LIVE")
+	private String live;
+    /**
+	 * 居住其他
+	 */
+	@ColumnDescription(name = "LIVE_OTHER")
+	private String liveOther;
+    /**
+	 * 经济
+	 */
+	@ColumnDescription(name = "ECONOMIC")
+	private String economic;
+    /**
+	 * 经济其他
+	 */
+	@ColumnDescription(name = "ECONOMIC_OTHER")
+	private String economicOther;
+    /**
+	 * 房产
+	 */
+	@ColumnDescription(name = "HOUSE")
+	private String house;
+    /**
+	 * 房产其他
+	 */
+	@ColumnDescription(name = "HOUSE_OTHER")
+	private String houseOther;
+    /**
+	 * 兴趣嗜好
+	 */
+	@ColumnDescription(name = "INTEREST")
+	private String interest;
+    /**
+	 * 生活经历
+	 */
+	@ColumnDescription(name = "LIFE_EXPERIENCE")
+	private String lifeExperience;
+    /**
+	 * 特殊经历
+	 */
+	@ColumnDescription(name = "SPECIAL_EXPERIENCE")
+	private String specialExperience;
+    /**
+	 * 特殊经历其他
+	 */
+	@ColumnDescription(name = "SPECIAL_EXPERIENCE_OTHER")
+	private String specialExperienceOther;
+    /**
+	 * 住宅
+	 */
+	@ColumnDescription(name = "RESIDENCE")
+	private String residence;
+    /**
+	 * 电梯
+	 */
+	@ColumnDescription(name = "ELEVATOR")
+	private String elevator;
+    /**
+	 * 台阶
+	 */
+	@ColumnDescription(name = "STEP")
+	private String step;
+    /**
+	 * 台阶其他
+	 */
+	@ColumnDescription(name = "STEP_OTHER")
+	private String stepOther;
+    /**
+	 * 洗手间
+	 */
+	@ColumnDescription(name = "RESTROOM")
+	private String restroom;
+    /**
+	 * 洗手间其他
+	 */
+	@ColumnDescription(name = "RESTROOM_OTHER")
+	private String restroomOther;
+    /**
+	 * 浴缸适用
+	 */
+	@ColumnDescription(name = "BATHROOM_TUB")
+	private String bathroomTub;
+    /**
+	 * 浴缸不适用
+	 */
+	@ColumnDescription(name = "BATHROOM_SHOWER")
+	private String bathroomShower;
+    /**
+	 * 换衣间环境
+	 */
+	@ColumnDescription(name = "BATHROOM_STRIP")
+	private String bathroomStrip;
+    /**
+	 * 厨房其他
+	 */
+	@ColumnDescription(name = "KITCHEN_OTHER")
+	private String kitchenOther;
+    /**
+	 * 厨房
+	 */
+	@ColumnDescription(name = "KITCHEN")
+	private String kitchen;
+    /**
+	 * 清扫
+	 */
+	@ColumnDescription(name = "CLEAN")
+	private String clean;
+    /**
+	 * 购物（步行范围内超市）
+	 */
+	@ColumnDescription(name = "SHOPPING")
+	private String shopping;
+    /**
+	 * 购物（交通量）
+	 */
+	@ColumnDescription(name = "SHOPPING_TRAFFIC")
+	private String shoppingTraffic;
+    /**
+	 * 购物（无障碍设施）
+	 */
+	@ColumnDescription(name = "SHOPPING_ACCESSIBILITY")
+	private String shoppingAccessibility;
+    /**
+	 * 购物（其他)
+	 */
+	@ColumnDescription(name = "SHOPPING_OTHER")
+	private String shoppingOther;
+    /**
+	 * 生活环境缺陷
+	 */
+	@ColumnDescription(name = "LIVING_ENVIRONMENT_DEFECT")
+	private String livingEnvironmentDefect;
+    /**
+	 * 日摄水量
+	 */
+	@ColumnDescription(name = "DAILY_WATER")
+	private String dailyWater;
+    /**
+	 * 日饮料摄入量
+	 */
+	@ColumnDescription(name = "DAILY_DRINKING")
+	private String dailyDrinking;
+    /**
+	 * 摄水饮用时段
+	 */
+	@ColumnDescription(name = "DRINKING")
+	private String drinking;
+    /**
+	 * 摄水应用器具
+	 */
+	@ColumnDescription(name = "GADGET")
+	private String gadget;
+    /**
+	 * 主食
+	 */
+	@ColumnDescription(name = "MAIN_FOOD")
+	private String mainFood;
+    /**
+	 * 果蔬
+	 */
+	@ColumnDescription(name = "FRUITS_VEGETABLES")
+	private String fruitsVegetables;
+    /**
+	 * 盐
+	 */
+	@ColumnDescription(name = "SALT")
+	private String salt;
+    /**
+	 * 油
+	 */
+	@ColumnDescription(name = "OIL")
+	private String oil;
+    /**
+	 * 鱼
+	 */
+	@ColumnDescription(name = "FISH")
+	private String fish;
+    /**
+	 * 肉
+	 */
+	@ColumnDescription(name = "MEAT")
+	private String meat;
+    /**
+	 * 豆制品
+	 */
+	@ColumnDescription(name = "BEAN_PRODUCTS")
+	private String beanProducts;
+    /**
+	 * 奶
+	 */
+	@ColumnDescription(name = "MILK")
+	private String milk;
+    /**
+	 * 食物形态
+	 */
+	@ColumnDescription(name = "FOOD_FORM")
+	private String foodForm;
+    /**
+	 * 吞咽困难
+	 */
+	@ColumnDescription(name = "DYSPHAGIA")
+	private String dysphagia;
+    /**
+	 * 早躺坐
+	 */
+	@ColumnDescription(name = "MORNING_SIT")
+	private String morningSit;
+    /**
+	 * 中躺坐
+	 */
+	@ColumnDescription(name = "NOON_SIT")
+	private String noonSit;
+    /**
+	 * 晚躺坐
+	 */
+	@ColumnDescription(name = "NIGHT_SIT")
+	private String nightSit;
+    /**
+	 * 夜宵午茶点
+	 */
+	@ColumnDescription(name = "LATE_AFTERNOON_TEA")
+	private String lateAfternoonTea;
+    /**
+	 * 小便次数
+	 */
+	@ColumnDescription(name = "URINE")
+	private String urine;
+    /**
+	 * 小便量
+	 */
+	@ColumnDescription(name = "URINE_NUM")
+	private String urineNum;
+    /**
+	 * 小便途径
+	 */
+	@ColumnDescription(name = "URINE_METHOD")
+	private String urineMethod;
+    /**
+	 * 小便护理
+	 */
+	@ColumnDescription(name = "URINE_TYPE")
+	private String urineType;
+    /**
+	 * 小便护理（其他）
+	 */
+	@ColumnDescription(name = "URINE_TYPE_OTHER")
+	private String urineTypeOther;
+    /**
+	 * 大便次数
+	 */
+	@ColumnDescription(name = "SHIT")
+	private String shit;
+    /**
+	 * 大便天数
+	 */
+	@ColumnDescription(name = "SHIT_DAY")
+	private String shitDay;
+    /**
+	 * 大便途径
+	 */
+	@ColumnDescription(name = "SHIT_METHOD")
+	private String shitMethod;
+    /**
+	 * 大便护理
+	 */
+	@ColumnDescription(name = "SHIT_TYPE")
+	private String shitType;
+    /**
+	 * 大便护理（其他）
+	 */
+	@ColumnDescription(name = "SHIT_TYPE_OTHER")
+	private String shitTypeOther;
+    /**
+	 * 体育运动
+	 */
+	@ColumnDescription(name = "SPORTS_FORM")
+	private String sportsForm;
+    /**
+	 * 体育运动时间
+	 */
+	@ColumnDescription(name = "SPORTS_T")
+	private String sportsT;
+    /**
+	 * 体育运动频率
+	 */
+	@ColumnDescription(name = "SPORTS_F")
+	private String sportsF;
+    /**
+	 * 体育运动无
+	 */
+	@ColumnDescription(name = "SPORTS_NO")
+	private String sportsNo;
+    /**
+	 * 洗浴
+	 */
+	@ColumnDescription(name = "BATH_NUM")
+	private String bathNum;
+    /**
+	 * 洗浴方式
+	 */
+	@ColumnDescription(name = "BATH_METHOD")
+	private String bathMethod;
+    /**
+	 * 外出有无
+	 */
+	@ColumnDescription(name = "GO_OUT")
+	private String goOut;
+    /**
+	 * 外出其他
+	 */
+	@ColumnDescription(name = "GO_OUT_OTHER")
+	private String goOutOther;
+    /**
+	 * 刷牙
+	 */
+	@ColumnDescription(name = "BRUSH")
+	private String brush;
+    /**
+	 * 交流
+	 */
+	@ColumnDescription(name = "COMMUNICATION")
+	private String communication;
+    /**
+	 * 睡眠小时
+	 */
+	@ColumnDescription(name = "SLEEP_HOUR")
+	private String sleepHour;
+    /**
+	 * 睡眠质量
+	 */
+	@ColumnDescription(name = "SLEEP_QUALITY")
+	private String sleepQuality;
+    /**
+	 * 晨起精神
+	 */
+	@ColumnDescription(name = "MORNING_SPIRIT")
+	private String morningSpirit;
+    /**
+	 * 账户余额
+	 */
+	@ColumnDescription(name = "ACCOUNT_NUM")
+	private BigDecimal accountNum;
+    /**
+	 * 最新聊天信息时间
+	 */
+	@ColumnDescription(name = "LAST_CHAT_TIME")
+	private String lastChatTime;
+    /**
+	 * 最新聊天信息内容
+	 */
+	@ColumnDescription(name = "LAST_CHAT_CONTENT")
+	private String lastChatContent;
+    /**
+	 * 是否有最新咨询(Y-有 N-没有)
+	 */
+	@ColumnDescription(name = "HAS_NEW_NOTICE")
+	private String hasNewNotice;
+    /**
+	 * 慢性病标签
+	 */
+	@ColumnDescription(name = "CHRONIC_DISEASE")
+	private String chronicDisease;
+    /**
+	 * 创建时间
+	 */
+	@ColumnDescription(name = "CREATE_TIME")
+	private String createTime;
+    /**
+	 * 更新时间
+	 */
+	@ColumnDescription(name = "UPDATE_TIME")
+	private String updateTime;
+    /**
+	 * 上次回访时间
+	 */
+	@ColumnDescription(name = "LAST_REVIEW_TIME")
+	private String lastReviewTime;
+    /**
+	 * 录入来源(1-系统录入 2-微信新增)
+	 */
+	@ColumnDescription(name = "SOURCE")
+	private Integer source;
+    /**
+	 * 生活状况
+	 */
+	@ColumnDescription(name = "LIVING_CONDITION")
+	private String livingCondition;
+    /**
+	 * 身份证正面
+	 */
+	@ColumnDescription(name = "ID_FRONT")
+	private String idFront;
+    /**
+	 * 身份证反面
+	 */
+	@ColumnDescription(name = "ID_BACK")
+	private String idBack;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getNurseEmployeeId() {
+		return nurseEmployeeId;
+	}
+
+	public void setNurseEmployeeId(Integer nurseEmployeeId) {
+		this.nurseEmployeeId = nurseEmployeeId;
+	}
+    public Integer getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+    public String getMemberNum() {
+		return memberNum;
+	}
+
+	public void setMemberNum(String memberNum) {
+		this.memberNum = memberNum;
+	}
+    public String getMemberCard() {
+		return memberCard;
+	}
+
+	public void setMemberCard(String memberCard) {
+		this.memberCard = memberCard;
+	}
+    public String getMemberSource() {
+		return memberSource;
+	}
+
+	public void setMemberSource(String memberSource) {
+		this.memberSource = memberSource;
+	}
+    public String getAttentionPoint() {
+		return attentionPoint;
+	}
+
+	public void setAttentionPoint(String attentionPoint) {
+		this.attentionPoint = attentionPoint;
+	}
+    public Integer getNurseLevel() {
+		return nurseLevel;
+	}
+
+	public void setNurseLevel(Integer nurseLevel) {
+		this.nurseLevel = nurseLevel;
+	}
+    public Integer getMemberStatus() {
+		return memberStatus;
+	}
+
+	public void setMemberStatus(Integer memberStatus) {
+		this.memberStatus = memberStatus;
+	}
+    public String getLastAssessmentDate() {
+		return lastAssessmentDate;
+	}
+
+	public void setLastAssessmentDate(String lastAssessmentDate) {
+		this.lastAssessmentDate = lastAssessmentDate;
+	}
+    public Integer getAssessmentCycle() {
+		return assessmentCycle;
+	}
+
+	public void setAssessmentCycle(Integer assessmentCycle) {
+		this.assessmentCycle = assessmentCycle;
+	}
+    public BigDecimal getChargeMonth() {
+		return chargeMonth;
+	}
+
+	public void setChargeMonth(BigDecimal chargeMonth) {
+		this.chargeMonth = chargeMonth;
+	}
+    public Integer getRequiredServiceTimes() {
+		return requiredServiceTimes;
+	}
+
+	public void setRequiredServiceTimes(Integer requiredServiceTimes) {
+		this.requiredServiceTimes = requiredServiceTimes;
+	}
+    public Integer getAlreadyServiceTimes() {
+		return alreadyServiceTimes;
+	}
+
+	public void setAlreadyServiceTimes(Integer alreadyServiceTimes) {
+		this.alreadyServiceTimes = alreadyServiceTimes;
+	}
+    public String getMainPhoto() {
+		return mainPhoto;
+	}
+
+	public void setMainPhoto(String mainPhoto) {
+		this.mainPhoto = mainPhoto;
+	}
+    public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+    public String getIdnumber() {
+		return idnumber;
+	}
+
+	public void setIdnumber(String idnumber) {
+		this.idnumber = idnumber;
+	}
+    public String getSocialSecurityNumber() {
+		return socialSecurityNumber;
+	}
+
+	public void setSocialSecurityNumber(String socialSecurityNumber) {
+		this.socialSecurityNumber = socialSecurityNumber;
+	}
+    public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+    public String getBirthdate() {
+		return birthdate;
+	}
+
+	public void setBirthdate(String birthdate) {
+		this.birthdate = birthdate;
+	}
+    public String getNation() {
+		return nation;
+	}
+
+	public void setNation(String nation) {
+		this.nation = nation;
+	}
+    public String getEducation() {
+		return education;
+	}
+
+	public void setEducation(String education) {
+		this.education = education;
+	}
+    public String getMaritalStatus() {
+		return maritalStatus;
+	}
+
+	public void setMaritalStatus(String maritalStatus) {
+		this.maritalStatus = maritalStatus;
+	}
+    public String getOccupation() {
+		return occupation;
+	}
+
+	public void setOccupation(String occupation) {
+		this.occupation = occupation;
+	}
+    public String getHomeTel() {
+		return homeTel;
+	}
+
+	public void setHomeTel(String homeTel) {
+		this.homeTel = homeTel;
+	}
+    public String getMobileTel() {
+		return mobileTel;
+	}
+
+	public void setMobileTel(String mobileTel) {
+		this.mobileTel = mobileTel;
+	}
+    public String getBloodType() {
+		return bloodType;
+	}
+
+	public void setBloodType(String bloodType) {
+		this.bloodType = bloodType;
+	}
+    public String getSymptom() {
+		return symptom;
+	}
+
+	public void setSymptom(String symptom) {
+		this.symptom = symptom;
+	}
+    public String getSymptomOther() {
+		return symptomOther;
+	}
+
+	public void setSymptomOther(String symptomOther) {
+		this.symptomOther = symptomOther;
+	}
+    public String getDrugAllergy() {
+		return drugAllergy;
+	}
+
+	public void setDrugAllergy(String drugAllergy) {
+		this.drugAllergy = drugAllergy;
+	}
+    public String getDrugAllergyOther() {
+		return drugAllergyOther;
+	}
+
+	public void setDrugAllergyOther(String drugAllergyOther) {
+		this.drugAllergyOther = drugAllergyOther;
+	}
+    public String getCognitive() {
+		return cognitive;
+	}
+
+	public void setCognitive(String cognitive) {
+		this.cognitive = cognitive;
+	}
+    public String getEmotion() {
+		return emotion;
+	}
+
+	public void setEmotion(String emotion) {
+		this.emotion = emotion;
+	}
+    public String getSportsFre() {
+		return sportsFre;
+	}
+
+	public void setSportsFre(String sportsFre) {
+		this.sportsFre = sportsFre;
+	}
+    public Integer getSportsTime() {
+		return sportsTime;
+	}
+
+	public void setSportsTime(Integer sportsTime) {
+		this.sportsTime = sportsTime;
+	}
+    public Integer getHoldSportsTime() {
+		return holdSportsTime;
+	}
+
+	public void setHoldSportsTime(Integer holdSportsTime) {
+		this.holdSportsTime = holdSportsTime;
+	}
+    public String getSportsType() {
+		return sportsType;
+	}
+
+	public void setSportsType(String sportsType) {
+		this.sportsType = sportsType;
+	}
+    public String getDiet() {
+		return diet;
+	}
+
+	public void setDiet(String diet) {
+		this.diet = diet;
+	}
+    public String getSmoking() {
+		return smoking;
+	}
+
+	public void setSmoking(String smoking) {
+		this.smoking = smoking;
+	}
+    public Integer getSmokingDay() {
+		return smokingDay;
+	}
+
+	public void setSmokingDay(Integer smokingDay) {
+		this.smokingDay = smokingDay;
+	}
+    public String getQuitAlcohol() {
+		return quitAlcohol;
+	}
+
+	public void setQuitAlcohol(String quitAlcohol) {
+		this.quitAlcohol = quitAlcohol;
+	}
+    public Integer getQuitAlcoholAge() {
+		return quitAlcoholAge;
+	}
+
+	public void setQuitAlcoholAge(Integer quitAlcoholAge) {
+		this.quitAlcoholAge = quitAlcoholAge;
+	}
+    public Integer getStartAlcoholAge() {
+		return startAlcoholAge;
+	}
+
+	public void setStartAlcoholAge(Integer startAlcoholAge) {
+		this.startAlcoholAge = startAlcoholAge;
+	}
+    public Integer getDrunkYear() {
+		return drunkYear;
+	}
+
+	public void setDrunkYear(Integer drunkYear) {
+		this.drunkYear = drunkYear;
+	}
+    public String getAlcoholType() {
+		return alcoholType;
+	}
+
+	public void setAlcoholType(String alcoholType) {
+		this.alcoholType = alcoholType;
+	}
+    public String getAlcoholTypeOther() {
+		return alcoholTypeOther;
+	}
+
+	public void setAlcoholTypeOther(String alcoholTypeOther) {
+		this.alcoholTypeOther = alcoholTypeOther;
+	}
+    public String getBrainBloodVessel() {
+		return brainBloodVessel;
+	}
+
+	public void setBrainBloodVessel(String brainBloodVessel) {
+		this.brainBloodVessel = brainBloodVessel;
+	}
+    public String getBrainBloodVesselOther() {
+		return brainBloodVesselOther;
+	}
+
+	public void setBrainBloodVesselOther(String brainBloodVesselOther) {
+		this.brainBloodVesselOther = brainBloodVesselOther;
+	}
+    public String getKindney() {
+		return kindney;
+	}
+
+	public void setKindney(String kindney) {
+		this.kindney = kindney;
+	}
+    public String getKindneyOther() {
+		return kindneyOther;
+	}
+
+	public void setKindneyOther(String kindneyOther) {
+		this.kindneyOther = kindneyOther;
+	}
+    public String getHeart() {
+		return heart;
+	}
+
+	public void setHeart(String heart) {
+		this.heart = heart;
+	}
+    public String getHeartOther() {
+		return heartOther;
+	}
+
+	public void setHeartOther(String heartOther) {
+		this.heartOther = heartOther;
+	}
+    public String getBloodVessel() {
+		return bloodVessel;
+	}
+
+	public void setBloodVessel(String bloodVessel) {
+		this.bloodVessel = bloodVessel;
+	}
+    public String getBloodVesselOther() {
+		return bloodVesselOther;
+	}
+
+	public void setBloodVesselOther(String bloodVesselOther) {
+		this.bloodVesselOther = bloodVesselOther;
+	}
+    public String getEye() {
+		return eye;
+	}
+
+	public void setEye(String eye) {
+		this.eye = eye;
+	}
+    public String getEyeOther() {
+		return eyeOther;
+	}
+
+	public void setEyeOther(String eyeOther) {
+		this.eyeOther = eyeOther;
+	}
+    public String getOtherDisease() {
+		return otherDisease;
+	}
+
+	public void setOtherDisease(String otherDisease) {
+		this.otherDisease = otherDisease;
+	}
+    public Integer getServiceProvinceId() {
+		return serviceProvinceId;
+	}
+
+	public void setServiceProvinceId(Integer serviceProvinceId) {
+		this.serviceProvinceId = serviceProvinceId;
+	}
+    public Integer getServiceCityId() {
+		return serviceCityId;
+	}
+
+	public void setServiceCityId(Integer serviceCityId) {
+		this.serviceCityId = serviceCityId;
+	}
+    public Integer getServiceAreaId() {
+		return serviceAreaId;
+	}
+
+	public void setServiceAreaId(Integer serviceAreaId) {
+		this.serviceAreaId = serviceAreaId;
+	}
+    public Integer getServiceStreetId() {
+		return serviceStreetId;
+	}
+
+	public void setServiceStreetId(Integer serviceStreetId) {
+		this.serviceStreetId = serviceStreetId;
+	}
+    public String getFamilyComposition() {
+		return familyComposition;
+	}
+
+	public void setFamilyComposition(String familyComposition) {
+		this.familyComposition = familyComposition;
+	}
+    public String getLive() {
+		return live;
+	}
+
+	public void setLive(String live) {
+		this.live = live;
+	}
+    public String getLiveOther() {
+		return liveOther;
+	}
+
+	public void setLiveOther(String liveOther) {
+		this.liveOther = liveOther;
+	}
+    public String getEconomic() {
+		return economic;
+	}
+
+	public void setEconomic(String economic) {
+		this.economic = economic;
+	}
+    public String getEconomicOther() {
+		return economicOther;
+	}
+
+	public void setEconomicOther(String economicOther) {
+		this.economicOther = economicOther;
+	}
+    public String getHouse() {
+		return house;
+	}
+
+	public void setHouse(String house) {
+		this.house = house;
+	}
+    public String getHouseOther() {
+		return houseOther;
+	}
+
+	public void setHouseOther(String houseOther) {
+		this.houseOther = houseOther;
+	}
+    public String getInterest() {
+		return interest;
+	}
+
+	public void setInterest(String interest) {
+		this.interest = interest;
+	}
+    public String getLifeExperience() {
+		return lifeExperience;
+	}
+
+	public void setLifeExperience(String lifeExperience) {
+		this.lifeExperience = lifeExperience;
+	}
+    public String getSpecialExperience() {
+		return specialExperience;
+	}
+
+	public void setSpecialExperience(String specialExperience) {
+		this.specialExperience = specialExperience;
+	}
+    public String getSpecialExperienceOther() {
+		return specialExperienceOther;
+	}
+
+	public void setSpecialExperienceOther(String specialExperienceOther) {
+		this.specialExperienceOther = specialExperienceOther;
+	}
+    public String getResidence() {
+		return residence;
+	}
+
+	public void setResidence(String residence) {
+		this.residence = residence;
+	}
+    public String getElevator() {
+		return elevator;
+	}
+
+	public void setElevator(String elevator) {
+		this.elevator = elevator;
+	}
+    public String getStep() {
+		return step;
+	}
+
+	public void setStep(String step) {
+		this.step = step;
+	}
+    public String getStepOther() {
+		return stepOther;
+	}
+
+	public void setStepOther(String stepOther) {
+		this.stepOther = stepOther;
+	}
+    public String getRestroom() {
+		return restroom;
+	}
+
+	public void setRestroom(String restroom) {
+		this.restroom = restroom;
+	}
+    public String getRestroomOther() {
+		return restroomOther;
+	}
+
+	public void setRestroomOther(String restroomOther) {
+		this.restroomOther = restroomOther;
+	}
+    public String getBathroomTub() {
+		return bathroomTub;
+	}
+
+	public void setBathroomTub(String bathroomTub) {
+		this.bathroomTub = bathroomTub;
+	}
+    public String getBathroomShower() {
+		return bathroomShower;
+	}
+
+	public void setBathroomShower(String bathroomShower) {
+		this.bathroomShower = bathroomShower;
+	}
+    public String getBathroomStrip() {
+		return bathroomStrip;
+	}
+
+	public void setBathroomStrip(String bathroomStrip) {
+		this.bathroomStrip = bathroomStrip;
+	}
+    public String getKitchenOther() {
+		return kitchenOther;
+	}
+
+	public void setKitchenOther(String kitchenOther) {
+		this.kitchenOther = kitchenOther;
+	}
+    public String getKitchen() {
+		return kitchen;
+	}
+
+	public void setKitchen(String kitchen) {
+		this.kitchen = kitchen;
+	}
+    public String getClean() {
+		return clean;
+	}
+
+	public void setClean(String clean) {
+		this.clean = clean;
+	}
+    public String getShopping() {
+		return shopping;
+	}
+
+	public void setShopping(String shopping) {
+		this.shopping = shopping;
+	}
+    public String getShoppingTraffic() {
+		return shoppingTraffic;
+	}
+
+	public void setShoppingTraffic(String shoppingTraffic) {
+		this.shoppingTraffic = shoppingTraffic;
+	}
+    public String getShoppingAccessibility() {
+		return shoppingAccessibility;
+	}
+
+	public void setShoppingAccessibility(String shoppingAccessibility) {
+		this.shoppingAccessibility = shoppingAccessibility;
+	}
+    public String getShoppingOther() {
+		return shoppingOther;
+	}
+
+	public void setShoppingOther(String shoppingOther) {
+		this.shoppingOther = shoppingOther;
+	}
+    public String getLivingEnvironmentDefect() {
+		return livingEnvironmentDefect;
+	}
+
+	public void setLivingEnvironmentDefect(String livingEnvironmentDefect) {
+		this.livingEnvironmentDefect = livingEnvironmentDefect;
+	}
+    public String getDailyWater() {
+		return dailyWater;
+	}
+
+	public void setDailyWater(String dailyWater) {
+		this.dailyWater = dailyWater;
+	}
+    public String getDailyDrinking() {
+		return dailyDrinking;
+	}
+
+	public void setDailyDrinking(String dailyDrinking) {
+		this.dailyDrinking = dailyDrinking;
+	}
+    public String getDrinking() {
+		return drinking;
+	}
+
+	public void setDrinking(String drinking) {
+		this.drinking = drinking;
+	}
+    public String getGadget() {
+		return gadget;
+	}
+
+	public void setGadget(String gadget) {
+		this.gadget = gadget;
+	}
+    public String getMainFood() {
+		return mainFood;
+	}
+
+	public void setMainFood(String mainFood) {
+		this.mainFood = mainFood;
+	}
+    public String getFruitsVegetables() {
+		return fruitsVegetables;
+	}
+
+	public void setFruitsVegetables(String fruitsVegetables) {
+		this.fruitsVegetables = fruitsVegetables;
+	}
+    public String getSalt() {
+		return salt;
+	}
+
+	public void setSalt(String salt) {
+		this.salt = salt;
+	}
+    public String getOil() {
+		return oil;
+	}
+
+	public void setOil(String oil) {
+		this.oil = oil;
+	}
+    public String getFish() {
+		return fish;
+	}
+
+	public void setFish(String fish) {
+		this.fish = fish;
+	}
+    public String getMeat() {
+		return meat;
+	}
+
+	public void setMeat(String meat) {
+		this.meat = meat;
+	}
+    public String getBeanProducts() {
+		return beanProducts;
+	}
+
+	public void setBeanProducts(String beanProducts) {
+		this.beanProducts = beanProducts;
+	}
+    public String getMilk() {
+		return milk;
+	}
+
+	public void setMilk(String milk) {
+		this.milk = milk;
+	}
+    public String getFoodForm() {
+		return foodForm;
+	}
+
+	public void setFoodForm(String foodForm) {
+		this.foodForm = foodForm;
+	}
+    public String getDysphagia() {
+		return dysphagia;
+	}
+
+	public void setDysphagia(String dysphagia) {
+		this.dysphagia = dysphagia;
+	}
+    public String getMorningSit() {
+		return morningSit;
+	}
+
+	public void setMorningSit(String morningSit) {
+		this.morningSit = morningSit;
+	}
+    public String getNoonSit() {
+		return noonSit;
+	}
+
+	public void setNoonSit(String noonSit) {
+		this.noonSit = noonSit;
+	}
+    public String getNightSit() {
+		return nightSit;
+	}
+
+	public void setNightSit(String nightSit) {
+		this.nightSit = nightSit;
+	}
+    public String getLateAfternoonTea() {
+		return lateAfternoonTea;
+	}
+
+	public void setLateAfternoonTea(String lateAfternoonTea) {
+		this.lateAfternoonTea = lateAfternoonTea;
+	}
+    public String getUrine() {
+		return urine;
+	}
+
+	public void setUrine(String urine) {
+		this.urine = urine;
+	}
+    public String getUrineNum() {
+		return urineNum;
+	}
+
+	public void setUrineNum(String urineNum) {
+		this.urineNum = urineNum;
+	}
+    public String getUrineMethod() {
+		return urineMethod;
+	}
+
+	public void setUrineMethod(String urineMethod) {
+		this.urineMethod = urineMethod;
+	}
+    public String getUrineType() {
+		return urineType;
+	}
+
+	public void setUrineType(String urineType) {
+		this.urineType = urineType;
+	}
+    public String getUrineTypeOther() {
+		return urineTypeOther;
+	}
+
+	public void setUrineTypeOther(String urineTypeOther) {
+		this.urineTypeOther = urineTypeOther;
+	}
+    public String getShit() {
+		return shit;
+	}
+
+	public void setShit(String shit) {
+		this.shit = shit;
+	}
+    public String getShitDay() {
+		return shitDay;
+	}
+
+	public void setShitDay(String shitDay) {
+		this.shitDay = shitDay;
+	}
+    public String getShitMethod() {
+		return shitMethod;
+	}
+
+	public void setShitMethod(String shitMethod) {
+		this.shitMethod = shitMethod;
+	}
+    public String getShitType() {
+		return shitType;
+	}
+
+	public void setShitType(String shitType) {
+		this.shitType = shitType;
+	}
+    public String getShitTypeOther() {
+		return shitTypeOther;
+	}
+
+	public void setShitTypeOther(String shitTypeOther) {
+		this.shitTypeOther = shitTypeOther;
+	}
+    public String getSportsForm() {
+		return sportsForm;
+	}
+
+	public void setSportsForm(String sportsForm) {
+		this.sportsForm = sportsForm;
+	}
+    public String getSportsT() {
+		return sportsT;
+	}
+
+	public void setSportsT(String sportsT) {
+		this.sportsT = sportsT;
+	}
+    public String getSportsF() {
+		return sportsF;
+	}
+
+	public void setSportsF(String sportsF) {
+		this.sportsF = sportsF;
+	}
+    public String getSportsNo() {
+		return sportsNo;
+	}
+
+	public void setSportsNo(String sportsNo) {
+		this.sportsNo = sportsNo;
+	}
+    public String getBathNum() {
+		return bathNum;
+	}
+
+	public void setBathNum(String bathNum) {
+		this.bathNum = bathNum;
+	}
+    public String getBathMethod() {
+		return bathMethod;
+	}
+
+	public void setBathMethod(String bathMethod) {
+		this.bathMethod = bathMethod;
+	}
+    public String getGoOut() {
+		return goOut;
+	}
+
+	public void setGoOut(String goOut) {
+		this.goOut = goOut;
+	}
+    public String getGoOutOther() {
+		return goOutOther;
+	}
+
+	public void setGoOutOther(String goOutOther) {
+		this.goOutOther = goOutOther;
+	}
+    public String getBrush() {
+		return brush;
+	}
+
+	public void setBrush(String brush) {
+		this.brush = brush;
+	}
+    public String getCommunication() {
+		return communication;
+	}
+
+	public void setCommunication(String communication) {
+		this.communication = communication;
+	}
+    public String getSleepHour() {
+		return sleepHour;
+	}
+
+	public void setSleepHour(String sleepHour) {
+		this.sleepHour = sleepHour;
+	}
+    public String getSleepQuality() {
+		return sleepQuality;
+	}
+
+	public void setSleepQuality(String sleepQuality) {
+		this.sleepQuality = sleepQuality;
+	}
+    public String getMorningSpirit() {
+		return morningSpirit;
+	}
+
+	public void setMorningSpirit(String morningSpirit) {
+		this.morningSpirit = morningSpirit;
+	}
+    public BigDecimal getAccountNum() {
+		return accountNum;
+	}
+
+	public void setAccountNum(BigDecimal accountNum) {
+		this.accountNum = accountNum;
+	}
+    public String getLastChatTime() {
+		return lastChatTime;
+	}
+
+	public void setLastChatTime(String lastChatTime) {
+		this.lastChatTime = lastChatTime;
+	}
+    public String getLastChatContent() {
+		return lastChatContent;
+	}
+
+	public void setLastChatContent(String lastChatContent) {
+		this.lastChatContent = lastChatContent;
+	}
+    public String getHasNewNotice() {
+		return hasNewNotice;
+	}
+
+	public void setHasNewNotice(String hasNewNotice) {
+		this.hasNewNotice = hasNewNotice;
+	}
+    public String getChronicDisease() {
+		return chronicDisease;
+	}
+
+	public void setChronicDisease(String chronicDisease) {
+		this.chronicDisease = chronicDisease;
+	}
+    public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+    public String getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(String updateTime) {
+		this.updateTime = updateTime;
+	}
+    public String getLastReviewTime() {
+		return lastReviewTime;
+	}
+
+	public void setLastReviewTime(String lastReviewTime) {
+		this.lastReviewTime = lastReviewTime;
+	}
+    public Integer getSource() {
+		return source;
+	}
+
+	public void setSource(Integer source) {
+		this.source = source;
+	}
+    public String getLivingCondition() {
+		return livingCondition;
+	}
+
+	public void setLivingCondition(String livingCondition) {
+		this.livingCondition = livingCondition;
+	}
+    public String getIdFront() {
+		return idFront;
+	}
+
+	public void setIdFront(String idFront) {
+		this.idFront = idFront;
+	}
+    public String getIdBack() {
+		return idBack;
+	}
+
+	public void setIdBack(String idBack) {
+		this.idBack = idBack;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="UserEntity"	,joinColumn="ID"	)
+			
+			
+		private UserEntity user;
+	        
+	public UserEntity getUser() {
+		return user;
+    }
+	
+	public void setUser(UserEntity user) {
+		this.user = user;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="EmployeeEntity"	,joinColumn="ID"	)
+			
+			
+		private EmployeeEntity nurseEmployee;
+	        
+	public EmployeeEntity getNurseEmployee() {
+		return nurseEmployee;
+    }
+	
+	public void setNurseEmployee(EmployeeEntity nurseEmployee) {
+		this.nurseEmployee = nurseEmployee;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="OlderSiteEntity"			,joinColumn="OLDER_ID"
+			)
+			
+		private List<OlderSiteEntity> olderSiteList;
+	        
+	public List<OlderSiteEntity> getOlderSiteList() {
+		return olderSiteList;
+	}
+	
+	public void setOlderSiteList(List<OlderSiteEntity> olderSiteList) {
+		this.olderSiteList = olderSiteList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="OlderAddressEntity"			,joinColumn="OLDER_ID"
+			)
+			
+		private List<OlderAddressEntity> olderAddressList;
+	        
+	public List<OlderAddressEntity> getOlderAddressList() {
+		return olderAddressList;
+	}
+	
+	public void setOlderAddressList(List<OlderAddressEntity> olderAddressList) {
+		this.olderAddressList = olderAddressList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="OlderContactEntity"			,joinColumn="OLDER_ID"
+			)
+			
+		private List<OlderContactEntity> olderContactList;
+	        
+	public List<OlderContactEntity> getOlderContactList() {
+		return olderContactList;
+	}
+	
+	public void setOlderContactList(List<OlderContactEntity> olderContactList) {
+		this.olderContactList = olderContactList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="CaseRecordEntity"			,joinColumn="OLDER_ID"
+			)
+			
+		private List<CaseRecordEntity> caseRecordList;
+	        
+	public List<CaseRecordEntity> getCaseRecordList() {
+		return caseRecordList;
+	}
+	
+	public void setCaseRecordList(List<CaseRecordEntity> caseRecordList) {
+		this.caseRecordList = caseRecordList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="DailyLifeEntity"			,joinColumn="OLDER_ID"
+			)
+			
+		private List<DailyLifeEntity> dailyLifeList;
+	        
+	public List<DailyLifeEntity> getDailyLifeList() {
+		return dailyLifeList;
+	}
+	
+	public void setDailyLifeList(List<DailyLifeEntity> dailyLifeList) {
+		this.dailyLifeList = dailyLifeList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToMany",
+			joinEntity="OlderEmployeeEntity"
+					,joinColumn="OLDER_ID"
+			,inverseJoinColumn="EMPLOYEE_ID",inverseJoinEntity="EmployeeEntity")
+	    private List<EmployeeEntity> employeeList;
+	        
+	public List<EmployeeEntity> getEmployeeList() {
+		return employeeList;
+    }
+	
+	public void setEmployeeList(List<EmployeeEntity> employeeList) {
+		this.employeeList = employeeList;
+	}
+    		
+			
+			
+}

@@ -1,0 +1,48 @@
+/*    */ package fsk.entity.vo.gateway;
+/*    */ 
+/*    */ import java.util.ArrayList;
+/*    */ import java.util.List;
+/*    */ 
+/*    */ public class FBeds
+/*    */ {
+/* 13 */   private List<FBed> beds = new ArrayList();
+/*    */   private String count;
+/*    */   private String offline;
+/*    */ 
+/*    */   public String getCount()
+/*    */   {
+/* 24 */     return this.count;
+/*    */   }
+/*    */ 
+/*    */   public void setCount(String count) {
+/* 28 */     this.count = count;
+/*    */   }
+/*    */ 
+/*    */   public String getOffline() {
+/* 32 */     return this.offline;
+/*    */   }
+/*    */ 
+/*    */   public void setOffline(String offline) {
+/* 36 */     this.offline = offline;
+/*    */   }
+/*    */ 
+/*    */   public List<FBed> getBeds() {
+/* 40 */     return this.beds;
+/*    */   }
+/*    */ 
+/*    */   public void setBeds(List<FBed> beds) {
+/* 44 */     this.beds = beds;
+/*    */   }
+/*    */ 
+/*    */   public void add(FBed obj) {
+/* 48 */     if (this.beds == null) {
+/* 49 */       this.beds = new ArrayList();
+/*    */     }
+/* 51 */     this.beds.add(obj);
+/*    */   }
+/*    */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.entity.vo.gateway.FBeds
+ * JD-Core Version:    0.6.1
+ */

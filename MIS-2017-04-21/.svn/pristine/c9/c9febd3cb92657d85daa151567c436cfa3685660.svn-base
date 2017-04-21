@@ -1,0 +1,637 @@
+package fsk.parse.sendReceiveCareful;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.framework.system.util.JsonUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import com.framework.system.db.manager.DBManager;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+import fsk.entity.sendReceiveCareful.SendReceiveCarefulEntity;
+
+
+
+import fsk.entity.sendReceive.SendReceiveEntity;
+import fsk.entity.sendReceiveCarefulPhoto.SendReceiveCarefulPhotoEntity;
+
+import com.framework.system.util.JsonUtil;
+import com.framework.system.db.query.OrderVO;
+ /**   
+ * @Title: Parse
+ * @Description: 交接班注意事项解析器
+ * @author feng.gu
+ * @date 2016-10-19 13:13:16
+ * @version V1.0   
+ *
+ */
+public class SendReceiveCarefulParse {
+	private static Logger logger = Logger.getLogger(SendReceiveCarefulParse.class);
+	private static SendReceiveCarefulParse sendReceiveCarefulParse;
+	private DBManager dbManager = DBManager.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static SendReceiveCarefulParse getInstance() {
+		if (sendReceiveCarefulParse == null) {
+			sendReceiveCarefulParse = new SendReceiveCarefulParse();
+		}
+		return sendReceiveCarefulParse;
+	}
+
+	public Map<String, Object> parse(int type, String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			parseMap = this.parseByJson(command,reqStr, request);
+		} else if (type == 2) {
+			// xml
+			parseMap = this.parseByXml(command,reqStr, request);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByJson(String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		try {
+			String actionReturn = null;
+			SendReceiveCarefulEntity sendReceiveCarefulReturn = null;
+			List<SendReceiveCarefulEntity> sendReceiveCarefulListReturn = null;
+			Integer idReturn = null;			
+			Map<String, Object> queryMapReturn = null;
+			int pagenoReturn = 1;
+			int pagesizeReturn = 10;
+			List<OrderVO> orderListReturn = null;
+			
+															Boolean sendReceiveShowReturn = false;
+			Boolean delSendReceiveReturn = false;
+																		            Boolean sendReceiveCarefulPhotoListShowReturn = false;
+            Boolean delSendReceiveCarefulPhotoListReturn = false;
+																		
+			//json
+			Map reqParams = JsonUtil.getMap4Json(reqStr);
+			JSONObject contentreq = (JSONObject)reqParams.get("content");
+			if ("ADD_SEND_RECEIVE_CAREFUL_INFO_REQUEST".equals(command)) {
+				actionReturn = "save";
+				sendReceiveCarefulReturn = new SendReceiveCarefulEntity();
+				if(true){
+					if(contentreq!=null){
+												    						    Integer id = (Integer)contentreq.get("id");
+	                		if(id!=null){
+	                		    	                		    sendReceiveCarefulReturn  = (SendReceiveCarefulEntity)dbManager.getById(id, SendReceiveCarefulEntity.class);	                		    
+	                		    			                	sendReceiveCarefulReturn.setId(id);
+			                }
+						    												    						    Integer olderId = (Integer)contentreq.get("olderId");
+	                		if(olderId!=null){
+	                		    			                	sendReceiveCarefulReturn.setOlderId(olderId);
+			                }
+						    												    						    String olderName = (String)contentreq.get("olderName");
+	                		if(olderName!=null){
+	                		    			                	sendReceiveCarefulReturn.setOlderName(olderName);
+			                }
+						    												    						    String carefulContent = (String)contentreq.get("carefulContent");
+	                		if(carefulContent!=null){
+	                		    			                	sendReceiveCarefulReturn.setCarefulContent(carefulContent);
+			                }
+						    												    						    Integer sendReceiveId = (Integer)contentreq.get("sendReceiveId");
+	                		if(sendReceiveId!=null){
+	                		    			                	sendReceiveCarefulReturn.setSendReceiveId(sendReceiveId);
+			                }
+						    											}					
+				}
+																				if(true){
+					Object sendReceive = contentreq.get("sendReceive");
+					if(sendReceive!=null){
+						JSONObject obj = (JSONObject)sendReceive;
+						if(obj!=null){
+							SendReceiveEntity entity = new SendReceiveEntity();						
+																						    Integer id = (Integer)obj.get("id");
+		                		if(id!=null){
+				                	entity.setId(id);
+				                }
+							    																						    Integer serviceSiteId = (Integer)obj.get("serviceSiteId");
+		                		if(serviceSiteId!=null){
+				                	entity.setServiceSiteId(serviceSiteId);
+				                }
+							    																						    String serviceSiteName = (String)obj.get("serviceSiteName");
+		                		if(serviceSiteName!=null){
+				                	entity.setServiceSiteName(serviceSiteName);
+				                }
+							    																						    Integer sendEmployeeId = (Integer)obj.get("sendEmployeeId");
+		                		if(sendEmployeeId!=null){
+				                	entity.setSendEmployeeId(sendEmployeeId);
+				                }
+							    																						    String sendEmployeeName = (String)obj.get("sendEmployeeName");
+		                		if(sendEmployeeName!=null){
+				                	entity.setSendEmployeeName(sendEmployeeName);
+				                }
+							    																						    String sendEmployeeIndexNum = (String)obj.get("sendEmployeeIndexNum");
+		                		if(sendEmployeeIndexNum!=null){
+				                	entity.setSendEmployeeIndexNum(sendEmployeeIndexNum);
+				                }
+							    																						    String sendEmployeeSignatureTime = (String)obj.get("sendEmployeeSignatureTime");
+		                		if(sendEmployeeSignatureTime!=null){
+				                	entity.setSendEmployeeSignatureTime(sendEmployeeSignatureTime);
+				                }
+							    																						    Integer receiveEmployeeId = (Integer)obj.get("receiveEmployeeId");
+		                		if(receiveEmployeeId!=null){
+				                	entity.setReceiveEmployeeId(receiveEmployeeId);
+				                }
+							    																						    String receiveEmployeeName = (String)obj.get("receiveEmployeeName");
+		                		if(receiveEmployeeName!=null){
+				                	entity.setReceiveEmployeeName(receiveEmployeeName);
+				                }
+							    																						    String receiveEmployeeIndexNum = (String)obj.get("receiveEmployeeIndexNum");
+		                		if(receiveEmployeeIndexNum!=null){
+				                	entity.setReceiveEmployeeIndexNum(receiveEmployeeIndexNum);
+				                }
+							    																						    String receiveEmployeeSignatureTime = (String)obj.get("receiveEmployeeSignatureTime");
+		                		if(receiveEmployeeSignatureTime!=null){
+				                	entity.setReceiveEmployeeSignatureTime(receiveEmployeeSignatureTime);
+				                }
+							    																						    Integer superviseEmployeeId = (Integer)obj.get("superviseEmployeeId");
+		                		if(superviseEmployeeId!=null){
+				                	entity.setSuperviseEmployeeId(superviseEmployeeId);
+				                }
+							    																						    String superviseEmployeeName = (String)obj.get("superviseEmployeeName");
+		                		if(superviseEmployeeName!=null){
+				                	entity.setSuperviseEmployeeName(superviseEmployeeName);
+				                }
+							    																						    String superviseEmployeeIndexNum = (String)obj.get("superviseEmployeeIndexNum");
+		                		if(superviseEmployeeIndexNum!=null){
+				                	entity.setSuperviseEmployeeIndexNum(superviseEmployeeIndexNum);
+				                }
+							    																						    String superviseEmployeeSignatureTime = (String)obj.get("superviseEmployeeSignatureTime");
+		                		if(superviseEmployeeSignatureTime!=null){
+				                	entity.setSuperviseEmployeeSignatureTime(superviseEmployeeSignatureTime);
+				                }
+							    																						    String reason = (String)obj.get("reason");
+		                		if(reason!=null){
+				                	entity.setReason(reason);
+				                }
+							    																						    String createTime = (String)obj.get("createTime");
+		                		if(createTime!=null){
+				                	entity.setCreateTime(createTime);
+				                }
+							    																						    Integer status = (Integer)obj.get("status");
+		                		if(status!=null){
+				                	entity.setStatus(status);
+				                }
+							    																						    String serialNumber = (String)obj.get("serialNumber");
+		                		if(serialNumber!=null){
+				                	entity.setSerialNumber(serialNumber);
+				                }
+							    														sendReceiveCarefulReturn.setSendReceive(entity);
+						}						
+					}
+				}
+																												if(true){
+					Object sendReceiveCarefulPhotoList = contentreq.get("sendReceiveCarefulPhotoList");
+					if(sendReceiveCarefulPhotoList!=null){
+						JSONArray list = (JSONArray)sendReceiveCarefulPhotoList;
+						if(list!=null){
+							List<SendReceiveCarefulPhotoEntity> entityList = new ArrayList<SendReceiveCarefulPhotoEntity>();
+							for (int i = 0; i < list.size(); i++) {
+			  	              JSONObject obj = list.getJSONObject(i);
+			  	              if(obj!=null){
+									SendReceiveCarefulPhotoEntity entity = new SendReceiveCarefulPhotoEntity();						
+													
+												                											    Integer id = (Integer)obj.get("id");
+				                		if(id!=null){
+						                	entity.setId(id);
+						                }
+									    												                											    String url = (String)obj.get("url");
+				                		if(url!=null){
+						                	entity.setUrl(url);
+						                }
+									    												                											    String name = (String)obj.get("name");
+				                		if(name!=null){
+						                	entity.setName(name);
+						                }
+									    												                											    String des = (String)obj.get("des");
+				                		if(des!=null){
+						                	entity.setDes(des);
+						                }
+									    												                											    Integer showIndex = (Integer)obj.get("showIndex");
+				                		if(showIndex!=null){
+						                	entity.setShowIndex(showIndex);
+						                }
+									    												                											    Integer sendReceiveCarefulId = (Integer)obj.get("sendReceiveCarefulId");
+				                		if(sendReceiveCarefulId!=null){
+						                	entity.setSendReceiveCarefulId(sendReceiveCarefulId);
+						                }
+									    												                											    String createPerson = (String)obj.get("createPerson");
+				                		if(createPerson!=null){
+						                	entity.setCreatePerson(createPerson);
+						                }
+									    												                											    String createTime = (String)obj.get("createTime");
+				                		if(createTime!=null){
+						                	entity.setCreateTime(createTime);
+						                }
+									    																                entityList.add(entity);
+										}
+					  	            }
+							sendReceiveCarefulReturn.setSendReceiveCarefulPhotoList(entityList);
+						}
+						
+					}
+				}
+																							} else if ("QUERY_SEND_RECEIVE_CAREFUL_INFO_REQUEST".equals(command)) {
+				actionReturn = "getById";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");
+					        																												String sendReceiveShow = (String)contentreq.get("sendReceiveShow");
+							if("true".equals(sendReceiveShow)){
+								sendReceiveShowReturn = true;
+							}
+																																																	String sendReceiveCarefulPhotoListShow = (String)contentreq.get("sendReceiveCarefulPhotoListShow");
+							if("true".equals(sendReceiveCarefulPhotoListShow)){
+								sendReceiveCarefulPhotoListShowReturn = true;
+							}		           
+																																								}	
+				}
+			} else if ("QUERY_SEND_RECEIVE_CAREFUL_LIST_REQUEST".equals(command)) {
+				actionReturn = "getListByCondition";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																								Integer olderId_gt = (Integer)contentreq.get("olderId_gt");
+						Integer olderId_ge = (Integer)contentreq.get("olderId_ge");
+						Integer olderId_lt = (Integer)contentreq.get("olderId_lt");
+						Integer olderId_le = (Integer)contentreq.get("olderId_le");
+						String olderId_in = (String)contentreq.get("olderId_in");
+						Integer olderId = (Integer)contentreq.get("olderId");
+                        if(olderId_gt!=null){
+                        	queryMapReturn.put("olderId_gt", olderId_gt);
+						}
+						if(olderId_ge!=null){
+                        	queryMapReturn.put("olderId_ge", olderId_ge);
+						}
+						if(olderId_lt!=null){
+                        	queryMapReturn.put("olderId_lt", olderId_lt);
+						}
+						if(olderId_le!=null){
+                        	queryMapReturn.put("olderId_le", olderId_le);
+						}
+						if(olderId_in!=null){
+                        	queryMapReturn.put("olderId_in", olderId_in);
+						}
+						if(olderId!=null){
+                        	queryMapReturn.put("olderId", olderId);
+						}		
+																																String olderName_like = (String)contentreq.get("olderName_like");
+							String olderName_isNull = (String)contentreq.get("olderName_isNull");
+							String olderName_isNotNull = (String)contentreq.get("olderName_isNotNull");
+							String olderName_in = (String)contentreq.get("olderName_in");
+							String olderName = (String)contentreq.get("olderName");
+							if(olderName_like!=null){
+	                        	queryMapReturn.put("olderName_like", olderName_like);
+							}
+							if(olderName_isNull!=null){
+	                        	queryMapReturn.put("olderName_isNull", olderName_isNull);
+							}
+							if(olderName_isNotNull!=null){
+	                        	queryMapReturn.put("olderName_isNotNull", olderName_isNotNull);
+							}
+							if(olderName_in!=null){
+	                        	queryMapReturn.put("olderName_in", olderName_in);
+							}
+							if(olderName!=null){
+	                        	queryMapReturn.put("olderName", olderName);
+							}						           
+																																							String carefulContent_like = (String)contentreq.get("carefulContent_like");
+							String carefulContent_isNull = (String)contentreq.get("carefulContent_isNull");
+							String carefulContent_isNotNull = (String)contentreq.get("carefulContent_isNotNull");
+							String carefulContent_in = (String)contentreq.get("carefulContent_in");
+							String carefulContent = (String)contentreq.get("carefulContent");
+							if(carefulContent_like!=null){
+	                        	queryMapReturn.put("carefulContent_like", carefulContent_like);
+							}
+							if(carefulContent_isNull!=null){
+	                        	queryMapReturn.put("carefulContent_isNull", carefulContent_isNull);
+							}
+							if(carefulContent_isNotNull!=null){
+	                        	queryMapReturn.put("carefulContent_isNotNull", carefulContent_isNotNull);
+							}
+							if(carefulContent_in!=null){
+	                        	queryMapReturn.put("carefulContent_in", carefulContent_in);
+							}
+							if(carefulContent!=null){
+	                        	queryMapReturn.put("carefulContent", carefulContent);
+							}						           
+																															Integer sendReceiveId_gt = (Integer)contentreq.get("sendReceiveId_gt");
+						Integer sendReceiveId_ge = (Integer)contentreq.get("sendReceiveId_ge");
+						Integer sendReceiveId_lt = (Integer)contentreq.get("sendReceiveId_lt");
+						Integer sendReceiveId_le = (Integer)contentreq.get("sendReceiveId_le");
+						String sendReceiveId_in = (String)contentreq.get("sendReceiveId_in");
+						Integer sendReceiveId = (Integer)contentreq.get("sendReceiveId");
+                        if(sendReceiveId_gt!=null){
+                        	queryMapReturn.put("sendReceiveId_gt", sendReceiveId_gt);
+						}
+						if(sendReceiveId_ge!=null){
+                        	queryMapReturn.put("sendReceiveId_ge", sendReceiveId_ge);
+						}
+						if(sendReceiveId_lt!=null){
+                        	queryMapReturn.put("sendReceiveId_lt", sendReceiveId_lt);
+						}
+						if(sendReceiveId_le!=null){
+                        	queryMapReturn.put("sendReceiveId_le", sendReceiveId_le);
+						}
+						if(sendReceiveId_in!=null){
+                        	queryMapReturn.put("sendReceiveId_in", sendReceiveId_in);
+						}
+						if(sendReceiveId!=null){
+                        	queryMapReturn.put("sendReceiveId", sendReceiveId);
+						}		
+															
+						    																																										Integer sendReceiveCarefulPhotoId = (Integer)contentreq.get("sendReceiveCarefulPhotoId");
+	                        if(sendReceiveCarefulPhotoId!=null){
+	                        	queryMapReturn.put("sendReceiveCarefulPhotoId", sendReceiveCarefulPhotoId);
+	                        }		           
+																					
+																																			String sendReceiveShow = (String)contentreq.get("sendReceiveShow");
+							if("true".equals(sendReceiveShow)){
+								sendReceiveShowReturn = true;
+							}
+																																																	String sendReceiveCarefulPhotoListShow = (String)contentreq.get("sendReceiveCarefulPhotoListShow");
+							if("true".equals(sendReceiveCarefulPhotoListShow)){
+								sendReceiveCarefulPhotoListShowReturn = true;
+							}		           
+																																								}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				    Object orderreq = (Object) reqParams.get("order");
+					if (orderreq != null) {
+						JSONArray order = (JSONArray)orderreq;
+						orderListReturn = new ArrayList<OrderVO>();
+						for(int i=0;i<order.size();i++){
+							JSONObject obj = order.getJSONObject(i);
+							OrderVO orderVO = new OrderVO();
+							orderVO.setName((String)obj.get("column"));
+							orderVO.setOrderType((String)obj.get("type"));
+							orderListReturn.add(orderVO);
+						}						
+					}
+				}
+			} else if ("DEL_SEND_RECEIVE_CAREFUL_INFO_REQUEST".equals(command)) {
+				actionReturn = "del";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");	
+						    																												String delSendReceive = (String)contentreq.get("delSendReceive");
+							if("true".equals(delSendReceive)){
+								delSendReceiveReturn = true;
+							}
+																																																	String delSendReceiveCarefulPhotoList = (String)contentreq.get("delSendReceiveCarefulPhotoList");
+							if("true".equals(delSendReceiveCarefulPhotoList)){
+								delSendReceiveCarefulPhotoListReturn = true;
+							}		           
+																																								}	
+				}
+			} else if ("DEL_SEND_RECEIVE_CAREFUL_LIST_REQUEST".equals(command)) {
+				actionReturn = "delList";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																								Integer olderId_gt = (Integer)contentreq.get("olderId_gt");
+						Integer olderId_ge = (Integer)contentreq.get("olderId_ge");
+						Integer olderId_lt = (Integer)contentreq.get("olderId_lt");
+						Integer olderId_le = (Integer)contentreq.get("olderId_le");
+						String olderId_in = (String)contentreq.get("olderId_in");
+						Integer olderId = (Integer)contentreq.get("olderId");
+                        if(olderId_gt!=null){
+                        	queryMapReturn.put("olderId_gt", olderId_gt);
+						}
+						if(olderId_ge!=null){
+                        	queryMapReturn.put("olderId_ge", olderId_ge);
+						}
+						if(olderId_lt!=null){
+                        	queryMapReturn.put("olderId_lt", olderId_lt);
+						}
+						if(olderId_le!=null){
+                        	queryMapReturn.put("olderId_le", olderId_le);
+						}
+						if(olderId_in!=null){
+                        	queryMapReturn.put("olderId_in", olderId_in);
+						}
+						if(olderId!=null){
+                        	queryMapReturn.put("olderId", olderId);
+						}		
+																																String olderName_like = (String)contentreq.get("olderName_like");
+							String olderName_isNull = (String)contentreq.get("olderName_isNull");
+							String olderName_isNotNull = (String)contentreq.get("olderName_isNotNull");
+							String olderName_in = (String)contentreq.get("olderName_in");
+							String olderName = (String)contentreq.get("olderName");
+							if(olderName_like!=null){
+	                        	queryMapReturn.put("olderName_like", olderName_like);
+							}
+							if(olderName_isNull!=null){
+	                        	queryMapReturn.put("olderName_isNull", olderName_isNull);
+							}
+							if(olderName_isNotNull!=null){
+	                        	queryMapReturn.put("olderName_isNotNull", olderName_isNotNull);
+							}
+							if(olderName_in!=null){
+	                        	queryMapReturn.put("olderName_in", olderName_in);
+							}
+							if(olderName!=null){
+	                        	queryMapReturn.put("olderName", olderName);
+							}						           
+																																							String carefulContent_like = (String)contentreq.get("carefulContent_like");
+							String carefulContent_isNull = (String)contentreq.get("carefulContent_isNull");
+							String carefulContent_isNotNull = (String)contentreq.get("carefulContent_isNotNull");
+							String carefulContent_in = (String)contentreq.get("carefulContent_in");
+							String carefulContent = (String)contentreq.get("carefulContent");
+							if(carefulContent_like!=null){
+	                        	queryMapReturn.put("carefulContent_like", carefulContent_like);
+							}
+							if(carefulContent_isNull!=null){
+	                        	queryMapReturn.put("carefulContent_isNull", carefulContent_isNull);
+							}
+							if(carefulContent_isNotNull!=null){
+	                        	queryMapReturn.put("carefulContent_isNotNull", carefulContent_isNotNull);
+							}
+							if(carefulContent_in!=null){
+	                        	queryMapReturn.put("carefulContent_in", carefulContent_in);
+							}
+							if(carefulContent!=null){
+	                        	queryMapReturn.put("carefulContent", carefulContent);
+							}						           
+																															Integer sendReceiveId_gt = (Integer)contentreq.get("sendReceiveId_gt");
+						Integer sendReceiveId_ge = (Integer)contentreq.get("sendReceiveId_ge");
+						Integer sendReceiveId_lt = (Integer)contentreq.get("sendReceiveId_lt");
+						Integer sendReceiveId_le = (Integer)contentreq.get("sendReceiveId_le");
+						String sendReceiveId_in = (String)contentreq.get("sendReceiveId_in");
+						Integer sendReceiveId = (Integer)contentreq.get("sendReceiveId");
+                        if(sendReceiveId_gt!=null){
+                        	queryMapReturn.put("sendReceiveId_gt", sendReceiveId_gt);
+						}
+						if(sendReceiveId_ge!=null){
+                        	queryMapReturn.put("sendReceiveId_ge", sendReceiveId_ge);
+						}
+						if(sendReceiveId_lt!=null){
+                        	queryMapReturn.put("sendReceiveId_lt", sendReceiveId_lt);
+						}
+						if(sendReceiveId_le!=null){
+                        	queryMapReturn.put("sendReceiveId_le", sendReceiveId_le);
+						}
+						if(sendReceiveId_in!=null){
+                        	queryMapReturn.put("sendReceiveId_in", sendReceiveId_in);
+						}
+						if(sendReceiveId!=null){
+                        	queryMapReturn.put("sendReceiveId", sendReceiveId);
+						}		
+																		
+																														String delSendReceive = (String)contentreq.get("delSendReceive");
+						if("true".equals(delSendReceive)){
+							delSendReceiveReturn = true;
+						}
+																																							            Integer sendReceiveCarefulPhotoId = (Integer)contentreq.get("sendReceiveCarefulPhotoId");
+                        if(sendReceiveCarefulPhotoId!=null){
+                        	queryMapReturn.put("sendReceiveCarefulPhotoId", sendReceiveCarefulPhotoId);
+                        }
+                        String delSendReceiveCarefulPhotoList = (String)contentreq.get("delSendReceiveCarefulPhotoList");
+						if("true".equals(delSendReceiveCarefulPhotoList)){
+							delSendReceiveCarefulPhotoListReturn = true;
+						}
+																																			}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				}
+			}
+
+			if (actionReturn != null && !"".equals(actionReturn)) {
+				parseMap.put("action", actionReturn);
+			}
+			if (sendReceiveCarefulReturn != null) {
+				parseMap.put("sendReceiveCareful", sendReceiveCarefulReturn);
+			}
+			if (sendReceiveCarefulListReturn != null && sendReceiveCarefulListReturn.size() > 0) {
+				parseMap.put("sendReceiveCarefulList", sendReceiveCarefulListReturn);
+			}
+			if (idReturn != null) {
+				parseMap.put("id", idReturn);
+			}	
+			if (orderListReturn != null && orderListReturn.size() > 0) {
+				parseMap.put("orderList", orderListReturn);
+			}		
+			if (queryMapReturn != null) {
+				parseMap.put("queryMap", queryMapReturn);
+			}
+			if (pagenoReturn > 0) {
+				parseMap.put("pageno", pagenoReturn);
+			}
+			if (pagesizeReturn > 0) {
+				parseMap.put("pagesize", pagesizeReturn);
+			}
+			
+			
+															if (sendReceiveShowReturn != null) {
+				parseMap.put("sendReceiveShow", sendReceiveShowReturn);
+			}
+			if (delSendReceiveReturn != null) {
+				parseMap.put("delSendReceive", delSendReceiveReturn);
+			}
+																		            if (sendReceiveCarefulPhotoListShowReturn != null) {
+				parseMap.put("sendReceiveCarefulPhotoListShow", sendReceiveCarefulPhotoListShowReturn);
+			}
+            if (delSendReceiveCarefulPhotoListReturn != null) {
+				parseMap.put("delSendReceiveCarefulPhotoList", delSendReceiveCarefulPhotoListReturn);
+			}
+																		
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByXml(String command,String reqStr,
+			HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

@@ -1,0 +1,167 @@
+package ${requestMap.entityInfo.bussiPackage}.handler.${requestMap.entityInfo.entityPackage};
+
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import ${requestMap.entityInfo.bussiPackage}.entity.${requestMap.entityInfo.entityPackage}.${requestMap.entityInfo.entityName}Entity;
+import ${requestMap.entityInfo.bussiPackage}.pack.${requestMap.entityInfo.entityPackage}.${requestMap.entityInfo.entityName}Pack;
+import ${requestMap.entityInfo.bussiPackage}.parse.${requestMap.entityInfo.entityPackage}.${requestMap.entityInfo.entityName}Parse;
+import ${requestMap.entityInfo.bussiPackage}.service.${requestMap.entityInfo.entityPackage}.${requestMap.entityInfo.entityName}Service;
+import com.framework.system.common.service.SystemService;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.db.query.OrderVO;
+
+ /**   
+ * @Title: Handler
+ * @Description: $requestMap.entityInfo.tableDescription业务处理器
+ * @author feng.gu
+ * @date $requestMap.entityInfo.createTime
+ * @version V1.0   
+ *
+ */
+public class ${requestMap.entityInfo.entityName}Handler extends BaseHandler{
+	private static Logger logger = Logger.getLogger(${requestMap.entityInfo.entityName}Service.class);
+	/**
+	 * 解析器
+	 */
+	private ${requestMap.entityInfo.entityName}Parse ${requestMap.entityInfo.entityPackage}Parse = ${requestMap.entityInfo.entityName}Parse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private ${requestMap.entityInfo.entityName}Service ${requestMap.entityInfo.entityPackage}Service = ${requestMap.entityInfo.entityName}Service.getInstance();
+	/**
+	 * 封装器
+	 */
+	private ${requestMap.entityInfo.entityName}Pack ${requestMap.entityInfo.entityPackage}Pack = ${requestMap.entityInfo.entityName}Pack.getInstance();
+
+	private static ${requestMap.entityInfo.entityName}Handler ${requestMap.entityInfo.entityPackage}Handler;
+	
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static ${requestMap.entityInfo.entityName}Handler getInstance() {
+		if (${requestMap.entityInfo.entityPackage}Handler == null) {
+			${requestMap.entityInfo.entityPackage}Handler = new ${requestMap.entityInfo.entityName}Handler();
+		}
+		return ${requestMap.entityInfo.entityPackage}Handler;
+	}
+
+	/**
+	 * 
+	 * @param type 1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type,String command,String reqStr, HttpServletRequest request,
+			HttpServletResponse response) {		
+		logger.debug("请求消息："+reqStr);
+		String resultStr="";
+		try {
+			// 解析
+			Map<String, Object> parseMap = ${requestMap.entityInfo.entityPackage}Parse.parse(type,command,reqStr,request);		
+			String action = (String) parseMap.get("action");
+			${requestMap.entityInfo.entityName}Entity ${requestMap.entityInfo.entityPackage} = (${requestMap.entityInfo.entityName}Entity) parseMap.get("${requestMap.entityInfo.entityPackage}");
+			List<${requestMap.entityInfo.entityName}Entity> ${requestMap.entityInfo.entityPackage}List = (List<${requestMap.entityInfo.entityName}Entity>) parseMap.get("${requestMap.entityInfo.entityPackage}List");
+			Integer id = (Integer) parseMap.get("id");			
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			Integer pageno = (Integer) parseMap.get("pageno");
+			Integer pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+			
+			#foreach( $relation in $requestMap.relationList)
+			#if(${relation.relation}=="ManyToMany")
+            Boolean ${relation.joinColumn}ListShow = (Boolean) parseMap.get("${relation.joinColumn}ListShow");	
+            Boolean del#if(${relation.jionFirst}=='Y')${requestMap.entityInfo.entityName}${relation.joinColumnFirstUpper}#end#if(${relation.jionFirst}=='N')${relation.joinColumnFirstUpper}${requestMap.entityInfo.entityName}#{end}List = (Boolean) parseMap.get("del#if(${relation.jionFirst}=='Y')${requestMap.entityInfo.entityName}${relation.joinColumnFirstUpper}#end#if(${relation.jionFirst}=='N')${relation.joinColumnFirstUpper}${requestMap.entityInfo.entityName}#{end}List");
+			#end
+			#if(${relation.relation}=="OneToMany")
+            Boolean ${relation.joinColumn}ListShow = (Boolean) parseMap.get("${relation.joinColumn}ListShow");	
+            Boolean del${relation.joinColumnFirstUpper}List = (Boolean) parseMap.get("del${relation.joinColumnFirstUpper}List");
+			#end
+			#if(${relation.relation}=="ManyToOne")
+			Boolean ${relation.joinEntityName}Show = (Boolean) parseMap.get("${relation.joinEntityName}Show");
+			Boolean del${relation.joinEntityFirstUpper} = (Boolean) parseMap.get("del${relation.joinEntityFirstUpper}");
+			#end
+			#if(${relation.relation}=="ParentToOne")
+			Boolean parent${requestMap.entityInfo.entityName}Show = (Boolean) parseMap.get("parent${requestMap.entityInfo.entityName}Show");
+			Boolean delParent${requestMap.entityInfo.entityName} = (Boolean) parseMap.get("delParent${requestMap.entityInfo.entityName}");
+			Boolean delParent${requestMap.entityInfo.entityName}List = (Boolean) parseMap.get("delParent${requestMap.entityInfo.entityName}List");
+			Boolean child${requestMap.entityInfo.entityName}ListShow = (Boolean) parseMap.get("child${requestMap.entityInfo.entityName}ListShow");
+			Boolean delChild${requestMap.entityInfo.entityName}List = (Boolean) parseMap.get("delChild${requestMap.entityInfo.entityName}List");
+			#end
+			#if(${relation.relation}=="OneToOne")
+			Boolean ${relation.joinEntityName}Show = (Boolean) parseMap.get("${relation.joinEntityName}Show");
+			Boolean del${relation.joinEntityFirstUpper} = (Boolean) parseMap.get("del${relation.joinEntityFirstUpper}");
+			#end
+			#end
+			
+			// 业务处理
+			Object result=null;
+			if ("save".equals(action)) {
+				result = ${requestMap.entityInfo.entityPackage}Service.save(${requestMap.entityInfo.entityPackage});
+			} else if ("saveList".equals(action)) {
+				result = ${requestMap.entityInfo.entityPackage}Service.saveList(${requestMap.entityInfo.entityPackage}List);
+			} else if ("getById".equals(action)) {
+				result = ${requestMap.entityInfo.entityPackage}Service.getById(id#foreach( $relation in $requestMap.relationList)#if(${relation.relation}=="ManyToMany"),${relation.joinColumn}ListShow#end#if(${relation.relation}=="OneToMany"),${relation.joinColumn}ListShow#end#if(${relation.relation}=="ManyToOne"),${relation.joinEntityName}Show#end#if(${relation.relation}=="OneToOne"),${relation.joinEntityName}Show#end#if(${relation.relation}=="ParentToOne"),parent${requestMap.entityInfo.entityName}Show,child${requestMap.entityInfo.entityName}ListShow#end#end);
+			} else if ("getListByCondition".equals(action)) {
+			    //根据数据权限 增加查询条件
+				queryMap = systemService.addDataRuleByRoles("${requestMap.entityInfo.entityName}Entity",queryMap,request);
+				result = ${requestMap.entityInfo.entityPackage}Service.getListByCondition(queryMap,orderList, pageno,
+						pagesize#foreach( $relation in $requestMap.relationList)#if(${relation.relation}=="ManyToMany"),${relation.joinColumn}ListShow#end#if(${relation.relation}=="OneToMany"),${relation.joinColumn}ListShow#end#if(${relation.relation}=="ManyToOne"),${relation.joinEntityName}Show#end#if(${relation.relation}=="OneToOne"),${relation.joinEntityName}Show#end#if(${relation.relation}=="ParentToOne"),parent${requestMap.entityInfo.entityName}Show,child${requestMap.entityInfo.entityName}ListShow#end#end);
+			} else if ("del".equals(action)) {
+				result = ${requestMap.entityInfo.entityPackage}Service.del(id#foreach( $relation in $requestMap.relationList)#if(${relation.relation}=="ManyToMany"),del#if(${relation.jionFirst}=='Y')${requestMap.entityInfo.entityName}${relation.joinColumnFirstUpper}#end#if(${relation.jionFirst}=='N')${relation.joinColumnFirstUpper}${requestMap.entityInfo.entityName}#{end}List#end#if(${relation.relation}=="OneToMany"),del${relation.joinColumnFirstUpper}List#end#if(${relation.relation}=="ManyToOne"),del${relation.joinEntityFirstUpper}#end#if(${relation.relation}=="OneToOne"),del${relation.joinEntityFirstUpper}#end#if(${relation.relation}=="ParentToOne"),delParent${requestMap.entityInfo.entityName},delChild${requestMap.entityInfo.entityName}List#end#end);
+			} else if ("delList".equals(action)) {
+				result = ${requestMap.entityInfo.entityPackage}Service.delList(queryMap#foreach( $relation in $requestMap.relationList)#if(${relation.relation}=="ManyToMany"),del#if(${relation.jionFirst}=='Y')${requestMap.entityInfo.entityName}${relation.joinColumnFirstUpper}#end#if(${relation.jionFirst}=='N')${relation.joinColumnFirstUpper}${requestMap.entityInfo.entityName}#{end}List#end#if(${relation.relation}=="OneToMany"),del${relation.joinColumnFirstUpper}List#end#if(${relation.relation}=="ManyToOne"),del${relation.joinEntityFirstUpper}#end#if(${relation.relation}=="OneToOne"),del${relation.joinEntityFirstUpper}#end#if(${relation.relation}=="ParentToOne"),delParent${requestMap.entityInfo.entityName}List,delChild${requestMap.entityInfo.entityName}List#end#end);
+			}
+			// 封装
+			Map<String, Object> packMap = ${requestMap.entityInfo.entityPackage}Pack.pack(type,action,result,${requestMap.entityInfo.entityPackage});
+			String actionBack = (String)packMap.get("action");
+			String resultBack = (String)packMap.get("result");
+			String desBack = (String)packMap.get("des");
+			JSONObject pageBack = (JSONObject)packMap.get("page");
+			JSONObject contentBack = (JSONObject)packMap.get("content");
+			
+			JSONObject repJson = new JSONObject();
+			if(actionBack!=null&&!"".equals(actionBack)){
+				repJson.put("action", actionBack);
+			}
+			if(resultBack!=null&&!"".equals(resultBack)){
+				repJson.put("result", resultBack);
+			}
+			if(desBack!=null&&!"".equals(desBack)){
+				repJson.put("des", desBack);
+			}
+			if(pageBack!=null){
+				repJson.put("page", pageBack);
+			}
+			if(contentBack!=null&&!"".equals(contentBack)){
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息："+repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

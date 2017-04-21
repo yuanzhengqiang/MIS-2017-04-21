@@ -1,0 +1,670 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="shortcut icon" href="images/logo.png">
+
+	<title>编辑老人</title>
+
+	<!-- Bootstrap core CSS -->
+	<link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+
+	<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+	  <script src="../../assets/js/html5shiv.js"></script>
+	  <script src="../../assets/js/respond.min.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
+  	<link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
+  	<link href="js/jquery.icheck/skins/square/blue.css" rel="stylesheet">
+
+  	<link rel="stylesheet" href="js/jquery.crop/css/jquery.Jcrop.css" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" />	
+	<link rel="stylesheet" type="text/css" href="js/jquery.datatables/bootstrap-adapter/css/datatables.css" />
+	<script type="text/javascript" src="js/sortListTool.js"></script>
+<style>
+.accordion .panel,.accordion .panel:first-child{border-top:1px solid #ECECEC;border-bottom:1px solid #ECECEC;}
+.checkbox-inline{padding-left:0;padding-right:30px;}
+ .checkbox-inline + .checkbox-inline{margin-left:0;}
+  .whitebg td{background:#fff;}
+.whitebg td textarea{width:100%;height:100%;border:0;resize:vertical}
+.whitebg .fa-minus{color:#df4b33;cursor:pointer}
+.mytable .fa-plus{color:#4cae4c;cursor:pointer}
+
+#olderPhysiological .myheader {background:#4D90FD;color:#fff;overflow:hidden;margin-bottom:15px}
+#olderPhysiological .myheader button{background:transparent;color:#fff;float:right;border-color:#fff}
+#olderPhysiological .myheader i{margin-left:5px;margin-right:20px}
+#olderPhysiological .myrow div{text-indent:15px}
+#olderPhysiological .panel-heading{border:1px solid #ccc}
+#olderPhysiological .panel-heading a{padding:10px 16px}
+#olderPhysiological .panel-default{margin-top:15px;margin-bottom:40px}
+#olderPhysiological #piliang .form-group{margin-bottom:10px}
+#olderPhysiological .panel-body{padding-left:0;padding-right:0}
+#olderPhysiological .modal-body > div{font-size:13px}
+#olderPhysiological .block{box-shadow:none}
+</style>
+</head>
+
+<body>
+<div id="cl-wrapper" style="padding-top:0;background:#fff;">	
+
+	<div class="cl-mcont" style="background:#fff;">
+    <div class="row" >
+      <div class="col-sm-12">
+        <input type="hidden" value="" id="sortType">
+		<input type="hidden" value="" id="sortColumn">
+			<div id="olderReviewHistory"><!-- 回访记录 -->
+						<div class="row">
+										<div class="col-sm-2 col-md-2" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>是否存在不满意选项</label>
+										</div>
+										<div class="col-sm-4 col-md-4" style="margin-bottom:10px;">
+											<select class="form-control" id="isIfmanyi_input" >
+												<option value="">全部</option>
+												<option value="1">有</option>
+												<option value="2">无</option>
+											</select>
+										</div>
+										<div class="col-sm-2 col-md-2" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>综合满意度</label>
+										</div>
+										<div class="col-sm-4 col-md-4" style="margin-bottom:10px;">
+											<select class="select2" id="allmanyi_input" multiple>
+												<option value="1">很满意</option>
+												<option value="2">满意</option>
+												<option value="3">一般</option>
+												<option value="4">中</option>
+												<option value="5">差</option>
+											</select>
+										</div>
+										<div class="col-sm-2  col-md-2" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>回访人</label>
+										</div>
+										<div class="col-sm-4 col-md-4" style="margin-bottom:10px;">
+											<input class="form-control" type="text"  id="hfr_input" >
+										</div>
+										<div class="col-sm-2 col-md-2" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>回访方式</label>
+										</div>
+										<div class="col-sm-4 col-md-4" style="margin-bottom:10px;">
+											<select class="select2" id="hffs_input" multiple>
+												<option value="1">电话</option>
+												<option value="2">入户</option>
+												<option value="3">机构</option>
+											</select>
+										</div>
+										<div class="col-sm-2 col-md-2" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>回访来源</label>
+										</div>
+										<div class="col-sm-4 col-md-4" style="margin-bottom:10px;">
+											<select class="form-control" id="hfly_input" >
+												<option value="">全部</option>
+												<option value="1">站点</option>
+												<option value="2">品保部</option>
+											</select>
+										</div>
+										<div class="col-sm-2" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>预计回访时间</label>
+										</div>
+										<div class="col-sm-5 col-md-2" style="margin-bottom:10px;">
+											<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm" style="margin-bottom: 0px;">
+												<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
+												<input class="form-control" size="16" value="" readonly="" type="text" id="yjhfsj_input_start" placeholder="开始时间">
+												<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+											</div>
+										</div>
+										<div class="col-sm-5 col-md-2" style="margin-bottom:10px;">
+											<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm" style="margin-bottom: 0px;">
+												<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
+												<input class="form-control" size="16" value="" readonly="" type="text" id="yjhfsj_input_end" placeholder="结束时间">
+												<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+											</div>
+										</div>
+										<div class="col-sm-2" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>实际回访时间</label>
+										</div>
+										<div class="col-sm-5 col-md-2" style="margin-bottom:10px;">
+											<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
+												<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
+												<input class="form-control" size="16" value="" readonly="" type="text" id="sjhfsj_input_start" placeholder="开始时间">
+												<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+											</div>
+										</div>
+										<div class="col-sm-5 col-md-2" style="margin-bottom:10px;">
+											<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
+												<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
+												<input class="form-control" size="16" value="" readonly="" type="text" id="sjhfsj_input_end" placeholder="结束时间">
+												<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+											</div>
+										</div>
+										
+
+									<!-- 查询框结束 -->
+									<!-- 操作按钮开始 -->
+									
+										<div class="col-sm-12" style="margin-top:20px;margin-bottom:10px;">	
+											<c:if test="${olderReview_query_btn_control != 'yes' or olderReview_query_btn_show == 'yes'}">
+												<button class="btn btn-primary" style="margin-bottom: 0px !important; height: 34px;margin-left:0;" onclick="query()">查询</button>
+											</c:if>	
+											<c:if test="${olderReview_add_btn_control != 'yes' or olderReview_add_btn_show == 'yes'}">
+												<a href="###" id="huifangA" style="display:none;" target="_blank"><span id="huifangTZ">新增</span></a>
+                								<button class="btn btn-primary" style="margin-bottom: 0px !important; height: 34px;margin-left:0;" onclick="huifang()">新增</button>
+											</c:if>	
+										</div>
+								
+									<!-- 操作按钮结束 -->
+                                    <!-- 数据表格开始 -->
+								
+										<div class="col-sm-12">							
+											<table class="table table-bordered dataTable hover" id="datatable" aria-describedby="datatable_info">
+												<thead>
+													<tr role="row">
+														<th style="width:2%;"><input id="allselectchecker" type="checkbox" class="col_selector" onclick="selectAll();"></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'recordCode')"><strong>回访编号</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_siteName')"><strong>服务站点</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'method')"><strong>回访方式</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'source')"><strong>回访来源</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_employeeName')"><strong>回访人</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'satisfied')"><strong>存在不满意选项</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'question6')"><strong>综合满意度</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'estimatedReviewTime')"><strong>预计回访时间</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'realReviewTime')"><strong>实际回访时间</strong></th>
+														<th><strong>操作</strong></th>
+													</tr>
+												</thead>
+												<tbody id="datacontainer" role="alert" aria-live="polite" aria-relevant="all">																														
+												</tbody>
+											</table>
+										</div>
+									</div>
+									 <!-- 数据条数提示开始 -->
+									<div class="row">
+										<div class="col-sm-12">
+											<div class="pull-left">
+												<div id="datatable_info" class="dataTables_info">
+													当前显示0 条总记录中的第0-0条
+												</div>
+											</div>
+											<div class="clearfix"></div>
+										</div>
+									</div>
+									<!-- 数据条数提示结束 -->
+								    <!-- 分页条开始 -->
+									<div class="row">
+										<div class="col-sm-4">
+											<div class="dataTables_length" id="datatable2_length">
+												<label style="margin-top:18px;">每页 <select id="pageSizeSelector" aria-controls="datatable2" size="1" name="datatable2_length" onchange="query()"><option selected="selected" value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> 条</label>
+											</div>
+										</div>
+										<div class="col-sm-8">
+											<div class="pull-right">
+												<div class="dataTables_paginate paging_bs_normal">
+													<ul id="paginationArea" class="pagination">
+													<li class="prev disabled"><a href="#"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+													<li class="active"><a href="#">1</a></li>
+													<li class="next"><a href="#">下一页&nbsp;<span class="fa fa-angle-right"></span></a></li></ul>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- 分页条结束 -->
+							
+            </div>
+            
+    
+      
+
+    </div>
+
+	</div>
+	
+</div> 
+	<div id="getHeight"></div>
+</div> <!-- 主页面结束 -->
+
+    <!-- 模态框开始-->
+    
+				 <div class="md-overlay"></div>
+
+
+	<script src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+	<script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+  <script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
+	<script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
+	<script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+  <script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>   
+  <script type="text/javascript" src="js/masonry.js"></script>
+  <script type="text/javascript" src="js/jquery.crop/js/jquery.Jcrop.js"></script>
+
+  <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+  <script src="js/jquery.upload/js/jquery.iframe-transport.js"></script>
+  <!-- The basic File Upload plugin -->
+  <script src="js/jquery.upload/js/jquery.fileupload.js"></script>
+	<script type="text/javascript" src="js/behaviour/general.js"></script>
+	<script type="text/javascript" src="js/jquery.icheck/icheck.min.js"></script>
+<script type="text/javascript" src="js/highcharts.js"></script>
+
+    <script type="text/javascript">
+//根据排序规则重新查询
+function queryBySort(par,column){
+	var classFlag = listSortClickEvent(par);
+	var type = judgmentChinese(column);
+	if(type != null && type != ""){
+		classFlag = type + classFlag;
+		column = column.substr(8,column.length);
+	}
+	$("#sortType").val(classFlag);
+	$("#sortColumn").val(column);
+	go2page(currentshownpage);
+}
+
+    //回访跳转
+    function huifang(){
+    	$("#huifangTZ").click();
+    }
+    
+    	//iframe内嵌页面设置高度
+    	function reset() {
+  			window.parent.reset();
+		}
+		
+		
+      $(document).ready(function(){
+      	var olderId="<%=request.getAttribute("olderId")%>";
+      	var url = "<%=request.getContextPath()%>" + "/review.do?mainXQ&olderId=" + olderId;
+    	$("#huifangA").attr("href",url);//设置新增按钮跳转，带上老人id
+    		
+        //initialize the javascript
+        query();
+       
+    	$(".deleteThisTime").click(function(){               //清除日期框中的值
+    	       $(this).parent().prev()[0].value = "";
+    	    });
+        App.init();
+		$('div[class="icheckbox_square-blue checkbox checked disabled"]').removeClass("disabled");//美化checkbox框
+	  });
+	
+	//回访记录////////////////////////////////////////////////
+	var currentshownpage = 1;
+	
+	function selectAll() {
+		if ($("#allselectchecker").is(':checked')) {
+			$(".col_selector").prop("checked", true);
+		} else {
+			$(".col_selector").prop("checked", false);
+		}
+	}
+
+	//查询回访记录列表
+	function query() {
+		go2page(1);
+	}
+
+	function go2page(pagenumber){
+	var pagesize = $("#pageSizeSelector option:selected").val();
+	
+	var isIfmanyi_input = $("#isIfmanyi_input").val();
+	var allmanyi_input = $("#allmanyi_input").val();
+	var hfr_input = $("#hfr_input").val();
+	var hffs_input = $("#hffs_input").val();
+	var hfly_input = $("#hfly_input").val();
+	var yjhfsj_input_start = $("#yjhfsj_input_start").val();
+	var yjhfsj_input_end = $("#yjhfsj_input_end").val();
+	var sjhfsj_input_start = $("#sjhfsj_input_start").val();
+	var sjhfsj_input_end = $("#sjhfsj_input_end").val();
+
+	var reqmsg="{'action':'QUERY_REVIEW_LIST_REQUEST',";
+	
+	var sortType = $("#sortType").val();
+	var sortColumn = $("#sortColumn").val();
+	if(sortType != null && sortType != ""){
+		reqmsg += "'order':[{'column':'" + sortColumn + "','type':'" + sortType + "'}],";
+	}
+	
+	reqmsg += "'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+		
+	var olderId="<%=request.getAttribute("olderId")%>";
+	reqmsg += "\"olderId\":" + olderId + ",";//在老人详情页，因此固定老人id
+	reqmsg += "\"status\":\"2\",";//固定为状态已回访
+	
+	if (isIfmanyi_input != null && isIfmanyi_input != "") {
+		reqmsg += "\"satisfied\":\"" + isIfmanyi_input + "\",";
+	}
+	if (allmanyi_input != null && allmanyi_input != "") {
+		reqmsg += "\"question6_in\":\"" + allmanyi_input + "\",";
+	}
+	if (hfr_input != null && hfr_input != "") {
+		reqmsg += "\"employeeName\":\"" + hfr_input + "\",";
+	}
+	if (hffs_input != null && hffs_input != "") {
+		reqmsg += "\"method_in\":\"" + hffs_input + "\",";
+	}
+	if (hfly_input != null && hfly_input != "") {
+		reqmsg += "\"source\":\"" + hfly_input + "\",";
+	}
+	
+	if (yjhfsj_input_start != null && yjhfsj_input_start != "") {
+	    yjhfsj_input_start = yjhfsj_input_start.substring(0, 4) + yjhfsj_input_start.substring(5, 7) + "01000000";
+		reqmsg += "\"estimatedReviewTime_ge\":\"" + yjhfsj_input_start + "\",";
+	}
+	if (yjhfsj_input_end != null && yjhfsj_input_end != "") {
+		yjhfsj_input_end = yjhfsj_input_end.substring(0, 4) + yjhfsj_input_end.substring(5, 7) + "31240000";
+		reqmsg += "\"estimatedReviewTime_le\":\"" + yjhfsj_input_end + "\",";
+	}
+	if (yjhfsj_input_start != null && yjhfsj_input_start != "" && yjhfsj_input_end != null && yjhfsj_input_end != "") {
+		if(yjhfsj_input_start > yjhfsj_input_end){
+			alert("预计回访开始时间不能大于结束时间");
+			return;
+		}
+	}
+	if (sjhfsj_input_start != null && sjhfsj_input_start != "") {
+	    sjhfsj_input_start = sjhfsj_input_start.substring(0, 4) + sjhfsj_input_start.substring(5, 7) + sjhfsj_input_start.substring(8, 10) + "000000";
+		reqmsg += "\"realReviewTime_ge\":\"" + sjhfsj_input_start + "\",";
+	}
+	if (sjhfsj_input_end != null && sjhfsj_input_end != "") {
+		sjhfsj_input_end = sjhfsj_input_end.substring(0, 4) + sjhfsj_input_end.substring(5, 7) + sjhfsj_input_start.substring(8, 10) + "240000";
+		reqmsg += "\"realReviewTime_le\":\"" + sjhfsj_input_end + "\",";
+	}
+	if (sjhfsj_input_start != null && sjhfsj_input_start != "" && sjhfsj_input_end != null && sjhfsj_input_end != "") {
+		if(sjhfsj_input_start > sjhfsj_input_end){
+			alert("实际回访开始时间不能大于结束时间");
+			return;
+		}
+	}
+	
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:true,
+          url : "review.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  changeData(data);
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+	}
+
+function changeData(data){
+	var htmlcode = "";
+	if (data.content != null) {
+		jQuery.each(data.content.reviewList, function(i, item) {
+			htmlcode += "<tr class=\"gradeA odd\"><td><input type=\"checkbox\" value=\"" + item.id + "\" class=\"col_selector\"></td>";
+		    htmlcode += "<td>" + item.recordCode + "</td>";	
+		    htmlcode += "<td>" + item.siteName + "</td>";
+		    htmlcode += "<td>" + changemethod(item.method) + "</td>";		
+		    htmlcode += "<td>" + changesource(item.source) + "</td>";
+		    htmlcode += "<td>" + item.employeeName + "</td>";
+		    htmlcode += "<td>" + changesatisfied(item.satisfied) + "</td>";
+		    htmlcode += "<td>" + changequestion6(item.question6) + "</td>";	
+		    htmlcode += "<td>" + formateTime1(item.estimatedReviewTime) + "</td>";
+			htmlcode += "<td>" + formateTime2(item.realReviewTime) + "</td>";
+			
+			htmlcode += "<td><div class=\"btn-group\">";
+			htmlcode += "<button class=\"btn btn-default btn-xs\" type=\"button\">操作</button>";
+			htmlcode += "<button data-toggle=\"dropdown\" class=\"btn btn-xs btn-primary dropdown-toggle\" type=\"button\">";
+			htmlcode += "<span class=\"caret\" style=\"padding:0;\"></span>";
+			htmlcode += "<span class=\"sr-only\">Toggle Dropdown</span>";
+			htmlcode += "</button>";
+			htmlcode += "<ul role=\"menu\" class=\"dropdown-menu pull-right\">";
+			var headUrl = "<%=request.getContextPath()%>";
+			<c:if test="${olderReview_queryXQ_opt_control != 'yes' or olderReview_queryXQ_opt_show == 'yes'}">
+				htmlcode += "<li><a href=\""+headUrl+"/review.do?mainXQ&id=" + item.id + "\" target=\"_blank\">查看详情</a></li>";
+			</c:if>
+			<c:if test="${olderReview_cxreview_opt_control != 'yes' or olderReview_cxreview_opt_show == 'yes'}">
+				htmlcode += "<li><a href=\""+headUrl+"/review.do?mainXQ&olderId=" + item.olderId + "\" target=\"_blank\">重新回访</a></li>";
+			</c:if>
+			htmlcode += "</ul>";
+			htmlcode += "</div></td>";		
+			htmlcode += "</tr>";
+		});
+	}
+	$("#datacontainer").html(htmlcode);
+	if (data.page != null) {
+		genaratePaginateHtml(data.page.pageno, data.page.pageCount);
+		genarateRecordNumberHtml(data.page.pageno, data.page.pagesize, data.page.recordCount);
+	} else {
+		genaratePaginateHtml(1, 1);
+		genarateRecordNumberHtml(1, 10, 0);
+	}
+	reset();
+}
+/**
+ * 生成记录数信息
+ * @method genarateRecordNumberHtml
+ * @param {Number} currentpage 当前页
+ * @param {Number} pagesize 每页记录条目数
+ * @param {Number} totalRecord 总记录数
+ */
+function genarateRecordNumberHtml(currentpage, pagesize, totalRecord) {
+	var recordInfos = "";
+	if (totalRecord > 0) {
+	    recordInfos = "当前显示" + totalRecord + "条总记录";
+		recordInfos += "中第" + ((currentpage - 1) * pagesize + 1) + "-";
+		if (currentpage * pagesize > totalRecord) {
+			recordInfos += totalRecord;
+		} else {
+			recordInfos += currentpage * pagesize;
+		}
+		recordInfos += "条 ";
+	} else {
+		recordInfos = "当前显示0 条总记录中的第0-0条";
+	}
+	
+	$("#datatable_info").html(recordInfos);
+}
+
+/**
+ * 生成分页信息
+ * @method genaratePaginateHtml
+ * @param {Number} currentpage 当前页
+ * @param {Number} totalpage 总页数
+ */
+function genaratePaginateHtml(currentpage, totalpage, pagesize) {
+	currentshownpage = currentpage;
+
+	var htmlcode = "";
+	
+	//上一页
+	if (currentpage > 1) {
+		htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page('1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+		htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page('" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+	} else {
+		htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+		htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+	}
+	
+	//具体页码
+	if (totalpage <= 5) {
+		for (var i = 1; i <= totalpage; i++) {
+			if (currentpage == i) {
+				htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+			} else {
+				htmlcode += "<li><a href=\"#\" onclick=\"go2page('" + i + "')\">" + i + "</a></li>";
+			}
+		}
+	} else {
+		var startpage = currentpage;
+		var endpage = currentpage;
+		while (true) {
+			if (endpage - startpage >= 4) {
+				break;
+			} else {
+				if (startpage > 1) {
+					startpage = startpage - 1;
+				}
+				if (endpage < totalpage) {
+					endpage = endpage - (-1);
+				}
+			}
+		}
+		
+		for (var i = startpage; i <= endpage; i++) {
+			if (currentpage == i) {
+				htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+			} else {
+				htmlcode += "<li><a href=\"#\" onclick=\"go2page('" + i + "')\">" + i + "</a></li>";
+			}
+		}
+	}
+	
+	//下一页
+	if (totalpage > currentpage) {
+		htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page('" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page('" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+	} else {
+		htmlcode += "<li class=\"next disabled\"><a href=\"#\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		htmlcode += "<li class=\"next disabled\"><a href=\"#\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+	}
+	$("#paginationArea").html(htmlcode);
+}
+
+
+/**
+ * 格式化时间1
+ * @method formateTime1
+ * @param {String} time 时间信息(YYYYMMDDHHmmSS)
+ * @return 格式化的时间(YYYY-MM)
+ */
+function formateTime1(time) {
+	if (time != null && time.length == 14) {
+		return time.substring(0, 4) + "-" + time.substring(4, 6);
+	} else {
+		return time;
+	}
+}
+
+/**
+ * 格式化时间2
+ * @method formateTime2
+ * @param {String} time 时间信息(YYYYMMDDHHmmSS)
+ * @return 格式化的时间(YYYY-MM-DD)
+ */
+function formateTime2(time) {
+	if (time != null && time.length == 14) {
+		return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8);
+	} else {
+		return time;
+	}
+}
+
+//回访方式转化
+function changemethod(method){
+	var methodName = "";
+	switch(method){
+		case "1":
+			methodName = "电话";
+			break;
+		case "2":
+			methodName = "入户";
+			break;
+		case "3":
+			methodName = "机构";
+			break;
+		default:
+			methodName = "未知";
+			break;
+	}
+	return methodName;
+}
+//评估状态转化
+function changesource(source){
+	var sourceName = "";
+	switch(source){
+		case "1":
+			sourceName = "站点";
+			break;
+		case "2":
+			sourceName = "品保部";
+			break;
+		default:
+			sourceName = "未知";
+			break;
+	}
+	return sourceName;
+}
+//存在不满意选项转化
+function changesatisfied(satisfied){
+	var satisfiedName = "";
+	switch(satisfied){
+		case "1":
+			satisfiedName = "有";
+			break;
+		case "2":
+			satisfiedName = "无";
+			break;
+		default:
+			satisfiedName = "未知";
+			break;
+	}
+	return satisfiedName;
+}
+//综合满意度转化
+function changequestion6(question6){
+	var question6Name = "";
+	switch(question6){
+		case "1":
+			question6Name = "很满意";
+			break;
+		case "2":
+			question6Name = "满意";
+			break;
+		case "3":
+			question6Name = "一般";
+			break;
+		case "4":
+			question6Name = "中";
+			break;
+		case "5":
+			question6Name = "差";
+			break;
+		default:
+			question6Name = "未知";
+			break;
+	}
+	return question6Name;
+}
+
+    </script>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+  <script src="js/behaviour/voice-commands.js"></script>
+  <script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+<script type="text/javascript" src="js/jquery.form.js"></script>
+</body>
+</html>

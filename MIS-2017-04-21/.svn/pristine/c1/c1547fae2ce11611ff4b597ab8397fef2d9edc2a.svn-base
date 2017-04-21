@@ -1,0 +1,1575 @@
+package fsk.controller.serviceTask;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.framework.system.common.entity.json.AjaxJson;
+import com.framework.system.common.entity.module.ModuleEntity;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.db.query.PageList;
+import com.framework.system.util.JsonUtil;
+
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.older.OlderEntity;
+import fsk.entity.serviceEmployee.ServiceEmployeeEntity;
+import fsk.entity.serviceTask.ServiceTaskEntity;
+import fsk.handler.serviceTask.ServiceTaskHandler;
+import fsk.service.employee.EmployeeService;
+import fsk.service.older.OlderService;
+import fsk.service.serviceEmployee.ServiceEmployeeService;
+import fsk.service.serviceTask.ServiceTaskService;
+import fsk.util.SqlUtil;
+
+@RequestMapping("/serviceTask")
+@Controller
+public class ServiceTaskController {
+	private static Logger logger = Logger.getLogger(ServiceTaskController.class);
+	/**
+	 * 处理器
+	 */
+	private ServiceTaskHandler serviceTaskHandler = ServiceTaskHandler.getInstance();
+	/**
+	 * 服务类
+	 */
+	private ServiceTaskService serviceTaskService = ServiceTaskService.getInstance();
+	private static ServiceEmployeeService serviceEmployeeService = ServiceEmployeeService.getInstance();
+	private static EmployeeService employeeService = EmployeeService.getInstance();
+	private static OlderService olderService = OlderService.getInstance();
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+	private static SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
+
+	/**
+	 * 工单列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/serviceTask/ServiceTaskList");
+		Integer userId = (Integer) request.getSession().getAttribute("userId");// 登录用户ID
+		String status = "";
+		String datetype = "";
+		String time_start = "";
+		String time_end = "";
+		String type = "";
+		String name = "";
+		String id = "";
+		if (request.getParameter("status") != null && !request.getParameter("status").equals("")) {
+			status = request.getParameter("status");
+			if (!status.equals("2") && !status.equals("3")) {
+				if (request.getParameter("datetype") != null && !request.getParameter("datetype").equals("")) {
+					datetype = request.getParameter("datetype");
+					if (datetype.equals("month")) {
+						time_start = getMonthFirstDay();
+						time_end = getMonthLastDay();
+					}
+					if (datetype.equals("week")) {
+						time_start = getWeekFirstDay();
+						time_end = getWeekLasttDay();
+					}
+					if (datetype.equals("day")) {
+						time_start = formater.format(new Date()) + "000001";
+						time_end = formater.format(new Date()) + "235959";
+					}
+				}
+			}
+		}
+
+		if (request.getParameter("type") != null && !request.getParameter("type").equals("")) {
+			type = request.getParameter("type");
+			if (request.getParameter("name") != null && !request.getParameter("name").equals("")) {
+				name = request.getParameter("name");
+				if (name != null && !name.equals("")) {
+					try {
+						byte source[] = name.getBytes("iso8859-1");
+						name = new String(source, "UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			if (request.getParameter("id") != null && !request.getParameter("id").equals("")) {
+				id = request.getParameter("id");
+			}
+		}
+
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService.getHTMLModulesByRoleIdsAndModuleId(roleIds, htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		mav.addObject("userId", userId);
+		mav.addObject("status", status);
+		mav.addObject("time_start", time_start);
+		mav.addObject("time_end", time_end);
+		mav.addObject("type", type);
+		mav.addObject("name", name);
+		mav.addObject("id", id);
+		return mav;
+	}
+
+	/**
+	 * 微信工单列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "mainWeixin")
+	public ModelAndView centerWeixin(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/serviceTask/weixinServiceTaskList");
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		Integer userId = (Integer) request.getSession().getAttribute("userId");// 登录用户ID
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService.getHTMLModulesByRoleIdsAndModuleId(roleIds, htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		mav.addObject("userId", userId);
+		return mav;
+	}
+
+	/**
+	 * 详情页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "mainXQ")
+	public ModelAndView centerXQ(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/serviceTask/serviceTaskDetails");
+		String id = request.getParameter("id");
+		Integer userId = (Integer) request.getSession().getAttribute("userId");// 登录用户ID
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService.getHTMLModulesByRoleIdsAndModuleId(roleIds, htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		mav.addObject("userId", userId);
+		mav.addObject("id", id);
+		return mav;
+	}
+
+	/**
+	 * 批量删除 ids英文逗号间隔
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "del")
+	@ResponseBody
+	public AjaxJson del(HttpServletRequest request) {
+		AjaxJson j = new AjaxJson();
+		String result = "failure";
+		String des = "删除失败";
+		String ids = request.getParameter("ids");
+		if (ids != null && !"".equals(ids)) {
+			boolean falg = serviceTaskService.del(ids);
+			if (falg) {
+				result = "success";
+				des = "删除成功";
+			}
+		}
+		j.setResult(result);
+		j.setDes(des);
+		return j;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handler")
+	@ResponseBody
+	public String query(HttpServletRequest request, HttpServletResponse response) {
+		String msg = "";
+		try {
+			String reqmsg = request.getParameter("reqmsg");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return msg;
+			}
+			String action = (String) reqParams.get("action");
+			String rep = serviceTaskHandler.doHandler(1, action, reqmsg, request, response);
+			msg = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+
+		return msg;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handlercontent")
+	public void queryApp(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			InputStream is = request.getInputStream();
+			byte[] bis = IOUtils.toByteArray(is);
+			String reqmsg = new String(bis, "UTF-8");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return;
+			}
+			String action = (String) reqParams.get("action");
+			String rep = serviceTaskHandler.doHandler(1, action, reqmsg, request, response);
+			OutputStream os = response.getOutputStream();
+			os.write(rep.toString().getBytes("UTF-8"));
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+	}
+
+	/**
+	 * 
+	 * 服务工单列表加微信请求
+	 * 
+	 * @param idnumber
+	 * @return
+	 */
+	@RequestMapping(params = "wechatQuery")
+	@ResponseBody
+	public String wechatQuery(HttpServletRequest request, Integer pageno, Integer pagesize, Integer olderId, String status) {
+		String rep = SqlUtil.wechatQuery(pageno, pagesize, olderId, status);
+		return rep;
+	}
+
+	/**
+	 * 服务工单统计
+	 * 
+	 * @param idnumber
+	 * @return
+	 */
+	@RequestMapping(params = "handlerCount")
+	@ResponseBody
+	public String getCount(HttpServletRequest request) {
+		Integer yueYiWanCheng = 0;
+		Integer yueWeiWanCheng = 0;
+		Integer zhouYiWanCheng = 0;
+		Integer zhouWeiWanCheng = 0;
+		Integer riYiWanCheng = 0;
+		Integer riWeiWanCheng = 0;
+		Integer daipaiBan = 0;
+		Integer daiShenHe = 0;
+		JSONObject jsonResult = new JSONObject();
+		jsonResult.put("des", "success");
+		try {
+			Map<String, Object> query = new HashMap<String, Object>();//
+			Map<String, Object> queryps = new HashMap<String, Object>();// 待排班待审核统计
+			Map<String, Object> querypMonthwei = new HashMap<String, Object>();// 月未完成统计
+			Map<String, Object> querypMonthyi = new HashMap<String, Object>();// 月已完成
+			Map<String, Object> querypWeekwei = new HashMap<String, Object>();// 周未完成
+			Map<String, Object> querypWeekhwei = new HashMap<String, Object>();// 周已完成
+			Map<String, Object> querypDaywei = new HashMap<String, Object>();// 日未完成
+			Map<String, Object> querypDayyi = new HashMap<String, Object>();// 日已完成
+			query = systemService.addDataRuleByRoles("ServiceTaskEntity", query, request);
+			queryps = systemService.addDataRuleByRoles("ServiceTaskEntity", queryps, request);
+			querypMonthwei = systemService.addDataRuleByRoles("ServiceTaskEntity", querypMonthwei, request);
+			querypMonthyi = systemService.addDataRuleByRoles("ServiceTaskEntity", querypMonthyi, request);
+			querypWeekwei = systemService.addDataRuleByRoles("ServiceTaskEntity", querypWeekwei, request);
+			querypWeekhwei = systemService.addDataRuleByRoles("ServiceTaskEntity", querypWeekhwei, request);
+			querypDaywei = systemService.addDataRuleByRoles("ServiceTaskEntity", querypDaywei, request);
+			querypDayyi = systemService.addDataRuleByRoles("ServiceTaskEntity", querypDayyi, request);
+			// 待排班待审核统计
+			PageList taskList = serviceTaskService.getListByCondition(queryps, null, 1, 100000, false, false, false, false, false, false, false, false, false,
+					false, false, false, false);
+			if (taskList != null) {
+				if (taskList.getResultList() != null && taskList.getResultList().size() > 0) {
+					for (Object obj : taskList.getResultList()) {
+						ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+						if (enity.getStatus() != null) {
+							if (enity.getStatus().intValue() == 2) {// 状态2是待排班
+								daipaiBan++;
+							}
+							if (enity.getStatus().intValue() == 3) {// 状态3是待审核
+								daiShenHe++;
+							}
+						}
+					}
+				}
+			}
+			// 本月统计未完成
+			String lastMonthDay = getMonthLastDay();
+			querypMonthwei.put("serviceExpectTime_le", lastMonthDay);
+			querypMonthwei.put("status_in", "4,5");// 状态4和5是未完成
+			PageList weichanchengList = serviceTaskService.getListByCondition(querypMonthwei, null, 1, 100000, false, false, false, false, false, false, false,
+					false, false, false, false, false, false);
+			if (weichanchengList != null) {
+				if (weichanchengList.getResultList() != null && weichanchengList.getResultList().size() > 0) {
+					yueWeiWanCheng = weichanchengList.getResultList().size();
+				}
+			}
+			// 本月统计已完成
+			String monthLastDay = getMonthLastDay();
+			String monthFirstDay = getMonthFirstDay();
+			querypMonthyi.put("serviceEndTime_ge", monthFirstDay);
+			querypMonthyi.put("serviceEndTime_le", monthLastDay);
+			querypMonthyi.put("status_in", "6,7");// 状态6和7是已完成
+			PageList yichanchengList = serviceTaskService.getListByCondition(querypMonthyi, null, 1, 100000, false, false, false, false, false, false, false,
+					false, false, false, false, false, false);
+			if (yichanchengList != null) {
+				if (yichanchengList.getResultList() != null && yichanchengList.getResultList().size() > 0) {
+					yueYiWanCheng = yichanchengList.getResultList().size();
+				}
+			}
+			// 本周统计未完成
+			String weeklast = getWeekLasttDay();
+			querypWeekwei.put("serviceExpectTime_le", weeklast);
+			querypWeekwei.put("status_in", "4,5");// 状态4和5是未完成
+			PageList weichanchengWeekList = serviceTaskService.getListByCondition(querypWeekwei, null, 1, 100000, false, false, false, false, false, false,
+					false, false, false, false, false, false, false);
+			if (weichanchengWeekList != null) {
+				if (weichanchengWeekList.getResultList() != null && weichanchengWeekList.getResultList().size() > 0) {
+					zhouWeiWanCheng = weichanchengWeekList.getResultList().size();
+				}
+			}
+			// 本周统计已完成
+			String weekLastDay = getWeekLasttDay();
+			String weelFirstDay = getWeekFirstDay();
+			querypWeekhwei.put("serviceEndTime_ge", weelFirstDay);
+			querypWeekhwei.put("serviceEndTime_le", weekLastDay);
+			querypWeekhwei.put("status_in", "6,7");// 状态6和7是已完成
+			PageList yichanchengWeekList = serviceTaskService.getListByCondition(querypWeekhwei, null, 1, 100000, false, false, false, false, false, false,
+					false, false, false, false, false, false, false);
+			if (yichanchengWeekList != null) {
+				if (yichanchengWeekList.getResultList() != null && yichanchengWeekList.getResultList().size() > 0) {
+					zhouYiWanCheng = yichanchengWeekList.getResultList().size();
+				}
+			}
+			// 统计今天未完成
+			String last = formater.format(new Date()) + "235959";
+			querypDaywei.put("serviceExpectTime_le", last);
+			querypDaywei.put("status_in", "4,5");// 状态4和5是未完成
+			PageList yichanchengDayList = serviceTaskService.getListByCondition(querypDaywei, null, 1, 100000, false, false, false, false, false, false, false,
+					false, false, false, false, false, false);
+			if (yichanchengDayList != null) {
+				if (yichanchengDayList.getResultList() != null && yichanchengDayList.getResultList().size() > 0) {
+					riWeiWanCheng = yichanchengDayList.getResultList().size();
+				}
+			}
+			// 统计今天以完成
+			String lastTime = formater.format(new Date()) + "235959";
+			String startTime = formater.format(new Date()) + "000001";
+			querypDayyi.put("serviceEndTime_le", lastTime);
+			querypDayyi.put("serviceEndTime_ge", startTime);
+			querypDayyi.put("status_in", "6,7");// 状态6和7是已完成
+			PageList weichanchengDayList = serviceTaskService.getListByCondition(querypDayyi, null, 1, 100000, false, false, false, false, false, false, false,
+					false, false, false, false, false, false);
+			if (weichanchengDayList != null) {
+				if (weichanchengDayList.getResultList() != null && weichanchengDayList.getResultList().size() > 0) {
+					riYiWanCheng = weichanchengDayList.getResultList().size();
+				}
+			}
+
+		} catch (Exception e) {
+			jsonResult.put("des", "failure");
+		}
+		jsonResult.put("daipaiBan", daipaiBan);
+		jsonResult.put("daiShenHe", daiShenHe);
+		jsonResult.put("yueWeiWanCheng", yueWeiWanCheng);
+		jsonResult.put("yueYiWanCheng", yueYiWanCheng);
+		jsonResult.put("zhouWeiWanCheng", zhouWeiWanCheng);
+		jsonResult.put("zhouYiWanCheng", zhouYiWanCheng);
+		jsonResult.put("riWeiWanCheng", riWeiWanCheng);
+		jsonResult.put("riYiWanCheng", riYiWanCheng);
+		return jsonResult.toString();
+	}
+
+	/**
+	 * 服务工单图表格统计
+	 * 
+	 * @param idnumber
+	 * @return
+	 */
+	@RequestMapping(params = "handlerQueryCount")
+	@ResponseBody
+	public String handlerQueryCount(HttpServletRequest request, String fzrId, String olderId, String startTime, String endTime, Integer pageno,
+			Integer pagesize, String choosePeople) {
+		JSONObject jsonResult = new JSONObject();
+		jsonResult.put("result", "100");
+		jsonResult.put("des", "success");
+		JSONObject jsoncountlistresult = new JSONObject();// count装入
+		JSONArray jsonarr = new JSONArray();// 集合装入
+		JSONObject jsoncntent = new JSONObject();// 集合装入
+		JSONArray jsoncountlist = new JSONArray();
+		JSONArray jsonarrday = new JSONArray();
+		// cuontList统计
+		// 默认id都不传，根据类型判断查员工或是老人
+		try {
+			if ("0".equals(fzrId) && "0".equals(olderId) && "0".equals(choosePeople)) {
+				// 先按条件查工单id
+				String serviceTaskIds = "";
+				String employeeIds = "";
+				Map<String, Object> queryps = new HashMap<String, Object>();// 待排班待审核统计
+				Map<String, Object> querypMonthwei = new HashMap<String, Object>();// 月未完成统计
+				Map<String, Object> querypMonthyi = new HashMap<String, Object>();// 月已完成
+				Map<String, Object> querypWeekwei = new HashMap<String, Object>();// 周未完成
+				Map<String, Object> querypWeekhwei = new HashMap<String, Object>();// 周已完成
+				Map<String, Object> querypDaywei = new HashMap<String, Object>();// 日未完成
+				Map<String, Object> querypDayyi = new HashMap<String, Object>();// 日已完成
+				// 待排班待审核筛选
+				queryps.put("status_in", "2,3");
+				queryps = systemService.addDataRuleByRoles("ServiceTaskEntity", queryps, request);
+				PageList taskList = serviceTaskService.getListByCondition(queryps, null, 1, 100000, false, false, false, false, false, false, false, false,
+						false, false, false, false, false);
+				if (taskList != null) {
+					if (taskList.getResultList() != null && taskList.getResultList().size() > 0) {
+						for (Object obj : taskList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							serviceTaskIds = serviceTaskIds + enity.getId() + ",";
+						}
+					}
+				}
+				// 月未完成筛选
+				String lastMonthDay = getMonthLastDay();
+				querypMonthwei = systemService.addDataRuleByRoles("ServiceTaskEntity", querypMonthwei, request);
+				querypMonthwei.put("serviceExpectTime_le", lastMonthDay);
+				querypMonthwei.put("status_in", "4,5");// 状态4和5是未完成
+				PageList weichanchengList = serviceTaskService.getListByCondition(querypMonthwei, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (weichanchengList != null) {
+					if (weichanchengList.getResultList() != null && weichanchengList.getResultList().size() > 0) {
+						for (Object obj : weichanchengList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							serviceTaskIds = serviceTaskIds + enity.getId() + ",";
+						}
+					}
+				}
+				// 本月已完成筛选
+				String monthLastDay = getMonthLastDay();
+				String monthFirstDay = getMonthFirstDay();
+				querypMonthyi = systemService.addDataRuleByRoles("ServiceTaskEntity", querypMonthyi, request);
+				querypMonthyi.put("serviceEndTime_ge", monthFirstDay);
+				querypMonthyi.put("serviceEndTime_le", monthLastDay);
+				querypMonthyi.put("status_in", "6,7");// 状态6和7是已完成
+				PageList yichanchengList = serviceTaskService.getListByCondition(querypMonthyi, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (yichanchengList != null) {
+					if (yichanchengList.getResultList() != null && yichanchengList.getResultList().size() > 0) {
+						for (Object obj : yichanchengList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							serviceTaskIds = serviceTaskIds + enity.getId() + ",";
+						}
+					}
+				}
+				// 本周未完成筛选
+				String weeklast = getWeekLasttDay();
+				querypWeekwei = systemService.addDataRuleByRoles("ServiceTaskEntity", querypWeekwei, request);
+				querypWeekwei.put("serviceExpectTime_le", weeklast);
+				querypWeekwei.put("status_in", "4,5");// 状态4和5是未完成
+				PageList weichanchengWeekList = serviceTaskService.getListByCondition(querypWeekwei, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (weichanchengWeekList != null) {
+					if (weichanchengWeekList.getResultList() != null && weichanchengWeekList.getResultList().size() > 0) {
+						for (Object obj : weichanchengWeekList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							serviceTaskIds = serviceTaskIds + enity.getId() + ",";
+						}
+					}
+				}
+				// 本周统计已完成
+				String weekLastDay = getWeekLasttDay();
+				String weelFirstDay = getWeekFirstDay();
+				querypWeekhwei = systemService.addDataRuleByRoles("ServiceTaskEntity", querypWeekhwei, request);
+				querypWeekhwei.put("serviceEndTime_ge", weelFirstDay);
+				querypWeekhwei.put("serviceEndTime_le", weekLastDay);
+				querypWeekhwei.put("status_in", "6,7");// 状态6和7是已完成
+				PageList yichanchengWeekList = serviceTaskService.getListByCondition(querypWeekhwei, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (yichanchengWeekList != null) {
+					if (yichanchengWeekList.getResultList() != null && yichanchengWeekList.getResultList().size() > 0) {
+						for (Object obj : yichanchengWeekList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							serviceTaskIds = serviceTaskIds + enity.getId() + ",";
+						}
+					}
+				}
+				// 统计今天未完成
+				String last = formater.format(new Date()) + "235959";
+				querypDaywei = systemService.addDataRuleByRoles("ServiceTaskEntity", querypDaywei, request);
+				querypDaywei.put("serviceExpectTime_le", last);
+				querypDaywei.put("status_in", "4,5");// 状态4和5是未完成
+				PageList yichanchengDayList = serviceTaskService.getListByCondition(querypDaywei, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (yichanchengDayList != null) {
+					if (yichanchengDayList.getResultList() != null && yichanchengDayList.getResultList().size() > 0) {
+						for (Object obj : yichanchengDayList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							serviceTaskIds = serviceTaskIds + enity.getId() + ",";
+						}
+					}
+				}
+				// 统计今天已完成
+				String lastTime = formater.format(new Date()) + "235959";
+				String startTime1 = formater.format(new Date()) + "000001";
+				querypDayyi = systemService.addDataRuleByRoles("ServiceTaskEntity", querypDayyi, request);
+				querypDayyi.put("serviceEndTime_le", lastTime);
+				querypDayyi.put("serviceEndTime_ge", startTime1);
+				querypDayyi.put("status_in", "6,7");// 状态6和7是已完成
+				PageList weichanchengDayList = serviceTaskService.getListByCondition(querypDayyi, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (weichanchengDayList != null) {
+					if (weichanchengDayList.getResultList() != null && weichanchengDayList.getResultList().size() > 0) {
+						for (Object obj : weichanchengDayList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							serviceTaskIds = serviceTaskIds + enity.getId() + ",";
+						}
+					}
+				}
+
+				// 筛选出符合条件的服务工单id和员工id
+				if (!"".equals(serviceTaskIds)) {
+					serviceTaskIds = serviceTaskIds.replaceAll(",,", ",");
+					serviceTaskIds = serviceTaskIds.substring(0, serviceTaskIds.length() - 1);
+					// 查询管理表
+					Map<String, Object> querypserveice = new HashMap<String, Object>();
+					querypserveice.put("serviceTaskId_in", serviceTaskIds);// 查询条件工单id
+					querypserveice.put("type", 1);// 查询条件负责人为1
+					List<ServiceEmployeeEntity> guanlianlist = serviceEmployeeService.getListByCondition(querypserveice);
+					if (guanlianlist != null && guanlianlist.size() > 0) {
+						for (ServiceEmployeeEntity entity : guanlianlist) {
+							if (entity.getEmployeeId() != null) {
+								employeeIds = employeeIds + entity.getEmployeeId() + ",";
+							}
+						}
+					}
+				}
+				// 根据员工id做分页统计
+				if (!"".equals(employeeIds)) {
+					employeeIds = employeeIds.replaceAll(",,", ",");
+					employeeIds = employeeIds.substring(0, employeeIds.length() - 1);
+					Map<String, Object> querypemp = new HashMap<String, Object>();
+					querypemp.put("id_in", employeeIds);
+					PageList empList = employeeService.getListByCondition(querypemp, null, pageno, pagesize, false, false, false, false, false, false, false);
+					// 遍历查询结果
+					if (empList != null) {
+						if (empList.getResultList() != null && empList.getResultList().size() > 0) {
+							JSONObject jsonPage = new JSONObject();
+							jsonPage.put("pageno", pageno);
+							jsonPage.put("pagesize", pagesize);
+							jsonPage.put("recordCount", String.valueOf(empList.getRecordCount()));
+							jsonPage.put("pageCount", String.valueOf(empList.getPageCount()));
+							jsonResult.put("page", jsonPage.toString());
+							for (Object obj : empList.getResultList()) {
+								JSONObject jsoncuon = new JSONObject();
+								// 得到员工的id筛选工单id
+								String serviceTaskIdsss = "";
+								EmployeeEntity entity = (EmployeeEntity) obj;
+								int id = entity.getId();
+								Map<String, Object> queryguanlian = new HashMap<String, Object>();
+								queryguanlian.put("employeeId", id);
+								queryguanlian.put("type", 1);
+								queryguanlian.put("serviceTaskId_in", serviceTaskIds);
+								List<ServiceEmployeeEntity> temList = serviceEmployeeService.getListByCondition(queryguanlian);
+								if (temList != null && temList.size() > 0) {
+									for (ServiceEmployeeEntity entity2 : temList) {
+										if (entity2.getServiceTaskId() != null) {
+											serviceTaskIdsss = serviceTaskIdsss + entity2.getServiceTaskId() + ",";
+										}
+									}
+									if (!"".equals(serviceTaskIdsss)) {
+										serviceTaskIdsss = serviceTaskIdsss.replaceAll(",,", ",");
+										serviceTaskIdsss = serviceTaskIdsss.substring(0, serviceTaskIdsss.length() - 1);
+									}
+								}
+								// 开始分条件统计统计
+								Integer yueWeiWanCheng = 0;
+								Integer yueYiWanCheng = 0;
+								Integer zhouWeiWanCheng = 0;
+								Integer zhouYiWanCheng = 0;
+								Integer riWeiWanCheng = 0;
+								Integer riYiWanCheng = 0;
+								Integer daipaiBan = 0;
+								Integer daiShenHe = 0;
+								if (!"".equals(serviceTaskIdsss)) {
+									// 月未完成统计
+									Map<String, Object> querypMonthwei1 = new HashMap<String, Object>();
+									String lastMonthDay1 = getMonthLastDay();
+									querypMonthwei1.put("serviceExpectTime_le", lastMonthDay1);
+									querypMonthwei1.put("status_in", "4,5");// 状态4和5是未完成
+									querypMonthwei1.put("id_in", serviceTaskIdsss);
+									List<ServiceTaskEntity> yueweiList = serviceTaskService.getListByCondition(querypMonthwei1);
+									if (yueweiList != null && yueweiList.size() > 0) {
+										yueWeiWanCheng = yueweiList.size();
+									}
+									// 月已完成
+									Map<String, Object> querypMonthyi1 = new HashMap<String, Object>();
+									String monthLastDay1 = getMonthLastDay();
+									String monthFirstDay1 = getMonthFirstDay();
+									querypMonthyi1.put("serviceEndTime_ge", monthFirstDay1);
+									querypMonthyi1.put("serviceEndTime_le", monthLastDay1);
+									querypMonthyi1.put("status_in", "6,7");// 状态6和7是已完成
+									querypMonthyi1.put("id_in", serviceTaskIdsss);
+									List<ServiceTaskEntity> yichanchengList1 = serviceTaskService.getListByCondition(querypMonthyi1);
+									if (yichanchengList1 != null && yichanchengList1.size() > 0) {
+										yueYiWanCheng = yichanchengList1.size();
+									}
+									// 周未完成
+									Map<String, Object> querypWeekwei1 = new HashMap<String, Object>();
+									String weeklast1 = getWeekLasttDay();
+									querypWeekwei1.put("serviceExpectTime_le", weeklast1);
+									querypWeekwei1.put("status_in", "4,5");// 状态4和5是未完成
+									querypWeekwei1.put("id_in", serviceTaskIdsss);
+									List<ServiceTaskEntity> weichanchengWeekList1 = serviceTaskService.getListByCondition(querypWeekwei1);
+									if (weichanchengWeekList1 != null && weichanchengWeekList1.size() > 0) {
+										zhouWeiWanCheng = weichanchengWeekList1.size();
+									}
+									// 周已完成
+									Map<String, Object> querypWeekhwei1 = new HashMap<String, Object>();
+									String weekLastDay1 = getWeekLasttDay();
+									String weelFirstDay1 = getWeekFirstDay();
+									querypWeekhwei1.put("serviceEndTime_ge", weelFirstDay1);
+									querypWeekhwei1.put("serviceEndTime_le", weekLastDay1);
+									querypWeekhwei1.put("status_in", "6,7");// 状态6和7是已完成
+									querypWeekhwei1.put("id_in", serviceTaskIdsss);
+									List<ServiceTaskEntity> yichanchengWeekList1 = serviceTaskService.getListByCondition(querypWeekhwei1);
+									if (yichanchengWeekList1 != null && yichanchengWeekList1.size() > 0) {
+										zhouYiWanCheng = yichanchengWeekList1.size();
+									}
+									// 日未完成
+									Map<String, Object> querypDaywei1 = new HashMap<String, Object>();
+									String last1 = formater.format(new Date()) + "235959";
+									querypDaywei1.put("serviceExpectTime_le", last1);
+									querypDaywei1.put("status_in", "4,5");// 状态4和5是未完成
+									querypDaywei1.put("id_in", serviceTaskIdsss);
+									List<ServiceTaskEntity> yichanchengDayList1 = serviceTaskService.getListByCondition(querypDaywei1);
+									if (yichanchengDayList1 != null && yichanchengDayList1.size() > 0) {
+										riWeiWanCheng = yichanchengDayList1.size();
+									}
+									// 日已完成
+									Map<String, Object> querypDayyi1 = new HashMap<String, Object>();
+									String lastTime1 = formater.format(new Date()) + "235959";
+									String startTime2 = formater.format(new Date()) + "000001";
+									querypDayyi1.put("serviceEndTime_le", lastTime1);
+									querypDayyi1.put("serviceEndTime_ge", startTime2);
+									querypDayyi1.put("status_in", "6,7");// 状态6和7是已完成
+									querypDayyi1.put("id_in", serviceTaskIdsss);
+									List<ServiceTaskEntity> weichanchengDayList1 = serviceTaskService.getListByCondition(querypDayyi1);
+									if (weichanchengDayList1 != null && weichanchengDayList1.size() > 0) {
+										riYiWanCheng = weichanchengDayList1.size();
+									}
+									// 待排班、待审核
+									Map<String, Object> querypdaipaiban = new HashMap<String, Object>();
+									querypdaipaiban.put("id_in", serviceTaskIdsss);
+									querypdaipaiban.put("status_in", "2,3");
+									List<ServiceTaskEntity> daiList = serviceTaskService.getListByCondition(querypdaipaiban);
+									if (daiList != null && daiList.size() > 0) {
+										for (ServiceTaskEntity entityff : daiList) {
+											if (entityff.getStatus() != null) {
+												if (entityff.getStatus().intValue() == 2) {
+													daipaiBan++;
+												}
+												if (entityff.getStatus().intValue() == 3) {
+													daiShenHe++;
+												}
+											}
+										}
+									}
+								}
+								jsoncuon.put("fzrid", id);
+								jsoncuon.put("olderid", null);
+								jsoncuon.put("fzrname", entity.getName());
+								jsoncuon.put("oldername", null);
+								jsoncuon.put("olderMembernumber", null);
+								jsoncuon.put("yueWeiWanCheng", yueWeiWanCheng);
+								jsoncuon.put("yueYiWanCheng", yueYiWanCheng);
+								jsoncuon.put("zhouWeiWanCheng", zhouWeiWanCheng);
+								jsoncuon.put("zhouYiWanCheng", zhouYiWanCheng);
+								jsoncuon.put("riWeiWanCheng", riWeiWanCheng);
+								jsoncuon.put("riYiWanCheng", riYiWanCheng);
+								jsoncuon.put("daipaiBan", daipaiBan);
+								jsoncuon.put("daiShenHe", daiShenHe);
+								jsoncountlist.add(jsoncuon);
+							}
+							jsoncountlistresult.put("countList", jsoncountlist.toString());
+						}
+
+					}
+				}
+			}
+			// 员工老人id都不传,根据类型查老人
+			if ("0".equals(fzrId) && "0".equals(olderId) && "1".equals(choosePeople)) {
+				// 先筛选
+				// 先按条件查老人id
+				String olderIds = "";
+				Map<String, Object> queryps = new HashMap<String, Object>();// 待排班待审核统计
+				Map<String, Object> querypMonthwei = new HashMap<String, Object>();// 月未完成统计
+				Map<String, Object> querypMonthyi = new HashMap<String, Object>();// 月已完成
+				Map<String, Object> querypWeekwei = new HashMap<String, Object>();// 周未完成
+				Map<String, Object> querypWeekhwei = new HashMap<String, Object>();// 周已完成
+				Map<String, Object> querypDaywei = new HashMap<String, Object>();// 日未完成
+				Map<String, Object> querypDayyi = new HashMap<String, Object>();// 日已完成
+				// 待排班待审核筛选
+				queryps.put("status_in", "2,3");
+				queryps = systemService.addDataRuleByRoles("ServiceTaskEntity", queryps, request);
+				PageList taskList = serviceTaskService.getListByCondition(queryps, null, 1, 100000, false, false, false, false, false, false, false, false,
+						false, false, false, false, false);
+				if (taskList != null) {
+					if (taskList.getResultList() != null && taskList.getResultList().size() > 0) {
+						for (Object obj : taskList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							olderIds = olderIds + enity.getOlderId() + ",";
+						}
+					}
+				}
+				// 月未完成筛选
+				String lastMonthDay = getMonthLastDay();
+				querypMonthwei = systemService.addDataRuleByRoles("ServiceTaskEntity", querypMonthwei, request);
+				querypMonthwei.put("serviceExpectTime_le", lastMonthDay);
+				querypMonthwei.put("status_in", "4,5");// 状态4和5是未完成
+				PageList weichanchengList = serviceTaskService.getListByCondition(querypMonthwei, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (weichanchengList != null) {
+					if (weichanchengList.getResultList() != null && weichanchengList.getResultList().size() > 0) {
+						for (Object obj : weichanchengList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							olderIds = olderIds + enity.getOlderId() + ",";
+						}
+					}
+				}
+				// 本月已完成筛选
+				String monthLastDay = getMonthLastDay();
+				String monthFirstDay = getMonthFirstDay();
+				querypMonthyi = systemService.addDataRuleByRoles("ServiceTaskEntity", querypMonthyi, request);
+				querypMonthyi.put("serviceEndTime_ge", monthFirstDay);
+				querypMonthyi.put("serviceEndTime_le", monthLastDay);
+				querypMonthyi.put("status_in", "6,7");// 状态6和7是已完成
+				PageList yichanchengList = serviceTaskService.getListByCondition(querypMonthyi, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (yichanchengList != null) {
+					if (yichanchengList.getResultList() != null && yichanchengList.getResultList().size() > 0) {
+						for (Object obj : yichanchengList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							olderIds = olderIds + enity.getOlderId() + ",";
+						}
+					}
+				}
+				// 本周未完成筛选
+				String weeklast = getWeekLasttDay();
+				querypWeekwei = systemService.addDataRuleByRoles("ServiceTaskEntity", querypWeekwei, request);
+				querypWeekwei.put("serviceExpectTime_le", weeklast);
+				querypWeekwei.put("status_in", "4,5");// 状态4和5是未完成
+				PageList weichanchengWeekList = serviceTaskService.getListByCondition(querypWeekwei, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (weichanchengWeekList != null) {
+					if (weichanchengWeekList.getResultList() != null && weichanchengWeekList.getResultList().size() > 0) {
+						for (Object obj : weichanchengWeekList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							olderIds = olderIds + enity.getOlderId() + ",";
+						}
+					}
+				}
+				// 本周统计已完成
+				String weekLastDay = getWeekLasttDay();
+				String weelFirstDay = getWeekFirstDay();
+				querypWeekhwei = systemService.addDataRuleByRoles("ServiceTaskEntity", querypWeekhwei, request);
+				querypWeekhwei.put("serviceEndTime_ge", weelFirstDay);
+				querypWeekhwei.put("serviceEndTime_le", weekLastDay);
+				querypWeekhwei.put("status_in", "6,7");// 状态6和7是已完成
+				PageList yichanchengWeekList = serviceTaskService.getListByCondition(querypWeekhwei, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (yichanchengWeekList != null) {
+					if (yichanchengWeekList.getResultList() != null && yichanchengWeekList.getResultList().size() > 0) {
+						for (Object obj : yichanchengWeekList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							olderIds = olderIds + enity.getOlderId() + ",";
+						}
+					}
+				}
+				// 统计今天未完成
+				String last = formater.format(new Date()) + "235959";
+				querypDaywei = systemService.addDataRuleByRoles("ServiceTaskEntity", querypDaywei, request);
+				querypDaywei.put("serviceExpectTime_le", last);
+				querypDaywei.put("status_in", "4,5");// 状态4和5是未完成
+				PageList yichanchengDayList = serviceTaskService.getListByCondition(querypDaywei, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (yichanchengDayList != null) {
+					if (yichanchengDayList.getResultList() != null && yichanchengDayList.getResultList().size() > 0) {
+						for (Object obj : yichanchengDayList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							olderIds = olderIds + enity.getOlderId() + ",";
+						}
+					}
+				}
+				// 统计今天已完成
+				String lastTime = formater.format(new Date()) + "235959";
+				String startTime1 = formater.format(new Date()) + "000001";
+				querypDayyi = systemService.addDataRuleByRoles("ServiceTaskEntity", querypDayyi, request);
+				querypDayyi.put("serviceEndTime_le", lastTime);
+				querypDayyi.put("serviceEndTime_ge", startTime1);
+				querypDayyi.put("status_in", "6,7");// 状态6和7是已完成
+				PageList weichanchengDayList = serviceTaskService.getListByCondition(querypDayyi, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (weichanchengDayList != null) {
+					if (weichanchengDayList.getResultList() != null && weichanchengDayList.getResultList().size() > 0) {
+						for (Object obj : weichanchengDayList.getResultList()) {
+							ServiceTaskEntity enity = (ServiceTaskEntity) obj;
+							olderIds = olderIds + enity.getOlderId() + ",";
+						}
+					}
+				}
+				// 筛选出符合条件的服务工单id和员工id
+				if (!"".equals(olderIds)) {
+					olderIds = olderIds.replaceAll(",,", ",");
+					olderIds = olderIds.substring(0, olderIds.length() - 1);
+				}
+				// 老人查询分页
+				if (!"".equals(olderIds)) {
+					Map<String, Object> queryfenye = new HashMap<String, Object>();
+					queryfenye.put("id_in", olderIds);
+					queryfenye = systemService.addDataRuleByRoles("OlderEntity", queryfenye, request);
+					PageList olderList = olderService.getListByCondition(queryfenye, null, pageno, pagesize, false, false, false, false, false, false, false);
+					if (olderList != null) {
+						if (olderList.getResultList() != null && olderList.getResultList().size() > 0) {
+							JSONObject jsonPage = new JSONObject();
+							jsonPage.put("pageno", pageno);
+							jsonPage.put("pagesize", pagesize);
+							jsonPage.put("recordCount", String.valueOf(olderList.getRecordCount()));
+							jsonPage.put("pageCount", String.valueOf(olderList.getPageCount()));
+							jsonResult.put("page", jsonPage.toString());
+							// 遍历分页结果
+							for (Object obj : olderList.getResultList()) {
+								OlderEntity olderEntity = (OlderEntity) obj;
+								JSONObject jsoncuon = new JSONObject();
+								Integer olderIdt = olderEntity.getId();
+								// 开始分条件统计统计
+								Integer yueWeiWanCheng = 0;
+								Integer yueYiWanCheng = 0;
+								Integer zhouWeiWanCheng = 0;
+								Integer zhouYiWanCheng = 0;
+								Integer riWeiWanCheng = 0;
+								Integer riYiWanCheng = 0;
+								Integer daipaiBan = 0;
+								Integer daiShenHe = 0;
+								// 月未完成统计
+								Map<String, Object> querypMonthwei1 = new HashMap<String, Object>();
+								String lastMonthDay1 = getMonthLastDay();
+								querypMonthwei1.put("serviceExpectTime_le", lastMonthDay1);
+								querypMonthwei1.put("status_in", "4,5");// 状态4和5是未完成
+								querypMonthwei1.put("olderId", olderIdt);
+								querypMonthwei1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypMonthwei1, request);
+								PageList yueweiList = serviceTaskService.getListByCondition(querypMonthwei1, null, 1, 100000, false, false, false, false,
+										false, false, false, false, false, false, false, false, false);
+								if (yueweiList != null) {
+									if (yueweiList.getResultList() != null && yueweiList.getResultList().size() > 0) {
+										yueWeiWanCheng = yueweiList.getResultList().size();
+									}
+
+								}
+								// 月已完成
+								Map<String, Object> querypMonthyi1 = new HashMap<String, Object>();
+								String monthLastDay1 = getMonthLastDay();
+								String monthFirstDay1 = getMonthFirstDay();
+								querypMonthyi1.put("serviceEndTime_ge", monthFirstDay1);
+								querypMonthyi1.put("serviceEndTime_le", monthLastDay1);
+								querypMonthyi1.put("status_in", "6,7");// 状态6和7是已完成
+								querypMonthyi1.put("olderId", olderIdt);
+								querypMonthyi1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypMonthyi1, request);
+								PageList yichanchengList1 = serviceTaskService.getListByCondition(querypMonthyi1, null, 1, 100000, false, false, false, false,
+										false, false, false, false, false, false, false, false, false);
+								if (yichanchengList1 != null) {
+									if (yichanchengList1.getResultList() != null && yichanchengList1.getResultList().size() > 0) {
+										yueYiWanCheng = yichanchengList1.getResultList().size();
+									}
+								}
+								// 周未完成
+								Map<String, Object> querypWeekwei1 = new HashMap<String, Object>();
+								String weeklast1 = getWeekLasttDay();
+								querypWeekwei1.put("serviceExpectTime_le", weeklast1);
+								querypWeekwei1.put("status_in", "4,5");// 状态4和5是未完成
+								querypWeekwei1.put("olderId", olderIdt);
+								querypWeekwei1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypWeekwei1, request);
+								PageList weichanchengWeekList1 = serviceTaskService.getListByCondition(querypWeekwei1, null, 1, 100000, false, false, false,
+										false, false, false, false, false, false, false, false, false, false);
+								if (weichanchengWeekList1 != null) {
+									if (weichanchengWeekList1.getResultList() != null && weichanchengWeekList1.getResultList().size() > 0) {
+										zhouWeiWanCheng = weichanchengWeekList1.getResultList().size();
+									}
+
+								}
+								// 周已完成
+								Map<String, Object> querypWeekhwei1 = new HashMap<String, Object>();
+								String weekLastDay1 = getWeekLasttDay();
+								String weelFirstDay1 = getWeekFirstDay();
+								querypWeekhwei1.put("serviceEndTime_ge", weelFirstDay1);
+								querypWeekhwei1.put("serviceEndTime_le", weekLastDay1);
+								querypWeekhwei1.put("status_in", "6,7");// 状态6和7是已完成
+								querypWeekhwei1.put("olderId", olderIdt);
+								querypWeekhwei1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypWeekhwei1, request);
+								PageList yichanchengWeekList1 = serviceTaskService.getListByCondition(querypWeekhwei1, null, 1, 100000, false, false, false,
+										false, false, false, false, false, false, false, false, false, false);
+								if (yichanchengWeekList1 != null) {
+									if (yichanchengWeekList1.getResultList() != null && yichanchengWeekList1.getResultList().size() > 0) {
+										zhouYiWanCheng = yichanchengWeekList1.getResultList().size();
+									}
+								}
+								// 日未完成
+								Map<String, Object> querypDaywei1 = new HashMap<String, Object>();
+								String last1 = formater.format(new Date()) + "235959";
+								querypDaywei1.put("serviceExpectTime_le", last1);
+								querypDaywei1.put("status_in", "4,5");// 状态4和5是未完成
+								querypDaywei1.put("olderId", olderIdt);
+								querypDaywei1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypDaywei1, request);
+								PageList yichanchengDayList1 = serviceTaskService.getListByCondition(querypDaywei1, null, 1, 100000, false, false, false,
+										false, false, false, false, false, false, false, false, false, false);
+								if (yichanchengDayList1 != null) {
+									if (yichanchengDayList1.getResultList() != null && yichanchengDayList1.getResultList().size() > 0) {
+										riWeiWanCheng = yichanchengDayList1.getResultList().size();
+									}
+								}
+								// 日已完成
+								Map<String, Object> querypDayyi1 = new HashMap<String, Object>();
+								String lastTime1 = formater.format(new Date()) + "235959";
+								String startTime2 = formater.format(new Date()) + "000001";
+								querypDayyi1.put("serviceEndTime_le", lastTime1);
+								querypDayyi1.put("serviceEndTime_ge", startTime2);
+								querypDayyi1.put("status_in", "6,7");// 状态6和7是已完成
+								querypDayyi1.put("olderId", olderIdt);
+								querypDayyi1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypDayyi1, request);
+								PageList weichanchengDayList1 = serviceTaskService.getListByCondition(querypDayyi1, null, 1, 100000, false, false, false,
+										false, false, false, false, false, false, false, false, false, false);
+								if (weichanchengDayList1 != null) {
+									if (weichanchengDayList1.getResultList() != null && weichanchengDayList1.getResultList().size() > 0) {
+										riYiWanCheng = weichanchengDayList1.getResultList().size();
+									}
+								}
+								// 待排班、待审核
+								Map<String, Object> querypdaipaiban = new HashMap<String, Object>();
+								querypdaipaiban.put("olderId", olderIdt);
+								querypdaipaiban.put("status_in", "2,3");
+								querypdaipaiban = systemService.addDataRuleByRoles("ServiceTaskEntity", querypdaipaiban, request);
+								PageList daiList = serviceTaskService.getListByCondition(querypdaipaiban, null, 1, 100000, false, false, false, false, false,
+										false, false, false, false, false, false, false, false);
+								if (daiList != null) {
+									if (daiList.getResultList() != null && daiList.getResultList().size() > 0) {
+										for (Object obj2 : daiList.getResultList()) {
+											ServiceTaskEntity entityff = (ServiceTaskEntity) obj2;
+											if (entityff.getStatus() != null) {
+												if (entityff.getStatus().intValue() == 2) {
+													daipaiBan++;
+												}
+												if (entityff.getStatus().intValue() == 3) {
+													daiShenHe++;
+												}
+											}
+										}
+									}
+								}
+								jsoncuon.put("fzrid", null);
+								jsoncuon.put("olderid", olderIdt);
+								jsoncuon.put("fzrname", null);
+								jsoncuon.put("oldername", olderEntity.getName());
+								jsoncuon.put("olderMembernumber", olderEntity.getMemberNum());
+								jsoncuon.put("yueWeiWanCheng", yueWeiWanCheng);
+								jsoncuon.put("yueYiWanCheng", yueYiWanCheng);
+								jsoncuon.put("zhouWeiWanCheng", zhouWeiWanCheng);
+								jsoncuon.put("zhouYiWanCheng", zhouYiWanCheng);
+								jsoncuon.put("riWeiWanCheng", riWeiWanCheng);
+								jsoncuon.put("riYiWanCheng", riYiWanCheng);
+								jsoncuon.put("daipaiBan", daipaiBan);
+								jsoncuon.put("daiShenHe", daiShenHe);
+								jsoncountlist.add(jsoncuon);
+							}
+						}
+					}
+				}
+
+			}
+			// 按员工id查询
+			if (!"0".equals(fzrId) && "0".equals(olderId)) {
+				Integer yueWeiWanCheng = 0;
+				Integer yueYiWanCheng = 0;
+				Integer zhouWeiWanCheng = 0;
+				Integer zhouYiWanCheng = 0;
+				Integer riWeiWanCheng = 0;
+				Integer riYiWanCheng = 0;
+				Integer daipaiBan = 0;
+				Integer daiShenHe = 0;
+				JSONObject jsoncuon = new JSONObject();// 统计集合
+				// 先根据关联表查出来服务工单id
+				String serviceTaskIds = "";
+				Map<String, Object> querypguanlian = new HashMap<String, Object>();
+				querypguanlian.put("employeeId", fzrId);
+				querypguanlian.put("type", 1);
+				List<ServiceEmployeeEntity> guanlianList = serviceEmployeeService.getListByCondition(querypguanlian);
+				if (guanlianList != null && guanlianList.size() > 0) {
+					for (ServiceEmployeeEntity entity : guanlianList) {
+						if (entity.getEmployeeId() != null) {
+							serviceTaskIds = serviceTaskIds + entity.getServiceTaskId() + ",";
+						}
+					}
+				}
+				if (!"".equals(serviceTaskIds)) {
+					JSONObject jsonPage = new JSONObject();
+					jsonPage.put("pageno", 1);
+					jsonPage.put("pagesize", 1);
+					jsonPage.put("recordCount", 1);
+					jsonPage.put("pageCount", 1);
+					jsonResult.put("page", jsonPage.toString());
+					serviceTaskIds = serviceTaskIds.replaceAll(",,", ",");
+					serviceTaskIds = serviceTaskIds.substring(0, serviceTaskIds.length() - 1);
+					// 月未完成
+					Map<String, Object> querypMonthwei1 = new HashMap<String, Object>();
+					String lastMonthDay1 = getMonthLastDay();
+					querypMonthwei1.put("serviceExpectTime_le", lastMonthDay1);
+					querypMonthwei1.put("status_in", "4,5");// 状态4和5是未完成
+					querypMonthwei1.put("id_in", serviceTaskIds);
+					querypMonthwei1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypMonthwei1, request);
+					PageList yueweiList = serviceTaskService.getListByCondition(querypMonthwei1, null, 1, 100000, false, false, false, false, false, false,
+							false, false, false, false, false, false, false);
+					if (yueweiList != null) {
+						if (yueweiList.getResultList() != null && yueweiList.getResultList().size() > 0) {
+							yueWeiWanCheng = yueweiList.getResultList().size();
+						}
+					}
+					// 月已完成
+					Map<String, Object> querypMonthyi1 = new HashMap<String, Object>();
+					String monthLastDay1 = getMonthLastDay();
+					String monthFirstDay1 = getMonthFirstDay();
+					querypMonthyi1.put("serviceEndTime_ge", monthFirstDay1);
+					querypMonthyi1.put("serviceEndTime_le", monthLastDay1);
+					querypMonthyi1.put("status_in", "6,7");// 状态6和7是已完成
+					querypMonthyi1.put("id_in", serviceTaskIds);
+					querypMonthyi1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypMonthyi1, request);
+					PageList yichanchengList1 = serviceTaskService.getListByCondition(querypMonthyi1, null, 1, 100000, false, false, false, false, false,
+							false, false, false, false, false, false, false, false);
+					if (yichanchengList1 != null) {
+						if (yichanchengList1.getResultList() != null && yichanchengList1.getResultList().size() > 0) {
+							yueYiWanCheng = yichanchengList1.getResultList().size();
+						}
+					}
+					// 周未完成
+					Map<String, Object> querypWeekwei1 = new HashMap<String, Object>();
+					String weeklast1 = getWeekLasttDay();
+					querypWeekwei1.put("serviceExpectTime_le", weeklast1);
+					querypWeekwei1.put("status_in", "4,5");// 状态4和5是未完成
+					querypWeekwei1.put("id_in", serviceTaskIds);
+					querypWeekwei1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypWeekwei1, request);
+					PageList weichanchengWeekList1 = serviceTaskService.getListByCondition(querypWeekwei1, null, 1, 100000, false, false, false, false, false,
+							false, false, false, false, false, false, false, false);
+					if (weichanchengWeekList1 != null) {
+						if (weichanchengWeekList1.getResultList() != null && weichanchengWeekList1.getResultList().size() > 0) {
+							zhouWeiWanCheng = weichanchengWeekList1.getResultList().size();
+						}
+
+					}
+					// 周已完成
+					Map<String, Object> querypWeekhwei1 = new HashMap<String, Object>();
+					String weekLastDay1 = getWeekLasttDay();
+					String weelFirstDay1 = getWeekFirstDay();
+					querypWeekhwei1.put("serviceEndTime_ge", weelFirstDay1);
+					querypWeekhwei1.put("serviceEndTime_le", weekLastDay1);
+					querypWeekhwei1.put("status_in", "6,7");// 状态6和7是已完成
+					querypWeekhwei1.put("id_in", serviceTaskIds);
+					querypWeekhwei1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypWeekhwei1, request);
+					PageList yichanchengWeekList1 = serviceTaskService.getListByCondition(querypWeekhwei1, null, 1, 100000, false, false, false, false, false,
+							false, false, false, false, false, false, false, false);
+					if (yichanchengWeekList1 != null) {
+						if (yichanchengWeekList1.getResultList() != null && yichanchengWeekList1.getResultList().size() > 0) {
+							zhouYiWanCheng = yichanchengWeekList1.getResultList().size();
+						}
+					}
+					// 日未完成
+					Map<String, Object> querypDaywei1 = new HashMap<String, Object>();
+					String last1 = formater.format(new Date()) + "235959";
+					querypDaywei1.put("serviceExpectTime_le", last1);
+					querypDaywei1.put("status_in", "4,5");// 状态4和5是未完成
+					querypDaywei1.put("id_in", serviceTaskIds);
+					querypDaywei1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypDaywei1, request);
+					PageList yichanchengDayList1 = serviceTaskService.getListByCondition(querypDaywei1, null, 1, 100000, false, false, false, false, false,
+							false, false, false, false, false, false, false, false);
+					if (yichanchengDayList1 != null) {
+						if (yichanchengDayList1.getResultList() != null && yichanchengDayList1.getResultList().size() > 0) {
+							riWeiWanCheng = yichanchengDayList1.getResultList().size();
+						}
+					}
+					// 日已完成
+					Map<String, Object> querypDayyi1 = new HashMap<String, Object>();
+					String lastTime1 = formater.format(new Date()) + "235959";
+					String startTime2 = formater.format(new Date()) + "000001";
+					querypDayyi1.put("serviceEndTime_le", lastTime1);
+					querypDayyi1.put("serviceEndTime_ge", startTime2);
+					querypDayyi1.put("status_in", "6,7");// 状态6和7是已完成
+					querypDayyi1.put("id_in", serviceTaskIds);
+					querypDayyi1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypDayyi1, request);
+					PageList weichanchengDayList1 = serviceTaskService.getListByCondition(querypDayyi1, null, 1, 100000, false, false, false, false, false,
+							false, false, false, false, false, false, false, false);
+					if (weichanchengDayList1 != null) {
+						if (weichanchengDayList1.getResultList() != null && weichanchengDayList1.getResultList().size() > 0) {
+							riYiWanCheng = weichanchengDayList1.getResultList().size();
+						}
+					}
+					// 待排班、待审核
+					Map<String, Object> querypdaipaiban = new HashMap<String, Object>();
+					querypdaipaiban.put("id_in", serviceTaskIds);
+					querypdaipaiban.put("status_in", "2,3");
+					querypdaipaiban = systemService.addDataRuleByRoles("ServiceTaskEntity", querypdaipaiban, request);
+					PageList daiList = serviceTaskService.getListByCondition(querypdaipaiban, null, 1, 100000, false, false, false, false, false, false, false,
+							false, false, false, false, false, false);
+					if (daiList != null) {
+						if (daiList.getResultList() != null && daiList.getResultList().size() > 0) {
+							for (Object obj2 : daiList.getResultList()) {
+								ServiceTaskEntity entityff = (ServiceTaskEntity) obj2;
+								if (entityff.getStatus() != null) {
+									if (entityff.getStatus().intValue() == 2) {
+										daipaiBan++;
+									}
+									if (entityff.getStatus().intValue() == 3) {
+										daiShenHe++;
+									}
+								}
+							}
+						}
+					}
+				}
+				//
+				EmployeeEntity employee = employeeService.getById(Integer.parseInt(fzrId));
+				String name = "";
+				if (employee != null) {
+					name = employee.getName();
+				}
+				jsoncuon.put("fzrid", fzrId);
+				jsoncuon.put("olderid", null);
+				jsoncuon.put("fzrname", name);
+				jsoncuon.put("oldername", null);
+				jsoncuon.put("olderMembernumber", null);
+				jsoncuon.put("yueWeiWanCheng", yueWeiWanCheng);
+				jsoncuon.put("yueYiWanCheng", yueYiWanCheng);
+				jsoncuon.put("zhouWeiWanCheng", zhouWeiWanCheng);
+				jsoncuon.put("zhouYiWanCheng", zhouYiWanCheng);
+				jsoncuon.put("riWeiWanCheng", riWeiWanCheng);
+				jsoncuon.put("riYiWanCheng", riYiWanCheng);
+				jsoncuon.put("daipaiBan", daipaiBan);
+				jsoncuon.put("daiShenHe", daiShenHe);
+				jsoncountlist.add(jsoncuon);
+				jsoncountlistresult.put("countList", jsonarr.toString());
+			}
+			// 按老人查询
+			if (!"0".equals(olderId) && "0".equals(fzrId)) {
+				Integer yueWeiWanCheng = 0;
+				Integer yueYiWanCheng = 0;
+				Integer zhouWeiWanCheng = 0;
+				Integer zhouYiWanCheng = 0;
+				Integer riWeiWanCheng = 0;
+				Integer riYiWanCheng = 0;
+				Integer daipaiBan = 0;
+				Integer daiShenHe = 0;
+				JSONObject jsonPage = new JSONObject();
+				jsonPage.put("pageno", 1);
+				jsonPage.put("pagesize", 1);
+				jsonPage.put("recordCount", 1);
+				jsonPage.put("pageCount", 1);
+				jsonResult.put("page", jsonPage.toString());
+				JSONObject jsoncuon = new JSONObject();// 统计集合
+
+				// 月未完成
+				Map<String, Object> querypMonthwei1 = new HashMap<String, Object>();
+				String lastMonthDay1 = getMonthLastDay();
+				querypMonthwei1.put("serviceExpectTime_le", lastMonthDay1);
+				querypMonthwei1.put("status_in", "4,5");// 状态4和5是未完成
+				querypMonthwei1.put("olderId", olderId);
+				querypMonthwei1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypMonthwei1, request);
+				PageList yueweiList = serviceTaskService.getListByCondition(querypMonthwei1, null, 1, 100000, false, false, false, false, false, false, false,
+						false, false, false, false, false, false);
+				if (yueweiList != null) {
+					if (yueweiList.getResultList() != null && yueweiList.getResultList().size() > 0) {
+						yueWeiWanCheng = yueweiList.getResultList().size();
+					}
+				}
+				// 月已完成
+				Map<String, Object> querypMonthyi1 = new HashMap<String, Object>();
+				String monthLastDay1 = getMonthLastDay();
+				String monthFirstDay1 = getMonthFirstDay();
+				querypMonthyi1.put("serviceEndTime_ge", monthFirstDay1);
+				querypMonthyi1.put("serviceEndTime_le", monthLastDay1);
+				querypMonthyi1.put("status_in", "6,7");// 状态6和7是已完成
+				querypMonthyi1.put("olderId", olderId);
+				querypMonthyi1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypMonthyi1, request);
+				PageList yichanchengList1 = serviceTaskService.getListByCondition(querypMonthyi1, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (yichanchengList1 != null) {
+					if (yichanchengList1.getResultList() != null && yichanchengList1.getResultList().size() > 0) {
+						yueYiWanCheng = yichanchengList1.getResultList().size();
+					}
+				}
+				// 周未完成
+				Map<String, Object> querypWeekwei1 = new HashMap<String, Object>();
+				String weeklast1 = getWeekLasttDay();
+				querypWeekwei1.put("serviceExpectTime_le", weeklast1);
+				querypWeekwei1.put("status_in", "4,5");// 状态4和5是未完成
+				querypWeekwei1.put("olderId", olderId);
+				querypWeekwei1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypWeekwei1, request);
+				PageList weichanchengWeekList1 = serviceTaskService.getListByCondition(querypWeekwei1, null, 1, 100000, false, false, false, false, false,
+						false, false, false, false, false, false, false, false);
+				if (weichanchengWeekList1 != null) {
+					if (weichanchengWeekList1.getResultList() != null && weichanchengWeekList1.getResultList().size() > 0) {
+						zhouWeiWanCheng = weichanchengWeekList1.getResultList().size();
+					}
+				}
+				// 周已完成
+				Map<String, Object> querypWeekhwei1 = new HashMap<String, Object>();
+				String weekLastDay1 = getWeekLasttDay();
+				String weelFirstDay1 = getWeekFirstDay();
+				querypWeekhwei1.put("serviceEndTime_ge", weelFirstDay1);
+				querypWeekhwei1.put("serviceEndTime_le", weekLastDay1);
+				querypWeekhwei1.put("status_in", "6,7");// 状态6和7是已完成
+				querypWeekhwei1.put("olderId", olderId);
+				querypWeekhwei1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypWeekhwei1, request);
+				PageList yichanchengWeekList1 = serviceTaskService.getListByCondition(querypWeekhwei1, null, 1, 100000, false, false, false, false, false,
+						false, false, false, false, false, false, false, false);
+				if (yichanchengWeekList1 != null) {
+					if (yichanchengWeekList1.getResultList() != null && yichanchengWeekList1.getResultList().size() > 0) {
+						zhouYiWanCheng = yichanchengWeekList1.getResultList().size();
+					}
+				}
+				// 日未完成
+				Map<String, Object> querypDaywei1 = new HashMap<String, Object>();
+				String last1 = formater.format(new Date()) + "235959";
+				querypDaywei1.put("serviceExpectTime_le", last1);
+				querypDaywei1.put("status_in", "4,5");// 状态4和5是未完成
+				querypDaywei1.put("olderId", olderId);
+				querypDaywei1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypDaywei1, request);
+				PageList yichanchengDayList1 = serviceTaskService.getListByCondition(querypDaywei1, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (yichanchengDayList1 != null) {
+					if (yichanchengDayList1.getResultList() != null && yichanchengDayList1.getResultList().size() > 0) {
+						riWeiWanCheng = yichanchengDayList1.getResultList().size();
+					}
+				}
+				// 日已完成
+				Map<String, Object> querypDayyi1 = new HashMap<String, Object>();
+				String lastTime1 = formater.format(new Date()) + "235959";
+				String startTime2 = formater.format(new Date()) + "000001";
+				querypDayyi1.put("serviceEndTime_le", lastTime1);
+				querypDayyi1.put("serviceEndTime_ge", startTime2);
+				querypDayyi1.put("status_in", "6,7");// 状态6和7是已完成
+				querypDayyi1.put("olderId", olderId);
+				querypDayyi1 = systemService.addDataRuleByRoles("ServiceTaskEntity", querypDayyi1, request);
+				PageList weichanchengDayList1 = serviceTaskService.getListByCondition(querypDayyi1, null, 1, 100000, false, false, false, false, false, false,
+						false, false, false, false, false, false, false);
+				if (weichanchengDayList1 != null) {
+					if (weichanchengDayList1.getResultList() != null && weichanchengDayList1.getResultList().size() > 0) {
+						riYiWanCheng = weichanchengDayList1.getResultList().size();
+					}
+				}
+				// 待排班、待审核
+				Map<String, Object> querypdaipaiban = new HashMap<String, Object>();
+				querypdaipaiban.put("olderId", olderId);
+				querypdaipaiban.put("status_in", "2,3");
+				querypdaipaiban = systemService.addDataRuleByRoles("ServiceTaskEntity", querypdaipaiban, request);
+				PageList daiList = serviceTaskService.getListByCondition(querypdaipaiban, null, 1, 100000, false, false, false, false, false, false, false,
+						false, false, false, false, false, false);
+				if (daiList != null) {
+					if (daiList.getResultList() != null && daiList.getResultList().size() > 0) {
+						for (Object obj2 : daiList.getResultList()) {
+							ServiceTaskEntity entityff = (ServiceTaskEntity) obj2;
+							if (entityff.getStatus() != null) {
+								if (entityff.getStatus().intValue() == 2) {
+									daipaiBan++;
+								}
+								if (entityff.getStatus().intValue() == 3) {
+									daiShenHe++;
+								}
+							}
+						}
+					}
+				}
+				OlderEntity older = olderService.getById(Integer.parseInt(olderId));
+				String name = "";
+				String menmenr = "";
+				if (older != null) {
+					name = older.getName();
+					menmenr = older.getMemberNum();
+				}
+				jsoncuon.put("fzrid", null);
+				jsoncuon.put("olderid", olderId);
+				jsoncuon.put("fzrname", null);
+				jsoncuon.put("oldername", name);
+				jsoncuon.put("olderMembernumber", menmenr);
+				jsoncuon.put("yueWeiWanCheng", yueWeiWanCheng);
+				jsoncuon.put("yueYiWanCheng", yueYiWanCheng);
+				jsoncuon.put("zhouWeiWanCheng", zhouWeiWanCheng);
+				jsoncuon.put("zhouYiWanCheng", zhouYiWanCheng);
+				jsoncuon.put("riWeiWanCheng", riWeiWanCheng);
+				jsoncuon.put("riYiWanCheng", riYiWanCheng);
+				jsoncuon.put("daipaiBan", daipaiBan);
+				jsoncuon.put("daiShenHe", daiShenHe);
+				jsoncountlist.add(jsoncuon);
+				jsoncountlistresult.put("countList", jsonarr.toString());
+			}
+			// dayList统计
+			Map<String, Object> queryAssDayday = null;// 日期区间集合
+			// 不传时间时
+			if ("".equals(startTime) && "".equals(endTime)) {
+				// 默认最近七天
+				String curDay = formater.format(new Date()) + "235959";
+				String sevenday = getSevenDay();
+				queryAssDayday = getDays(sevenday, curDay);
+			}
+			if (!"".equals(startTime) && !"".equals(endTime)) {
+				// 根据所传的日期区间
+				queryAssDayday = getDays(startTime, endTime);
+			}
+			// 遍历日期集合
+			for (Map.Entry<String, Object> entry : queryAssDayday.entrySet()) {
+				// 默认老人员工都不传时
+				if ("0".equals(fzrId) && "0".equals(olderId)) {
+					JSONObject jsondaynn = new JSONObject();
+					Integer num = 0;
+					String day = entry.getValue().toString();
+					day = day.substring(0, 8);
+					String beginday = day + "000001";
+					String endday = day + "235959";
+					// 先统计服务结束的-状态为6
+					Map<String, Object> queryp = new HashMap<String, Object>();
+					queryp = systemService.addDataRuleByRoles("ServiceTaskEntity", queryp, request);// 添加权限
+					queryp.put("status_in", "6,7");// 服务状态
+					queryp.put("serviceEndTime_ge", beginday);// 服务结束-开始
+					queryp.put("serviceEndTime_le", endday);// 服务结束-结束
+					PageList taskendlist = serviceTaskService.getListByCondition(queryp, null, 1, 100000, false, false, false, false, false, false, false,
+							false, false, false, false, false, false);
+					if (taskendlist != null) {
+						if (taskendlist.getResultList() != null && taskendlist.getResultList().size() > 0) {
+							num = taskendlist.getResultList().size();
+						}
+					}
+					jsondaynn.put("day", day);
+					jsondaynn.put("num", num);
+					jsonarrday.add(jsondaynn);
+				}
+				// 按员工查
+				else if (!"".equals(fzrId) && !"0".equals(fzrId) && "0".equals(olderId)) {
+					// 先查关联表
+					String serviceIds = "";
+					Map<String, Object> queryguanlian = new HashMap<String, Object>();
+					queryguanlian.put("employeeId", fzrId);
+					queryguanlian.put("type", 1);
+					List<ServiceEmployeeEntity> guanlianList = serviceEmployeeService.getListByCondition(queryguanlian);
+					if (guanlianList != null && guanlianList.size() > 0) {
+						for (ServiceEmployeeEntity entity : guanlianList) {
+							if (entity.getEmployeeId() != null) {
+								serviceIds = serviceIds + entity.getServiceTaskId() + ",";
+							}
+						}
+					}
+					if (!"".equals(serviceIds)) {
+						serviceIds = serviceIds.replaceAll(",,", ",");
+						serviceIds = serviceIds.substring(0, serviceIds.length() - 1);
+						JSONObject jsondaynn = new JSONObject();
+						Integer num = 0;
+						String day = entry.getValue().toString();
+						day = day.substring(0, 8);
+						String beginday = day + "000001";
+						String endday = day + "235959";
+						Map<String, Object> queryp = new HashMap<String, Object>();
+						queryp.put("status_in", "6,7");// 服务状态
+						queryp.put("serviceEndTime_ge", beginday);// 服务结束-开始
+						queryp.put("serviceEndTime_le", endday);// 服务结束-结束
+						queryp.put("id_in", serviceIds);
+						PageList taskendlist = serviceTaskService.getListByCondition(queryp, null, 1, 100000, false, false, false, false, false, false, false,
+								false, false, false, false, false, false);
+						if (taskendlist != null) {
+							if (taskendlist.getResultList() != null && taskendlist.getResultList().size() > 0) {
+								num = taskendlist.getResultList().size();
+							}
+						}
+						jsondaynn.put("day", day);
+						jsondaynn.put("num", num);
+						jsonarrday.add(jsondaynn);
+					}
+				}
+				// 按老人查
+				else if (!"".equals(olderId) && !"0".equals(olderId) && "0".equals(fzrId)) {
+					JSONObject jsondaynn = new JSONObject();
+					Integer num = 0;
+					String day = entry.getValue().toString();
+					day = day.substring(0, 8);
+					String beginday = day + "000001";
+					String endday = day + "235959";
+					Map<String, Object> queryp = new HashMap<String, Object>();
+					queryp.put("status_in", "6,7");// 服务状态
+					queryp.put("serviceEndTime_ge", beginday);// 服务结束-开始
+					queryp.put("serviceEndTime_le", endday);// 服务结束-结束
+					queryp.put("olderId", olderId);
+					PageList taskendlist = serviceTaskService.getListByCondition(queryp, null, 1, 100000, false, false, false, false, false, false, false,
+							false, false, false, false, false, false);
+					if (taskendlist != null) {
+						if (taskendlist.getResultList() != null && taskendlist.getResultList().size() > 0) {
+							num = taskendlist.getResultList().size();
+						}
+					}
+					jsondaynn.put("day", day);
+					jsondaynn.put("num", num);
+					jsonarrday.add(jsondaynn);
+				}
+			}
+		} catch (NumberFormatException e1) {
+			jsonResult.put("result", "200");
+			jsonResult.put("des", "failure");
+		}
+		jsoncntent.put("countList", jsoncountlist.toString());
+		jsoncntent.put("dayList", jsonarrday.toString());
+		jsonResult.put("content", jsoncntent.toString());
+		String rep = jsonResult.toString();
+		try {
+			rep = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return rep;
+	}
+
+	// 本月第一天
+	public String getMonthFirstDay() {
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.MONTH, 0);
+		c.set(Calendar.DAY_OF_MONTH, 1);// 设置为1号,当前日期既为本月第一天
+		String first = format.format(c.getTime()) + "000001";
+		return first;
+	}
+
+	// 本月最后一天
+	public String getMonthLastDay() {
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+		Calendar ca = Calendar.getInstance();
+		ca.set(Calendar.DAY_OF_MONTH, ca.getActualMaximum(Calendar.DAY_OF_MONTH));
+		String last = format.format(ca.getTime()) + "235959";
+		return last;
+	}
+
+	// 本周第一天
+	public String getWeekFirstDay() {
+		SimpleDateFormat dd = new SimpleDateFormat("yyyyMMdd");
+		Calendar c = Calendar.getInstance();
+		int day_of_week = c.get(Calendar.DAY_OF_WEEK) - 1;
+		if (day_of_week == 0) {
+			day_of_week = 7;
+		}
+		c.add(Calendar.DATE, -day_of_week + 1);
+		String str = dd.format(c.getTime()) + "000001";
+		return str;
+	}
+
+	// 本周最后一天
+	public String getWeekLasttDay() {
+		SimpleDateFormat dd = new SimpleDateFormat("yyyyMMdd");
+		Calendar c = Calendar.getInstance();
+		int day_of_week = c.get(Calendar.DAY_OF_WEEK) - 1;
+		if (day_of_week == 0) {
+			day_of_week = 7;
+		}
+		c.add(Calendar.DATE, -day_of_week + 7);
+		String str = dd.format(c.getTime()) + "235959";
+		return str;
+	}
+
+	// 根据日期区间返回中间日期集合
+	public static Map<String, Object> getDays(String start, String end) {
+		Map<String, Object> map = new LinkedHashMap<String, Object>();
+		Calendar cals = Calendar.getInstance();
+		Calendar cale = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+		Date dates = null;
+		Date datee = null;
+		try {
+			dates = sdf.parse(start);
+			datee = sdf.parse(end);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		cals.setTime(dates);
+		cale.setTime(datee);
+		while (!cals.after(cale)) {
+			String date = sdf.format(cals.getTime());
+			cals.add(Calendar.DAY_OF_YEAR, 1);
+			map.put(date, date);
+		}
+		return map;
+	}
+
+	// 七天前的时间
+	public String getSevenDay() {
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.DATE, -6);
+		Date monday = c.getTime();
+		String preMonday = sdf.format(monday) + "000001";
+		return preMonday;
+	}
+}

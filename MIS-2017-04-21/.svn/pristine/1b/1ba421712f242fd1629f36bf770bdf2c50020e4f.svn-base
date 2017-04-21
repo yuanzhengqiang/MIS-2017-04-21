@@ -1,0 +1,289 @@
+package fsk.entity.nursingPlan;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.older.OlderEntity;
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.nursingPlanService.NursingPlanServiceEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 护理计划
+ * @author feng.gu
+ * @date 2016-08-29 14:07:11
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_NURSING_PLAN")
+public class NursingPlanEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String OLDER_ID = "OLDER_ID";
+    public final static String CODE = "CODE";
+    public final static String OLDER_NAME = "OLDER_NAME";
+    public final static String CONTACT_NAME = "CONTACT_NAME";
+    public final static String CONTACT_TEL = "CONTACT_TEL";
+    public final static String SERVICE_ADDRESS = "SERVICE_ADDRESS";
+    public final static String START_DATE = "START_DATE";
+    public final static String END_DATE = "END_DATE";
+    public final static String STATUS = "STATUS";
+    public final static String DES = "DES";
+    public final static String ADD_EMPLOYEE_ID = "ADD_EMPLOYEE_ID";
+    public final static String ADD_EMPLOYEE_NAME = "ADD_EMPLOYEE_NAME";
+    public final static String ADD_TIME = "ADD_TIME";
+    public final static String LAST_CREATE_MONTH = "LAST_CREATE_MONTH";
+    public final static String CHECK_TIME = "CHECK_TIME";   
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 老人ID
+	 */
+	@ColumnDescription(name = "OLDER_ID")
+	private Integer olderId;
+    /**
+	 * 计划标号
+	 */
+	@ColumnDescription(name = "CODE")
+	private String code;
+    /**
+	 * 老人姓名
+	 */
+	@ColumnDescription(name = "OLDER_NAME")
+	private String olderName;
+    /**
+	 * 联系人
+	 */
+	@ColumnDescription(name = "CONTACT_NAME")
+	private String contactName;
+    /**
+	 * 联系电话
+	 */
+	@ColumnDescription(name = "CONTACT_TEL")
+	private String contactTel;
+    /**
+	 * 服务地址
+	 */
+	@ColumnDescription(name = "SERVICE_ADDRESS")
+	private String serviceAddress;
+    /**
+	 * 开始日期
+	 */
+	@ColumnDescription(name = "START_DATE")
+	private String startDate;
+    /**
+	 * 截止日期
+	 */
+	@ColumnDescription(name = "END_DATE")
+	private String endDate;
+    /**
+	 * 状态(0-制定中 1-待审核 2-有效 3-无效)
+	 */
+	@ColumnDescription(name = "STATUS")
+	private Integer status;
+    /**
+	 * 备注
+	 */
+	@ColumnDescription(name = "DES")
+	private String des;
+    /**
+	 * 添加员工ID
+	 */
+	@ColumnDescription(name = "ADD_EMPLOYEE_ID")
+	private Integer addEmployeeId;
+    /**
+	 * 添加员工姓名
+	 */
+	@ColumnDescription(name = "ADD_EMPLOYEE_NAME")
+	private String addEmployeeName;
+    /**
+	 * 添加时间
+	 */
+	@ColumnDescription(name = "ADD_TIME")
+	private String addTime;		
+    /**
+	 * 上一次自动生成工单月份
+	 */
+	@ColumnDescription(name = "LAST_CREATE_MONTH")
+	private String lastCreateMonth;
+	
+    /**
+	 * 审核通过时间
+	 */
+	@ColumnDescription(name = "CHECK_TIME")
+	private String checkTime;       
+
+	public String getCheckTime() {
+		return checkTime;
+	}
+
+	public void setCheckTime(String checkTime) {
+		this.checkTime = checkTime;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getOlderId() {
+		return olderId;
+	}
+
+	public void setOlderId(Integer olderId) {
+		this.olderId = olderId;
+	}
+    public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+    public String getOlderName() {
+		return olderName;
+	}
+
+	public void setOlderName(String olderName) {
+		this.olderName = olderName;
+	}
+    public String getContactName() {
+		return contactName;
+	}
+
+	public void setContactName(String contactName) {
+		this.contactName = contactName;
+	}
+    public String getContactTel() {
+		return contactTel;
+	}
+
+	public void setContactTel(String contactTel) {
+		this.contactTel = contactTel;
+	}
+    public String getServiceAddress() {
+		return serviceAddress;
+	}
+
+	public void setServiceAddress(String serviceAddress) {
+		this.serviceAddress = serviceAddress;
+	}
+    public String getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(String startDate) {
+		this.startDate = startDate;
+	}
+    public String getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(String endDate) {
+		this.endDate = endDate;
+	}
+    public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+    public String getDes() {
+		return des;
+	}
+
+	public void setDes(String des) {
+		this.des = des;
+	}
+    public Integer getAddEmployeeId() {
+		return addEmployeeId;
+	}
+
+	public void setAddEmployeeId(Integer addEmployeeId) {
+		this.addEmployeeId = addEmployeeId;
+	}
+    public String getAddEmployeeName() {
+		return addEmployeeName;
+	}
+
+	public void setAddEmployeeName(String addEmployeeName) {
+		this.addEmployeeName = addEmployeeName;
+	}
+    public String getAddTime() {
+		return addTime;
+	}
+
+	public void setAddTime(String addTime) {
+		this.addTime = addTime;
+	}
+    public String getLastCreateMonth() {
+		return lastCreateMonth;
+	}
+
+	public void setLastCreateMonth(String lastCreateMonth) {
+		this.lastCreateMonth = lastCreateMonth;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="OlderEntity"	,joinColumn="ID"	)
+			
+			
+		private OlderEntity older;
+	        
+	public OlderEntity getOlder() {
+		return older;
+    }
+	
+	public void setOlder(OlderEntity older) {
+		this.older = older;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="EmployeeEntity"	,joinColumn="ID"	)
+			
+			
+		private EmployeeEntity addEmployee;
+	        
+	public EmployeeEntity getAddEmployee() {
+		return addEmployee;
+    }
+	
+	public void setAddEmployee(EmployeeEntity addEmployee) {
+		this.addEmployee = addEmployee;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="NursingPlanServiceEntity"			,joinColumn="NURSING_PLAN_ID"
+			)
+			
+		private List<NursingPlanServiceEntity> nursingPlanServiceList;
+	        
+	public List<NursingPlanServiceEntity> getNursingPlanServiceList() {
+		return nursingPlanServiceList;
+	}
+	
+	public void setNursingPlanServiceList(List<NursingPlanServiceEntity> nursingPlanServiceList) {
+		this.nursingPlanServiceList = nursingPlanServiceList;
+	}
+			
+			
+}

@@ -1,0 +1,770 @@
+package fsk.service.edemaCondition;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+
+
+import fsk.entity.serviceTask.ServiceTaskEntity;
+
+import fsk.entity.edemaCondition.EdemaConditionEntity;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+
+
+/**   
+ * @Title: Service
+ * @Description: 水肿情况服务类
+ * @author feng.gu
+ * @date 2016-07-27 15:35:56
+ * @version V1.0   
+ *
+ */
+public class EdemaConditionService {
+	   private static Logger logger = Logger.getLogger(EdemaConditionService.class);
+	   private DBManager dbManager = DBManager.getInstance();
+    		
+	   private static EdemaConditionService edemaConditionService;
+	   /**
+	    * 获取实例	
+	    * @return
+	    */
+	   public static EdemaConditionService getInstance(){
+		if(edemaConditionService==null){
+			edemaConditionService = new EdemaConditionService();
+		}
+		return edemaConditionService;
+	   }
+	                 	                 				     				     				     				     
+				     	 
+	   /**
+		 * 保存记录
+		 * 
+		 * @param obj
+		 */
+		public boolean save(EdemaConditionEntity edemaCondition) {			
+			boolean result =false;
+			if(edemaCondition!=null){
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					 tx.beginTransaction();					 					 
+					 					 				     				     					     //关联信息保存
+					     ServiceTaskEntity serviceTask = edemaCondition.getServiceTask();
+						 if(serviceTask!=null){						   
+							 dbManager.saveNoTransaction(serviceTask);
+							 edemaCondition.setServiceTaskId(serviceTask.getId());
+						 }						 
+				     				     				     					 					 result=dbManager.saveNoTransaction(edemaCondition);	
+					 tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {				    
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  			
+			}	
+			return result;
+		}
+		
+		/**
+		 * 批量保存记录
+		 * 
+		 * @param list
+		 */
+		public boolean saveList(List<EdemaConditionEntity> edemaConditionList) {
+			boolean result = false;
+			if (edemaConditionList != null && edemaConditionList.size() > 0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 
+					for(EdemaConditionEntity edemaCondition:edemaConditionList){
+						if(edemaCondition!=null){												  								 
+								 									 					                 								     								         //关联信息保存
+									     ServiceTaskEntity serviceTask = edemaCondition.getServiceTask();
+										 if(serviceTask!=null){						   
+											 dbManager.saveNoTransaction(serviceTask);
+											 edemaCondition.setServiceTaskId(serviceTask.getId());
+										 }									 
+								     								     								     								 								 result=dbManager.saveNoTransaction(edemaCondition);								 			
+						}	
+					}
+				    tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+				/**
+		 * 根据id读取记录
+		 * 
+		 * @param id
+		 *            主键
+		 * @param obj
+		 */
+		public EdemaConditionEntity getById(Integer id) {
+			EdemaConditionEntity obj = null;
+			if (id != null) {
+				obj = (EdemaConditionEntity) dbManager.getById(id, EdemaConditionEntity.class);			
+			}
+			return obj;
+		}
+				
+		
+		/**
+		 * 根据id读取记录
+		 * @param id 主键
+		 		             	                 				     		 * @param serviceTaskShow 是否查询关联信息
+				     				     				     		 		 * @param obj
+		 */
+		public EdemaConditionEntity getById(Integer id,Boolean serviceTaskShow) {
+			EdemaConditionEntity obj = null;
+			if (id!=null) {
+				obj = (EdemaConditionEntity)dbManager.getById(id, EdemaConditionEntity.class);
+									 	                 				     				        //查询关联内容
+						if(serviceTaskShow!=null&&serviceTaskShow.booleanValue()&&obj!=null&&obj.getServiceTaskId()!=null&&obj.getServiceTaskId()>0){
+							ServiceTaskEntity serviceTask = (ServiceTaskEntity)dbManager.getById(obj.getServiceTaskId(), ServiceTaskEntity.class);
+							obj.setServiceTask(serviceTask);        	  	  
+						}
+				     				     				     				   			}
+			return obj;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合		
+		 * @return
+		 */
+		public List<EdemaConditionEntity> getListByCondition(Map<String,Object> queryMap) {
+		    List<EdemaConditionEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object serviceTaskId=queryMap.get("serviceTaskId");
+					Object serviceTaskId_gt=queryMap.get("serviceTaskId_gt");
+					Object serviceTaskId_ge=queryMap.get("serviceTaskId_ge");
+					Object serviceTaskId_lt=queryMap.get("serviceTaskId_lt");
+					Object serviceTaskId_le=queryMap.get("serviceTaskId_le");
+					Object serviceTaskId_in=queryMap.get("serviceTaskId_in");
+																					Object type=queryMap.get("type");
+					Object type_like=queryMap.get("type_like");
+					Object type_isNull=queryMap.get("type_isNull");
+					Object type_isNotNull=queryMap.get("type_isNotNull");
+					Object type_in=queryMap.get("type_in");
+																										Object edemaSite=queryMap.get("edemaSite");
+					Object edemaSite_like=queryMap.get("edemaSite_like");
+					Object edemaSite_isNull=queryMap.get("edemaSite_isNull");
+					Object edemaSite_isNotNull=queryMap.get("edemaSite_isNotNull");
+					Object edemaSite_in=queryMap.get("edemaSite_in");
+																										Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+																										Object createPerson=queryMap.get("createPerson");
+					Object createPerson_like=queryMap.get("createPerson_like");
+					Object createPerson_isNull=queryMap.get("createPerson_isNull");
+					Object createPerson_isNotNull=queryMap.get("createPerson_isNotNull");
+					Object createPerson_in=queryMap.get("createPerson_in");
+												
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(EdemaConditionEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.in, id_in));}
+																if(serviceTaskId!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.eq, serviceTaskId));}
+					if(serviceTaskId_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.gt, serviceTaskId_gt));}
+					if(serviceTaskId_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.ge, serviceTaskId_ge));}
+					if(serviceTaskId_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.lt, serviceTaskId_lt));}
+					if(serviceTaskId_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.le, serviceTaskId_le));}
+					if(serviceTaskId_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.in, serviceTaskId_in));}
+															  					if(type!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.eq, type));}
+		            if(type_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.like, type_like));}
+		            if(type_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.isNull, type_isNull));}
+		            if(type_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.isNotNull, type_isNotNull));}
+				    if(type_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.in, type_in));}
+				  															  					if(edemaSite!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.eq, edemaSite));}
+		            if(edemaSite_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.like, edemaSite_like));}
+		            if(edemaSite_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.isNull, edemaSite_isNull));}
+		            if(edemaSite_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.isNotNull, edemaSite_isNotNull));}
+				    if(edemaSite_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.in, edemaSite_in));}
+				  															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  															  					if(createPerson!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.eq, createPerson));}
+		            if(createPerson_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.like, createPerson_like));}
+		            if(createPerson_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.isNull, createPerson_isNull));}
+		            if(createPerson_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.isNotNull, createPerson_isNotNull));}
+				    if(createPerson_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.in, createPerson_in));}
+				  										
+						  			            list = dbManager.queryByCondition(EdemaConditionEntity.class,qc);    
+            if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<EdemaConditionEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((EdemaConditionEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		
+		/**
+		 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 		             	                 				     		 * @param serviceTaskShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		 * @return
+		 */
+		public List<EdemaConditionEntity> getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,Boolean serviceTaskShow) {
+			List<EdemaConditionEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object serviceTaskId=queryMap.get("serviceTaskId");
+					Object serviceTaskId_gt=queryMap.get("serviceTaskId_gt");
+					Object serviceTaskId_ge=queryMap.get("serviceTaskId_ge");
+					Object serviceTaskId_lt=queryMap.get("serviceTaskId_lt");
+					Object serviceTaskId_le=queryMap.get("serviceTaskId_le");
+					Object serviceTaskId_in=queryMap.get("serviceTaskId_in");
+																					Object type=queryMap.get("type");
+					Object type_like=queryMap.get("type_like");
+					Object type_isNull=queryMap.get("type_isNull");
+					Object type_isNotNull=queryMap.get("type_isNotNull");
+					Object type_in=queryMap.get("type_in");
+																										Object edemaSite=queryMap.get("edemaSite");
+					Object edemaSite_like=queryMap.get("edemaSite_like");
+					Object edemaSite_isNull=queryMap.get("edemaSite_isNull");
+					Object edemaSite_isNotNull=queryMap.get("edemaSite_isNotNull");
+					Object edemaSite_in=queryMap.get("edemaSite_in");
+																										Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+																										Object createPerson=queryMap.get("createPerson");
+					Object createPerson_like=queryMap.get("createPerson_like");
+					Object createPerson_isNull=queryMap.get("createPerson_isNull");
+					Object createPerson_isNotNull=queryMap.get("createPerson_isNotNull");
+					Object createPerson_in=queryMap.get("createPerson_in");
+												
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(EdemaConditionEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.in, id_in));}
+																if(serviceTaskId!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.eq, serviceTaskId));}
+					if(serviceTaskId_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.gt, serviceTaskId_gt));}
+					if(serviceTaskId_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.ge, serviceTaskId_ge));}
+					if(serviceTaskId_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.lt, serviceTaskId_lt));}
+					if(serviceTaskId_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.le, serviceTaskId_le));}
+					if(serviceTaskId_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.in, serviceTaskId_in));}
+															  					if(type!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.eq, type));}
+		            if(type_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.like, type_like));}
+		            if(type_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.isNull, type_isNull));}
+		            if(type_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.isNotNull, type_isNotNull));}
+				    if(type_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.in, type_in));}
+				  															  					if(edemaSite!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.eq, edemaSite));}
+		            if(edemaSite_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.like, edemaSite_like));}
+		            if(edemaSite_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.isNull, edemaSite_isNull));}
+		            if(edemaSite_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.isNotNull, edemaSite_isNotNull));}
+				    if(edemaSite_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.in, edemaSite_in));}
+				  															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  															  					if(createPerson!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.eq, createPerson));}
+		            if(createPerson_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.like, createPerson_like));}
+		            if(createPerson_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.isNull, createPerson_isNull));}
+		            if(createPerson_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.isNotNull, createPerson_isNotNull));}
+				    if(createPerson_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.in, createPerson_in));}
+				  										
+						  						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}			
+            list = dbManager.queryByConditions(EdemaConditionEntity.class,qc,oc);
+                                    int a=0;
+            					             	                 				     				     if(serviceTaskShow!=null&&serviceTaskShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		                if(a>0&&list!=null&&list.size()>0){
+				List<Object> result = new ArrayList<Object>();
+				for(int i=0;i<list.size();i++){
+					EdemaConditionEntity obj = (EdemaConditionEntity)list.get(i);
+										 	                 				     				        //查询关联内容
+						if(serviceTaskShow!=null&&serviceTaskShow.booleanValue()&&obj!=null&&obj.getServiceTaskId()!=null&&obj.getServiceTaskId()>0){
+							ServiceTaskEntity serviceTask = (ServiceTaskEntity)dbManager.getById(obj.getServiceTaskId(), ServiceTaskEntity.class);
+							obj.setServiceTask(serviceTask);        	  	  
+						}
+				     				     				     				    					result.add(obj);					
+				}
+				list=result;			
+		}	
+					if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<EdemaConditionEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((EdemaConditionEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数		
+		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,int pageno,int pagesize) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object serviceTaskId=queryMap.get("serviceTaskId");
+					Object serviceTaskId_gt=queryMap.get("serviceTaskId_gt");
+					Object serviceTaskId_ge=queryMap.get("serviceTaskId_ge");
+					Object serviceTaskId_lt=queryMap.get("serviceTaskId_lt");
+					Object serviceTaskId_le=queryMap.get("serviceTaskId_le");
+					Object serviceTaskId_in=queryMap.get("serviceTaskId_in");
+															  					Object type=queryMap.get("type");
+					Object type_like=queryMap.get("type_like");
+					Object type_isNull=queryMap.get("type_isNull");
+					Object type_isNotNull=queryMap.get("type_isNotNull");
+					Object type_in=queryMap.get("type_in");
+				   															  					Object edemaSite=queryMap.get("edemaSite");
+					Object edemaSite_like=queryMap.get("edemaSite_like");
+					Object edemaSite_isNull=queryMap.get("edemaSite_isNull");
+					Object edemaSite_isNotNull=queryMap.get("edemaSite_isNotNull");
+					Object edemaSite_in=queryMap.get("edemaSite_in");
+				   															  					Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+				  															  					Object createPerson=queryMap.get("createPerson");
+					Object createPerson_like=queryMap.get("createPerson_like");
+					Object createPerson_isNull=queryMap.get("createPerson_isNull");
+					Object createPerson_isNotNull=queryMap.get("createPerson_isNotNull");
+					Object createPerson_in=queryMap.get("createPerson_in");
+				   							
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(EdemaConditionEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.in, id_in));}
+																if(serviceTaskId!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.eq, serviceTaskId));}
+					if(serviceTaskId_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.gt, serviceTaskId_gt));}
+					if(serviceTaskId_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.ge, serviceTaskId_ge));}
+					if(serviceTaskId_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.lt, serviceTaskId_lt));}
+					if(serviceTaskId_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.le, serviceTaskId_le));}
+					if(serviceTaskId_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.in, serviceTaskId_in));}
+															  					if(type!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.eq, type));}
+		            if(type_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.like, type_like));}
+		            if(type_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.isNull, type_isNull));}
+		            if(type_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.isNotNull, type_isNotNull));}
+				    if(type_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.in, type_in));}
+				  															  					if(edemaSite!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.eq, edemaSite));}
+		            if(edemaSite_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.like, edemaSite_like));}
+		            if(edemaSite_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.isNull, edemaSite_isNull));}
+		            if(edemaSite_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.isNotNull, edemaSite_isNotNull));}
+				    if(edemaSite_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.in, edemaSite_in));}
+				  															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  															  					if(createPerson!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.eq, createPerson));}
+		            if(createPerson_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.like, createPerson_like));}
+		            if(createPerson_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.isNull, createPerson_isNull));}
+		            if(createPerson_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.isNotNull, createPerson_isNotNull));}
+				    if(createPerson_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.in, createPerson_in));}
+				  										
+						  			            pagelist = dbManager.queryByCondition(EdemaConditionEntity.class,qc,pageno,pagesize);	                      			
+			return pagelist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数
+		 		             	                 				     		 * @param serviceTaskShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,int pageno,int pagesize,Boolean serviceTaskShow) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object serviceTaskId=queryMap.get("serviceTaskId");
+					Object serviceTaskId_gt=queryMap.get("serviceTaskId_gt");
+					Object serviceTaskId_ge=queryMap.get("serviceTaskId_ge");
+					Object serviceTaskId_lt=queryMap.get("serviceTaskId_lt");
+					Object serviceTaskId_le=queryMap.get("serviceTaskId_le");
+					Object serviceTaskId_in=queryMap.get("serviceTaskId_in");
+															  					Object type=queryMap.get("type");
+					Object type_like=queryMap.get("type_like");
+					Object type_isNull=queryMap.get("type_isNull");
+					Object type_isNotNull=queryMap.get("type_isNotNull");
+					Object type_in=queryMap.get("type_in");
+				   															  					Object edemaSite=queryMap.get("edemaSite");
+					Object edemaSite_like=queryMap.get("edemaSite_like");
+					Object edemaSite_isNull=queryMap.get("edemaSite_isNull");
+					Object edemaSite_isNotNull=queryMap.get("edemaSite_isNotNull");
+					Object edemaSite_in=queryMap.get("edemaSite_in");
+				   															  					Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+				  															  					Object createPerson=queryMap.get("createPerson");
+					Object createPerson_like=queryMap.get("createPerson_like");
+					Object createPerson_isNull=queryMap.get("createPerson_isNull");
+					Object createPerson_isNotNull=queryMap.get("createPerson_isNotNull");
+					Object createPerson_in=queryMap.get("createPerson_in");
+				   							
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(EdemaConditionEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.in, id_in));}
+																if(serviceTaskId!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.eq, serviceTaskId));}
+					if(serviceTaskId_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.gt, serviceTaskId_gt));}
+					if(serviceTaskId_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.ge, serviceTaskId_ge));}
+					if(serviceTaskId_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.lt, serviceTaskId_lt));}
+					if(serviceTaskId_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.le, serviceTaskId_le));}
+					if(serviceTaskId_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.in, serviceTaskId_in));}
+															  					if(type!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.eq, type));}
+		            if(type_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.like, type_like));}
+		            if(type_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.isNull, type_isNull));}
+		            if(type_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.isNotNull, type_isNotNull));}
+				    if(type_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.in, type_in));}
+				  															  					if(edemaSite!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.eq, edemaSite));}
+		            if(edemaSite_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.like, edemaSite_like));}
+		            if(edemaSite_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.isNull, edemaSite_isNull));}
+		            if(edemaSite_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.isNotNull, edemaSite_isNotNull));}
+				    if(edemaSite_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.in, edemaSite_in));}
+				  															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  															  					if(createPerson!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.eq, createPerson));}
+		            if(createPerson_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.like, createPerson_like));}
+		            if(createPerson_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.isNull, createPerson_isNull));}
+		            if(createPerson_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.isNotNull, createPerson_isNotNull));}
+				    if(createPerson_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.in, createPerson_in));}
+				  										
+						  						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}		
+            pagelist = dbManager.queryByConditions(EdemaConditionEntity.class,qc,oc,pageno,pagesize);	           
+                                    int a=0;
+            					             	                 				     				     if(serviceTaskShow!=null&&serviceTaskShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		                if(a>0&&pagelist!=null&&pagelist.getResultList()!=null&&pagelist.getResultList().size()>0){
+				List<Object> result = new ArrayList<Object>();
+				for(int i=0;i<pagelist.getResultList().size();i++){
+					EdemaConditionEntity obj = (EdemaConditionEntity)pagelist.getResultList().get(i);
+										 	                 				     				        //查询关联内容
+						if(serviceTaskShow!=null&&serviceTaskShow.booleanValue()&&obj!=null&&obj.getServiceTaskId()!=null&&obj.getServiceTaskId()>0){
+							ServiceTaskEntity serviceTask = (ServiceTaskEntity)dbManager.getById(obj.getServiceTaskId(), ServiceTaskEntity.class);
+							obj.setServiceTask(serviceTask);        	  	  
+						}
+				     				     				     				    					result.add(obj);					
+				}
+				pagelist.setResultList(result);			
+		}	
+					return pagelist;
+		}
+		
+		/**
+		 * 删除记录
+		 * 
+		 * @param id 主键
+		 * @param obj
+		 */
+		public boolean del(Integer id,Boolean delServiceTask) {
+			boolean result = false;
+			if (id !=null&&id>0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 					
+										 	                 				     					    //删除关联信息
+						if(delServiceTask!=null&&delServiceTask.booleanValue()){	
+							EdemaConditionEntity edemaCondition = (EdemaConditionEntity)dbManager.getById(id, EdemaConditionEntity.class);
+							if(edemaCondition!=null&&edemaCondition.getServiceTaskId()!=null){
+								dbManager.delNoTransaction(edemaCondition.getServiceTaskId(), ServiceTaskEntity.class);
+							}						
+						}
+				     				     				     										result = dbManager.delNoTransaction(id, EdemaConditionEntity.class);
+					tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		/**
+		 * 批量删除记录
+		 * 
+		 * @param ids
+		 *            主键 英文逗号间隔
+		 * @param obj
+		 */
+		public boolean del(String ids) {
+			boolean result = false;
+			if (ids != null && !"".equals(ids.trim())) {
+				TransactionManager tx = DbUtils.getTranManager();
+				try {
+					tx.beginTransaction();
+					QueryCondition qc = new QueryCondition(EdemaConditionEntity.ID,QueryCondition.in, ids);
+					result = dbManager.delByConditionsNoTransaction(EdemaConditionEntity.class, qc);
+					tx.commitAndClose();
+				} catch (Exception e) {
+					logger.error("数据库提交失败！");
+					logger.error(e);
+					result = false;
+					try {
+						tx.rollbackAndClose();
+					} catch (Exception ex) {
+						logger.error("数据库回滚失败！");
+						logger.error(ex);
+					}
+				}
+			}
+			return result;
+		}
+
+		/**
+		 * 批量条件删除记录
+		 * @param queryMap 查询条件集合
+		 */
+		public boolean delList(Map<String,Object> queryMap,Boolean delServiceTask) {
+			boolean result = false;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object serviceTaskId=queryMap.get("serviceTaskId");
+					Object serviceTaskId_gt=queryMap.get("serviceTaskId_gt");
+					Object serviceTaskId_ge=queryMap.get("serviceTaskId_ge");
+					Object serviceTaskId_lt=queryMap.get("serviceTaskId_lt");
+					Object serviceTaskId_le=queryMap.get("serviceTaskId_le");
+					Object serviceTaskId_in=queryMap.get("serviceTaskId_in");
+															  					Object type=queryMap.get("type");
+					Object type_like=queryMap.get("type_like");
+					Object type_isNull=queryMap.get("type_isNull");
+					Object type_isNotNull=queryMap.get("type_isNotNull");
+					Object type_in=queryMap.get("type_in");
+				  															  					Object edemaSite=queryMap.get("edemaSite");
+					Object edemaSite_like=queryMap.get("edemaSite_like");
+					Object edemaSite_isNull=queryMap.get("edemaSite_isNull");
+					Object edemaSite_isNotNull=queryMap.get("edemaSite_isNotNull");
+					Object edemaSite_in=queryMap.get("edemaSite_in");
+				  															  					Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+				  															  					Object createPerson=queryMap.get("createPerson");
+					Object createPerson_like=queryMap.get("createPerson_like");
+					Object createPerson_isNull=queryMap.get("createPerson_isNull");
+					Object createPerson_isNotNull=queryMap.get("createPerson_isNotNull");
+					Object createPerson_in=queryMap.get("createPerson_in");
+				  																				
+			QueryCondition qc = new QueryCondition(EdemaConditionEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.ID, QueryCondition.in, id_in));}
+																if(serviceTaskId!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.eq, serviceTaskId));}
+					if(serviceTaskId_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.gt, serviceTaskId_gt));}
+					if(serviceTaskId_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.ge, serviceTaskId_ge));}
+					if(serviceTaskId_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.lt, serviceTaskId_lt));}
+					if(serviceTaskId_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.le, serviceTaskId_le));}
+					if(serviceTaskId_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.SERVICE_TASK_ID, QueryCondition.in, serviceTaskId_in));}
+															  					if(type!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.eq, type));}
+		            if(type_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.like, type_like));}
+		            if(type_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.isNull, type_isNull));}
+		            if(type_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.isNotNull, type_isNotNull));}
+				    if(type_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.TYPE, QueryCondition.in, type_in));}
+				  															  					if(edemaSite!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.eq, edemaSite));}
+		            if(edemaSite_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.like, edemaSite_like));}
+		            if(edemaSite_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.isNull, edemaSite_isNull));}
+		            if(edemaSite_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.isNotNull, edemaSite_isNotNull));}
+				    if(edemaSite_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.EDEMA_SITE, QueryCondition.in, edemaSite_in));}
+				  															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  															  					if(createPerson!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.eq, createPerson));}
+		            if(createPerson_like!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.like, createPerson_like));}
+		            if(createPerson_isNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.isNull, createPerson_isNull));}
+		            if(createPerson_isNotNull!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.isNotNull, createPerson_isNotNull));}
+				    if(createPerson_in!=null){qc.andCondition(new QueryCondition(EdemaConditionEntity.CREATE_PERSON, QueryCondition.in, createPerson_in));}
+				  										
+				            						if (qc.getQueryNextCondition()!=null) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 						
+										 	                 				     					     //删除关联信息
+						if(delServiceTask!=null&&delServiceTask.booleanValue()){
+							List<Object> list=dbManager.queryByConditionNoTransaction(EdemaConditionEntity.class,qc);
+							String strIds="";
+							if(list!=null&&list.size()>0){
+								for(Object obj:list){
+									EdemaConditionEntity entity=(EdemaConditionEntity)obj;
+									strIds += entity.getServiceTaskId()+",";
+								}
+								strIds = strIds.substring(0, strIds.length()-1);
+							}
+							if(strIds!=null&&!"".equals(strIds)){
+								QueryCondition qc1 = new QueryCondition(ServiceTaskEntity.ID, QueryCondition.in, strIds);
+								dbManager.delByConditionsNoTransaction(ServiceTaskEntity.class, qc1);
+							}
+							
+						}
+				     				     				     										result = dbManager.delByConditionsNoTransaction(EdemaConditionEntity.class,qc);				
+					tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		
+}

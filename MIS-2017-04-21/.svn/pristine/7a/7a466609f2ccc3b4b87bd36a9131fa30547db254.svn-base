@@ -1,0 +1,182 @@
+package fsk.thread;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
+import weixin.servlet.pushMessage;
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.medNotice.MedNoticeEntity;
+import fsk.entity.medPlan.MedPlanEntity;
+import fsk.entity.older.OlderEntity;
+import fsk.entity.olderWechat.OlderWechatEntity;
+import fsk.entity.wechat.WechatEntity;
+import fsk.init.SystemInit;
+import fsk.service.BusinessService;
+import fsk.service.employee.EmployeeService;
+import fsk.service.medNotice.MedNoticeService;
+import fsk.service.medPlan.MedPlanService;
+import fsk.service.older.OlderService;
+import fsk.service.olderWechat.OlderWechatService;
+import fsk.service.wechat.WechatService;
+
+public class MedNoticeThread extends Thread {
+	private static Logger logger = Logger.getLogger(MedNoticeThread.class);
+	private static SimpleDateFormat formater = new SimpleDateFormat("yyyyMMddHHmmss");
+	private static BusinessService systemService = BusinessService.getInstance();
+	private static MedPlanService medPlanService = MedPlanService.getInstance();
+	private static MedNoticeService medNoticeService = MedNoticeService.getInstance();
+	private static OlderWechatService olderWechatService = OlderWechatService.getInstance();
+	private static WechatService wechatService = WechatService.getInstance();
+	private static OlderService olderService = OlderService.getInstance();
+	private static EmployeeService employeeService = EmployeeService.getInstance();
+
+	public void run() {
+		//休眠30秒，减小系统重启时的cpu开支
+		try {
+			Thread.sleep(30 * 1000);
+		} catch (InterruptedException e1) {
+			logger.debug(e1);
+		}
+		while (true) {
+			try {
+				Thread.sleep(60 * 1000);
+				logger.debug("开始进行服药提醒推送......");
+				// 查询条件的两个节点
+				String lastTime = (String) SystemInit.lastQueryMedTimeMap.get("lastTime");
+				String curTime = formater.format(new Date());
+				if (lastTime == null) {
+					lastTime = getOneMinTime();
+				}
+				systemService.setCache(curTime);
+				Map<String, Object> noticeMap = new HashMap<String, Object>();// 提醒信息存入map中
+				String medPlanIds = "";
+				Map<String, Object> queryMedPlan = new HashMap<String, Object>();// 查询条件为状态有效且当前时期处于服药日期区间内的
+				queryMedPlan.put("status", 1);
+				queryMedPlan.put("startime_le", curTime.substring(0, 8));
+				queryMedPlan.put("endtime_ge", curTime.substring(0, 8));
+				List<MedPlanEntity> medPlanList = medPlanService.getListByCondition(queryMedPlan);
+				if (medPlanList != null && medPlanList.size() > 0) {
+					for (MedPlanEntity medPlan : medPlanList) {
+						medPlanIds = medPlanIds + medPlan.getId() + ",";
+						// 是否进行微信号和员工推送fangrumap中,存入格式为noticeWechat_1/noticeemployee_1=Y/N
+						String noticeWechat = medPlan.getNoticeWechat();
+						String noticeemployee = medPlan.getNoticeEmployee();
+						noticeMap.put("noticeWechat_" + medPlan.getId(), noticeWechat);
+						noticeMap.put("noticeemployee_" + medPlan.getId(), noticeemployee);
+					}
+				}
+				if (!"".equals(medPlanIds)) {
+					medPlanIds = medPlanIds.replaceAll(",,", ",");
+					medPlanIds = medPlanIds.substring(0, medPlanIds.length() - 1);
+					// 根据服药计划的id查询服药提醒表
+					Map<String, Object> queryMedNotice = new HashMap<String, Object>();
+					queryMedNotice.put("medPlanId_in", medPlanIds);
+					List<MedNoticeEntity> medNoticeList = medNoticeService.getListByCondition(queryMedNotice);
+					// 遍历查询结果,将服药时间与当前查询时间节点比较,
+					if (medNoticeList != null && medNoticeList.size() > 0) {
+						for (MedNoticeEntity medNotice : medNoticeList) {
+							Integer startTime = Integer.parseInt(lastTime.substring(8, 12));
+							Integer endTime = Integer.parseInt(curTime.substring(8, 12));
+							if (medNotice.getNoticeTime() != null) {
+								Integer noticeTime = Integer.parseInt(medNotice.getNoticeTime());
+								if (noticeTime > startTime && noticeTime <= endTime) {
+									// 查到老人的信息
+									Integer medPlanId = medNotice.getMedPlanId();
+									MedPlanEntity medPlan = medPlanService.getById(medPlanId);
+									Integer olderId = medPlan.getOlderId();
+									OlderEntity older = olderService.getById(olderId);
+									// 发送给老人
+									String keyniticeWechat = "noticeWechat_" + medNotice.getMedPlanId();
+									if (noticeMap.get(keyniticeWechat) != null) {
+										String weChatIds = "";//
+										String noticeWechat = (String) noticeMap.get(keyniticeWechat);
+										if ("Y".equals(noticeWechat)) {
+											String olderName = null;
+											if (older != null) {
+												olderName = older.getName();
+											}
+											Map<String, Object> mapolderWechat = new HashMap<String, Object>();
+											mapolderWechat.put("olderId", olderId);
+											List<OlderWechatEntity> olderWechaList = olderWechatService.getListByCondition(mapolderWechat);
+											if (olderWechaList != null && olderWechaList.size() > 0) {
+												for (OlderWechatEntity olderWechat : olderWechaList) {
+													weChatIds = weChatIds + olderWechat.getWechatId() + ",";
+												}
+												if (!"".equals(weChatIds)) {
+													weChatIds = weChatIds.replaceAll(",,", ",");
+													weChatIds = weChatIds.substring(0, weChatIds.length() - 1);
+												}
+											}
+											if (!"".equals(weChatIds)) {
+												Map<String, Object> queryWechat = new HashMap<String, Object>();
+												queryWechat.put("id_in", weChatIds);
+												List<WechatEntity> wechatList = wechatService.getListByCondition(queryWechat);
+												if (wechatList != null && wechatList.size() > 0) {
+													for (WechatEntity wechat : wechatList) {
+														String openidPush = wechat.getOpenid();
+														String nickNamePush = wechat.getNickname();
+														String contentPush = medNotice.getNoticeContent();
+														if (openidPush != null && nickNamePush != null && olderName != null && olderId != null
+																&& contentPush != null) {
+															pushMessage.sendMedicationReminders(openidPush, nickNamePush, olderId, olderName, contentPush);
+															logger.debug("服药提醒微信号推送内容: " + "openidPush:" + openidPush + " nickNamePush:" + nickNamePush
+																	+ " olderName:" + olderName + " olderId:" + olderId + " contentPush:" + contentPush);
+														}
+													}
+												}
+											}
+										}
+									}
+									// 发送关联护理员
+									String keyNoticeEmp = "noticeemployee_" + medNotice.getMedPlanId();
+									if (noticeMap.get(keyNoticeEmp) != null) {
+										String noticeEmp = (String) noticeMap.get(keyNoticeEmp);
+										if ("Y".equals(noticeEmp)) {
+											if (older != null) {
+												Integer empId = older.getNurseEmployeeId();
+												if (empId != null) {
+													EmployeeEntity employee = employeeService.getById(empId);
+													if (employee != null) {
+														String openIdPush = employee.getWechatOpenid();
+														String nickNamePueh = employee.getWechatName();
+														String olderName = older.getName();
+														String contentPush = medNotice.getNoticeContent();
+														if (openIdPush != null && nickNamePueh != null && olderName != null && olderId != null
+																&& contentPush != null) {
+															pushMessage.sendMedicationReminders(openIdPush, nickNamePueh, olderId, olderName, contentPush);
+															logger.debug("服药提醒护理员推送内容: " + "openidPush:" + openIdPush + " nickNamePush:" + nickNamePueh
+																	+ " olderName:" + olderName + " olderId:" + olderId + " contentPush:" + contentPush);
+														}
+													}
+												}
+											}
+
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			} catch (Exception e) {
+			}
+		}
+	}
+/**
+ * 返回一分钟之前的时间
+ * @return
+ */
+	private String getOneMinTime() {
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) - 1);
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+		String time = df.format(calendar.getTime());
+		return time;
+	}
+}

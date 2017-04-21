@@ -1,0 +1,106 @@
+/*     */ package fsk.entity.vo.gateway;
+/*     */ 
+/*     */ public class FQuickAlarm
+/*     */ {
+/*     */   private String id;
+/*     */   private String time;
+/*     */   private String status;
+/*     */   private String type;
+/*     */   private String start;
+/*     */   private String end;
+/*     */   private String yz;
+/*     */   private String normal;
+/*     */   private String voltage;
+/*     */   private String offline;
+/*     */   private String alarm;
+/*     */   private String mode;
+/*     */ 
+/*     */   public String getAlarm()
+/*     */   {
+/*  37 */     return this.alarm;
+/*     */   }
+/*     */ 
+/*     */   public void setAlarm(String alarm) {
+/*  41 */     this.alarm = alarm;
+/*     */   }
+/*     */ 
+/*     */   public String getMode() {
+/*  45 */     return this.mode;
+/*     */   }
+/*     */ 
+/*     */   public void setMode(String mode) {
+/*  49 */     this.mode = mode;
+/*     */   }
+/*     */ 
+/*     */   public String getNormal() {
+/*  53 */     return this.normal;
+/*     */   }
+/*     */ 
+/*     */   public void setNormal(String normal) {
+/*  57 */     this.normal = normal;
+/*     */   }
+/*     */ 
+/*     */   public String getVoltage() {
+/*  61 */     return this.voltage;
+/*     */   }
+/*     */ 
+/*     */   public void setVoltage(String voltage) {
+/*  65 */     this.voltage = voltage;
+/*     */   }
+/*     */ 
+/*     */   public String getOffline() {
+/*  69 */     return this.offline;
+/*     */   }
+/*     */ 
+/*     */   public void setOffline(String offline) {
+/*  73 */     this.offline = offline;
+/*     */   }
+/*     */ 
+/*     */   public String getId() {
+/*  77 */     return this.id;
+/*     */   }
+/*     */   public void setId(String id) {
+/*  80 */     this.id = id;
+/*     */   }
+/*     */   public String getTime() {
+/*  83 */     return this.time;
+/*     */   }
+/*     */   public void setTime(String time) {
+/*  86 */     this.time = time;
+/*     */   }
+/*     */   public String getStatus() {
+/*  89 */     return this.status;
+/*     */   }
+/*     */   public void setStatus(String status) {
+/*  92 */     this.status = status;
+/*     */   }
+/*     */   public String getType() {
+/*  95 */     return this.type;
+/*     */   }
+/*     */   public void setType(String type) {
+/*  98 */     this.type = type;
+/*     */   }
+/*     */   public String getStart() {
+/* 101 */     return this.start;
+/*     */   }
+/*     */   public void setStart(String start) {
+/* 104 */     this.start = start;
+/*     */   }
+/*     */   public String getEnd() {
+/* 107 */     return this.end;
+/*     */   }
+/*     */   public void setEnd(String end) {
+/* 110 */     this.end = end;
+/*     */   }
+/*     */   public String getYz() {
+/* 113 */     return this.yz;
+/*     */   }
+/*     */   public void setYz(String yz) {
+/* 116 */     this.yz = yz;
+/*     */   }
+/*     */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.entity.vo.gateway.FQuickAlarm
+ * JD-Core Version:    0.6.1
+ */

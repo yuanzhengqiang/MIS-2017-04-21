@@ -1,0 +1,171 @@
+package fsk.handler.olderWechat;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.db.query.OrderVO;
+
+import fsk.entity.older.OlderEntity;
+import fsk.entity.olderWechat.OlderWechatEntity;
+import fsk.pack.olderWechat.OlderWechatPack;
+import fsk.parse.olderWechat.OlderWechatParse;
+import fsk.service.older.OlderService;
+import fsk.service.olderWechat.OlderWechatService;
+
+/**
+ * @Title: Handler
+ * @Description: 老人微信关联表业务处理器
+ * @author feng.gu
+ * @date 2016-09-08 13:47:47
+ * @version V1.0
+ * 
+ */
+public class OlderWechatHandler extends BaseHandler {
+	private static Logger logger = Logger.getLogger(OlderWechatService.class);
+	/**
+	 * 解析器
+	 */
+	private OlderWechatParse olderWechatParse = OlderWechatParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private OlderWechatService olderWechatService = OlderWechatService.getInstance();
+	private static OlderService olderService = OlderService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private OlderWechatPack olderWechatPack = OlderWechatPack.getInstance();
+
+	private static OlderWechatHandler olderWechatHandler;
+
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static OlderWechatHandler getInstance() {
+		if (olderWechatHandler == null) {
+			olderWechatHandler = new OlderWechatHandler();
+		}
+		return olderWechatHandler;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type, String command, String reqStr, HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("请求消息：" + reqStr);
+		String resultStr = "";
+		try {
+			logger.debug("请求消息：" + reqStr.toString());
+			// 解析
+			Map<String, Object> parseMap = olderWechatParse.parse(type, command, reqStr, request);
+			String action = (String) parseMap.get("action");
+			OlderWechatEntity olderWechat = (OlderWechatEntity) parseMap.get("olderWechat");
+			List<OlderWechatEntity> olderWechatList = (List<OlderWechatEntity>) parseMap.get("olderWechatList");
+			Integer id = (Integer) parseMap.get("id");
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+
+			Boolean olderShow = (Boolean) parseMap.get("olderShow");
+			Boolean delOlder = (Boolean) parseMap.get("delOlder");
+			Boolean wechatShow = (Boolean) parseMap.get("wechatShow");
+			Boolean delWechat = (Boolean) parseMap.get("delWechat");
+			// 条件查询
+			JSONObject reqStrjson = JSONObject.fromObject(reqStr);
+			JSONObject conjson = (JSONObject) reqStrjson.get("content");
+			String older_name = (String) conjson.get("older_name");
+			String older_num = (String) conjson.get("older_num");
+			// 业务处理
+			Object result = null;
+			if ("save".equals(action)) {
+				result = olderWechatService.save(olderWechat);
+			} else if ("saveList".equals(action)) {
+				result = olderWechatService.saveList(olderWechatList);
+			} else if ("getById".equals(action)) {
+				result = olderWechatService.getById(id, olderShow, wechatShow);
+			} else if ("getListByCondition".equals(action)) {
+				// 根据数据权限 增加查询条件
+				if (older_name != null || older_num != null) {
+					Map<String, Object> queryOlder = new HashMap<String, Object>();
+					if (older_name != null) {
+						queryOlder.put("name", older_name);
+					}
+					if (older_num != null) {
+						queryOlder.put("memberNum", older_num);
+					}
+					List<OlderEntity> olderList = olderService.getListByCondition(queryOlder);
+					if (olderList != null && olderList.size() > 0) {
+						OlderEntity older = olderList.get(0);
+						Integer olderId = older.getId();
+						queryMap.put("olderId", olderId);
+					} else {
+						queryMap.put("olderId", 0);
+					}
+
+				}
+				queryMap = systemService.addDataRuleByRoles("OlderWechatEntity", queryMap, request);
+				result = olderWechatService.getListByCondition(queryMap, orderList, pageno, pagesize, olderShow, wechatShow);
+			} else if ("del".equals(action)) {
+				result = olderWechatService.del(id, delOlder, delWechat);
+			} else if ("delList".equals(action)) {
+				result = olderWechatService.delList(queryMap, delOlder, delWechat);
+			}
+			// 封装
+			Map<String, Object> packMap = olderWechatPack.pack(type, action, result, olderWechat);
+			String actionBack = (String) packMap.get("action");
+			String resultBack = (String) packMap.get("result");
+			String desBack = (String) packMap.get("des");
+			JSONObject pageBack = (JSONObject) packMap.get("page");
+			JSONObject contentBack = (JSONObject) packMap.get("content");
+
+			JSONObject repJson = new JSONObject();
+			if (actionBack != null && !"".equals(actionBack)) {
+				repJson.put("action", actionBack);
+			}
+			if (resultBack != null && !"".equals(resultBack)) {
+				repJson.put("result", resultBack);
+			}
+			if (desBack != null && !"".equals(desBack)) {
+				repJson.put("des", desBack);
+			}
+			if (pageBack != null) {
+				repJson.put("page", pageBack);
+			}
+			if (contentBack != null && !"".equals(contentBack)) {
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息：" + repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

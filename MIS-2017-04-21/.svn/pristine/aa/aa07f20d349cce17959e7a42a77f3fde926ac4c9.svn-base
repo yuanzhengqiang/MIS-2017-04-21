@@ -1,0 +1,809 @@
+package com.framework.system.common.controller.dataDic;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.framework.system.code.po.Columnt;
+import com.framework.system.code.po.EntityInfo;
+import com.framework.system.code.po.RelationInfo;
+import fsk.util.FileUtil;
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import com.framework.system.common.entity.json.AjaxJson;
+import com.framework.system.common.entity.module.ModuleEntity;
+import com.framework.system.common.handler.dataDic.DataDicHandler;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.common.service.dataDic.DataDicService;
+import com.framework.system.util.JsonUtil;
+
+import fsk.init.SystemInit;
+
+@RequestMapping("/systemDataDic")
+@Controller
+public class DataDicController {
+	private static Logger logger = Logger.getLogger(DataDicController.class);
+	/**
+	 * 处理器
+	 */
+	private DataDicHandler dataDicHandler = DataDicHandler.getInstance();
+	/**
+	 * 服务类
+	 */
+	private DataDicService dataDicService = DataDicService.getInstance();
+
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	private static SimpleDateFormat formater = new SimpleDateFormat(
+			"yyyyMMddHHmmss");
+	
+	/**
+	 * 列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/system/dataDic/DataDicList");
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService
+					.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService
+						.getHTMLModulesByRoleIdsAndModuleId(roleIds,
+								htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		return mav;
+	}
+	
+	/**
+	 * 区域管理列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main_regional")
+	public ModelAndView center_regional(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/system/dataDic/regionalManagement");
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService
+					.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService
+						.getHTMLModulesByRoleIdsAndModuleId(roleIds,
+								htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		return mav;
+	}
+	
+	/**
+	 * 职称管理列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main_title")
+	public ModelAndView center_title(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/system/dataDic/titleManagement");
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService
+					.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService
+						.getHTMLModulesByRoleIdsAndModuleId(roleIds,
+								htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		return mav;
+	}
+	
+	/**
+	 * 部门管理列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main_department")
+	public ModelAndView center_department(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/system/dataDic/departmentManagement");
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService
+					.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService
+						.getHTMLModulesByRoleIdsAndModuleId(roleIds,
+								htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		return mav;
+	}
+	
+	/**
+	 * 服务项目类别管理列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main_serviceIC")
+	public ModelAndView center_serviceIC(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/system/dataDic/serviceICManagement");
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService
+					.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService
+						.getHTMLModulesByRoleIdsAndModuleId(roleIds,
+								htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		return mav;
+	}
+	
+	/**
+	 * 体检检测项目管理列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main_physicalExaminationProject")
+	public ModelAndView center_physicalExaminationProject(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/system/dataDic/physicalExaminationProjectManagement");
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService
+					.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService
+						.getHTMLModulesByRoleIdsAndModuleId(roleIds,
+								htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		return mav;
+	}
+	
+	/**
+	 * 批量删除 ids英文逗号间隔
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "del")
+	@ResponseBody
+	public AjaxJson del(HttpServletRequest request) {
+		AjaxJson j = new AjaxJson();
+		String result = "failure";
+		String des = "删除失败";
+		String ids = request.getParameter("ids");
+		if (ids != null && !"".equals(ids)) {
+			boolean falg = dataDicService.del(ids);
+			
+			boolean ifscjs = false;
+			if(falg){
+				try {			
+					DataDicService dataDicService = DataDicService.getInstance();			
+					Map<String, Object> queryMap = new HashMap<String, Object>();
+					List<Object> vList = dataDicService.getListByCondition(queryMap);					
+					createTemplate(vList);
+					ifscjs = true;
+				} catch (Exception e) {
+					ifscjs = false;
+					logger.error(e.toString());
+				}
+			}
+		
+			if(falg && ifscjs){
+				result = "success";
+				des = "删除成功";
+			}else if(!falg){
+				result = "failure";
+				des = "删除失败";
+			}else if(falg && !ifscjs){
+				result = "failure";
+				des = "删除成功,生成新js失败，请手动重新生成";
+			}
+		}
+		j.setResult(result);
+		j.setDes(des);
+		return j;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handler")
+	@ResponseBody
+	public String query(HttpServletRequest request, HttpServletResponse response) {
+		String msg = "";
+		try {
+			String reqmsg = request.getParameter("reqmsg");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return msg;
+			}
+			String action = (String) reqParams.get("action");
+			String rep = dataDicHandler.doHandler(1, action, reqmsg, request,
+					response);
+			msg = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+		
+		return msg;
+	}
+
+	// 根据parentID查找上级名称
+	@RequestMapping(params = "dealHierarchy")
+	@ResponseBody
+	public String dealHierarchy(int parentId) {
+		int i = parentId;
+		int ceng = 1;// 层级
+		String cengName = "";// 上级名称
+		String ids = "";
+		while (true) {
+			Map<String, Object> queryMap = new HashMap<String, Object>();
+			queryMap.put("id", i);
+			List<Object> vList = dataDicService.getListByCondition(queryMap);
+			if (vList != null && vList.size() > 0) {
+				for (Object obj : vList) {
+					DataDicEntity devInfo = (DataDicEntity) obj;
+					if (devInfo != null) {
+						i = devInfo.getParentId();
+						ids = i + "," + ids;
+						ids = ids.replaceAll(",,", ",");
+						ceng++;
+						cengName = devInfo.getName() + "-" + cengName;
+					} else {
+						i = 0;
+					}
+				}
+			} else {
+				i = 0;
+			}
+			if (i == 0) {
+				break;
+			}
+		}
+		if (ids != "") {// 0, 0,1,
+			if (ids.substring(0, 1).equals("0")) {
+				ids = ids.substring(2, ids.length());
+			}
+			ids = ids + parentId;
+		}
+		if (cengName == "") {
+			cengName = "无";
+		} else {
+			cengName = cengName.substring(0, cengName.length() - 1);
+		}
+		JSONObject jsonResult = new JSONObject();
+		jsonResult.put("ceng", ceng + "");
+		jsonResult.put("cengName", cengName);
+		jsonResult.put("ids", ids);
+		String json2return = jsonResult.toString();
+
+		try {
+			json2return = new String(json2return.getBytes("utf-8"),
+					"iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+
+		}
+		return json2return;
+	}
+	// 根据parentID查找上级名称
+	@RequestMapping(params = "queryDisease")
+	@ResponseBody
+	public String queryDisease(String disease) {
+		JSONObject jsonname = new JSONObject();
+		String diseasename = "";
+		try {
+			if("manxingbing".equals(disease)){
+				Map<String, Object> queryDic = new HashMap<String, Object>();
+				queryDic.put("name", "慢性病");
+				List<Object> dicList= dataDicService.getListByCondition(queryDic);
+				if(dicList!=null && dicList.size()>0){
+					DataDicEntity dataDic = (DataDicEntity)dicList.get(0);
+					Integer parentId = dataDic.getId();
+					Map<String, Object> queryMap = new HashMap<String, Object>();
+					queryMap.put("parentId", parentId);
+					List<Object> diseaseList= dataDicService.getListByCondition(queryMap);
+					if(diseaseList!=null && diseaseList.size()>0){
+						for(Object obj:diseaseList){
+							DataDicEntity diseaseName = (DataDicEntity)obj;
+							diseasename = diseasename+diseaseName.getName()+",";
+						}
+					}
+					if(!"".equals(diseasename)){
+						diseasename = diseasename.replaceAll(",,", ",");
+						diseasename = diseasename.substring(0, diseasename.length()-1);
+					}
+				}
+			}
+			jsonname.put("result", "100");
+			jsonname.put("des", "success");
+			jsonname.put("disease", diseasename);
+		} catch (Exception e) {
+			jsonname.put("result", "200");
+			jsonname.put("des", "failure");
+		}
+		String rep = jsonname.toString();
+		try {
+			rep = new String(rep.getBytes("utf-8"),
+					"iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return rep;
+		
+	}
+	// 根据ID删除信息以及下面子节点
+	@RequestMapping(params = "deletHierarchy")
+	@ResponseBody
+	public String deletHierarchy(int moduleId) {
+		String IDS = moduleId + ",";// 所有需要删除的ID
+		String i = moduleId + "";
+		while (true) {
+			Map<String, Object> queryMap = new HashMap<String, Object>();
+			queryMap.put("parentId_in", i);
+			List<Object> vList = dataDicService.getListByCondition(queryMap);
+			i = "";
+			if (vList != null && vList.size() > 0) {
+				for (Object obj : vList) {
+					DataDicEntity devInfo = (DataDicEntity) obj;
+					if (devInfo != null) {
+						i = i + devInfo.getId() + ",";
+						IDS = IDS + i + ",";
+						i = i.replaceAll(",,", ",");
+						IDS = IDS.replaceAll(",,", ",");
+					} else {
+						break;
+					}
+				}
+				if (i.length() > 0) {
+					i = i.substring(0, i.length() - 1);
+				}
+			} else {
+				break;
+			}
+		}
+		IDS = IDS.substring(0, IDS.length() - 1);
+		boolean ifDelete = dataDicService.del(IDS);
+		
+		boolean ifscjs = false;
+		if(ifDelete){
+			try {			
+				DataDicService dataDicService = DataDicService.getInstance();			
+				Map<String, Object> queryMap = new HashMap<String, Object>();
+				List<Object> vList = dataDicService.getListByCondition(queryMap);					
+				createTemplate(vList);	
+				ifscjs = true;
+			} catch (Exception e) {
+				ifscjs = false;
+				logger.error(e.toString());
+			}
+		}
+		
+		JSONObject jsonResult = new JSONObject();
+		if(ifDelete && ifscjs){
+			jsonResult.put("result", "success");
+			jsonResult.put("des", "删除成功");
+		}else if(!ifDelete){
+			jsonResult.put("result", "failure");
+			jsonResult.put("des", "删除失败");
+		}else if(ifDelete && !ifscjs){
+			jsonResult.put("result", "failure");
+			jsonResult.put("des", "删除成功,生成新js失败，请手动重新生成");
+		}
+		
+		String json2return = jsonResult.toString();
+
+		try {
+			json2return = new String(json2return.getBytes("utf-8"),
+					"iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+
+		}
+		return json2return;
+	}
+
+	// 保存新增和编辑
+	@RequestMapping(params = "saveEdit")
+	@ResponseBody
+	public String saveEdit(HttpServletRequest request, int id, String name,
+			String des,String code, String addOrEdit) {
+		DataDicEntity entity = null;
+		// 保存时间和用户
+//		String time = editTime.replaceAll("-", "");
+//		time = time.replaceAll(":", "");
+//		time = time.replaceAll(" ", "");
+		Date date = new Date();
+		String time = formater.format(date);
+		Integer userId = (Integer) request.getSession().getAttribute("userId");
+
+		if (addOrEdit.equals("0")) {// 新增
+			entity = new DataDicEntity();
+			entity.setName(name);
+			entity.setDes(des);
+			entity.setCode(code);
+			entity.setParentId(id);
+			entity.setCreateTime(time);
+			entity.setCreateUserId(userId);
+			entity.setUpdateTime(time);
+			entity.setUpdateUserId(userId);
+		} else {// 编辑
+			Map<String, Object> queryMap = new HashMap<String, Object>();
+			queryMap.put("id", id);
+			List<Object> vList = dataDicService.getListByCondition(queryMap);
+			if (vList != null && vList.size() > 0) {
+				for (Object obj : vList) {
+					entity = (DataDicEntity) obj;
+				}
+			}
+			entity.setId(id);
+			entity.setName(name);
+			entity.setDes(des);
+			entity.setCode(code);
+			entity.setUpdateTime(time);
+			entity.setUpdateUserId(userId);
+		}
+
+		boolean ifSave = dataDicService.save(entity);
+		
+		boolean ifscjs = false;
+		if(ifSave){
+			try {			
+				DataDicService dataDicService = DataDicService.getInstance();			
+				Map<String, Object> queryMap = new HashMap<String, Object>();
+				List<Object> vList = dataDicService.getListByCondition(queryMap);					
+				createTemplate(vList);	
+				ifscjs = true;
+			} catch (Exception e) {
+				ifscjs = false;
+				logger.error(e.toString());
+			}
+		}
+		
+		JSONObject jsonResult = new JSONObject();
+		if(ifSave && ifscjs){
+			jsonResult.put("result", "success");
+			jsonResult.put("des", "保存成功");
+		}else if(!ifSave){
+			jsonResult.put("result", "failure");
+			jsonResult.put("des", "保存失败");
+		}else if(ifSave && !ifscjs){
+			jsonResult.put("result", "failure");
+			jsonResult.put("des", "保存成功,生成新js失败，请手动重新生成");
+		}
+		
+		String json2return = jsonResult.toString();
+
+		try {
+			json2return = new String(json2return.getBytes("utf-8"),
+					"iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+
+		}
+		return json2return;
+	}
+
+	// 根据ID查找子节点ID
+	@RequestMapping(params = "querySonId")
+	@ResponseBody
+	public String querySonId(int parentId) {
+		Map<String, Object> queryMap = new HashMap<String, Object>();
+		queryMap.put("parentId", parentId);
+		List<Object> vList = dataDicService.getListByCondition(queryMap);
+		String id = "";
+		if (vList != null && vList.size() > 0) {
+			for (Object obj : vList) {
+				DataDicEntity devInfo = (DataDicEntity) obj;
+				if (devInfo != null) {
+					id = id + devInfo.getId() + ",";
+					id = id.replaceAll(",,", ",");
+				}
+			}
+			if (id.length() > 0) {
+				id = id.substring(0, id.length() - 1);
+			}
+		} else {
+			id = "无";
+		}
+
+		JSONObject jsonResult = new JSONObject();
+		jsonResult.put("id", id);
+
+		String json2return = jsonResult.toString();
+
+		try {
+			json2return = new String(json2return.getBytes("utf-8"),
+					"iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+
+		}
+		return json2return;
+	}
+	/**
+	 * 消息体格式请求处理
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handlercontent")
+	public void queryApp(HttpServletRequest request,HttpServletResponse response) {
+		try {			
+			InputStream is = request.getInputStream();
+  	        byte[] bis = IOUtils.toByteArray(is);
+  	        String reqmsg = new String(bis, "UTF-8"); 	     
+		    Map reqParams = JsonUtil.getMap4Json(reqmsg);
+		    if (reqParams == null) {
+		      return;
+		    }
+		    String action = (String)reqParams.get("action");
+		    String rep = dataDicHandler.doHandler(1, action, reqmsg, request, response);
+		    OutputStream os = response.getOutputStream();
+		    os.write(rep.toString().getBytes("UTF-8"));
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}	
+	}
+	
+	/**
+	 * 自动生成js
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "createJS")
+	@ResponseBody
+	public String createJS() {	
+		JSONObject jsonResult = new JSONObject();
+		
+		try {			
+			DataDicService dataDicService = DataDicService.getInstance();			
+			Map<String, Object> queryMap = new HashMap<String, Object>();
+			List<Object> vList = dataDicService.getListByCondition(queryMap);					
+			createTemplate(vList);	
+			jsonResult.put("result", "success");
+			jsonResult.put("des", "生成成功");
+		} catch (Exception e) {
+			jsonResult.put("result", "failure");
+			jsonResult.put("des", "生成失败");
+			logger.error(e.toString());
+		}	
+		
+		String json2return = jsonResult.toString();
+		try {
+			json2return = new String(json2return.getBytes("utf-8"),
+					"iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+
+		}
+		
+		return json2return;
+	}
+	
+	private void createTemplate(List<Object> vList){	
+		try {
+			String funString="";
+			String enter ="\n";
+			// 用来存放生成消息体
+			funString += "var addressList = new Array(";
+			
+			if (vList != null && vList.size() > 0) {
+				for (Object obj : vList) {
+					DataDicEntity devInfo = (DataDicEntity) obj;
+					if (devInfo != null) {
+						funString +="{\"id\":"+devInfo.getId()+",\"name\":\""+devInfo.getName()+"\",\"parent\":"+devInfo.getParentId()+"},";
+					}
+				}
+			}
+			funString=funString.substring(0,funString.length()-1);
+			// {"id":1,"name":"北京市","parent":0},
+			// {"id":35,"name":"北京市","parent":1},
+			// {"id":36,"name":"大兴区","parent":35},
+
+			funString += ");"+enter;
+
+			funString +="/**"+enter;
+			funString +="* 根据位置id获取位置名称"+enter;
+			funString +="* @param id 位置id"+enter;
+			funString +="* @return 位置的名称"+enter;
+			funString +="*/"+enter;
+
+			funString +="function getNameById(id) {"+enter;
+			funString +="var name = \"\";"+enter;
+			funString +="for (var i = 0; i < addressList.length ; i++) {"+enter;
+			funString +="if (addressList[i].id == id) {"+enter;
+			funString +="name = addressList[i].name;"+enter;
+			funString +="break;"+enter;
+			funString +="}"+enter;
+			funString +="}"+enter;
+			funString +="return name;"+enter;
+			funString +="}"+enter;
+
+			funString +="/**"+enter;
+			funString +="* 根据位置名称获取位置id"+enter;
+			funString +="* @param name 位置名称"+enter;
+			funString +="* @return 位置id"+enter;
+			funString +="*/"+enter;
+
+			funString +="function getIdByName(name) {"+enter;
+			funString +="var id = 0;"+enter;
+			funString +="for (var i = 0; i < addressList.length ; i++) {"+enter;
+			funString +="if (addressList[i].name == name) {"+enter;
+			funString +="id = addressList[i].id;"+enter;
+			funString +="break;"+enter;
+			funString +="}"+enter;
+			funString +="}"+enter;
+			funString +="return id;"+enter;
+			funString +="}"+enter;
+			
+			funString +="/**"+enter;
+			funString +="* 根据父节点的id获取子节点列表"+enter;
+			funString +="* @param parentId 父节点的ID"+enter;
+			funString +="* @return 子节点列表"+enter;
+			funString +="*/"+enter;
+
+			funString +="function getAddresses(parentId) {"+enter;
+			funString +="var result = new Array();"+enter;
+			funString +="for (var i = 0; i < addressList.length ; i++) {"+enter;
+			funString +="if (addressList[i].parent == parentId) {"+enter;
+			funString +="result.push(addressList[i]);"+enter;
+			funString +="}"+enter;
+			funString +="}"+enter;
+			funString +="return result;"+enter;
+			funString +="}"+enter;
+			
+			funString +="/**"+enter;
+			funString +="* 根据子节点的id获取父节点id"+enter;
+			funString +="* @param sonId 子节点的ID"+enter;
+			funString +="* @return 父节点id"+enter;
+			funString +="*/"+enter;
+
+			funString +="function getFatherIdBySonId(sonId) {"+enter;
+			funString +="var id = 0;"+enter;
+			funString +="for ( var i = 0; i < addressList.length; i++) {"+enter;
+			funString +="if (addressList[i].id == sonId) {"+enter;
+			funString +="id = addressList[i].parent;"+enter;
+			funString +="break;"+enter;
+			funString +="}"+enter;
+			funString +="}"+enter;
+			funString +="return id;"+enter;
+			funString +="}"+enter;
+			
+			//写入文件
+			String path = SystemInit.class.getResource("SystemInit.class")
+					.toString();
+			String separator = FileUtil.getFileSeparator();
+			String projectName = FileUtil.getProjectName();
+			if ("file".equals(path.substring(0, 4))) {
+				if ("\\".equals(separator))
+					path = path.substring(6);
+				else {
+					path = path.substring(5);
+				}
+			}
+			String localPath = path.substring(0, path.indexOf("webapps"))
+					+ "webapps" + separator + projectName + separator
+					+ "js" + separator + "addressJS.js";
+			localPath = URLDecoder.decode(localPath);
+			localPath = localPath.replace("/", separator);
+			localPath = localPath.replace("\\", separator);				
+	        FileUtil.writeFile(localPath,funString);
+
+			
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
+		
+	}
+}

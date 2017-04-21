@@ -1,0 +1,153 @@
+package fsk.entity.caseRecord;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.older.OlderEntity;
+import fsk.entity.medicalHistory.MedicalHistoryEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 病例记录
+ * @author feng.gu
+ * @date 2016-07-19 11:09:09
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_CASE_RECORD")
+public class CaseRecordEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String OLDER_ID = "OLDER_ID";
+    public final static String RECOVERY_TIME = "RECOVERY_TIME";
+    public final static String OTHER = "OTHER";
+    public final static String DES = "DES";
+    public final static String ASSESSMENT_PERSON = "ASSESSMENT_PERSON";
+    public final static String ASSESSMENT_TIME = "ASSESSMENT_TIME";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 老人ID
+	 */
+	@ColumnDescription(name = "OLDER_ID")
+	private Integer olderId;
+    /**
+	 * 首次接收康复时间
+	 */
+	@ColumnDescription(name = "RECOVERY_TIME")
+	private String recoveryTime;
+    /**
+	 * 其他说明
+	 */
+	@ColumnDescription(name = "OTHER")
+	private String other;
+    /**
+	 * 摘要
+	 */
+	@ColumnDescription(name = "DES")
+	private String des;
+    /**
+	 * 评定人
+	 */
+	@ColumnDescription(name = "ASSESSMENT_PERSON")
+	private String assessmentPerson;
+    /**
+	 * 评定日期
+	 */
+	@ColumnDescription(name = "ASSESSMENT_TIME")
+	private String assessmentTime;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getOlderId() {
+		return olderId;
+	}
+
+	public void setOlderId(Integer olderId) {
+		this.olderId = olderId;
+	}
+    public String getRecoveryTime() {
+		return recoveryTime;
+	}
+
+	public void setRecoveryTime(String recoveryTime) {
+		this.recoveryTime = recoveryTime;
+	}
+    public String getOther() {
+		return other;
+	}
+
+	public void setOther(String other) {
+		this.other = other;
+	}
+    public String getDes() {
+		return des;
+	}
+
+	public void setDes(String des) {
+		this.des = des;
+	}
+    public String getAssessmentPerson() {
+		return assessmentPerson;
+	}
+
+	public void setAssessmentPerson(String assessmentPerson) {
+		this.assessmentPerson = assessmentPerson;
+	}
+    public String getAssessmentTime() {
+		return assessmentTime;
+	}
+
+	public void setAssessmentTime(String assessmentTime) {
+		this.assessmentTime = assessmentTime;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="OlderEntity"	,joinColumn="ID"	)
+			
+			
+		private OlderEntity older;
+	        
+	public OlderEntity getOlder() {
+		return older;
+    }
+	
+	public void setOlder(OlderEntity older) {
+		this.older = older;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="MedicalHistoryEntity"			,joinColumn="CASE_RECORD_ID"
+			)
+			
+		private List<MedicalHistoryEntity> medicalHistoryList;
+	        
+	public List<MedicalHistoryEntity> getMedicalHistoryList() {
+		return medicalHistoryList;
+	}
+	
+	public void setMedicalHistoryList(List<MedicalHistoryEntity> medicalHistoryList) {
+		this.medicalHistoryList = medicalHistoryList;
+	}
+			
+			
+}

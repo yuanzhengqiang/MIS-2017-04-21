@@ -1,0 +1,195 @@
+package fsk.handler.sendReceive;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.db.query.OrderVO;
+
+import fsk.entity.sendReceive.SendReceiveEntity;
+import fsk.pack.sendReceive.SendReceivePack;
+import fsk.parse.sendReceive.SendReceiveParse;
+import fsk.service.sendReceive.SendReceiveService;
+import fsk.service.sendReceiveCareful.SendReceiveCarefulService;
+import fsk.service.sendReceiveCarefulPhoto.SendReceiveCarefulPhotoService;
+import fsk.service.sendReceivePhoto.SendReceivePhotoService;
+import fsk.util.RandomUtil;
+
+/**
+ * @Title: Handler
+ * @Description: 交接班记录业务处理器
+ * @author feng.gu
+ * @date 2016-10-19 13:13:09
+ * @version V1.0
+ * 
+ */
+public class SendReceiveHandler extends BaseHandler {
+	private static Logger logger = Logger.getLogger(SendReceiveService.class);
+	/**
+	 * 解析器
+	 */
+	private SendReceiveParse sendReceiveParse = SendReceiveParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private SendReceiveService sendReceiveService = SendReceiveService.getInstance();
+	private static SendReceivePhotoService sendReceivePhotoService = SendReceivePhotoService.getInstance();
+	private static SendReceiveCarefulService sendReceiveCarefulService = SendReceiveCarefulService.getInstance();
+	private static SendReceiveCarefulPhotoService sendReceiveCarefulPhotoService = SendReceiveCarefulPhotoService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private SendReceivePack sendReceivePack = SendReceivePack.getInstance();
+
+	private static SendReceiveHandler sendReceiveHandler;
+	private static SimpleDateFormat formater = new SimpleDateFormat("yyyyMMddHHmmss");
+
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static SendReceiveHandler getInstance() {
+		if (sendReceiveHandler == null) {
+			sendReceiveHandler = new SendReceiveHandler();
+		}
+		return sendReceiveHandler;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type, String command, String reqStr, HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("请求消息：" + reqStr);
+		String resultStr = "";
+		try {
+			// 解析
+			Map<String, Object> parseMap = sendReceiveParse.parse(type, command, reqStr, request);
+			String action = (String) parseMap.get("action");
+			SendReceiveEntity sendReceive = (SendReceiveEntity) parseMap.get("sendReceive");
+			List<SendReceiveEntity> sendReceiveList = (List<SendReceiveEntity>) parseMap.get("sendReceiveList");
+			Integer id = (Integer) parseMap.get("id");
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			Integer pageno = (Integer) parseMap.get("pageno");
+			Integer pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+
+			Boolean serviceSiteShow = (Boolean) parseMap.get("serviceSiteShow");
+			Boolean delServiceSite = (Boolean) parseMap.get("delServiceSite");
+			Boolean sendEmployeeShow = (Boolean) parseMap.get("sendEmployeeShow");
+			Boolean delSendEmployee = (Boolean) parseMap.get("delSendEmployee");
+			Boolean receiveEmployeeShow = (Boolean) parseMap.get("receiveEmployeeShow");
+			Boolean delReceiveEmployee = (Boolean) parseMap.get("delReceiveEmployee");
+			Boolean superviseEmployeeShow = (Boolean) parseMap.get("superviseEmployeeShow");
+			Boolean delSuperviseEmployee = (Boolean) parseMap.get("delSuperviseEmployee");
+			Boolean sendReceivePhotoListShow = (Boolean) parseMap.get("sendReceivePhotoListShow");
+			Boolean delSendReceivePhotoList = (Boolean) parseMap.get("delSendReceivePhotoList");
+			Boolean sendReceiveCarefulListShow = (Boolean) parseMap.get("sendReceiveCarefulListShow");
+			Boolean delSendReceiveCarefulList = (Boolean) parseMap.get("delSendReceiveCarefulList");
+
+			// 业务处理
+			Object result = null;
+			if ("save".equals(action)) {
+				if (sendReceive.getId() == null) {// 新增时自动生成交接班流水号
+					String serialnum = creatserialnum();
+					sendReceive.setSerialNumber(serialnum);
+				}
+				// 删除关联表
+				if (sendReceive.getId() != null && sendReceive.getSendReceivePhotoList() != null) {
+					// 删除关联照片表
+					Map<String, Object> delpPhoto = new HashMap<String, Object>();
+					delpPhoto.put("sendReceiveId", sendReceive.getId());
+					sendReceivePhotoService.delList(delpPhoto, false);
+				}
+				result = sendReceiveService.save(sendReceive);
+			} else if ("saveList".equals(action)) {
+				result = sendReceiveService.saveList(sendReceiveList);
+			} else if ("getById".equals(action)) {
+				result = sendReceiveService.getById(id, serviceSiteShow, sendEmployeeShow, receiveEmployeeShow, superviseEmployeeShow,
+						sendReceivePhotoListShow, sendReceiveCarefulListShow);
+			} else if ("getListByCondition".equals(action)) {
+				// 根据数据权限 增加查询条件
+				queryMap = systemService.addDataRuleByRoles("SendReceiveEntity", queryMap, request);
+				result = sendReceiveService.getListByCondition(queryMap, orderList, pageno, pagesize, serviceSiteShow, sendEmployeeShow, receiveEmployeeShow,
+						superviseEmployeeShow, sendReceivePhotoListShow, sendReceiveCarefulListShow);
+			} else if ("del".equals(action)) {
+				result = sendReceiveService.del(id, delServiceSite, delSendEmployee, delReceiveEmployee, delSuperviseEmployee, delSendReceivePhotoList,
+						delSendReceiveCarefulList);
+			} else if ("delList".equals(action)) {
+				result = sendReceiveService.delList(queryMap, delServiceSite, delSendEmployee, delReceiveEmployee, delSuperviseEmployee,
+						delSendReceivePhotoList, delSendReceiveCarefulList);
+			}
+			// gufeng
+			else if ("queryListByName".equals(action)) {
+				// 根据数据权限 增加查询条件
+				queryMap = systemService.addDataRuleByRoles("SendReceiveEntity", queryMap, request);
+				// gufeng 暂存交接班 列表 增加chargeEmployeeId_in操作
+				Object status_obj = queryMap.get("status");
+				if (status_obj != null && String.valueOf(status_obj) != null && "1".equals(String.valueOf(status_obj))) {
+					queryMap.remove("dataRuleMapList");
+				}
+				result = sendReceiveService.queryByName(queryMap, orderList, pageno, pagesize);
+			}
+			// 封装
+			Map<String, Object> packMap = sendReceivePack.pack(type, action, result, sendReceive);
+			String actionBack = (String) packMap.get("action");
+			String resultBack = (String) packMap.get("result");
+			String desBack = (String) packMap.get("des");
+			JSONObject pageBack = (JSONObject) packMap.get("page");
+			JSONObject contentBack = (JSONObject) packMap.get("content");
+
+			JSONObject repJson = new JSONObject();
+			if (actionBack != null && !"".equals(actionBack)) {
+				repJson.put("action", actionBack);
+			}
+			if (resultBack != null && !"".equals(resultBack)) {
+				repJson.put("result", resultBack);
+			}
+			if (desBack != null && !"".equals(desBack)) {
+				repJson.put("des", desBack);
+			}
+			if (pageBack != null) {
+				repJson.put("page", pageBack);
+			}
+			if (contentBack != null && !"".equals(contentBack)) {
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息：" + repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+
+	// 生成交接班流水号:SRSN+14位当期系统时间+5位随机数字
+	private String creatserialnum() {
+		String num = "SRSN" + formater.format(new Date()) + RandomUtil.generateNumString(4);
+		return num;
+	}
+}

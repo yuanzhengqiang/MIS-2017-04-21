@@ -1,0 +1,189 @@
+package com.framework.system.common.entity.role;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+import com.framework.system.common.entity.user.UserEntity;
+import com.framework.system.common.entity.user.UserEntity;
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**
+ * @Title: Entity
+ * @Description: 系统角色
+ * @author feng.gu
+ * @date 2015-12-01 09:55:59
+ * @version V1.0
+ * 
+ */
+@TableDescription(name = "S_ROLE")
+public class RoleEntity implements java.io.Serializable {
+	public final static String ID = "ID";
+	public final static String NAME = "NAME";
+	public final static String DES = "DES";
+	public final static String PARENT_ID = "PARENT_ID";
+	public final static String CREATE_USER_ID = "CREATE_USER_ID";
+	public final static String CREATE_TIME = "CREATE_TIME";
+	public final static String UPDATE_USER_ID = "UPDATE_USER_ID";
+	public final static String UPDATE_TIME = "UPDATE_TIME";
+
+	/**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+	/**
+	 * 角色名称
+	 */
+	@ColumnDescription(name = "NAME")
+	private String name;
+	/**
+	 * 角色描述
+	 */
+	@ColumnDescription(name = "DES")
+	private String des;
+	/**
+	 * 父ID
+	 */
+	@ColumnDescription(name = "PARENT_ID")
+	private Integer parentId;
+	/**
+	 * 创建用户ID
+	 */
+	@ColumnDescription(name = "CREATE_USER_ID")
+	private Integer createUserId;
+	/**
+	 * 创建时间
+	 */
+	@ColumnDescription(name = "CREATE_TIME")
+	private String createTime;
+	/**
+	 * 更新用户ID
+	 */
+	@ColumnDescription(name = "UPDATE_USER_ID")
+	private Integer updateUserId;
+	/**
+	 * 更新时间
+	 */
+	@ColumnDescription(name = "UPDATE_TIME")
+	private String updateTime;
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDes() {
+		return des;
+	}
+
+	public void setDes(String des) {
+		this.des = des;
+	}
+
+	public Integer getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(Integer parentId) {
+		this.parentId = parentId;
+	}
+
+	public Integer getCreateUserId() {
+		return createUserId;
+	}
+
+	public void setCreateUserId(Integer createUserId) {
+		this.createUserId = createUserId;
+	}
+
+	public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+
+	public Integer getUpdateUserId() {
+		return updateUserId;
+	}
+
+	public void setUpdateUserId(Integer updateUserId) {
+		this.updateUserId = updateUserId;
+	}
+
+	public String getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(String updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "ManyToOne", joinEntity = "RoleEntity", joinColumn = "PARENT_ID")
+	private RoleEntity parentRole;
+
+	public RoleEntity getParentRole() {
+		return parentRole;
+	}
+
+	public void setParentRole(RoleEntity parentRole) {
+		this.parentRole = parentRole;
+	}
+
+	@RelationlDescription(relation = "OneToMany", joinEntity = "RoleEntity", joinColumn = "PARENT_ID")
+	private List<RoleEntity> childRoleList;
+
+	public List<RoleEntity> getChildRoleList() {
+		return childRoleList;
+	}
+
+	public void setChildRoleList(List<RoleEntity> childRoleList) {
+		this.childRoleList = childRoleList;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "ManyToOne", joinEntity = "UserEntity", joinColumn = "ID")
+	private UserEntity createUser;
+
+	public UserEntity getCreateUser() {
+		return createUser;
+	}
+
+	public void setCreateUser(UserEntity createUser) {
+		this.createUser = createUser;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "ManyToOne", joinEntity = "UserEntity", joinColumn = "ID")
+	private UserEntity updateUser;
+
+	public UserEntity getUpdateUser() {
+		return updateUser;
+	}
+
+	public void setUpdateUser(UserEntity updateUser) {
+		this.updateUser = updateUser;
+	}
+
+}

@@ -1,0 +1,128 @@
+@charset "UTF-8";
+
+@import url(id.css);
+
+@import url(class.css);
+
+@media print {
+	* {
+		display: none;
+	}
+}
+
+* {
+	empty-cells: show;
+	vertical-align:middle;
+}
+
+body,input,select,textarea {
+	background-color: #FFF;
+}
+
+p {
+	line-height: 25px;
+}
+
+a {
+	color: #000;
+	text-decoration: none;
+	border: 0;
+	cursor: pointer;
+}
+
+a:link {
+}
+
+a:hover {
+	color:#F00;
+}
+
+ol {
+	list-style: none;
+}
+
+ol li {
+	color: #F00;
+	font-size: 14px;
+}
+
+ul {
+	list-style: none;
+}
+
+li {
+	height: 25px;
+}
+
+small {
+	color: #F00;
+}
+
+iframe {
+	width: 98%;
+	height: 100%;
+	border: 0;
+	overflow: hidden;
+}
+
+table {
+	border-collapse: collapse;
+	width: 100%;
+	font-size: 12px;
+	line-height: 22px;
+	border-right: 1px #64A5Cb solid;
+	border-bottom: 1px #64A5Cb solid;
+}
+
+th {
+	text-align: center;
+	border-top: 1px #64A5Cb solid;
+	border-left: 1px #64A5Cb solid;
+}
+
+td {
+	text-align: left;
+	padding-left:1em;
+	border-top: 1px #64A5Cb solid;
+	border-left: 1px #64A5Cb solid;
+}
+
+input {
+	background-color: fff;
+	text-align: left;
+	border:none;
+	border-bottom: 1px #ADD0DE solid;
+	padding-left: 0.5em;
+}
+
+select {
+	border-right: #777f99 1px solid;
+	border-top: #777f99 1px solid;
+	font-size: 12px;
+	border-left: #777f99 1px solid;
+	color: #660016;
+	padding: 0px;
+	border-bottom: #777f99 1px solid;
+	background-color: #fbfbfb;
+}
+
+option {
+	background-color: #f6fbfe;
+	margin: 1px 3px;
+	color: #444;
+}
+
+textarea {
+	width:80%;
+	height:10em;
+}
+
+fieldset,fieldset * {
+	text-align: left;
+}
+
+h2 {
+	text-align:center;
+	color: #416AA3;
+	font-family: "楷体_GB2312";
+}

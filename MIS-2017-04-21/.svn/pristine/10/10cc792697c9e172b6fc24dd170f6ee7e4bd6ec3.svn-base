@@ -1,0 +1,122 @@
+package fsk.entity.situationObservation;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.serviceTask.ServiceTaskEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 全身情况观察
+ * @author feng.gu
+ * @date 2016-07-27 15:35:58
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_SITUATION_OBSERVATION")
+public class SituationObservationEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String SERVICE_TASK_ID = "SERVICE_TASK_ID";
+    public final static String POSITION = "POSITION";
+    public final static String DES = "DES";
+    public final static String CREATE_TIME = "CREATE_TIME";
+    public final static String CREATE_PERSON = "CREATE_PERSON";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 服务工单ID
+	 */
+	@ColumnDescription(name = "SERVICE_TASK_ID")
+	private Integer serviceTaskId;
+    /**
+	 * 位置
+	 */
+	@ColumnDescription(name = "POSITION")
+	private String position;
+    /**
+	 * 情况备注
+	 */
+	@ColumnDescription(name = "DES")
+	private String des;
+    /**
+	 * 记录时间2
+	 */
+	@ColumnDescription(name = "CREATE_TIME")
+	private String createTime;
+    /**
+	 * 记录人2
+	 */
+	@ColumnDescription(name = "CREATE_PERSON")
+	private String createPerson;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getServiceTaskId() {
+		return serviceTaskId;
+	}
+
+	public void setServiceTaskId(Integer serviceTaskId) {
+		this.serviceTaskId = serviceTaskId;
+	}
+    public String getPosition() {
+		return position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
+	}
+    public String getDes() {
+		return des;
+	}
+
+	public void setDes(String des) {
+		this.des = des;
+	}
+    public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+    public String getCreatePerson() {
+		return createPerson;
+	}
+
+	public void setCreatePerson(String createPerson) {
+		this.createPerson = createPerson;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="ServiceTaskEntity"	,joinColumn="ID"	)
+			
+			
+		private ServiceTaskEntity serviceTask;
+	        
+	public ServiceTaskEntity getServiceTask() {
+		return serviceTask;
+    }
+	
+	public void setServiceTask(ServiceTaskEntity serviceTask) {
+		this.serviceTask = serviceTask;
+	}
+			
+}

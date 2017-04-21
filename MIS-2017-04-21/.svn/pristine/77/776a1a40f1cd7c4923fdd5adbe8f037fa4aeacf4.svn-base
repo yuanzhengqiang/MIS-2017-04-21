@@ -1,0 +1,2231 @@
+package fsk.parse.recovery;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.framework.system.util.JsonUtil;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+import fsk.entity.recovery.RecoveryEntity;
+
+
+
+import fsk.entity.skinLesions.SkinLesionsEntity;
+
+import com.framework.system.util.JsonUtil;
+import com.framework.system.db.query.OrderVO;
+ /**   
+ * @Title: Parse
+ * @Description: 康复评估解析器
+ * @author feng.gu
+ * @date 2016-07-12 15:06:34
+ * @version V1.0   
+ *
+ */
+public class RecoveryParse {
+	private static Logger logger = Logger.getLogger(RecoveryParse.class);
+	private static RecoveryParse recoveryParse;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static RecoveryParse getInstance() {
+		if (recoveryParse == null) {
+			recoveryParse = new RecoveryParse();
+		}
+		return recoveryParse;
+	}
+
+	public Map<String, Object> parse(int type, String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			parseMap = this.parseByJson(command,reqStr, request);
+		} else if (type == 2) {
+			// xml
+			parseMap = this.parseByXml(command,reqStr, request);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByJson(String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		try {
+			String actionReturn = null;
+			RecoveryEntity recoveryReturn = null;
+			List<RecoveryEntity> recoveryListReturn = null;
+			Integer idReturn = null;			
+			Map<String, Object> queryMapReturn = null;
+			int pagenoReturn = 1;
+			int pagesizeReturn = 10;
+			List<OrderVO> orderListReturn = null;
+			
+									            Boolean skinLesionsListShowReturn = false;
+            Boolean delSkinLesionsListReturn = false;
+																		
+			//json
+			Map reqParams = JsonUtil.getMap4Json(reqStr);
+			JSONObject contentreq = (JSONObject)reqParams.get("content");
+			if ("ADD_RECOVERY_INFO_REQUEST".equals(command)) {
+				actionReturn = "save";
+				recoveryReturn = new RecoveryEntity();
+				if(true){
+					if(contentreq!=null){
+												    						    Integer id = (Integer)contentreq.get("id");
+	                		if(id!=null){
+			                	recoveryReturn.setId(id);
+			                }
+						    												    						    String recoveryTimeForTheFirstTime = (String)contentreq.get("recoveryTimeForTheFirstTime");
+	                		if(recoveryTimeForTheFirstTime!=null){
+			                	recoveryReturn.setRecoveryTimeForTheFirstTime(recoveryTimeForTheFirstTime);
+			                }
+						    												    						     						     Double bloodPressure1 = JsonUtil.getJSONDouble(contentreq, "bloodPressure1");
+							 if (bloodPressure1 != null) {
+								recoveryReturn.setBloodPressure1(BigDecimal.valueOf(bloodPressure1));
+							 }
+						     						     						    												    						     						     Double bloodPressure2 = JsonUtil.getJSONDouble(contentreq, "bloodPressure2");
+							 if (bloodPressure2 != null) {
+								recoveryReturn.setBloodPressure2(BigDecimal.valueOf(bloodPressure2));
+							 }
+						     						     						    												    						     						     Double pulse = JsonUtil.getJSONDouble(contentreq, "pulse");
+							 if (pulse != null) {
+								recoveryReturn.setPulse(BigDecimal.valueOf(pulse));
+							 }
+						     						     						    												    						     						     Double heartRate = JsonUtil.getJSONDouble(contentreq, "heartRate");
+							 if (heartRate != null) {
+								recoveryReturn.setHeartRate(BigDecimal.valueOf(heartRate));
+							 }
+						     						     						    												    						    String rhythm = (String)contentreq.get("rhythm");
+	                		if(rhythm!=null){
+			                	recoveryReturn.setRhythm(rhythm);
+			                }
+						    												    						     						     Double breathing = JsonUtil.getJSONDouble(contentreq, "breathing");
+							 if (breathing != null) {
+								recoveryReturn.setBreathing(BigDecimal.valueOf(breathing));
+							 }
+						     						     						    												    						    String skinLesions = (String)contentreq.get("skinLesions");
+	                		if(skinLesions!=null){
+			                	recoveryReturn.setSkinLesions(skinLesions);
+			                }
+						    												    						    String stateOfConsciousness = (String)contentreq.get("stateOfConsciousness");
+	                		if(stateOfConsciousness!=null){
+			                	recoveryReturn.setStateOfConsciousness(stateOfConsciousness);
+			                }
+						    												    						    String languageFunction = (String)contentreq.get("languageFunction");
+	                		if(languageFunction!=null){
+			                	recoveryReturn.setLanguageFunction(languageFunction);
+			                }
+						    												    						    String bilateralNormal = (String)contentreq.get("bilateralNormal");
+	                		if(bilateralNormal!=null){
+			                	recoveryReturn.setBilateralNormal(bilateralNormal);
+			                }
+						    												    						    String dysfunction = (String)contentreq.get("dysfunction");
+	                		if(dysfunction!=null){
+			                	recoveryReturn.setDysfunction(dysfunction);
+			                }
+						    												    						    String handedness = (String)contentreq.get("handedness");
+	                		if(handedness!=null){
+			                	recoveryReturn.setHandedness(handedness);
+			                }
+						    												    						    String limitedJointMovementOrFracture = (String)contentreq.get("limitedJointMovementOrFracture");
+	                		if(limitedJointMovementOrFracture!=null){
+			                	recoveryReturn.setLimitedJointMovementOrFracture(limitedJointMovementOrFracture);
+			                }
+						    												    						    String muscleToneUpperLimb = (String)contentreq.get("muscleToneUpperLimb");
+	                		if(muscleToneUpperLimb!=null){
+			                	recoveryReturn.setMuscleToneUpperLimb(muscleToneUpperLimb);
+			                }
+						    												    						    String muscleToneLowerLimb = (String)contentreq.get("muscleToneLowerLimb");
+	                		if(muscleToneLowerLimb!=null){
+			                	recoveryReturn.setMuscleToneLowerLimb(muscleToneLowerLimb);
+			                }
+						    												    						    String theBalanceFunctionOfTheSeat = (String)contentreq.get("theBalanceFunctionOfTheSeat");
+	                		if(theBalanceFunctionOfTheSeat!=null){
+			                	recoveryReturn.setTheBalanceFunctionOfTheSeat(theBalanceFunctionOfTheSeat);
+			                }
+						    												    						    String balanceFunction = (String)contentreq.get("balanceFunction");
+	                		if(balanceFunction!=null){
+			                	recoveryReturn.setBalanceFunction(balanceFunction);
+			                }
+						    												    						    String upperLimbMuscleStrength = (String)contentreq.get("upperLimbMuscleStrength");
+	                		if(upperLimbMuscleStrength!=null){
+			                	recoveryReturn.setUpperLimbMuscleStrength(upperLimbMuscleStrength);
+			                }
+						    												    						    String muscleStrengthOfLowerLimb = (String)contentreq.get("muscleStrengthOfLowerLimb");
+	                		if(muscleStrengthOfLowerLimb!=null){
+			                	recoveryReturn.setMuscleStrengthOfLowerLimb(muscleStrengthOfLowerLimb);
+			                }
+						    												    						    String reflectionDeepReflection = (String)contentreq.get("reflectionDeepReflection");
+	                		if(reflectionDeepReflection!=null){
+			                	recoveryReturn.setReflectionDeepReflection(reflectionDeepReflection);
+			                }
+						    												    						    String reflexShallowReflection = (String)contentreq.get("reflexShallowReflection");
+	                		if(reflexShallowReflection!=null){
+			                	recoveryReturn.setReflexShallowReflection(reflexShallowReflection);
+			                }
+						    												    						    String reflexPathologicalReflex = (String)contentreq.get("reflexPathologicalReflex");
+	                		if(reflexPathologicalReflex!=null){
+			                	recoveryReturn.setReflexPathologicalReflex(reflexPathologicalReflex);
+			                }
+						    												    						    String walkingAbilityWalkingAlone = (String)contentreq.get("walkingAbilityWalkingAlone");
+	                		if(walkingAbilityWalkingAlone!=null){
+			                	recoveryReturn.setWalkingAbilityWalkingAlone(walkingAbilityWalkingAlone);
+			                }
+						    												    						    String withTheSupportOfAssistiveWalking = (String)contentreq.get("withTheSupportOfAssistiveWalking");
+	                		if(withTheSupportOfAssistiveWalking!=null){
+			                	recoveryReturn.setWithTheSupportOfAssistiveWalking(withTheSupportOfAssistiveWalking);
+			                }
+						    												    						    String canNotWalk = (String)contentreq.get("canNotWalk");
+	                		if(canNotWalk!=null){
+			                	recoveryReturn.setCanNotWalk(canNotWalk);
+			                }
+						    												    						    String coordinatedFingerNoseTest = (String)contentreq.get("coordinatedFingerNoseTest");
+	                		if(coordinatedFingerNoseTest!=null){
+			                	recoveryReturn.setCoordinatedFingerNoseTest(coordinatedFingerNoseTest);
+			                }
+						    												    						    String coordinatedStandShaking = (String)contentreq.get("coordinatedStandShaking");
+	                		if(coordinatedStandShaking!=null){
+			                	recoveryReturn.setCoordinatedStandShaking(coordinatedStandShaking);
+			                }
+						    												    						    String coordinatedTremor = (String)contentreq.get("coordinatedTremor");
+	                		if(coordinatedTremor!=null){
+			                	recoveryReturn.setCoordinatedTremor(coordinatedTremor);
+			                }
+						    												    						    String coordinationAndKneeTibiaTest = (String)contentreq.get("coordinationAndKneeTibiaTest");
+	                		if(coordinationAndKneeTibiaTest!=null){
+			                	recoveryReturn.setCoordinationAndKneeTibiaTest(coordinationAndKneeTibiaTest);
+			                }
+						    												    						     						     Double barthelIndex = JsonUtil.getJSONDouble(contentreq, "barthelIndex");
+							 if (barthelIndex != null) {
+								recoveryReturn.setBarthelIndex(BigDecimal.valueOf(barthelIndex));
+							 }
+						     						     						    												    						     						     Double masEvaluation = JsonUtil.getJSONDouble(contentreq, "masEvaluation");
+							 if (masEvaluation != null) {
+								recoveryReturn.setMasEvaluation(BigDecimal.valueOf(masEvaluation));
+							 }
+						     						     						    												    						     						     Double facEvaluation = JsonUtil.getJSONDouble(contentreq, "facEvaluation");
+							 if (facEvaluation != null) {
+								recoveryReturn.setFacEvaluation(BigDecimal.valueOf(facEvaluation));
+							 }
+						     						     						    												    						    String shoulderSubluxation = (String)contentreq.get("shoulderSubluxation");
+	                		if(shoulderSubluxation!=null){
+			                	recoveryReturn.setShoulderSubluxation(shoulderSubluxation);
+			                }
+						    												    						    String contractureOfAchillesTendon = (String)contentreq.get("contractureOfAchillesTendon");
+	                		if(contractureOfAchillesTendon!=null){
+			                	recoveryReturn.setContractureOfAchillesTendon(contractureOfAchillesTendon);
+			                }
+						    												    						    String varusFootDrop = (String)contentreq.get("varusFootDrop");
+	                		if(varusFootDrop!=null){
+			                	recoveryReturn.setVarusFootDrop(varusFootDrop);
+			                }
+						    												    						    String kneeTooDeep = (String)contentreq.get("kneeTooDeep");
+	                		if(kneeTooDeep!=null){
+			                	recoveryReturn.setKneeTooDeep(kneeTooDeep);
+			                }
+						    												    						    String shallowFeeling = (String)contentreq.get("shallowFeeling");
+	                		if(shallowFeeling!=null){
+			                	recoveryReturn.setShallowFeeling(shallowFeeling);
+			                }
+						    												    						    String deepFeeling = (String)contentreq.get("deepFeeling");
+	                		if(deepFeeling!=null){
+			                	recoveryReturn.setDeepFeeling(deepFeeling);
+			                }
+						    												    						    String complexFeeling = (String)contentreq.get("complexFeeling");
+	                		if(complexFeeling!=null){
+			                	recoveryReturn.setComplexFeeling(complexFeeling);
+			                }
+						    												    						    String pain = (String)contentreq.get("pain");
+	                		if(pain!=null){
+			                	recoveryReturn.setPain(pain);
+			                }
+						    												    						    String jointMobility = (String)contentreq.get("jointMobility");
+	                		if(jointMobility!=null){
+			                	recoveryReturn.setJointMobility(jointMobility);
+			                }
+						    											}					
+				}
+																if(true){
+					Object skinLesionsList = contentreq.get("skinLesionsList");
+					if(skinLesionsList!=null){
+						JSONArray list = (JSONArray)skinLesionsList;
+						if(list!=null){
+							List<SkinLesionsEntity> entityList = new ArrayList<SkinLesionsEntity>();
+							for (int i = 0; i < list.size(); i++) {
+			  	              JSONObject obj = list.getJSONObject(i);
+			  	              if(obj!=null){
+									SkinLesionsEntity entity = new SkinLesionsEntity();						
+													
+												                		Integer id = (Integer)obj.get("id");
+			                		if(id!=null){
+					                	entity.setId(id);
+					                }
+												                		Integer recoveryId = (Integer)obj.get("recoveryId");
+			                		if(recoveryId!=null){
+					                	entity.setRecoveryId(recoveryId);
+					                }
+												                		String position = (String)obj.get("position");
+			                		if(position!=null){
+					                	entity.setPosition(position);
+					                }
+												                		BigDecimal positionLong = (BigDecimal)obj.get("positionLong");
+			                		if(positionLong!=null){
+					                	entity.setPositionLong(positionLong);
+					                }
+												                		BigDecimal positionWide = (BigDecimal)obj.get("positionWide");
+			                		if(positionWide!=null){
+					                	entity.setPositionWide(positionWide);
+					                }
+												                		BigDecimal siteDeep = (BigDecimal)obj.get("siteDeep");
+			                		if(siteDeep!=null){
+					                	entity.setSiteDeep(siteDeep);
+					                }
+												                		String photoUrl = (String)obj.get("photoUrl");
+			                		if(photoUrl!=null){
+					                	entity.setPhotoUrl(photoUrl);
+					                }
+																                entityList.add(entity);
+										}
+					  	            }
+							recoveryReturn.setSkinLesionsList(entityList);
+						}
+						
+					}
+				}
+																							} else if ("QUERY_RECOVERY_INFO_REQUEST".equals(command)) {
+				actionReturn = "getById";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");
+					        																					String skinLesionsListShow = (String)contentreq.get("skinLesionsListShow");
+							if("true".equals(skinLesionsListShow)){
+								skinLesionsListShowReturn = true;
+							}		           
+																																								}	
+				}
+			} else if ("QUERY_RECOVERY_LIST_REQUEST".equals(command)) {
+				actionReturn = "getListByCondition";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																																String recoveryTimeForTheFirstTime_gt = (String)contentreq.get("recoveryTimeForTheFirstTime_gt");
+							String recoveryTimeForTheFirstTime_ge = (String)contentreq.get("recoveryTimeForTheFirstTime_ge");
+							String recoveryTimeForTheFirstTime_lt = (String)contentreq.get("recoveryTimeForTheFirstTime_lt");
+							String recoveryTimeForTheFirstTime_le = (String)contentreq.get("recoveryTimeForTheFirstTime_le");
+	                        if(recoveryTimeForTheFirstTime_gt!=null){
+	                        	queryMapReturn.put("recoveryTimeForTheFirstTime_gt", recoveryTimeForTheFirstTime_gt);
+							}
+							if(recoveryTimeForTheFirstTime_ge!=null){
+	                        	queryMapReturn.put("recoveryTimeForTheFirstTime_ge", recoveryTimeForTheFirstTime_ge);
+							}
+							if(recoveryTimeForTheFirstTime_lt!=null){
+	                        	queryMapReturn.put("recoveryTimeForTheFirstTime_lt", recoveryTimeForTheFirstTime_lt);
+							}
+							if(recoveryTimeForTheFirstTime_le!=null){
+	                        	queryMapReturn.put("recoveryTimeForTheFirstTime_le", recoveryTimeForTheFirstTime_le);
+							} 
+																															Integer bloodPressure1_gt = (Integer)contentreq.get("bloodPressure1_gt");
+						Integer bloodPressure1_ge = (Integer)contentreq.get("bloodPressure1_ge");
+						Integer bloodPressure1_lt = (Integer)contentreq.get("bloodPressure1_lt");
+						Integer bloodPressure1_le = (Integer)contentreq.get("bloodPressure1_le");
+						String bloodPressure1_in = (String)contentreq.get("bloodPressure1_in");
+						Integer bloodPressure1 = (Integer)contentreq.get("bloodPressure1");
+                        if(bloodPressure1_gt!=null){
+                        	queryMapReturn.put("bloodPressure1_gt", bloodPressure1_gt);
+						}
+						if(bloodPressure1_ge!=null){
+                        	queryMapReturn.put("bloodPressure1_ge", bloodPressure1_ge);
+						}
+						if(bloodPressure1_lt!=null){
+                        	queryMapReturn.put("bloodPressure1_lt", bloodPressure1_lt);
+						}
+						if(bloodPressure1_le!=null){
+                        	queryMapReturn.put("bloodPressure1_le", bloodPressure1_le);
+						}
+						if(bloodPressure1_in!=null){
+                        	queryMapReturn.put("bloodPressure1_in", bloodPressure1_in);
+						}
+						if(bloodPressure1!=null){
+                        	queryMapReturn.put("bloodPressure1", bloodPressure1);
+						}		
+																								Integer bloodPressure2_gt = (Integer)contentreq.get("bloodPressure2_gt");
+						Integer bloodPressure2_ge = (Integer)contentreq.get("bloodPressure2_ge");
+						Integer bloodPressure2_lt = (Integer)contentreq.get("bloodPressure2_lt");
+						Integer bloodPressure2_le = (Integer)contentreq.get("bloodPressure2_le");
+						String bloodPressure2_in = (String)contentreq.get("bloodPressure2_in");
+						Integer bloodPressure2 = (Integer)contentreq.get("bloodPressure2");
+                        if(bloodPressure2_gt!=null){
+                        	queryMapReturn.put("bloodPressure2_gt", bloodPressure2_gt);
+						}
+						if(bloodPressure2_ge!=null){
+                        	queryMapReturn.put("bloodPressure2_ge", bloodPressure2_ge);
+						}
+						if(bloodPressure2_lt!=null){
+                        	queryMapReturn.put("bloodPressure2_lt", bloodPressure2_lt);
+						}
+						if(bloodPressure2_le!=null){
+                        	queryMapReturn.put("bloodPressure2_le", bloodPressure2_le);
+						}
+						if(bloodPressure2_in!=null){
+                        	queryMapReturn.put("bloodPressure2_in", bloodPressure2_in);
+						}
+						if(bloodPressure2!=null){
+                        	queryMapReturn.put("bloodPressure2", bloodPressure2);
+						}		
+																								Integer pulse_gt = (Integer)contentreq.get("pulse_gt");
+						Integer pulse_ge = (Integer)contentreq.get("pulse_ge");
+						Integer pulse_lt = (Integer)contentreq.get("pulse_lt");
+						Integer pulse_le = (Integer)contentreq.get("pulse_le");
+						String pulse_in = (String)contentreq.get("pulse_in");
+						Integer pulse = (Integer)contentreq.get("pulse");
+                        if(pulse_gt!=null){
+                        	queryMapReturn.put("pulse_gt", pulse_gt);
+						}
+						if(pulse_ge!=null){
+                        	queryMapReturn.put("pulse_ge", pulse_ge);
+						}
+						if(pulse_lt!=null){
+                        	queryMapReturn.put("pulse_lt", pulse_lt);
+						}
+						if(pulse_le!=null){
+                        	queryMapReturn.put("pulse_le", pulse_le);
+						}
+						if(pulse_in!=null){
+                        	queryMapReturn.put("pulse_in", pulse_in);
+						}
+						if(pulse!=null){
+                        	queryMapReturn.put("pulse", pulse);
+						}		
+																								Integer heartRate_gt = (Integer)contentreq.get("heartRate_gt");
+						Integer heartRate_ge = (Integer)contentreq.get("heartRate_ge");
+						Integer heartRate_lt = (Integer)contentreq.get("heartRate_lt");
+						Integer heartRate_le = (Integer)contentreq.get("heartRate_le");
+						String heartRate_in = (String)contentreq.get("heartRate_in");
+						Integer heartRate = (Integer)contentreq.get("heartRate");
+                        if(heartRate_gt!=null){
+                        	queryMapReturn.put("heartRate_gt", heartRate_gt);
+						}
+						if(heartRate_ge!=null){
+                        	queryMapReturn.put("heartRate_ge", heartRate_ge);
+						}
+						if(heartRate_lt!=null){
+                        	queryMapReturn.put("heartRate_lt", heartRate_lt);
+						}
+						if(heartRate_le!=null){
+                        	queryMapReturn.put("heartRate_le", heartRate_le);
+						}
+						if(heartRate_in!=null){
+                        	queryMapReturn.put("heartRate_in", heartRate_in);
+						}
+						if(heartRate!=null){
+                        	queryMapReturn.put("heartRate", heartRate);
+						}		
+																																String rhythm_like = (String)contentreq.get("rhythm_like");
+							String rhythm_isNull = (String)contentreq.get("rhythm_isNull");
+							String rhythm_isNotNull = (String)contentreq.get("rhythm_isNotNull");
+							String rhythm_in = (String)contentreq.get("rhythm_in");
+							String rhythm = (String)contentreq.get("rhythm");
+							if(rhythm_like!=null){
+	                        	queryMapReturn.put("rhythm_like", rhythm_like);
+							}
+							if(rhythm_isNull!=null){
+	                        	queryMapReturn.put("rhythm_isNull", rhythm_isNull);
+							}
+							if(rhythm_isNotNull!=null){
+	                        	queryMapReturn.put("rhythm_isNotNull", rhythm_isNotNull);
+							}
+							if(rhythm_in!=null){
+	                        	queryMapReturn.put("rhythm_in", rhythm_in);
+							}
+							if(rhythm!=null){
+	                        	queryMapReturn.put("rhythm", rhythm);
+							}						           
+																															Integer breathing_gt = (Integer)contentreq.get("breathing_gt");
+						Integer breathing_ge = (Integer)contentreq.get("breathing_ge");
+						Integer breathing_lt = (Integer)contentreq.get("breathing_lt");
+						Integer breathing_le = (Integer)contentreq.get("breathing_le");
+						String breathing_in = (String)contentreq.get("breathing_in");
+						Integer breathing = (Integer)contentreq.get("breathing");
+                        if(breathing_gt!=null){
+                        	queryMapReturn.put("breathing_gt", breathing_gt);
+						}
+						if(breathing_ge!=null){
+                        	queryMapReturn.put("breathing_ge", breathing_ge);
+						}
+						if(breathing_lt!=null){
+                        	queryMapReturn.put("breathing_lt", breathing_lt);
+						}
+						if(breathing_le!=null){
+                        	queryMapReturn.put("breathing_le", breathing_le);
+						}
+						if(breathing_in!=null){
+                        	queryMapReturn.put("breathing_in", breathing_in);
+						}
+						if(breathing!=null){
+                        	queryMapReturn.put("breathing", breathing);
+						}		
+																																String skinLesions_like = (String)contentreq.get("skinLesions_like");
+							String skinLesions_isNull = (String)contentreq.get("skinLesions_isNull");
+							String skinLesions_isNotNull = (String)contentreq.get("skinLesions_isNotNull");
+							String skinLesions_in = (String)contentreq.get("skinLesions_in");
+							String skinLesions = (String)contentreq.get("skinLesions");
+							if(skinLesions_like!=null){
+	                        	queryMapReturn.put("skinLesions_like", skinLesions_like);
+							}
+							if(skinLesions_isNull!=null){
+	                        	queryMapReturn.put("skinLesions_isNull", skinLesions_isNull);
+							}
+							if(skinLesions_isNotNull!=null){
+	                        	queryMapReturn.put("skinLesions_isNotNull", skinLesions_isNotNull);
+							}
+							if(skinLesions_in!=null){
+	                        	queryMapReturn.put("skinLesions_in", skinLesions_in);
+							}
+							if(skinLesions!=null){
+	                        	queryMapReturn.put("skinLesions", skinLesions);
+							}						           
+																																							String stateOfConsciousness_like = (String)contentreq.get("stateOfConsciousness_like");
+							String stateOfConsciousness_isNull = (String)contentreq.get("stateOfConsciousness_isNull");
+							String stateOfConsciousness_isNotNull = (String)contentreq.get("stateOfConsciousness_isNotNull");
+							String stateOfConsciousness_in = (String)contentreq.get("stateOfConsciousness_in");
+							String stateOfConsciousness = (String)contentreq.get("stateOfConsciousness");
+							if(stateOfConsciousness_like!=null){
+	                        	queryMapReturn.put("stateOfConsciousness_like", stateOfConsciousness_like);
+							}
+							if(stateOfConsciousness_isNull!=null){
+	                        	queryMapReturn.put("stateOfConsciousness_isNull", stateOfConsciousness_isNull);
+							}
+							if(stateOfConsciousness_isNotNull!=null){
+	                        	queryMapReturn.put("stateOfConsciousness_isNotNull", stateOfConsciousness_isNotNull);
+							}
+							if(stateOfConsciousness_in!=null){
+	                        	queryMapReturn.put("stateOfConsciousness_in", stateOfConsciousness_in);
+							}
+							if(stateOfConsciousness!=null){
+	                        	queryMapReturn.put("stateOfConsciousness", stateOfConsciousness);
+							}						           
+																																							String languageFunction_like = (String)contentreq.get("languageFunction_like");
+							String languageFunction_isNull = (String)contentreq.get("languageFunction_isNull");
+							String languageFunction_isNotNull = (String)contentreq.get("languageFunction_isNotNull");
+							String languageFunction_in = (String)contentreq.get("languageFunction_in");
+							String languageFunction = (String)contentreq.get("languageFunction");
+							if(languageFunction_like!=null){
+	                        	queryMapReturn.put("languageFunction_like", languageFunction_like);
+							}
+							if(languageFunction_isNull!=null){
+	                        	queryMapReturn.put("languageFunction_isNull", languageFunction_isNull);
+							}
+							if(languageFunction_isNotNull!=null){
+	                        	queryMapReturn.put("languageFunction_isNotNull", languageFunction_isNotNull);
+							}
+							if(languageFunction_in!=null){
+	                        	queryMapReturn.put("languageFunction_in", languageFunction_in);
+							}
+							if(languageFunction!=null){
+	                        	queryMapReturn.put("languageFunction", languageFunction);
+							}						           
+																																							String bilateralNormal_like = (String)contentreq.get("bilateralNormal_like");
+							String bilateralNormal_isNull = (String)contentreq.get("bilateralNormal_isNull");
+							String bilateralNormal_isNotNull = (String)contentreq.get("bilateralNormal_isNotNull");
+							String bilateralNormal_in = (String)contentreq.get("bilateralNormal_in");
+							String bilateralNormal = (String)contentreq.get("bilateralNormal");
+							if(bilateralNormal_like!=null){
+	                        	queryMapReturn.put("bilateralNormal_like", bilateralNormal_like);
+							}
+							if(bilateralNormal_isNull!=null){
+	                        	queryMapReturn.put("bilateralNormal_isNull", bilateralNormal_isNull);
+							}
+							if(bilateralNormal_isNotNull!=null){
+	                        	queryMapReturn.put("bilateralNormal_isNotNull", bilateralNormal_isNotNull);
+							}
+							if(bilateralNormal_in!=null){
+	                        	queryMapReturn.put("bilateralNormal_in", bilateralNormal_in);
+							}
+							if(bilateralNormal!=null){
+	                        	queryMapReturn.put("bilateralNormal", bilateralNormal);
+							}						           
+																																							String dysfunction_like = (String)contentreq.get("dysfunction_like");
+							String dysfunction_isNull = (String)contentreq.get("dysfunction_isNull");
+							String dysfunction_isNotNull = (String)contentreq.get("dysfunction_isNotNull");
+							String dysfunction_in = (String)contentreq.get("dysfunction_in");
+							String dysfunction = (String)contentreq.get("dysfunction");
+							if(dysfunction_like!=null){
+	                        	queryMapReturn.put("dysfunction_like", dysfunction_like);
+							}
+							if(dysfunction_isNull!=null){
+	                        	queryMapReturn.put("dysfunction_isNull", dysfunction_isNull);
+							}
+							if(dysfunction_isNotNull!=null){
+	                        	queryMapReturn.put("dysfunction_isNotNull", dysfunction_isNotNull);
+							}
+							if(dysfunction_in!=null){
+	                        	queryMapReturn.put("dysfunction_in", dysfunction_in);
+							}
+							if(dysfunction!=null){
+	                        	queryMapReturn.put("dysfunction", dysfunction);
+							}						           
+																																							String handedness_like = (String)contentreq.get("handedness_like");
+							String handedness_isNull = (String)contentreq.get("handedness_isNull");
+							String handedness_isNotNull = (String)contentreq.get("handedness_isNotNull");
+							String handedness_in = (String)contentreq.get("handedness_in");
+							String handedness = (String)contentreq.get("handedness");
+							if(handedness_like!=null){
+	                        	queryMapReturn.put("handedness_like", handedness_like);
+							}
+							if(handedness_isNull!=null){
+	                        	queryMapReturn.put("handedness_isNull", handedness_isNull);
+							}
+							if(handedness_isNotNull!=null){
+	                        	queryMapReturn.put("handedness_isNotNull", handedness_isNotNull);
+							}
+							if(handedness_in!=null){
+	                        	queryMapReturn.put("handedness_in", handedness_in);
+							}
+							if(handedness!=null){
+	                        	queryMapReturn.put("handedness", handedness);
+							}						           
+																																							String limitedJointMovementOrFracture_like = (String)contentreq.get("limitedJointMovementOrFracture_like");
+							String limitedJointMovementOrFracture_isNull = (String)contentreq.get("limitedJointMovementOrFracture_isNull");
+							String limitedJointMovementOrFracture_isNotNull = (String)contentreq.get("limitedJointMovementOrFracture_isNotNull");
+							String limitedJointMovementOrFracture_in = (String)contentreq.get("limitedJointMovementOrFracture_in");
+							String limitedJointMovementOrFracture = (String)contentreq.get("limitedJointMovementOrFracture");
+							if(limitedJointMovementOrFracture_like!=null){
+	                        	queryMapReturn.put("limitedJointMovementOrFracture_like", limitedJointMovementOrFracture_like);
+							}
+							if(limitedJointMovementOrFracture_isNull!=null){
+	                        	queryMapReturn.put("limitedJointMovementOrFracture_isNull", limitedJointMovementOrFracture_isNull);
+							}
+							if(limitedJointMovementOrFracture_isNotNull!=null){
+	                        	queryMapReturn.put("limitedJointMovementOrFracture_isNotNull", limitedJointMovementOrFracture_isNotNull);
+							}
+							if(limitedJointMovementOrFracture_in!=null){
+	                        	queryMapReturn.put("limitedJointMovementOrFracture_in", limitedJointMovementOrFracture_in);
+							}
+							if(limitedJointMovementOrFracture!=null){
+	                        	queryMapReturn.put("limitedJointMovementOrFracture", limitedJointMovementOrFracture);
+							}						           
+																																							String muscleToneUpperLimb_like = (String)contentreq.get("muscleToneUpperLimb_like");
+							String muscleToneUpperLimb_isNull = (String)contentreq.get("muscleToneUpperLimb_isNull");
+							String muscleToneUpperLimb_isNotNull = (String)contentreq.get("muscleToneUpperLimb_isNotNull");
+							String muscleToneUpperLimb_in = (String)contentreq.get("muscleToneUpperLimb_in");
+							String muscleToneUpperLimb = (String)contentreq.get("muscleToneUpperLimb");
+							if(muscleToneUpperLimb_like!=null){
+	                        	queryMapReturn.put("muscleToneUpperLimb_like", muscleToneUpperLimb_like);
+							}
+							if(muscleToneUpperLimb_isNull!=null){
+	                        	queryMapReturn.put("muscleToneUpperLimb_isNull", muscleToneUpperLimb_isNull);
+							}
+							if(muscleToneUpperLimb_isNotNull!=null){
+	                        	queryMapReturn.put("muscleToneUpperLimb_isNotNull", muscleToneUpperLimb_isNotNull);
+							}
+							if(muscleToneUpperLimb_in!=null){
+	                        	queryMapReturn.put("muscleToneUpperLimb_in", muscleToneUpperLimb_in);
+							}
+							if(muscleToneUpperLimb!=null){
+	                        	queryMapReturn.put("muscleToneUpperLimb", muscleToneUpperLimb);
+							}						           
+																																							String muscleToneLowerLimb_like = (String)contentreq.get("muscleToneLowerLimb_like");
+							String muscleToneLowerLimb_isNull = (String)contentreq.get("muscleToneLowerLimb_isNull");
+							String muscleToneLowerLimb_isNotNull = (String)contentreq.get("muscleToneLowerLimb_isNotNull");
+							String muscleToneLowerLimb_in = (String)contentreq.get("muscleToneLowerLimb_in");
+							String muscleToneLowerLimb = (String)contentreq.get("muscleToneLowerLimb");
+							if(muscleToneLowerLimb_like!=null){
+	                        	queryMapReturn.put("muscleToneLowerLimb_like", muscleToneLowerLimb_like);
+							}
+							if(muscleToneLowerLimb_isNull!=null){
+	                        	queryMapReturn.put("muscleToneLowerLimb_isNull", muscleToneLowerLimb_isNull);
+							}
+							if(muscleToneLowerLimb_isNotNull!=null){
+	                        	queryMapReturn.put("muscleToneLowerLimb_isNotNull", muscleToneLowerLimb_isNotNull);
+							}
+							if(muscleToneLowerLimb_in!=null){
+	                        	queryMapReturn.put("muscleToneLowerLimb_in", muscleToneLowerLimb_in);
+							}
+							if(muscleToneLowerLimb!=null){
+	                        	queryMapReturn.put("muscleToneLowerLimb", muscleToneLowerLimb);
+							}						           
+																																							String theBalanceFunctionOfTheSeat_like = (String)contentreq.get("theBalanceFunctionOfTheSeat_like");
+							String theBalanceFunctionOfTheSeat_isNull = (String)contentreq.get("theBalanceFunctionOfTheSeat_isNull");
+							String theBalanceFunctionOfTheSeat_isNotNull = (String)contentreq.get("theBalanceFunctionOfTheSeat_isNotNull");
+							String theBalanceFunctionOfTheSeat_in = (String)contentreq.get("theBalanceFunctionOfTheSeat_in");
+							String theBalanceFunctionOfTheSeat = (String)contentreq.get("theBalanceFunctionOfTheSeat");
+							if(theBalanceFunctionOfTheSeat_like!=null){
+	                        	queryMapReturn.put("theBalanceFunctionOfTheSeat_like", theBalanceFunctionOfTheSeat_like);
+							}
+							if(theBalanceFunctionOfTheSeat_isNull!=null){
+	                        	queryMapReturn.put("theBalanceFunctionOfTheSeat_isNull", theBalanceFunctionOfTheSeat_isNull);
+							}
+							if(theBalanceFunctionOfTheSeat_isNotNull!=null){
+	                        	queryMapReturn.put("theBalanceFunctionOfTheSeat_isNotNull", theBalanceFunctionOfTheSeat_isNotNull);
+							}
+							if(theBalanceFunctionOfTheSeat_in!=null){
+	                        	queryMapReturn.put("theBalanceFunctionOfTheSeat_in", theBalanceFunctionOfTheSeat_in);
+							}
+							if(theBalanceFunctionOfTheSeat!=null){
+	                        	queryMapReturn.put("theBalanceFunctionOfTheSeat", theBalanceFunctionOfTheSeat);
+							}						           
+																																							String balanceFunction_like = (String)contentreq.get("balanceFunction_like");
+							String balanceFunction_isNull = (String)contentreq.get("balanceFunction_isNull");
+							String balanceFunction_isNotNull = (String)contentreq.get("balanceFunction_isNotNull");
+							String balanceFunction_in = (String)contentreq.get("balanceFunction_in");
+							String balanceFunction = (String)contentreq.get("balanceFunction");
+							if(balanceFunction_like!=null){
+	                        	queryMapReturn.put("balanceFunction_like", balanceFunction_like);
+							}
+							if(balanceFunction_isNull!=null){
+	                        	queryMapReturn.put("balanceFunction_isNull", balanceFunction_isNull);
+							}
+							if(balanceFunction_isNotNull!=null){
+	                        	queryMapReturn.put("balanceFunction_isNotNull", balanceFunction_isNotNull);
+							}
+							if(balanceFunction_in!=null){
+	                        	queryMapReturn.put("balanceFunction_in", balanceFunction_in);
+							}
+							if(balanceFunction!=null){
+	                        	queryMapReturn.put("balanceFunction", balanceFunction);
+							}						           
+																																							String upperLimbMuscleStrength_like = (String)contentreq.get("upperLimbMuscleStrength_like");
+							String upperLimbMuscleStrength_isNull = (String)contentreq.get("upperLimbMuscleStrength_isNull");
+							String upperLimbMuscleStrength_isNotNull = (String)contentreq.get("upperLimbMuscleStrength_isNotNull");
+							String upperLimbMuscleStrength_in = (String)contentreq.get("upperLimbMuscleStrength_in");
+							String upperLimbMuscleStrength = (String)contentreq.get("upperLimbMuscleStrength");
+							if(upperLimbMuscleStrength_like!=null){
+	                        	queryMapReturn.put("upperLimbMuscleStrength_like", upperLimbMuscleStrength_like);
+							}
+							if(upperLimbMuscleStrength_isNull!=null){
+	                        	queryMapReturn.put("upperLimbMuscleStrength_isNull", upperLimbMuscleStrength_isNull);
+							}
+							if(upperLimbMuscleStrength_isNotNull!=null){
+	                        	queryMapReturn.put("upperLimbMuscleStrength_isNotNull", upperLimbMuscleStrength_isNotNull);
+							}
+							if(upperLimbMuscleStrength_in!=null){
+	                        	queryMapReturn.put("upperLimbMuscleStrength_in", upperLimbMuscleStrength_in);
+							}
+							if(upperLimbMuscleStrength!=null){
+	                        	queryMapReturn.put("upperLimbMuscleStrength", upperLimbMuscleStrength);
+							}						           
+																																							String muscleStrengthOfLowerLimb_like = (String)contentreq.get("muscleStrengthOfLowerLimb_like");
+							String muscleStrengthOfLowerLimb_isNull = (String)contentreq.get("muscleStrengthOfLowerLimb_isNull");
+							String muscleStrengthOfLowerLimb_isNotNull = (String)contentreq.get("muscleStrengthOfLowerLimb_isNotNull");
+							String muscleStrengthOfLowerLimb_in = (String)contentreq.get("muscleStrengthOfLowerLimb_in");
+							String muscleStrengthOfLowerLimb = (String)contentreq.get("muscleStrengthOfLowerLimb");
+							if(muscleStrengthOfLowerLimb_like!=null){
+	                        	queryMapReturn.put("muscleStrengthOfLowerLimb_like", muscleStrengthOfLowerLimb_like);
+							}
+							if(muscleStrengthOfLowerLimb_isNull!=null){
+	                        	queryMapReturn.put("muscleStrengthOfLowerLimb_isNull", muscleStrengthOfLowerLimb_isNull);
+							}
+							if(muscleStrengthOfLowerLimb_isNotNull!=null){
+	                        	queryMapReturn.put("muscleStrengthOfLowerLimb_isNotNull", muscleStrengthOfLowerLimb_isNotNull);
+							}
+							if(muscleStrengthOfLowerLimb_in!=null){
+	                        	queryMapReturn.put("muscleStrengthOfLowerLimb_in", muscleStrengthOfLowerLimb_in);
+							}
+							if(muscleStrengthOfLowerLimb!=null){
+	                        	queryMapReturn.put("muscleStrengthOfLowerLimb", muscleStrengthOfLowerLimb);
+							}						           
+																																							String reflectionDeepReflection_like = (String)contentreq.get("reflectionDeepReflection_like");
+							String reflectionDeepReflection_isNull = (String)contentreq.get("reflectionDeepReflection_isNull");
+							String reflectionDeepReflection_isNotNull = (String)contentreq.get("reflectionDeepReflection_isNotNull");
+							String reflectionDeepReflection_in = (String)contentreq.get("reflectionDeepReflection_in");
+							String reflectionDeepReflection = (String)contentreq.get("reflectionDeepReflection");
+							if(reflectionDeepReflection_like!=null){
+	                        	queryMapReturn.put("reflectionDeepReflection_like", reflectionDeepReflection_like);
+							}
+							if(reflectionDeepReflection_isNull!=null){
+	                        	queryMapReturn.put("reflectionDeepReflection_isNull", reflectionDeepReflection_isNull);
+							}
+							if(reflectionDeepReflection_isNotNull!=null){
+	                        	queryMapReturn.put("reflectionDeepReflection_isNotNull", reflectionDeepReflection_isNotNull);
+							}
+							if(reflectionDeepReflection_in!=null){
+	                        	queryMapReturn.put("reflectionDeepReflection_in", reflectionDeepReflection_in);
+							}
+							if(reflectionDeepReflection!=null){
+	                        	queryMapReturn.put("reflectionDeepReflection", reflectionDeepReflection);
+							}						           
+																																							String reflexShallowReflection_like = (String)contentreq.get("reflexShallowReflection_like");
+							String reflexShallowReflection_isNull = (String)contentreq.get("reflexShallowReflection_isNull");
+							String reflexShallowReflection_isNotNull = (String)contentreq.get("reflexShallowReflection_isNotNull");
+							String reflexShallowReflection_in = (String)contentreq.get("reflexShallowReflection_in");
+							String reflexShallowReflection = (String)contentreq.get("reflexShallowReflection");
+							if(reflexShallowReflection_like!=null){
+	                        	queryMapReturn.put("reflexShallowReflection_like", reflexShallowReflection_like);
+							}
+							if(reflexShallowReflection_isNull!=null){
+	                        	queryMapReturn.put("reflexShallowReflection_isNull", reflexShallowReflection_isNull);
+							}
+							if(reflexShallowReflection_isNotNull!=null){
+	                        	queryMapReturn.put("reflexShallowReflection_isNotNull", reflexShallowReflection_isNotNull);
+							}
+							if(reflexShallowReflection_in!=null){
+	                        	queryMapReturn.put("reflexShallowReflection_in", reflexShallowReflection_in);
+							}
+							if(reflexShallowReflection!=null){
+	                        	queryMapReturn.put("reflexShallowReflection", reflexShallowReflection);
+							}						           
+																																							String reflexPathologicalReflex_like = (String)contentreq.get("reflexPathologicalReflex_like");
+							String reflexPathologicalReflex_isNull = (String)contentreq.get("reflexPathologicalReflex_isNull");
+							String reflexPathologicalReflex_isNotNull = (String)contentreq.get("reflexPathologicalReflex_isNotNull");
+							String reflexPathologicalReflex_in = (String)contentreq.get("reflexPathologicalReflex_in");
+							String reflexPathologicalReflex = (String)contentreq.get("reflexPathologicalReflex");
+							if(reflexPathologicalReflex_like!=null){
+	                        	queryMapReturn.put("reflexPathologicalReflex_like", reflexPathologicalReflex_like);
+							}
+							if(reflexPathologicalReflex_isNull!=null){
+	                        	queryMapReturn.put("reflexPathologicalReflex_isNull", reflexPathologicalReflex_isNull);
+							}
+							if(reflexPathologicalReflex_isNotNull!=null){
+	                        	queryMapReturn.put("reflexPathologicalReflex_isNotNull", reflexPathologicalReflex_isNotNull);
+							}
+							if(reflexPathologicalReflex_in!=null){
+	                        	queryMapReturn.put("reflexPathologicalReflex_in", reflexPathologicalReflex_in);
+							}
+							if(reflexPathologicalReflex!=null){
+	                        	queryMapReturn.put("reflexPathologicalReflex", reflexPathologicalReflex);
+							}						           
+																																							String walkingAbilityWalkingAlone_like = (String)contentreq.get("walkingAbilityWalkingAlone_like");
+							String walkingAbilityWalkingAlone_isNull = (String)contentreq.get("walkingAbilityWalkingAlone_isNull");
+							String walkingAbilityWalkingAlone_isNotNull = (String)contentreq.get("walkingAbilityWalkingAlone_isNotNull");
+							String walkingAbilityWalkingAlone_in = (String)contentreq.get("walkingAbilityWalkingAlone_in");
+							String walkingAbilityWalkingAlone = (String)contentreq.get("walkingAbilityWalkingAlone");
+							if(walkingAbilityWalkingAlone_like!=null){
+	                        	queryMapReturn.put("walkingAbilityWalkingAlone_like", walkingAbilityWalkingAlone_like);
+							}
+							if(walkingAbilityWalkingAlone_isNull!=null){
+	                        	queryMapReturn.put("walkingAbilityWalkingAlone_isNull", walkingAbilityWalkingAlone_isNull);
+							}
+							if(walkingAbilityWalkingAlone_isNotNull!=null){
+	                        	queryMapReturn.put("walkingAbilityWalkingAlone_isNotNull", walkingAbilityWalkingAlone_isNotNull);
+							}
+							if(walkingAbilityWalkingAlone_in!=null){
+	                        	queryMapReturn.put("walkingAbilityWalkingAlone_in", walkingAbilityWalkingAlone_in);
+							}
+							if(walkingAbilityWalkingAlone!=null){
+	                        	queryMapReturn.put("walkingAbilityWalkingAlone", walkingAbilityWalkingAlone);
+							}						           
+																																							String withTheSupportOfAssistiveWalking_like = (String)contentreq.get("withTheSupportOfAssistiveWalking_like");
+							String withTheSupportOfAssistiveWalking_isNull = (String)contentreq.get("withTheSupportOfAssistiveWalking_isNull");
+							String withTheSupportOfAssistiveWalking_isNotNull = (String)contentreq.get("withTheSupportOfAssistiveWalking_isNotNull");
+							String withTheSupportOfAssistiveWalking_in = (String)contentreq.get("withTheSupportOfAssistiveWalking_in");
+							String withTheSupportOfAssistiveWalking = (String)contentreq.get("withTheSupportOfAssistiveWalking");
+							if(withTheSupportOfAssistiveWalking_like!=null){
+	                        	queryMapReturn.put("withTheSupportOfAssistiveWalking_like", withTheSupportOfAssistiveWalking_like);
+							}
+							if(withTheSupportOfAssistiveWalking_isNull!=null){
+	                        	queryMapReturn.put("withTheSupportOfAssistiveWalking_isNull", withTheSupportOfAssistiveWalking_isNull);
+							}
+							if(withTheSupportOfAssistiveWalking_isNotNull!=null){
+	                        	queryMapReturn.put("withTheSupportOfAssistiveWalking_isNotNull", withTheSupportOfAssistiveWalking_isNotNull);
+							}
+							if(withTheSupportOfAssistiveWalking_in!=null){
+	                        	queryMapReturn.put("withTheSupportOfAssistiveWalking_in", withTheSupportOfAssistiveWalking_in);
+							}
+							if(withTheSupportOfAssistiveWalking!=null){
+	                        	queryMapReturn.put("withTheSupportOfAssistiveWalking", withTheSupportOfAssistiveWalking);
+							}						           
+																																							String canNotWalk_like = (String)contentreq.get("canNotWalk_like");
+							String canNotWalk_isNull = (String)contentreq.get("canNotWalk_isNull");
+							String canNotWalk_isNotNull = (String)contentreq.get("canNotWalk_isNotNull");
+							String canNotWalk_in = (String)contentreq.get("canNotWalk_in");
+							String canNotWalk = (String)contentreq.get("canNotWalk");
+							if(canNotWalk_like!=null){
+	                        	queryMapReturn.put("canNotWalk_like", canNotWalk_like);
+							}
+							if(canNotWalk_isNull!=null){
+	                        	queryMapReturn.put("canNotWalk_isNull", canNotWalk_isNull);
+							}
+							if(canNotWalk_isNotNull!=null){
+	                        	queryMapReturn.put("canNotWalk_isNotNull", canNotWalk_isNotNull);
+							}
+							if(canNotWalk_in!=null){
+	                        	queryMapReturn.put("canNotWalk_in", canNotWalk_in);
+							}
+							if(canNotWalk!=null){
+	                        	queryMapReturn.put("canNotWalk", canNotWalk);
+							}						           
+																																							String coordinatedFingerNoseTest_like = (String)contentreq.get("coordinatedFingerNoseTest_like");
+							String coordinatedFingerNoseTest_isNull = (String)contentreq.get("coordinatedFingerNoseTest_isNull");
+							String coordinatedFingerNoseTest_isNotNull = (String)contentreq.get("coordinatedFingerNoseTest_isNotNull");
+							String coordinatedFingerNoseTest_in = (String)contentreq.get("coordinatedFingerNoseTest_in");
+							String coordinatedFingerNoseTest = (String)contentreq.get("coordinatedFingerNoseTest");
+							if(coordinatedFingerNoseTest_like!=null){
+	                        	queryMapReturn.put("coordinatedFingerNoseTest_like", coordinatedFingerNoseTest_like);
+							}
+							if(coordinatedFingerNoseTest_isNull!=null){
+	                        	queryMapReturn.put("coordinatedFingerNoseTest_isNull", coordinatedFingerNoseTest_isNull);
+							}
+							if(coordinatedFingerNoseTest_isNotNull!=null){
+	                        	queryMapReturn.put("coordinatedFingerNoseTest_isNotNull", coordinatedFingerNoseTest_isNotNull);
+							}
+							if(coordinatedFingerNoseTest_in!=null){
+	                        	queryMapReturn.put("coordinatedFingerNoseTest_in", coordinatedFingerNoseTest_in);
+							}
+							if(coordinatedFingerNoseTest!=null){
+	                        	queryMapReturn.put("coordinatedFingerNoseTest", coordinatedFingerNoseTest);
+							}						           
+																																							String coordinatedStandShaking_like = (String)contentreq.get("coordinatedStandShaking_like");
+							String coordinatedStandShaking_isNull = (String)contentreq.get("coordinatedStandShaking_isNull");
+							String coordinatedStandShaking_isNotNull = (String)contentreq.get("coordinatedStandShaking_isNotNull");
+							String coordinatedStandShaking_in = (String)contentreq.get("coordinatedStandShaking_in");
+							String coordinatedStandShaking = (String)contentreq.get("coordinatedStandShaking");
+							if(coordinatedStandShaking_like!=null){
+	                        	queryMapReturn.put("coordinatedStandShaking_like", coordinatedStandShaking_like);
+							}
+							if(coordinatedStandShaking_isNull!=null){
+	                        	queryMapReturn.put("coordinatedStandShaking_isNull", coordinatedStandShaking_isNull);
+							}
+							if(coordinatedStandShaking_isNotNull!=null){
+	                        	queryMapReturn.put("coordinatedStandShaking_isNotNull", coordinatedStandShaking_isNotNull);
+							}
+							if(coordinatedStandShaking_in!=null){
+	                        	queryMapReturn.put("coordinatedStandShaking_in", coordinatedStandShaking_in);
+							}
+							if(coordinatedStandShaking!=null){
+	                        	queryMapReturn.put("coordinatedStandShaking", coordinatedStandShaking);
+							}						           
+																																							String coordinatedTremor_like = (String)contentreq.get("coordinatedTremor_like");
+							String coordinatedTremor_isNull = (String)contentreq.get("coordinatedTremor_isNull");
+							String coordinatedTremor_isNotNull = (String)contentreq.get("coordinatedTremor_isNotNull");
+							String coordinatedTremor_in = (String)contentreq.get("coordinatedTremor_in");
+							String coordinatedTremor = (String)contentreq.get("coordinatedTremor");
+							if(coordinatedTremor_like!=null){
+	                        	queryMapReturn.put("coordinatedTremor_like", coordinatedTremor_like);
+							}
+							if(coordinatedTremor_isNull!=null){
+	                        	queryMapReturn.put("coordinatedTremor_isNull", coordinatedTremor_isNull);
+							}
+							if(coordinatedTremor_isNotNull!=null){
+	                        	queryMapReturn.put("coordinatedTremor_isNotNull", coordinatedTremor_isNotNull);
+							}
+							if(coordinatedTremor_in!=null){
+	                        	queryMapReturn.put("coordinatedTremor_in", coordinatedTremor_in);
+							}
+							if(coordinatedTremor!=null){
+	                        	queryMapReturn.put("coordinatedTremor", coordinatedTremor);
+							}						           
+																																							String coordinationAndKneeTibiaTest_like = (String)contentreq.get("coordinationAndKneeTibiaTest_like");
+							String coordinationAndKneeTibiaTest_isNull = (String)contentreq.get("coordinationAndKneeTibiaTest_isNull");
+							String coordinationAndKneeTibiaTest_isNotNull = (String)contentreq.get("coordinationAndKneeTibiaTest_isNotNull");
+							String coordinationAndKneeTibiaTest_in = (String)contentreq.get("coordinationAndKneeTibiaTest_in");
+							String coordinationAndKneeTibiaTest = (String)contentreq.get("coordinationAndKneeTibiaTest");
+							if(coordinationAndKneeTibiaTest_like!=null){
+	                        	queryMapReturn.put("coordinationAndKneeTibiaTest_like", coordinationAndKneeTibiaTest_like);
+							}
+							if(coordinationAndKneeTibiaTest_isNull!=null){
+	                        	queryMapReturn.put("coordinationAndKneeTibiaTest_isNull", coordinationAndKneeTibiaTest_isNull);
+							}
+							if(coordinationAndKneeTibiaTest_isNotNull!=null){
+	                        	queryMapReturn.put("coordinationAndKneeTibiaTest_isNotNull", coordinationAndKneeTibiaTest_isNotNull);
+							}
+							if(coordinationAndKneeTibiaTest_in!=null){
+	                        	queryMapReturn.put("coordinationAndKneeTibiaTest_in", coordinationAndKneeTibiaTest_in);
+							}
+							if(coordinationAndKneeTibiaTest!=null){
+	                        	queryMapReturn.put("coordinationAndKneeTibiaTest", coordinationAndKneeTibiaTest);
+							}						           
+																															Integer barthelIndex_gt = (Integer)contentreq.get("barthelIndex_gt");
+						Integer barthelIndex_ge = (Integer)contentreq.get("barthelIndex_ge");
+						Integer barthelIndex_lt = (Integer)contentreq.get("barthelIndex_lt");
+						Integer barthelIndex_le = (Integer)contentreq.get("barthelIndex_le");
+						String barthelIndex_in = (String)contentreq.get("barthelIndex_in");
+						Integer barthelIndex = (Integer)contentreq.get("barthelIndex");
+                        if(barthelIndex_gt!=null){
+                        	queryMapReturn.put("barthelIndex_gt", barthelIndex_gt);
+						}
+						if(barthelIndex_ge!=null){
+                        	queryMapReturn.put("barthelIndex_ge", barthelIndex_ge);
+						}
+						if(barthelIndex_lt!=null){
+                        	queryMapReturn.put("barthelIndex_lt", barthelIndex_lt);
+						}
+						if(barthelIndex_le!=null){
+                        	queryMapReturn.put("barthelIndex_le", barthelIndex_le);
+						}
+						if(barthelIndex_in!=null){
+                        	queryMapReturn.put("barthelIndex_in", barthelIndex_in);
+						}
+						if(barthelIndex!=null){
+                        	queryMapReturn.put("barthelIndex", barthelIndex);
+						}		
+																								Integer masEvaluation_gt = (Integer)contentreq.get("masEvaluation_gt");
+						Integer masEvaluation_ge = (Integer)contentreq.get("masEvaluation_ge");
+						Integer masEvaluation_lt = (Integer)contentreq.get("masEvaluation_lt");
+						Integer masEvaluation_le = (Integer)contentreq.get("masEvaluation_le");
+						String masEvaluation_in = (String)contentreq.get("masEvaluation_in");
+						Integer masEvaluation = (Integer)contentreq.get("masEvaluation");
+                        if(masEvaluation_gt!=null){
+                        	queryMapReturn.put("masEvaluation_gt", masEvaluation_gt);
+						}
+						if(masEvaluation_ge!=null){
+                        	queryMapReturn.put("masEvaluation_ge", masEvaluation_ge);
+						}
+						if(masEvaluation_lt!=null){
+                        	queryMapReturn.put("masEvaluation_lt", masEvaluation_lt);
+						}
+						if(masEvaluation_le!=null){
+                        	queryMapReturn.put("masEvaluation_le", masEvaluation_le);
+						}
+						if(masEvaluation_in!=null){
+                        	queryMapReturn.put("masEvaluation_in", masEvaluation_in);
+						}
+						if(masEvaluation!=null){
+                        	queryMapReturn.put("masEvaluation", masEvaluation);
+						}		
+																								Integer facEvaluation_gt = (Integer)contentreq.get("facEvaluation_gt");
+						Integer facEvaluation_ge = (Integer)contentreq.get("facEvaluation_ge");
+						Integer facEvaluation_lt = (Integer)contentreq.get("facEvaluation_lt");
+						Integer facEvaluation_le = (Integer)contentreq.get("facEvaluation_le");
+						String facEvaluation_in = (String)contentreq.get("facEvaluation_in");
+						Integer facEvaluation = (Integer)contentreq.get("facEvaluation");
+                        if(facEvaluation_gt!=null){
+                        	queryMapReturn.put("facEvaluation_gt", facEvaluation_gt);
+						}
+						if(facEvaluation_ge!=null){
+                        	queryMapReturn.put("facEvaluation_ge", facEvaluation_ge);
+						}
+						if(facEvaluation_lt!=null){
+                        	queryMapReturn.put("facEvaluation_lt", facEvaluation_lt);
+						}
+						if(facEvaluation_le!=null){
+                        	queryMapReturn.put("facEvaluation_le", facEvaluation_le);
+						}
+						if(facEvaluation_in!=null){
+                        	queryMapReturn.put("facEvaluation_in", facEvaluation_in);
+						}
+						if(facEvaluation!=null){
+                        	queryMapReturn.put("facEvaluation", facEvaluation);
+						}		
+																																String shoulderSubluxation_like = (String)contentreq.get("shoulderSubluxation_like");
+							String shoulderSubluxation_isNull = (String)contentreq.get("shoulderSubluxation_isNull");
+							String shoulderSubluxation_isNotNull = (String)contentreq.get("shoulderSubluxation_isNotNull");
+							String shoulderSubluxation_in = (String)contentreq.get("shoulderSubluxation_in");
+							String shoulderSubluxation = (String)contentreq.get("shoulderSubluxation");
+							if(shoulderSubluxation_like!=null){
+	                        	queryMapReturn.put("shoulderSubluxation_like", shoulderSubluxation_like);
+							}
+							if(shoulderSubluxation_isNull!=null){
+	                        	queryMapReturn.put("shoulderSubluxation_isNull", shoulderSubluxation_isNull);
+							}
+							if(shoulderSubluxation_isNotNull!=null){
+	                        	queryMapReturn.put("shoulderSubluxation_isNotNull", shoulderSubluxation_isNotNull);
+							}
+							if(shoulderSubluxation_in!=null){
+	                        	queryMapReturn.put("shoulderSubluxation_in", shoulderSubluxation_in);
+							}
+							if(shoulderSubluxation!=null){
+	                        	queryMapReturn.put("shoulderSubluxation", shoulderSubluxation);
+							}						           
+																																							String contractureOfAchillesTendon_like = (String)contentreq.get("contractureOfAchillesTendon_like");
+							String contractureOfAchillesTendon_isNull = (String)contentreq.get("contractureOfAchillesTendon_isNull");
+							String contractureOfAchillesTendon_isNotNull = (String)contentreq.get("contractureOfAchillesTendon_isNotNull");
+							String contractureOfAchillesTendon_in = (String)contentreq.get("contractureOfAchillesTendon_in");
+							String contractureOfAchillesTendon = (String)contentreq.get("contractureOfAchillesTendon");
+							if(contractureOfAchillesTendon_like!=null){
+	                        	queryMapReturn.put("contractureOfAchillesTendon_like", contractureOfAchillesTendon_like);
+							}
+							if(contractureOfAchillesTendon_isNull!=null){
+	                        	queryMapReturn.put("contractureOfAchillesTendon_isNull", contractureOfAchillesTendon_isNull);
+							}
+							if(contractureOfAchillesTendon_isNotNull!=null){
+	                        	queryMapReturn.put("contractureOfAchillesTendon_isNotNull", contractureOfAchillesTendon_isNotNull);
+							}
+							if(contractureOfAchillesTendon_in!=null){
+	                        	queryMapReturn.put("contractureOfAchillesTendon_in", contractureOfAchillesTendon_in);
+							}
+							if(contractureOfAchillesTendon!=null){
+	                        	queryMapReturn.put("contractureOfAchillesTendon", contractureOfAchillesTendon);
+							}						           
+																																							String varusFootDrop_like = (String)contentreq.get("varusFootDrop_like");
+							String varusFootDrop_isNull = (String)contentreq.get("varusFootDrop_isNull");
+							String varusFootDrop_isNotNull = (String)contentreq.get("varusFootDrop_isNotNull");
+							String varusFootDrop_in = (String)contentreq.get("varusFootDrop_in");
+							String varusFootDrop = (String)contentreq.get("varusFootDrop");
+							if(varusFootDrop_like!=null){
+	                        	queryMapReturn.put("varusFootDrop_like", varusFootDrop_like);
+							}
+							if(varusFootDrop_isNull!=null){
+	                        	queryMapReturn.put("varusFootDrop_isNull", varusFootDrop_isNull);
+							}
+							if(varusFootDrop_isNotNull!=null){
+	                        	queryMapReturn.put("varusFootDrop_isNotNull", varusFootDrop_isNotNull);
+							}
+							if(varusFootDrop_in!=null){
+	                        	queryMapReturn.put("varusFootDrop_in", varusFootDrop_in);
+							}
+							if(varusFootDrop!=null){
+	                        	queryMapReturn.put("varusFootDrop", varusFootDrop);
+							}						           
+																																							String kneeTooDeep_like = (String)contentreq.get("kneeTooDeep_like");
+							String kneeTooDeep_isNull = (String)contentreq.get("kneeTooDeep_isNull");
+							String kneeTooDeep_isNotNull = (String)contentreq.get("kneeTooDeep_isNotNull");
+							String kneeTooDeep_in = (String)contentreq.get("kneeTooDeep_in");
+							String kneeTooDeep = (String)contentreq.get("kneeTooDeep");
+							if(kneeTooDeep_like!=null){
+	                        	queryMapReturn.put("kneeTooDeep_like", kneeTooDeep_like);
+							}
+							if(kneeTooDeep_isNull!=null){
+	                        	queryMapReturn.put("kneeTooDeep_isNull", kneeTooDeep_isNull);
+							}
+							if(kneeTooDeep_isNotNull!=null){
+	                        	queryMapReturn.put("kneeTooDeep_isNotNull", kneeTooDeep_isNotNull);
+							}
+							if(kneeTooDeep_in!=null){
+	                        	queryMapReturn.put("kneeTooDeep_in", kneeTooDeep_in);
+							}
+							if(kneeTooDeep!=null){
+	                        	queryMapReturn.put("kneeTooDeep", kneeTooDeep);
+							}						           
+																																							String shallowFeeling_like = (String)contentreq.get("shallowFeeling_like");
+							String shallowFeeling_isNull = (String)contentreq.get("shallowFeeling_isNull");
+							String shallowFeeling_isNotNull = (String)contentreq.get("shallowFeeling_isNotNull");
+							String shallowFeeling_in = (String)contentreq.get("shallowFeeling_in");
+							String shallowFeeling = (String)contentreq.get("shallowFeeling");
+							if(shallowFeeling_like!=null){
+	                        	queryMapReturn.put("shallowFeeling_like", shallowFeeling_like);
+							}
+							if(shallowFeeling_isNull!=null){
+	                        	queryMapReturn.put("shallowFeeling_isNull", shallowFeeling_isNull);
+							}
+							if(shallowFeeling_isNotNull!=null){
+	                        	queryMapReturn.put("shallowFeeling_isNotNull", shallowFeeling_isNotNull);
+							}
+							if(shallowFeeling_in!=null){
+	                        	queryMapReturn.put("shallowFeeling_in", shallowFeeling_in);
+							}
+							if(shallowFeeling!=null){
+	                        	queryMapReturn.put("shallowFeeling", shallowFeeling);
+							}						           
+																																							String deepFeeling_like = (String)contentreq.get("deepFeeling_like");
+							String deepFeeling_isNull = (String)contentreq.get("deepFeeling_isNull");
+							String deepFeeling_isNotNull = (String)contentreq.get("deepFeeling_isNotNull");
+							String deepFeeling_in = (String)contentreq.get("deepFeeling_in");
+							String deepFeeling = (String)contentreq.get("deepFeeling");
+							if(deepFeeling_like!=null){
+	                        	queryMapReturn.put("deepFeeling_like", deepFeeling_like);
+							}
+							if(deepFeeling_isNull!=null){
+	                        	queryMapReturn.put("deepFeeling_isNull", deepFeeling_isNull);
+							}
+							if(deepFeeling_isNotNull!=null){
+	                        	queryMapReturn.put("deepFeeling_isNotNull", deepFeeling_isNotNull);
+							}
+							if(deepFeeling_in!=null){
+	                        	queryMapReturn.put("deepFeeling_in", deepFeeling_in);
+							}
+							if(deepFeeling!=null){
+	                        	queryMapReturn.put("deepFeeling", deepFeeling);
+							}						           
+																																							String complexFeeling_like = (String)contentreq.get("complexFeeling_like");
+							String complexFeeling_isNull = (String)contentreq.get("complexFeeling_isNull");
+							String complexFeeling_isNotNull = (String)contentreq.get("complexFeeling_isNotNull");
+							String complexFeeling_in = (String)contentreq.get("complexFeeling_in");
+							String complexFeeling = (String)contentreq.get("complexFeeling");
+							if(complexFeeling_like!=null){
+	                        	queryMapReturn.put("complexFeeling_like", complexFeeling_like);
+							}
+							if(complexFeeling_isNull!=null){
+	                        	queryMapReturn.put("complexFeeling_isNull", complexFeeling_isNull);
+							}
+							if(complexFeeling_isNotNull!=null){
+	                        	queryMapReturn.put("complexFeeling_isNotNull", complexFeeling_isNotNull);
+							}
+							if(complexFeeling_in!=null){
+	                        	queryMapReturn.put("complexFeeling_in", complexFeeling_in);
+							}
+							if(complexFeeling!=null){
+	                        	queryMapReturn.put("complexFeeling", complexFeeling);
+							}						           
+																																							String pain_like = (String)contentreq.get("pain_like");
+							String pain_isNull = (String)contentreq.get("pain_isNull");
+							String pain_isNotNull = (String)contentreq.get("pain_isNotNull");
+							String pain_in = (String)contentreq.get("pain_in");
+							String pain = (String)contentreq.get("pain");
+							if(pain_like!=null){
+	                        	queryMapReturn.put("pain_like", pain_like);
+							}
+							if(pain_isNull!=null){
+	                        	queryMapReturn.put("pain_isNull", pain_isNull);
+							}
+							if(pain_isNotNull!=null){
+	                        	queryMapReturn.put("pain_isNotNull", pain_isNotNull);
+							}
+							if(pain_in!=null){
+	                        	queryMapReturn.put("pain_in", pain_in);
+							}
+							if(pain!=null){
+	                        	queryMapReturn.put("pain", pain);
+							}						           
+																																							String jointMobility_like = (String)contentreq.get("jointMobility_like");
+							String jointMobility_isNull = (String)contentreq.get("jointMobility_isNull");
+							String jointMobility_isNotNull = (String)contentreq.get("jointMobility_isNotNull");
+							String jointMobility_in = (String)contentreq.get("jointMobility_in");
+							String jointMobility = (String)contentreq.get("jointMobility");
+							if(jointMobility_like!=null){
+	                        	queryMapReturn.put("jointMobility_like", jointMobility_like);
+							}
+							if(jointMobility_isNull!=null){
+	                        	queryMapReturn.put("jointMobility_isNull", jointMobility_isNull);
+							}
+							if(jointMobility_isNotNull!=null){
+	                        	queryMapReturn.put("jointMobility_isNotNull", jointMobility_isNotNull);
+							}
+							if(jointMobility_in!=null){
+	                        	queryMapReturn.put("jointMobility_in", jointMobility_in);
+							}
+							if(jointMobility!=null){
+	                        	queryMapReturn.put("jointMobility", jointMobility);
+							}						           
+																						
+						    																					Integer skinLesionsId = (Integer)contentreq.get("skinLesionsId");
+	                        if(skinLesionsId!=null){
+	                        	queryMapReturn.put("skinLesionsId", skinLesionsId);
+	                        }		           
+																					
+																												String skinLesionsListShow = (String)contentreq.get("skinLesionsListShow");
+							if("true".equals(skinLesionsListShow)){
+								skinLesionsListShowReturn = true;
+							}		           
+																																								}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				    Object orderreq = (Object) reqParams.get("order");
+					if (orderreq != null) {
+						JSONArray order = (JSONArray)orderreq;
+						orderListReturn = new ArrayList<OrderVO>();
+						for(int i=0;i<order.size();i++){
+							JSONObject obj = order.getJSONObject(i);
+							OrderVO orderVO = new OrderVO();
+							orderVO.setName((String)obj.get("column"));
+							orderVO.setOrderType((String)obj.get("type"));
+							orderListReturn.add(orderVO);
+						}						
+					}
+				}
+			} else if ("DEL_RECOVERY_INFO_REQUEST".equals(command)) {
+				actionReturn = "del";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");	
+						    																					String delSkinLesionsList = (String)contentreq.get("delSkinLesionsList");
+							if("true".equals(delSkinLesionsList)){
+								delSkinLesionsListReturn = true;
+							}		           
+																																								}	
+				}
+			} else if ("DEL_RECOVERY_LIST_REQUEST".equals(command)) {
+				actionReturn = "delList";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																																String recoveryTimeForTheFirstTime_gt = (String)contentreq.get("recoveryTimeForTheFirstTime_gt");
+							String recoveryTimeForTheFirstTime_ge = (String)contentreq.get("recoveryTimeForTheFirstTime_ge");
+							String recoveryTimeForTheFirstTime_lt = (String)contentreq.get("recoveryTimeForTheFirstTime_lt");
+							String recoveryTimeForTheFirstTime_le = (String)contentreq.get("recoveryTimeForTheFirstTime_le");
+	                        if(recoveryTimeForTheFirstTime_gt!=null){
+	                        	queryMapReturn.put("recoveryTimeForTheFirstTime_gt", recoveryTimeForTheFirstTime_gt);
+							}
+							if(recoveryTimeForTheFirstTime_ge!=null){
+	                        	queryMapReturn.put("recoveryTimeForTheFirstTime_ge", recoveryTimeForTheFirstTime_ge);
+							}
+							if(recoveryTimeForTheFirstTime_lt!=null){
+	                        	queryMapReturn.put("recoveryTimeForTheFirstTime_lt", recoveryTimeForTheFirstTime_lt);
+							}
+							if(recoveryTimeForTheFirstTime_le!=null){
+	                        	queryMapReturn.put("recoveryTimeForTheFirstTime_le", recoveryTimeForTheFirstTime_le);
+							} 
+																															Integer bloodPressure1_gt = (Integer)contentreq.get("bloodPressure1_gt");
+						Integer bloodPressure1_ge = (Integer)contentreq.get("bloodPressure1_ge");
+						Integer bloodPressure1_lt = (Integer)contentreq.get("bloodPressure1_lt");
+						Integer bloodPressure1_le = (Integer)contentreq.get("bloodPressure1_le");
+						String bloodPressure1_in = (String)contentreq.get("bloodPressure1_in");
+						Integer bloodPressure1 = (Integer)contentreq.get("bloodPressure1");
+                        if(bloodPressure1_gt!=null){
+                        	queryMapReturn.put("bloodPressure1_gt", bloodPressure1_gt);
+						}
+						if(bloodPressure1_ge!=null){
+                        	queryMapReturn.put("bloodPressure1_ge", bloodPressure1_ge);
+						}
+						if(bloodPressure1_lt!=null){
+                        	queryMapReturn.put("bloodPressure1_lt", bloodPressure1_lt);
+						}
+						if(bloodPressure1_le!=null){
+                        	queryMapReturn.put("bloodPressure1_le", bloodPressure1_le);
+						}
+						if(bloodPressure1_in!=null){
+                        	queryMapReturn.put("bloodPressure1_in", bloodPressure1_in);
+						}
+						if(bloodPressure1!=null){
+                        	queryMapReturn.put("bloodPressure1", bloodPressure1);
+						}		
+																								Integer bloodPressure2_gt = (Integer)contentreq.get("bloodPressure2_gt");
+						Integer bloodPressure2_ge = (Integer)contentreq.get("bloodPressure2_ge");
+						Integer bloodPressure2_lt = (Integer)contentreq.get("bloodPressure2_lt");
+						Integer bloodPressure2_le = (Integer)contentreq.get("bloodPressure2_le");
+						String bloodPressure2_in = (String)contentreq.get("bloodPressure2_in");
+						Integer bloodPressure2 = (Integer)contentreq.get("bloodPressure2");
+                        if(bloodPressure2_gt!=null){
+                        	queryMapReturn.put("bloodPressure2_gt", bloodPressure2_gt);
+						}
+						if(bloodPressure2_ge!=null){
+                        	queryMapReturn.put("bloodPressure2_ge", bloodPressure2_ge);
+						}
+						if(bloodPressure2_lt!=null){
+                        	queryMapReturn.put("bloodPressure2_lt", bloodPressure2_lt);
+						}
+						if(bloodPressure2_le!=null){
+                        	queryMapReturn.put("bloodPressure2_le", bloodPressure2_le);
+						}
+						if(bloodPressure2_in!=null){
+                        	queryMapReturn.put("bloodPressure2_in", bloodPressure2_in);
+						}
+						if(bloodPressure2!=null){
+                        	queryMapReturn.put("bloodPressure2", bloodPressure2);
+						}		
+																								Integer pulse_gt = (Integer)contentreq.get("pulse_gt");
+						Integer pulse_ge = (Integer)contentreq.get("pulse_ge");
+						Integer pulse_lt = (Integer)contentreq.get("pulse_lt");
+						Integer pulse_le = (Integer)contentreq.get("pulse_le");
+						String pulse_in = (String)contentreq.get("pulse_in");
+						Integer pulse = (Integer)contentreq.get("pulse");
+                        if(pulse_gt!=null){
+                        	queryMapReturn.put("pulse_gt", pulse_gt);
+						}
+						if(pulse_ge!=null){
+                        	queryMapReturn.put("pulse_ge", pulse_ge);
+						}
+						if(pulse_lt!=null){
+                        	queryMapReturn.put("pulse_lt", pulse_lt);
+						}
+						if(pulse_le!=null){
+                        	queryMapReturn.put("pulse_le", pulse_le);
+						}
+						if(pulse_in!=null){
+                        	queryMapReturn.put("pulse_in", pulse_in);
+						}
+						if(pulse!=null){
+                        	queryMapReturn.put("pulse", pulse);
+						}		
+																								Integer heartRate_gt = (Integer)contentreq.get("heartRate_gt");
+						Integer heartRate_ge = (Integer)contentreq.get("heartRate_ge");
+						Integer heartRate_lt = (Integer)contentreq.get("heartRate_lt");
+						Integer heartRate_le = (Integer)contentreq.get("heartRate_le");
+						String heartRate_in = (String)contentreq.get("heartRate_in");
+						Integer heartRate = (Integer)contentreq.get("heartRate");
+                        if(heartRate_gt!=null){
+                        	queryMapReturn.put("heartRate_gt", heartRate_gt);
+						}
+						if(heartRate_ge!=null){
+                        	queryMapReturn.put("heartRate_ge", heartRate_ge);
+						}
+						if(heartRate_lt!=null){
+                        	queryMapReturn.put("heartRate_lt", heartRate_lt);
+						}
+						if(heartRate_le!=null){
+                        	queryMapReturn.put("heartRate_le", heartRate_le);
+						}
+						if(heartRate_in!=null){
+                        	queryMapReturn.put("heartRate_in", heartRate_in);
+						}
+						if(heartRate!=null){
+                        	queryMapReturn.put("heartRate", heartRate);
+						}		
+																																String rhythm_like = (String)contentreq.get("rhythm_like");
+							String rhythm_isNull = (String)contentreq.get("rhythm_isNull");
+							String rhythm_isNotNull = (String)contentreq.get("rhythm_isNotNull");
+							String rhythm_in = (String)contentreq.get("rhythm_in");
+							String rhythm = (String)contentreq.get("rhythm");
+							if(rhythm_like!=null){
+	                        	queryMapReturn.put("rhythm_like", rhythm_like);
+							}
+							if(rhythm_isNull!=null){
+	                        	queryMapReturn.put("rhythm_isNull", rhythm_isNull);
+							}
+							if(rhythm_isNotNull!=null){
+	                        	queryMapReturn.put("rhythm_isNotNull", rhythm_isNotNull);
+							}
+							if(rhythm_in!=null){
+	                        	queryMapReturn.put("rhythm_in", rhythm_in);
+							}
+							if(rhythm!=null){
+	                        	queryMapReturn.put("rhythm", rhythm);
+							}						           
+																															Integer breathing_gt = (Integer)contentreq.get("breathing_gt");
+						Integer breathing_ge = (Integer)contentreq.get("breathing_ge");
+						Integer breathing_lt = (Integer)contentreq.get("breathing_lt");
+						Integer breathing_le = (Integer)contentreq.get("breathing_le");
+						String breathing_in = (String)contentreq.get("breathing_in");
+						Integer breathing = (Integer)contentreq.get("breathing");
+                        if(breathing_gt!=null){
+                        	queryMapReturn.put("breathing_gt", breathing_gt);
+						}
+						if(breathing_ge!=null){
+                        	queryMapReturn.put("breathing_ge", breathing_ge);
+						}
+						if(breathing_lt!=null){
+                        	queryMapReturn.put("breathing_lt", breathing_lt);
+						}
+						if(breathing_le!=null){
+                        	queryMapReturn.put("breathing_le", breathing_le);
+						}
+						if(breathing_in!=null){
+                        	queryMapReturn.put("breathing_in", breathing_in);
+						}
+						if(breathing!=null){
+                        	queryMapReturn.put("breathing", breathing);
+						}		
+																																String skinLesions_like = (String)contentreq.get("skinLesions_like");
+							String skinLesions_isNull = (String)contentreq.get("skinLesions_isNull");
+							String skinLesions_isNotNull = (String)contentreq.get("skinLesions_isNotNull");
+							String skinLesions_in = (String)contentreq.get("skinLesions_in");
+							String skinLesions = (String)contentreq.get("skinLesions");
+							if(skinLesions_like!=null){
+	                        	queryMapReturn.put("skinLesions_like", skinLesions_like);
+							}
+							if(skinLesions_isNull!=null){
+	                        	queryMapReturn.put("skinLesions_isNull", skinLesions_isNull);
+							}
+							if(skinLesions_isNotNull!=null){
+	                        	queryMapReturn.put("skinLesions_isNotNull", skinLesions_isNotNull);
+							}
+							if(skinLesions_in!=null){
+	                        	queryMapReturn.put("skinLesions_in", skinLesions_in);
+							}
+							if(skinLesions!=null){
+	                        	queryMapReturn.put("skinLesions", skinLesions);
+							}						           
+																																							String stateOfConsciousness_like = (String)contentreq.get("stateOfConsciousness_like");
+							String stateOfConsciousness_isNull = (String)contentreq.get("stateOfConsciousness_isNull");
+							String stateOfConsciousness_isNotNull = (String)contentreq.get("stateOfConsciousness_isNotNull");
+							String stateOfConsciousness_in = (String)contentreq.get("stateOfConsciousness_in");
+							String stateOfConsciousness = (String)contentreq.get("stateOfConsciousness");
+							if(stateOfConsciousness_like!=null){
+	                        	queryMapReturn.put("stateOfConsciousness_like", stateOfConsciousness_like);
+							}
+							if(stateOfConsciousness_isNull!=null){
+	                        	queryMapReturn.put("stateOfConsciousness_isNull", stateOfConsciousness_isNull);
+							}
+							if(stateOfConsciousness_isNotNull!=null){
+	                        	queryMapReturn.put("stateOfConsciousness_isNotNull", stateOfConsciousness_isNotNull);
+							}
+							if(stateOfConsciousness_in!=null){
+	                        	queryMapReturn.put("stateOfConsciousness_in", stateOfConsciousness_in);
+							}
+							if(stateOfConsciousness!=null){
+	                        	queryMapReturn.put("stateOfConsciousness", stateOfConsciousness);
+							}						           
+																																							String languageFunction_like = (String)contentreq.get("languageFunction_like");
+							String languageFunction_isNull = (String)contentreq.get("languageFunction_isNull");
+							String languageFunction_isNotNull = (String)contentreq.get("languageFunction_isNotNull");
+							String languageFunction_in = (String)contentreq.get("languageFunction_in");
+							String languageFunction = (String)contentreq.get("languageFunction");
+							if(languageFunction_like!=null){
+	                        	queryMapReturn.put("languageFunction_like", languageFunction_like);
+							}
+							if(languageFunction_isNull!=null){
+	                        	queryMapReturn.put("languageFunction_isNull", languageFunction_isNull);
+							}
+							if(languageFunction_isNotNull!=null){
+	                        	queryMapReturn.put("languageFunction_isNotNull", languageFunction_isNotNull);
+							}
+							if(languageFunction_in!=null){
+	                        	queryMapReturn.put("languageFunction_in", languageFunction_in);
+							}
+							if(languageFunction!=null){
+	                        	queryMapReturn.put("languageFunction", languageFunction);
+							}						           
+																																							String bilateralNormal_like = (String)contentreq.get("bilateralNormal_like");
+							String bilateralNormal_isNull = (String)contentreq.get("bilateralNormal_isNull");
+							String bilateralNormal_isNotNull = (String)contentreq.get("bilateralNormal_isNotNull");
+							String bilateralNormal_in = (String)contentreq.get("bilateralNormal_in");
+							String bilateralNormal = (String)contentreq.get("bilateralNormal");
+							if(bilateralNormal_like!=null){
+	                        	queryMapReturn.put("bilateralNormal_like", bilateralNormal_like);
+							}
+							if(bilateralNormal_isNull!=null){
+	                        	queryMapReturn.put("bilateralNormal_isNull", bilateralNormal_isNull);
+							}
+							if(bilateralNormal_isNotNull!=null){
+	                        	queryMapReturn.put("bilateralNormal_isNotNull", bilateralNormal_isNotNull);
+							}
+							if(bilateralNormal_in!=null){
+	                        	queryMapReturn.put("bilateralNormal_in", bilateralNormal_in);
+							}
+							if(bilateralNormal!=null){
+	                        	queryMapReturn.put("bilateralNormal", bilateralNormal);
+							}						           
+																																							String dysfunction_like = (String)contentreq.get("dysfunction_like");
+							String dysfunction_isNull = (String)contentreq.get("dysfunction_isNull");
+							String dysfunction_isNotNull = (String)contentreq.get("dysfunction_isNotNull");
+							String dysfunction_in = (String)contentreq.get("dysfunction_in");
+							String dysfunction = (String)contentreq.get("dysfunction");
+							if(dysfunction_like!=null){
+	                        	queryMapReturn.put("dysfunction_like", dysfunction_like);
+							}
+							if(dysfunction_isNull!=null){
+	                        	queryMapReturn.put("dysfunction_isNull", dysfunction_isNull);
+							}
+							if(dysfunction_isNotNull!=null){
+	                        	queryMapReturn.put("dysfunction_isNotNull", dysfunction_isNotNull);
+							}
+							if(dysfunction_in!=null){
+	                        	queryMapReturn.put("dysfunction_in", dysfunction_in);
+							}
+							if(dysfunction!=null){
+	                        	queryMapReturn.put("dysfunction", dysfunction);
+							}						           
+																																							String handedness_like = (String)contentreq.get("handedness_like");
+							String handedness_isNull = (String)contentreq.get("handedness_isNull");
+							String handedness_isNotNull = (String)contentreq.get("handedness_isNotNull");
+							String handedness_in = (String)contentreq.get("handedness_in");
+							String handedness = (String)contentreq.get("handedness");
+							if(handedness_like!=null){
+	                        	queryMapReturn.put("handedness_like", handedness_like);
+							}
+							if(handedness_isNull!=null){
+	                        	queryMapReturn.put("handedness_isNull", handedness_isNull);
+							}
+							if(handedness_isNotNull!=null){
+	                        	queryMapReturn.put("handedness_isNotNull", handedness_isNotNull);
+							}
+							if(handedness_in!=null){
+	                        	queryMapReturn.put("handedness_in", handedness_in);
+							}
+							if(handedness!=null){
+	                        	queryMapReturn.put("handedness", handedness);
+							}						           
+																																							String limitedJointMovementOrFracture_like = (String)contentreq.get("limitedJointMovementOrFracture_like");
+							String limitedJointMovementOrFracture_isNull = (String)contentreq.get("limitedJointMovementOrFracture_isNull");
+							String limitedJointMovementOrFracture_isNotNull = (String)contentreq.get("limitedJointMovementOrFracture_isNotNull");
+							String limitedJointMovementOrFracture_in = (String)contentreq.get("limitedJointMovementOrFracture_in");
+							String limitedJointMovementOrFracture = (String)contentreq.get("limitedJointMovementOrFracture");
+							if(limitedJointMovementOrFracture_like!=null){
+	                        	queryMapReturn.put("limitedJointMovementOrFracture_like", limitedJointMovementOrFracture_like);
+							}
+							if(limitedJointMovementOrFracture_isNull!=null){
+	                        	queryMapReturn.put("limitedJointMovementOrFracture_isNull", limitedJointMovementOrFracture_isNull);
+							}
+							if(limitedJointMovementOrFracture_isNotNull!=null){
+	                        	queryMapReturn.put("limitedJointMovementOrFracture_isNotNull", limitedJointMovementOrFracture_isNotNull);
+							}
+							if(limitedJointMovementOrFracture_in!=null){
+	                        	queryMapReturn.put("limitedJointMovementOrFracture_in", limitedJointMovementOrFracture_in);
+							}
+							if(limitedJointMovementOrFracture!=null){
+	                        	queryMapReturn.put("limitedJointMovementOrFracture", limitedJointMovementOrFracture);
+							}						           
+																																							String muscleToneUpperLimb_like = (String)contentreq.get("muscleToneUpperLimb_like");
+							String muscleToneUpperLimb_isNull = (String)contentreq.get("muscleToneUpperLimb_isNull");
+							String muscleToneUpperLimb_isNotNull = (String)contentreq.get("muscleToneUpperLimb_isNotNull");
+							String muscleToneUpperLimb_in = (String)contentreq.get("muscleToneUpperLimb_in");
+							String muscleToneUpperLimb = (String)contentreq.get("muscleToneUpperLimb");
+							if(muscleToneUpperLimb_like!=null){
+	                        	queryMapReturn.put("muscleToneUpperLimb_like", muscleToneUpperLimb_like);
+							}
+							if(muscleToneUpperLimb_isNull!=null){
+	                        	queryMapReturn.put("muscleToneUpperLimb_isNull", muscleToneUpperLimb_isNull);
+							}
+							if(muscleToneUpperLimb_isNotNull!=null){
+	                        	queryMapReturn.put("muscleToneUpperLimb_isNotNull", muscleToneUpperLimb_isNotNull);
+							}
+							if(muscleToneUpperLimb_in!=null){
+	                        	queryMapReturn.put("muscleToneUpperLimb_in", muscleToneUpperLimb_in);
+							}
+							if(muscleToneUpperLimb!=null){
+	                        	queryMapReturn.put("muscleToneUpperLimb", muscleToneUpperLimb);
+							}						           
+																																							String muscleToneLowerLimb_like = (String)contentreq.get("muscleToneLowerLimb_like");
+							String muscleToneLowerLimb_isNull = (String)contentreq.get("muscleToneLowerLimb_isNull");
+							String muscleToneLowerLimb_isNotNull = (String)contentreq.get("muscleToneLowerLimb_isNotNull");
+							String muscleToneLowerLimb_in = (String)contentreq.get("muscleToneLowerLimb_in");
+							String muscleToneLowerLimb = (String)contentreq.get("muscleToneLowerLimb");
+							if(muscleToneLowerLimb_like!=null){
+	                        	queryMapReturn.put("muscleToneLowerLimb_like", muscleToneLowerLimb_like);
+							}
+							if(muscleToneLowerLimb_isNull!=null){
+	                        	queryMapReturn.put("muscleToneLowerLimb_isNull", muscleToneLowerLimb_isNull);
+							}
+							if(muscleToneLowerLimb_isNotNull!=null){
+	                        	queryMapReturn.put("muscleToneLowerLimb_isNotNull", muscleToneLowerLimb_isNotNull);
+							}
+							if(muscleToneLowerLimb_in!=null){
+	                        	queryMapReturn.put("muscleToneLowerLimb_in", muscleToneLowerLimb_in);
+							}
+							if(muscleToneLowerLimb!=null){
+	                        	queryMapReturn.put("muscleToneLowerLimb", muscleToneLowerLimb);
+							}						           
+																																							String theBalanceFunctionOfTheSeat_like = (String)contentreq.get("theBalanceFunctionOfTheSeat_like");
+							String theBalanceFunctionOfTheSeat_isNull = (String)contentreq.get("theBalanceFunctionOfTheSeat_isNull");
+							String theBalanceFunctionOfTheSeat_isNotNull = (String)contentreq.get("theBalanceFunctionOfTheSeat_isNotNull");
+							String theBalanceFunctionOfTheSeat_in = (String)contentreq.get("theBalanceFunctionOfTheSeat_in");
+							String theBalanceFunctionOfTheSeat = (String)contentreq.get("theBalanceFunctionOfTheSeat");
+							if(theBalanceFunctionOfTheSeat_like!=null){
+	                        	queryMapReturn.put("theBalanceFunctionOfTheSeat_like", theBalanceFunctionOfTheSeat_like);
+							}
+							if(theBalanceFunctionOfTheSeat_isNull!=null){
+	                        	queryMapReturn.put("theBalanceFunctionOfTheSeat_isNull", theBalanceFunctionOfTheSeat_isNull);
+							}
+							if(theBalanceFunctionOfTheSeat_isNotNull!=null){
+	                        	queryMapReturn.put("theBalanceFunctionOfTheSeat_isNotNull", theBalanceFunctionOfTheSeat_isNotNull);
+							}
+							if(theBalanceFunctionOfTheSeat_in!=null){
+	                        	queryMapReturn.put("theBalanceFunctionOfTheSeat_in", theBalanceFunctionOfTheSeat_in);
+							}
+							if(theBalanceFunctionOfTheSeat!=null){
+	                        	queryMapReturn.put("theBalanceFunctionOfTheSeat", theBalanceFunctionOfTheSeat);
+							}						           
+																																							String balanceFunction_like = (String)contentreq.get("balanceFunction_like");
+							String balanceFunction_isNull = (String)contentreq.get("balanceFunction_isNull");
+							String balanceFunction_isNotNull = (String)contentreq.get("balanceFunction_isNotNull");
+							String balanceFunction_in = (String)contentreq.get("balanceFunction_in");
+							String balanceFunction = (String)contentreq.get("balanceFunction");
+							if(balanceFunction_like!=null){
+	                        	queryMapReturn.put("balanceFunction_like", balanceFunction_like);
+							}
+							if(balanceFunction_isNull!=null){
+	                        	queryMapReturn.put("balanceFunction_isNull", balanceFunction_isNull);
+							}
+							if(balanceFunction_isNotNull!=null){
+	                        	queryMapReturn.put("balanceFunction_isNotNull", balanceFunction_isNotNull);
+							}
+							if(balanceFunction_in!=null){
+	                        	queryMapReturn.put("balanceFunction_in", balanceFunction_in);
+							}
+							if(balanceFunction!=null){
+	                        	queryMapReturn.put("balanceFunction", balanceFunction);
+							}						           
+																																							String upperLimbMuscleStrength_like = (String)contentreq.get("upperLimbMuscleStrength_like");
+							String upperLimbMuscleStrength_isNull = (String)contentreq.get("upperLimbMuscleStrength_isNull");
+							String upperLimbMuscleStrength_isNotNull = (String)contentreq.get("upperLimbMuscleStrength_isNotNull");
+							String upperLimbMuscleStrength_in = (String)contentreq.get("upperLimbMuscleStrength_in");
+							String upperLimbMuscleStrength = (String)contentreq.get("upperLimbMuscleStrength");
+							if(upperLimbMuscleStrength_like!=null){
+	                        	queryMapReturn.put("upperLimbMuscleStrength_like", upperLimbMuscleStrength_like);
+							}
+							if(upperLimbMuscleStrength_isNull!=null){
+	                        	queryMapReturn.put("upperLimbMuscleStrength_isNull", upperLimbMuscleStrength_isNull);
+							}
+							if(upperLimbMuscleStrength_isNotNull!=null){
+	                        	queryMapReturn.put("upperLimbMuscleStrength_isNotNull", upperLimbMuscleStrength_isNotNull);
+							}
+							if(upperLimbMuscleStrength_in!=null){
+	                        	queryMapReturn.put("upperLimbMuscleStrength_in", upperLimbMuscleStrength_in);
+							}
+							if(upperLimbMuscleStrength!=null){
+	                        	queryMapReturn.put("upperLimbMuscleStrength", upperLimbMuscleStrength);
+							}						           
+																																							String muscleStrengthOfLowerLimb_like = (String)contentreq.get("muscleStrengthOfLowerLimb_like");
+							String muscleStrengthOfLowerLimb_isNull = (String)contentreq.get("muscleStrengthOfLowerLimb_isNull");
+							String muscleStrengthOfLowerLimb_isNotNull = (String)contentreq.get("muscleStrengthOfLowerLimb_isNotNull");
+							String muscleStrengthOfLowerLimb_in = (String)contentreq.get("muscleStrengthOfLowerLimb_in");
+							String muscleStrengthOfLowerLimb = (String)contentreq.get("muscleStrengthOfLowerLimb");
+							if(muscleStrengthOfLowerLimb_like!=null){
+	                        	queryMapReturn.put("muscleStrengthOfLowerLimb_like", muscleStrengthOfLowerLimb_like);
+							}
+							if(muscleStrengthOfLowerLimb_isNull!=null){
+	                        	queryMapReturn.put("muscleStrengthOfLowerLimb_isNull", muscleStrengthOfLowerLimb_isNull);
+							}
+							if(muscleStrengthOfLowerLimb_isNotNull!=null){
+	                        	queryMapReturn.put("muscleStrengthOfLowerLimb_isNotNull", muscleStrengthOfLowerLimb_isNotNull);
+							}
+							if(muscleStrengthOfLowerLimb_in!=null){
+	                        	queryMapReturn.put("muscleStrengthOfLowerLimb_in", muscleStrengthOfLowerLimb_in);
+							}
+							if(muscleStrengthOfLowerLimb!=null){
+	                        	queryMapReturn.put("muscleStrengthOfLowerLimb", muscleStrengthOfLowerLimb);
+							}						           
+																																							String reflectionDeepReflection_like = (String)contentreq.get("reflectionDeepReflection_like");
+							String reflectionDeepReflection_isNull = (String)contentreq.get("reflectionDeepReflection_isNull");
+							String reflectionDeepReflection_isNotNull = (String)contentreq.get("reflectionDeepReflection_isNotNull");
+							String reflectionDeepReflection_in = (String)contentreq.get("reflectionDeepReflection_in");
+							String reflectionDeepReflection = (String)contentreq.get("reflectionDeepReflection");
+							if(reflectionDeepReflection_like!=null){
+	                        	queryMapReturn.put("reflectionDeepReflection_like", reflectionDeepReflection_like);
+							}
+							if(reflectionDeepReflection_isNull!=null){
+	                        	queryMapReturn.put("reflectionDeepReflection_isNull", reflectionDeepReflection_isNull);
+							}
+							if(reflectionDeepReflection_isNotNull!=null){
+	                        	queryMapReturn.put("reflectionDeepReflection_isNotNull", reflectionDeepReflection_isNotNull);
+							}
+							if(reflectionDeepReflection_in!=null){
+	                        	queryMapReturn.put("reflectionDeepReflection_in", reflectionDeepReflection_in);
+							}
+							if(reflectionDeepReflection!=null){
+	                        	queryMapReturn.put("reflectionDeepReflection", reflectionDeepReflection);
+							}						           
+																																							String reflexShallowReflection_like = (String)contentreq.get("reflexShallowReflection_like");
+							String reflexShallowReflection_isNull = (String)contentreq.get("reflexShallowReflection_isNull");
+							String reflexShallowReflection_isNotNull = (String)contentreq.get("reflexShallowReflection_isNotNull");
+							String reflexShallowReflection_in = (String)contentreq.get("reflexShallowReflection_in");
+							String reflexShallowReflection = (String)contentreq.get("reflexShallowReflection");
+							if(reflexShallowReflection_like!=null){
+	                        	queryMapReturn.put("reflexShallowReflection_like", reflexShallowReflection_like);
+							}
+							if(reflexShallowReflection_isNull!=null){
+	                        	queryMapReturn.put("reflexShallowReflection_isNull", reflexShallowReflection_isNull);
+							}
+							if(reflexShallowReflection_isNotNull!=null){
+	                        	queryMapReturn.put("reflexShallowReflection_isNotNull", reflexShallowReflection_isNotNull);
+							}
+							if(reflexShallowReflection_in!=null){
+	                        	queryMapReturn.put("reflexShallowReflection_in", reflexShallowReflection_in);
+							}
+							if(reflexShallowReflection!=null){
+	                        	queryMapReturn.put("reflexShallowReflection", reflexShallowReflection);
+							}						           
+																																							String reflexPathologicalReflex_like = (String)contentreq.get("reflexPathologicalReflex_like");
+							String reflexPathologicalReflex_isNull = (String)contentreq.get("reflexPathologicalReflex_isNull");
+							String reflexPathologicalReflex_isNotNull = (String)contentreq.get("reflexPathologicalReflex_isNotNull");
+							String reflexPathologicalReflex_in = (String)contentreq.get("reflexPathologicalReflex_in");
+							String reflexPathologicalReflex = (String)contentreq.get("reflexPathologicalReflex");
+							if(reflexPathologicalReflex_like!=null){
+	                        	queryMapReturn.put("reflexPathologicalReflex_like", reflexPathologicalReflex_like);
+							}
+							if(reflexPathologicalReflex_isNull!=null){
+	                        	queryMapReturn.put("reflexPathologicalReflex_isNull", reflexPathologicalReflex_isNull);
+							}
+							if(reflexPathologicalReflex_isNotNull!=null){
+	                        	queryMapReturn.put("reflexPathologicalReflex_isNotNull", reflexPathologicalReflex_isNotNull);
+							}
+							if(reflexPathologicalReflex_in!=null){
+	                        	queryMapReturn.put("reflexPathologicalReflex_in", reflexPathologicalReflex_in);
+							}
+							if(reflexPathologicalReflex!=null){
+	                        	queryMapReturn.put("reflexPathologicalReflex", reflexPathologicalReflex);
+							}						           
+																																							String walkingAbilityWalkingAlone_like = (String)contentreq.get("walkingAbilityWalkingAlone_like");
+							String walkingAbilityWalkingAlone_isNull = (String)contentreq.get("walkingAbilityWalkingAlone_isNull");
+							String walkingAbilityWalkingAlone_isNotNull = (String)contentreq.get("walkingAbilityWalkingAlone_isNotNull");
+							String walkingAbilityWalkingAlone_in = (String)contentreq.get("walkingAbilityWalkingAlone_in");
+							String walkingAbilityWalkingAlone = (String)contentreq.get("walkingAbilityWalkingAlone");
+							if(walkingAbilityWalkingAlone_like!=null){
+	                        	queryMapReturn.put("walkingAbilityWalkingAlone_like", walkingAbilityWalkingAlone_like);
+							}
+							if(walkingAbilityWalkingAlone_isNull!=null){
+	                        	queryMapReturn.put("walkingAbilityWalkingAlone_isNull", walkingAbilityWalkingAlone_isNull);
+							}
+							if(walkingAbilityWalkingAlone_isNotNull!=null){
+	                        	queryMapReturn.put("walkingAbilityWalkingAlone_isNotNull", walkingAbilityWalkingAlone_isNotNull);
+							}
+							if(walkingAbilityWalkingAlone_in!=null){
+	                        	queryMapReturn.put("walkingAbilityWalkingAlone_in", walkingAbilityWalkingAlone_in);
+							}
+							if(walkingAbilityWalkingAlone!=null){
+	                        	queryMapReturn.put("walkingAbilityWalkingAlone", walkingAbilityWalkingAlone);
+							}						           
+																																							String withTheSupportOfAssistiveWalking_like = (String)contentreq.get("withTheSupportOfAssistiveWalking_like");
+							String withTheSupportOfAssistiveWalking_isNull = (String)contentreq.get("withTheSupportOfAssistiveWalking_isNull");
+							String withTheSupportOfAssistiveWalking_isNotNull = (String)contentreq.get("withTheSupportOfAssistiveWalking_isNotNull");
+							String withTheSupportOfAssistiveWalking_in = (String)contentreq.get("withTheSupportOfAssistiveWalking_in");
+							String withTheSupportOfAssistiveWalking = (String)contentreq.get("withTheSupportOfAssistiveWalking");
+							if(withTheSupportOfAssistiveWalking_like!=null){
+	                        	queryMapReturn.put("withTheSupportOfAssistiveWalking_like", withTheSupportOfAssistiveWalking_like);
+							}
+							if(withTheSupportOfAssistiveWalking_isNull!=null){
+	                        	queryMapReturn.put("withTheSupportOfAssistiveWalking_isNull", withTheSupportOfAssistiveWalking_isNull);
+							}
+							if(withTheSupportOfAssistiveWalking_isNotNull!=null){
+	                        	queryMapReturn.put("withTheSupportOfAssistiveWalking_isNotNull", withTheSupportOfAssistiveWalking_isNotNull);
+							}
+							if(withTheSupportOfAssistiveWalking_in!=null){
+	                        	queryMapReturn.put("withTheSupportOfAssistiveWalking_in", withTheSupportOfAssistiveWalking_in);
+							}
+							if(withTheSupportOfAssistiveWalking!=null){
+	                        	queryMapReturn.put("withTheSupportOfAssistiveWalking", withTheSupportOfAssistiveWalking);
+							}						           
+																																							String canNotWalk_like = (String)contentreq.get("canNotWalk_like");
+							String canNotWalk_isNull = (String)contentreq.get("canNotWalk_isNull");
+							String canNotWalk_isNotNull = (String)contentreq.get("canNotWalk_isNotNull");
+							String canNotWalk_in = (String)contentreq.get("canNotWalk_in");
+							String canNotWalk = (String)contentreq.get("canNotWalk");
+							if(canNotWalk_like!=null){
+	                        	queryMapReturn.put("canNotWalk_like", canNotWalk_like);
+							}
+							if(canNotWalk_isNull!=null){
+	                        	queryMapReturn.put("canNotWalk_isNull", canNotWalk_isNull);
+							}
+							if(canNotWalk_isNotNull!=null){
+	                        	queryMapReturn.put("canNotWalk_isNotNull", canNotWalk_isNotNull);
+							}
+							if(canNotWalk_in!=null){
+	                        	queryMapReturn.put("canNotWalk_in", canNotWalk_in);
+							}
+							if(canNotWalk!=null){
+	                        	queryMapReturn.put("canNotWalk", canNotWalk);
+							}						           
+																																							String coordinatedFingerNoseTest_like = (String)contentreq.get("coordinatedFingerNoseTest_like");
+							String coordinatedFingerNoseTest_isNull = (String)contentreq.get("coordinatedFingerNoseTest_isNull");
+							String coordinatedFingerNoseTest_isNotNull = (String)contentreq.get("coordinatedFingerNoseTest_isNotNull");
+							String coordinatedFingerNoseTest_in = (String)contentreq.get("coordinatedFingerNoseTest_in");
+							String coordinatedFingerNoseTest = (String)contentreq.get("coordinatedFingerNoseTest");
+							if(coordinatedFingerNoseTest_like!=null){
+	                        	queryMapReturn.put("coordinatedFingerNoseTest_like", coordinatedFingerNoseTest_like);
+							}
+							if(coordinatedFingerNoseTest_isNull!=null){
+	                        	queryMapReturn.put("coordinatedFingerNoseTest_isNull", coordinatedFingerNoseTest_isNull);
+							}
+							if(coordinatedFingerNoseTest_isNotNull!=null){
+	                        	queryMapReturn.put("coordinatedFingerNoseTest_isNotNull", coordinatedFingerNoseTest_isNotNull);
+							}
+							if(coordinatedFingerNoseTest_in!=null){
+	                        	queryMapReturn.put("coordinatedFingerNoseTest_in", coordinatedFingerNoseTest_in);
+							}
+							if(coordinatedFingerNoseTest!=null){
+	                        	queryMapReturn.put("coordinatedFingerNoseTest", coordinatedFingerNoseTest);
+							}						           
+																																							String coordinatedStandShaking_like = (String)contentreq.get("coordinatedStandShaking_like");
+							String coordinatedStandShaking_isNull = (String)contentreq.get("coordinatedStandShaking_isNull");
+							String coordinatedStandShaking_isNotNull = (String)contentreq.get("coordinatedStandShaking_isNotNull");
+							String coordinatedStandShaking_in = (String)contentreq.get("coordinatedStandShaking_in");
+							String coordinatedStandShaking = (String)contentreq.get("coordinatedStandShaking");
+							if(coordinatedStandShaking_like!=null){
+	                        	queryMapReturn.put("coordinatedStandShaking_like", coordinatedStandShaking_like);
+							}
+							if(coordinatedStandShaking_isNull!=null){
+	                        	queryMapReturn.put("coordinatedStandShaking_isNull", coordinatedStandShaking_isNull);
+							}
+							if(coordinatedStandShaking_isNotNull!=null){
+	                        	queryMapReturn.put("coordinatedStandShaking_isNotNull", coordinatedStandShaking_isNotNull);
+							}
+							if(coordinatedStandShaking_in!=null){
+	                        	queryMapReturn.put("coordinatedStandShaking_in", coordinatedStandShaking_in);
+							}
+							if(coordinatedStandShaking!=null){
+	                        	queryMapReturn.put("coordinatedStandShaking", coordinatedStandShaking);
+							}						           
+																																							String coordinatedTremor_like = (String)contentreq.get("coordinatedTremor_like");
+							String coordinatedTremor_isNull = (String)contentreq.get("coordinatedTremor_isNull");
+							String coordinatedTremor_isNotNull = (String)contentreq.get("coordinatedTremor_isNotNull");
+							String coordinatedTremor_in = (String)contentreq.get("coordinatedTremor_in");
+							String coordinatedTremor = (String)contentreq.get("coordinatedTremor");
+							if(coordinatedTremor_like!=null){
+	                        	queryMapReturn.put("coordinatedTremor_like", coordinatedTremor_like);
+							}
+							if(coordinatedTremor_isNull!=null){
+	                        	queryMapReturn.put("coordinatedTremor_isNull", coordinatedTremor_isNull);
+							}
+							if(coordinatedTremor_isNotNull!=null){
+	                        	queryMapReturn.put("coordinatedTremor_isNotNull", coordinatedTremor_isNotNull);
+							}
+							if(coordinatedTremor_in!=null){
+	                        	queryMapReturn.put("coordinatedTremor_in", coordinatedTremor_in);
+							}
+							if(coordinatedTremor!=null){
+	                        	queryMapReturn.put("coordinatedTremor", coordinatedTremor);
+							}						           
+																																							String coordinationAndKneeTibiaTest_like = (String)contentreq.get("coordinationAndKneeTibiaTest_like");
+							String coordinationAndKneeTibiaTest_isNull = (String)contentreq.get("coordinationAndKneeTibiaTest_isNull");
+							String coordinationAndKneeTibiaTest_isNotNull = (String)contentreq.get("coordinationAndKneeTibiaTest_isNotNull");
+							String coordinationAndKneeTibiaTest_in = (String)contentreq.get("coordinationAndKneeTibiaTest_in");
+							String coordinationAndKneeTibiaTest = (String)contentreq.get("coordinationAndKneeTibiaTest");
+							if(coordinationAndKneeTibiaTest_like!=null){
+	                        	queryMapReturn.put("coordinationAndKneeTibiaTest_like", coordinationAndKneeTibiaTest_like);
+							}
+							if(coordinationAndKneeTibiaTest_isNull!=null){
+	                        	queryMapReturn.put("coordinationAndKneeTibiaTest_isNull", coordinationAndKneeTibiaTest_isNull);
+							}
+							if(coordinationAndKneeTibiaTest_isNotNull!=null){
+	                        	queryMapReturn.put("coordinationAndKneeTibiaTest_isNotNull", coordinationAndKneeTibiaTest_isNotNull);
+							}
+							if(coordinationAndKneeTibiaTest_in!=null){
+	                        	queryMapReturn.put("coordinationAndKneeTibiaTest_in", coordinationAndKneeTibiaTest_in);
+							}
+							if(coordinationAndKneeTibiaTest!=null){
+	                        	queryMapReturn.put("coordinationAndKneeTibiaTest", coordinationAndKneeTibiaTest);
+							}						           
+																															Integer barthelIndex_gt = (Integer)contentreq.get("barthelIndex_gt");
+						Integer barthelIndex_ge = (Integer)contentreq.get("barthelIndex_ge");
+						Integer barthelIndex_lt = (Integer)contentreq.get("barthelIndex_lt");
+						Integer barthelIndex_le = (Integer)contentreq.get("barthelIndex_le");
+						String barthelIndex_in = (String)contentreq.get("barthelIndex_in");
+						Integer barthelIndex = (Integer)contentreq.get("barthelIndex");
+                        if(barthelIndex_gt!=null){
+                        	queryMapReturn.put("barthelIndex_gt", barthelIndex_gt);
+						}
+						if(barthelIndex_ge!=null){
+                        	queryMapReturn.put("barthelIndex_ge", barthelIndex_ge);
+						}
+						if(barthelIndex_lt!=null){
+                        	queryMapReturn.put("barthelIndex_lt", barthelIndex_lt);
+						}
+						if(barthelIndex_le!=null){
+                        	queryMapReturn.put("barthelIndex_le", barthelIndex_le);
+						}
+						if(barthelIndex_in!=null){
+                        	queryMapReturn.put("barthelIndex_in", barthelIndex_in);
+						}
+						if(barthelIndex!=null){
+                        	queryMapReturn.put("barthelIndex", barthelIndex);
+						}		
+																								Integer masEvaluation_gt = (Integer)contentreq.get("masEvaluation_gt");
+						Integer masEvaluation_ge = (Integer)contentreq.get("masEvaluation_ge");
+						Integer masEvaluation_lt = (Integer)contentreq.get("masEvaluation_lt");
+						Integer masEvaluation_le = (Integer)contentreq.get("masEvaluation_le");
+						String masEvaluation_in = (String)contentreq.get("masEvaluation_in");
+						Integer masEvaluation = (Integer)contentreq.get("masEvaluation");
+                        if(masEvaluation_gt!=null){
+                        	queryMapReturn.put("masEvaluation_gt", masEvaluation_gt);
+						}
+						if(masEvaluation_ge!=null){
+                        	queryMapReturn.put("masEvaluation_ge", masEvaluation_ge);
+						}
+						if(masEvaluation_lt!=null){
+                        	queryMapReturn.put("masEvaluation_lt", masEvaluation_lt);
+						}
+						if(masEvaluation_le!=null){
+                        	queryMapReturn.put("masEvaluation_le", masEvaluation_le);
+						}
+						if(masEvaluation_in!=null){
+                        	queryMapReturn.put("masEvaluation_in", masEvaluation_in);
+						}
+						if(masEvaluation!=null){
+                        	queryMapReturn.put("masEvaluation", masEvaluation);
+						}		
+																								Integer facEvaluation_gt = (Integer)contentreq.get("facEvaluation_gt");
+						Integer facEvaluation_ge = (Integer)contentreq.get("facEvaluation_ge");
+						Integer facEvaluation_lt = (Integer)contentreq.get("facEvaluation_lt");
+						Integer facEvaluation_le = (Integer)contentreq.get("facEvaluation_le");
+						String facEvaluation_in = (String)contentreq.get("facEvaluation_in");
+						Integer facEvaluation = (Integer)contentreq.get("facEvaluation");
+                        if(facEvaluation_gt!=null){
+                        	queryMapReturn.put("facEvaluation_gt", facEvaluation_gt);
+						}
+						if(facEvaluation_ge!=null){
+                        	queryMapReturn.put("facEvaluation_ge", facEvaluation_ge);
+						}
+						if(facEvaluation_lt!=null){
+                        	queryMapReturn.put("facEvaluation_lt", facEvaluation_lt);
+						}
+						if(facEvaluation_le!=null){
+                        	queryMapReturn.put("facEvaluation_le", facEvaluation_le);
+						}
+						if(facEvaluation_in!=null){
+                        	queryMapReturn.put("facEvaluation_in", facEvaluation_in);
+						}
+						if(facEvaluation!=null){
+                        	queryMapReturn.put("facEvaluation", facEvaluation);
+						}		
+																																String shoulderSubluxation_like = (String)contentreq.get("shoulderSubluxation_like");
+							String shoulderSubluxation_isNull = (String)contentreq.get("shoulderSubluxation_isNull");
+							String shoulderSubluxation_isNotNull = (String)contentreq.get("shoulderSubluxation_isNotNull");
+							String shoulderSubluxation_in = (String)contentreq.get("shoulderSubluxation_in");
+							String shoulderSubluxation = (String)contentreq.get("shoulderSubluxation");
+							if(shoulderSubluxation_like!=null){
+	                        	queryMapReturn.put("shoulderSubluxation_like", shoulderSubluxation_like);
+							}
+							if(shoulderSubluxation_isNull!=null){
+	                        	queryMapReturn.put("shoulderSubluxation_isNull", shoulderSubluxation_isNull);
+							}
+							if(shoulderSubluxation_isNotNull!=null){
+	                        	queryMapReturn.put("shoulderSubluxation_isNotNull", shoulderSubluxation_isNotNull);
+							}
+							if(shoulderSubluxation_in!=null){
+	                        	queryMapReturn.put("shoulderSubluxation_in", shoulderSubluxation_in);
+							}
+							if(shoulderSubluxation!=null){
+	                        	queryMapReturn.put("shoulderSubluxation", shoulderSubluxation);
+							}						           
+																																							String contractureOfAchillesTendon_like = (String)contentreq.get("contractureOfAchillesTendon_like");
+							String contractureOfAchillesTendon_isNull = (String)contentreq.get("contractureOfAchillesTendon_isNull");
+							String contractureOfAchillesTendon_isNotNull = (String)contentreq.get("contractureOfAchillesTendon_isNotNull");
+							String contractureOfAchillesTendon_in = (String)contentreq.get("contractureOfAchillesTendon_in");
+							String contractureOfAchillesTendon = (String)contentreq.get("contractureOfAchillesTendon");
+							if(contractureOfAchillesTendon_like!=null){
+	                        	queryMapReturn.put("contractureOfAchillesTendon_like", contractureOfAchillesTendon_like);
+							}
+							if(contractureOfAchillesTendon_isNull!=null){
+	                        	queryMapReturn.put("contractureOfAchillesTendon_isNull", contractureOfAchillesTendon_isNull);
+							}
+							if(contractureOfAchillesTendon_isNotNull!=null){
+	                        	queryMapReturn.put("contractureOfAchillesTendon_isNotNull", contractureOfAchillesTendon_isNotNull);
+							}
+							if(contractureOfAchillesTendon_in!=null){
+	                        	queryMapReturn.put("contractureOfAchillesTendon_in", contractureOfAchillesTendon_in);
+							}
+							if(contractureOfAchillesTendon!=null){
+	                        	queryMapReturn.put("contractureOfAchillesTendon", contractureOfAchillesTendon);
+							}						           
+																																							String varusFootDrop_like = (String)contentreq.get("varusFootDrop_like");
+							String varusFootDrop_isNull = (String)contentreq.get("varusFootDrop_isNull");
+							String varusFootDrop_isNotNull = (String)contentreq.get("varusFootDrop_isNotNull");
+							String varusFootDrop_in = (String)contentreq.get("varusFootDrop_in");
+							String varusFootDrop = (String)contentreq.get("varusFootDrop");
+							if(varusFootDrop_like!=null){
+	                        	queryMapReturn.put("varusFootDrop_like", varusFootDrop_like);
+							}
+							if(varusFootDrop_isNull!=null){
+	                        	queryMapReturn.put("varusFootDrop_isNull", varusFootDrop_isNull);
+							}
+							if(varusFootDrop_isNotNull!=null){
+	                        	queryMapReturn.put("varusFootDrop_isNotNull", varusFootDrop_isNotNull);
+							}
+							if(varusFootDrop_in!=null){
+	                        	queryMapReturn.put("varusFootDrop_in", varusFootDrop_in);
+							}
+							if(varusFootDrop!=null){
+	                        	queryMapReturn.put("varusFootDrop", varusFootDrop);
+							}						           
+																																							String kneeTooDeep_like = (String)contentreq.get("kneeTooDeep_like");
+							String kneeTooDeep_isNull = (String)contentreq.get("kneeTooDeep_isNull");
+							String kneeTooDeep_isNotNull = (String)contentreq.get("kneeTooDeep_isNotNull");
+							String kneeTooDeep_in = (String)contentreq.get("kneeTooDeep_in");
+							String kneeTooDeep = (String)contentreq.get("kneeTooDeep");
+							if(kneeTooDeep_like!=null){
+	                        	queryMapReturn.put("kneeTooDeep_like", kneeTooDeep_like);
+							}
+							if(kneeTooDeep_isNull!=null){
+	                        	queryMapReturn.put("kneeTooDeep_isNull", kneeTooDeep_isNull);
+							}
+							if(kneeTooDeep_isNotNull!=null){
+	                        	queryMapReturn.put("kneeTooDeep_isNotNull", kneeTooDeep_isNotNull);
+							}
+							if(kneeTooDeep_in!=null){
+	                        	queryMapReturn.put("kneeTooDeep_in", kneeTooDeep_in);
+							}
+							if(kneeTooDeep!=null){
+	                        	queryMapReturn.put("kneeTooDeep", kneeTooDeep);
+							}						           
+																																							String shallowFeeling_like = (String)contentreq.get("shallowFeeling_like");
+							String shallowFeeling_isNull = (String)contentreq.get("shallowFeeling_isNull");
+							String shallowFeeling_isNotNull = (String)contentreq.get("shallowFeeling_isNotNull");
+							String shallowFeeling_in = (String)contentreq.get("shallowFeeling_in");
+							String shallowFeeling = (String)contentreq.get("shallowFeeling");
+							if(shallowFeeling_like!=null){
+	                        	queryMapReturn.put("shallowFeeling_like", shallowFeeling_like);
+							}
+							if(shallowFeeling_isNull!=null){
+	                        	queryMapReturn.put("shallowFeeling_isNull", shallowFeeling_isNull);
+							}
+							if(shallowFeeling_isNotNull!=null){
+	                        	queryMapReturn.put("shallowFeeling_isNotNull", shallowFeeling_isNotNull);
+							}
+							if(shallowFeeling_in!=null){
+	                        	queryMapReturn.put("shallowFeeling_in", shallowFeeling_in);
+							}
+							if(shallowFeeling!=null){
+	                        	queryMapReturn.put("shallowFeeling", shallowFeeling);
+							}						           
+																																							String deepFeeling_like = (String)contentreq.get("deepFeeling_like");
+							String deepFeeling_isNull = (String)contentreq.get("deepFeeling_isNull");
+							String deepFeeling_isNotNull = (String)contentreq.get("deepFeeling_isNotNull");
+							String deepFeeling_in = (String)contentreq.get("deepFeeling_in");
+							String deepFeeling = (String)contentreq.get("deepFeeling");
+							if(deepFeeling_like!=null){
+	                        	queryMapReturn.put("deepFeeling_like", deepFeeling_like);
+							}
+							if(deepFeeling_isNull!=null){
+	                        	queryMapReturn.put("deepFeeling_isNull", deepFeeling_isNull);
+							}
+							if(deepFeeling_isNotNull!=null){
+	                        	queryMapReturn.put("deepFeeling_isNotNull", deepFeeling_isNotNull);
+							}
+							if(deepFeeling_in!=null){
+	                        	queryMapReturn.put("deepFeeling_in", deepFeeling_in);
+							}
+							if(deepFeeling!=null){
+	                        	queryMapReturn.put("deepFeeling", deepFeeling);
+							}						           
+																																							String complexFeeling_like = (String)contentreq.get("complexFeeling_like");
+							String complexFeeling_isNull = (String)contentreq.get("complexFeeling_isNull");
+							String complexFeeling_isNotNull = (String)contentreq.get("complexFeeling_isNotNull");
+							String complexFeeling_in = (String)contentreq.get("complexFeeling_in");
+							String complexFeeling = (String)contentreq.get("complexFeeling");
+							if(complexFeeling_like!=null){
+	                        	queryMapReturn.put("complexFeeling_like", complexFeeling_like);
+							}
+							if(complexFeeling_isNull!=null){
+	                        	queryMapReturn.put("complexFeeling_isNull", complexFeeling_isNull);
+							}
+							if(complexFeeling_isNotNull!=null){
+	                        	queryMapReturn.put("complexFeeling_isNotNull", complexFeeling_isNotNull);
+							}
+							if(complexFeeling_in!=null){
+	                        	queryMapReturn.put("complexFeeling_in", complexFeeling_in);
+							}
+							if(complexFeeling!=null){
+	                        	queryMapReturn.put("complexFeeling", complexFeeling);
+							}						           
+																																							String pain_like = (String)contentreq.get("pain_like");
+							String pain_isNull = (String)contentreq.get("pain_isNull");
+							String pain_isNotNull = (String)contentreq.get("pain_isNotNull");
+							String pain_in = (String)contentreq.get("pain_in");
+							String pain = (String)contentreq.get("pain");
+							if(pain_like!=null){
+	                        	queryMapReturn.put("pain_like", pain_like);
+							}
+							if(pain_isNull!=null){
+	                        	queryMapReturn.put("pain_isNull", pain_isNull);
+							}
+							if(pain_isNotNull!=null){
+	                        	queryMapReturn.put("pain_isNotNull", pain_isNotNull);
+							}
+							if(pain_in!=null){
+	                        	queryMapReturn.put("pain_in", pain_in);
+							}
+							if(pain!=null){
+	                        	queryMapReturn.put("pain", pain);
+							}						           
+																																							String jointMobility_like = (String)contentreq.get("jointMobility_like");
+							String jointMobility_isNull = (String)contentreq.get("jointMobility_isNull");
+							String jointMobility_isNotNull = (String)contentreq.get("jointMobility_isNotNull");
+							String jointMobility_in = (String)contentreq.get("jointMobility_in");
+							String jointMobility = (String)contentreq.get("jointMobility");
+							if(jointMobility_like!=null){
+	                        	queryMapReturn.put("jointMobility_like", jointMobility_like);
+							}
+							if(jointMobility_isNull!=null){
+	                        	queryMapReturn.put("jointMobility_isNull", jointMobility_isNull);
+							}
+							if(jointMobility_isNotNull!=null){
+	                        	queryMapReturn.put("jointMobility_isNotNull", jointMobility_isNotNull);
+							}
+							if(jointMobility_in!=null){
+	                        	queryMapReturn.put("jointMobility_in", jointMobility_in);
+							}
+							if(jointMobility!=null){
+	                        	queryMapReturn.put("jointMobility", jointMobility);
+							}						           
+																									
+																					            Integer skinLesionsId = (Integer)contentreq.get("skinLesionsId");
+                        if(skinLesionsId!=null){
+                        	queryMapReturn.put("skinLesionsId", skinLesionsId);
+                        }
+                        String delSkinLesionsList = (String)contentreq.get("delSkinLesionsList");
+						if("true".equals(delSkinLesionsList)){
+							delSkinLesionsListReturn = true;
+						}
+																																			}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				}
+			}
+
+			if (actionReturn != null && !"".equals(actionReturn)) {
+				parseMap.put("action", actionReturn);
+			}
+			if (recoveryReturn != null) {
+				parseMap.put("recovery", recoveryReturn);
+			}
+			if (recoveryListReturn != null && recoveryListReturn.size() > 0) {
+				parseMap.put("recoveryList", recoveryListReturn);
+			}
+			if (idReturn != null) {
+				parseMap.put("id", idReturn);
+			}	
+			if (orderListReturn != null && orderListReturn.size() > 0) {
+				parseMap.put("orderList", orderListReturn);
+			}		
+			if (queryMapReturn != null) {
+				parseMap.put("queryMap", queryMapReturn);
+			}
+			if (pagenoReturn > 0) {
+				parseMap.put("pageno", pagenoReturn);
+			}
+			if (pagesizeReturn > 0) {
+				parseMap.put("pagesize", pagesizeReturn);
+			}
+			
+			
+									            if (skinLesionsListShowReturn != null) {
+				parseMap.put("skinLesionsListShow", skinLesionsListShowReturn);
+			}
+            if (delSkinLesionsListReturn != null) {
+				parseMap.put("delSkinLesionsList", delSkinLesionsListReturn);
+			}
+																		
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByXml(String command,String reqStr,
+			HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

@@ -1,0 +1,841 @@
+package fsk.service.chat;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+import fsk.entity.chat.ChatEntity;
+import fsk.entity.older.OlderEntity;
+
+/**
+ * @Title: Service
+ * @Description: 聊天记录服务类
+ * @author feng.gu
+ * @date 2016-10-26 15:38:06
+ * @version V1.0
+ * 
+ */
+public class ChatService {
+	private static Logger logger = Logger.getLogger(ChatService.class);
+	private DBManager dbManager = DBManager.getInstance();
+
+	private static ChatService chatService;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static ChatService getInstance() {
+		if (chatService == null) {
+			chatService = new ChatService();
+		}
+		return chatService;
+	}
+
+	/**
+	 * 保存记录
+	 * 
+	 * @param obj
+	 */
+	public boolean save(ChatEntity chat) {
+		boolean result = false;
+		if (chat != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 关联信息保存
+				OlderEntity older = chat.getOlder();
+				if (older != null) {
+					dbManager.saveNoTransaction(older);
+					chat.setOlderId(older.getId());
+				}
+				result = dbManager.saveNoTransaction(chat);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量保存记录
+	 * 
+	 * @param list
+	 */
+	public boolean saveList(List<ChatEntity> chatList) {
+		boolean result = false;
+		if (chatList != null && chatList.size() > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				for (ChatEntity chat : chatList) {
+					if (chat != null) {
+						// 关联信息保存
+						OlderEntity older = chat.getOlder();
+						if (older != null) {
+							dbManager.saveNoTransaction(older);
+							chat.setOlderId(older.getId());
+						}
+						result = dbManager.saveNoTransaction(chat);
+					}
+				}
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public ChatEntity getById(Integer id) {
+		ChatEntity obj = null;
+		if (id != null) {
+			obj = (ChatEntity) dbManager.getById(id, ChatEntity.class);
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param olderShow
+	 *            是否查询关联信息
+	 * @param obj
+	 */
+	public ChatEntity getById(Integer id, Boolean olderShow) {
+		ChatEntity obj = null;
+		if (id != null) {
+			obj = (ChatEntity) dbManager.getById(id, ChatEntity.class);
+			// 查询关联内容
+			if (olderShow != null && olderShow.booleanValue() && obj != null
+					&& obj.getOlderId() != null && obj.getOlderId() > 0) {
+				OlderEntity older = (OlderEntity) dbManager.getById(
+						obj.getOlderId(), OlderEntity.class);
+				obj.setOlder(older);
+			}
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @return
+	 */
+	public List<ChatEntity> getListByCondition(Map<String, Object> queryMap) {
+		List<ChatEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		list = dbManager.queryByCondition(ChatEntity.class, qc);
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<ChatEntity>();
+			for (Object obj : list) {
+				returnlist.add((ChatEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param olderShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public List<ChatEntity> getListByCondition(Map<String, Object> queryMap,
+			List<OrderVO> orderList, Boolean olderShow) {
+		List<ChatEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order
+							.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt,
+								orderType));
+					}
+				}
+
+			}
+		}
+		list = dbManager.queryByConditions(ChatEntity.class, qc, oc);
+		int a = 0;
+		if (olderShow != null && olderShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && list != null && list.size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < list.size(); i++) {
+				ChatEntity obj = (ChatEntity) list.get(i);
+				// 查询关联内容
+				if (olderShow != null && olderShow.booleanValue()
+						&& obj != null && obj.getOlderId() != null
+						&& obj.getOlderId() > 0) {
+					OlderEntity older = (OlderEntity) dbManager.getById(
+							obj.getOlderId(), OlderEntity.class);
+					obj.setOlder(older);
+				}
+				result.add(obj);
+			}
+			list = result;
+		}
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<ChatEntity>();
+			for (Object obj : list) {
+				returnlist.add((ChatEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap,
+			int pageno, int pagesize) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		pagelist = dbManager.queryByCondition(ChatEntity.class, qc, pageno,
+				pagesize);
+		return pagelist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @param olderShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap,
+			List<OrderVO> orderList, int pageno, int pagesize, Boolean olderShow) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order
+							.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt,
+								orderType));
+					}
+				}
+
+			}
+		}
+		// 数据权限
+		List<QueryCondition> dataRuleQclist = null;
+		List<Map<String, Object>> dataRuleMapList = (List<Map<String, Object>>) queryMap
+				.get("dataRuleMapList");
+		if (dataRuleMapList != null && dataRuleMapList.size() > 0) {
+			dataRuleQclist = new ArrayList<QueryCondition>();
+			for (Map<String, Object> dataRuleMap : dataRuleMapList) {
+				QueryCondition dataRuleQc = changeMapToQc(dataRuleMap);
+				dataRuleQclist.add(dataRuleQc);
+			}
+		}
+		pagelist = dbManager.queryByConditions(ChatEntity.class, qc,
+				dataRuleQclist, oc, pageno, pagesize);
+		int a = 0;
+		if (olderShow != null && olderShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && pagelist != null && pagelist.getResultList() != null
+				&& pagelist.getResultList().size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < pagelist.getResultList().size(); i++) {
+				ChatEntity obj = (ChatEntity) pagelist.getResultList().get(i);
+				// 查询关联内容
+				if (olderShow != null && olderShow.booleanValue()
+						&& obj != null && obj.getOlderId() != null
+						&& obj.getOlderId() > 0) {
+					OlderEntity older = (OlderEntity) dbManager.getById(
+							obj.getOlderId(), OlderEntity.class);
+					obj.setOlder(older);
+				}
+				result.add(obj);
+			}
+			pagelist.setResultList(result);
+		}
+		return pagelist;
+	}
+
+	/**
+	 * 删除记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public boolean del(Integer id, Boolean delOlder) {
+		boolean result = false;
+		if (id != null && id > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delOlder != null && delOlder.booleanValue()) {
+					ChatEntity chat = (ChatEntity) dbManager.getById(id,
+							ChatEntity.class);
+					if (chat != null && chat.getOlderId() != null) {
+						dbManager.delNoTransaction(chat.getOlderId(),
+								OlderEntity.class);
+					}
+				}
+				result = dbManager.delNoTransaction(id, ChatEntity.class);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量删除记录
+	 * 
+	 * @param ids
+	 *            主键 英文逗号间隔
+	 * @param obj
+	 */
+	public boolean del(String ids) {
+		boolean result = false;
+		if (ids != null && !"".equals(ids.trim())) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				QueryCondition qc = new QueryCondition(ChatEntity.ID,
+						QueryCondition.in, ids);
+				result = dbManager.delByConditionsNoTransaction(
+						ChatEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量条件删除记录
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 */
+	public boolean delList(Map<String, Object> queryMap, Boolean delOlder) {
+		boolean result = false;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		if (qc.getQueryNextCondition() != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delOlder != null && delOlder.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(ChatEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							ChatEntity entity = (ChatEntity) obj;
+							strIds += entity.getOlderId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(OlderEntity.ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								OlderEntity.class, qc1);
+					}
+
+				}
+				result = dbManager.delByConditionsNoTransaction(
+						ChatEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	private QueryCondition changeMapToQc(Map<String, Object> queryMap) {
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object recordCode = queryMap.get("recordCode");
+		Object recordCode_like = queryMap.get("recordCode_like");
+		Object recordCode_isNull = queryMap.get("recordCode_isNull");
+		Object recordCode_isNotNull = queryMap.get("recordCode_isNotNull");
+		Object recordCode_in = queryMap.get("recordCode_in");
+		Object themeCode = queryMap.get("themeCode");
+		Object themeCode_like = queryMap.get("themeCode_like");
+		Object themeCode_isNull = queryMap.get("themeCode_isNull");
+		Object themeCode_isNotNull = queryMap.get("themeCode_isNotNull");
+		Object themeCode_in = queryMap.get("themeCode_in");
+		Object olderId = queryMap.get("olderId");
+		Object olderId_gt = queryMap.get("olderId_gt");
+		Object olderId_ge = queryMap.get("olderId_ge");
+		Object olderId_lt = queryMap.get("olderId_lt");
+		Object olderId_le = queryMap.get("olderId_le");
+		Object olderId_in = queryMap.get("olderId_in");
+		Object olderName = queryMap.get("olderName");
+		Object olderName_like = queryMap.get("olderName_like");
+		Object olderName_isNull = queryMap.get("olderName_isNull");
+		Object olderName_isNotNull = queryMap.get("olderName_isNotNull");
+		Object olderName_in = queryMap.get("olderName_in");
+		Object olderMemberNum = queryMap.get("olderMemberNum");
+		Object olderMemberNum_like = queryMap.get("olderMemberNum_like");
+		Object olderMemberNum_isNull = queryMap.get("olderMemberNum_isNull");
+		Object olderMemberNum_isNotNull = queryMap
+				.get("olderMemberNum_isNotNull");
+		Object olderMemberNum_in = queryMap.get("olderMemberNum_in");
+		Object spokesmanType = queryMap.get("spokesmanType");
+		Object spokesmanType_gt = queryMap.get("spokesmanType_gt");
+		Object spokesmanType_ge = queryMap.get("spokesmanType_ge");
+		Object spokesmanType_lt = queryMap.get("spokesmanType_lt");
+		Object spokesmanType_le = queryMap.get("spokesmanType_le");
+		Object spokesmanType_in = queryMap.get("spokesmanType_in");
+		Object spokesmanId = queryMap.get("spokesmanId");
+		Object spokesmanId_gt = queryMap.get("spokesmanId_gt");
+		Object spokesmanId_ge = queryMap.get("spokesmanId_ge");
+		Object spokesmanId_lt = queryMap.get("spokesmanId_lt");
+		Object spokesmanId_le = queryMap.get("spokesmanId_le");
+		Object spokesmanId_in = queryMap.get("spokesmanId_in");
+		Object spokesmanName = queryMap.get("spokesmanName");
+		Object spokesmanName_like = queryMap.get("spokesmanName_like");
+		Object spokesmanName_isNull = queryMap.get("spokesmanName_isNull");
+		Object spokesmanName_isNotNull = queryMap
+				.get("spokesmanName_isNotNull");
+		Object spokesmanName_in = queryMap.get("spokesmanName_in");
+		Object spokesmanPhoto = queryMap.get("spokesmanPhoto");
+		Object spokesmanPhoto_like = queryMap.get("spokesmanPhoto_like");
+		Object spokesmanPhoto_isNull = queryMap.get("spokesmanPhoto_isNull");
+		Object spokesmanPhoto_isNotNull = queryMap
+				.get("spokesmanPhoto_isNotNull");
+		Object spokesmanPhoto_in = queryMap.get("spokesmanPhoto_in");
+		Object spokesType = queryMap.get("spokesType");
+		Object spokesType_gt = queryMap.get("spokesType_gt");
+		Object spokesType_ge = queryMap.get("spokesType_ge");
+		Object spokesType_lt = queryMap.get("spokesType_lt");
+		Object spokesType_le = queryMap.get("spokesType_le");
+		Object spokesType_in = queryMap.get("spokesType_in");
+		Object chatContent = queryMap.get("chatContent");
+		Object chatContent_like = queryMap.get("chatContent_like");
+		Object chatContent_isNull = queryMap.get("chatContent_isNull");
+		Object chatContent_isNotNull = queryMap.get("chatContent_isNotNull");
+		Object chatContent_in = queryMap.get("chatContent_in");
+		Object chatTime_gt = queryMap.get("chatTime_gt");
+		Object chatTime_ge = queryMap.get("chatTime_ge");
+		Object chatTime_lt = queryMap.get("chatTime_lt");
+		Object chatTime_le = queryMap.get("chatTime_le");
+
+		QueryCondition qc = new QueryCondition(ChatEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (recordCode != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.RECORD_CODE,
+					QueryCondition.eq, recordCode));
+		}
+		if (recordCode_like != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.RECORD_CODE,
+					QueryCondition.like, recordCode_like));
+		}
+		if (recordCode_isNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.RECORD_CODE,
+					QueryCondition.isNull, recordCode_isNull));
+		}
+		if (recordCode_isNotNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.RECORD_CODE,
+					QueryCondition.isNotNull, recordCode_isNotNull));
+		}
+		if (recordCode_in != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.RECORD_CODE,
+					QueryCondition.in, recordCode_in));
+		}
+		if (themeCode != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.THEME_CODE,
+					QueryCondition.eq, themeCode));
+		}
+		if (themeCode_like != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.THEME_CODE,
+					QueryCondition.like, themeCode_like));
+		}
+		if (themeCode_isNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.THEME_CODE,
+					QueryCondition.isNull, themeCode_isNull));
+		}
+		if (themeCode_isNotNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.THEME_CODE,
+					QueryCondition.isNotNull, themeCode_isNotNull));
+		}
+		if (themeCode_in != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.THEME_CODE,
+					QueryCondition.in, themeCode_in));
+		}
+		if (olderId != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_ID,
+					QueryCondition.eq, olderId));
+		}
+		if (olderId_gt != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_ID,
+					QueryCondition.gt, olderId_gt));
+		}
+		if (olderId_ge != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_ID,
+					QueryCondition.ge, olderId_ge));
+		}
+		if (olderId_lt != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_ID,
+					QueryCondition.lt, olderId_lt));
+		}
+		if (olderId_le != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_ID,
+					QueryCondition.le, olderId_le));
+		}
+		if (olderId_in != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_ID,
+					QueryCondition.in, olderId_in));
+		}
+		if (olderName != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_NAME,
+					QueryCondition.eq, olderName));
+		}
+		if (olderName_like != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_NAME,
+					QueryCondition.like, olderName_like));
+		}
+		if (olderName_isNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_NAME,
+					QueryCondition.isNull, olderName_isNull));
+		}
+		if (olderName_isNotNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_NAME,
+					QueryCondition.isNotNull, olderName_isNotNull));
+		}
+		if (olderName_in != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_NAME,
+					QueryCondition.in, olderName_in));
+		}
+		if (olderMemberNum != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_MEMBER_NUM,
+					QueryCondition.eq, olderMemberNum));
+		}
+		if (olderMemberNum_like != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_MEMBER_NUM,
+					QueryCondition.like, olderMemberNum_like));
+		}
+		if (olderMemberNum_isNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_MEMBER_NUM,
+					QueryCondition.isNull, olderMemberNum_isNull));
+		}
+		if (olderMemberNum_isNotNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_MEMBER_NUM,
+					QueryCondition.isNotNull, olderMemberNum_isNotNull));
+		}
+		if (olderMemberNum_in != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.OLDER_MEMBER_NUM,
+					QueryCondition.in, olderMemberNum_in));
+		}
+		if (spokesmanType != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_TYPE,
+					QueryCondition.eq, spokesmanType));
+		}
+		if (spokesmanType_gt != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_TYPE,
+					QueryCondition.gt, spokesmanType_gt));
+		}
+		if (spokesmanType_ge != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_TYPE,
+					QueryCondition.ge, spokesmanType_ge));
+		}
+		if (spokesmanType_lt != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_TYPE,
+					QueryCondition.lt, spokesmanType_lt));
+		}
+		if (spokesmanType_le != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_TYPE,
+					QueryCondition.le, spokesmanType_le));
+		}
+		if (spokesmanType_in != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_TYPE,
+					QueryCondition.in, spokesmanType_in));
+		}
+		if (spokesmanId != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_ID,
+					QueryCondition.eq, spokesmanId));
+		}
+		if (spokesmanId_gt != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_ID,
+					QueryCondition.gt, spokesmanId_gt));
+		}
+		if (spokesmanId_ge != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_ID,
+					QueryCondition.ge, spokesmanId_ge));
+		}
+		if (spokesmanId_lt != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_ID,
+					QueryCondition.lt, spokesmanId_lt));
+		}
+		if (spokesmanId_le != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_ID,
+					QueryCondition.le, spokesmanId_le));
+		}
+		if (spokesmanId_in != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_ID,
+					QueryCondition.in, spokesmanId_in));
+		}
+		if (spokesmanName != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_NAME,
+					QueryCondition.eq, spokesmanName));
+		}
+		if (spokesmanName_like != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_NAME,
+					QueryCondition.like, spokesmanName_like));
+		}
+		if (spokesmanName_isNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_NAME,
+					QueryCondition.isNull, spokesmanName_isNull));
+		}
+		if (spokesmanName_isNotNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_NAME,
+					QueryCondition.isNotNull, spokesmanName_isNotNull));
+		}
+		if (spokesmanName_in != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_NAME,
+					QueryCondition.in, spokesmanName_in));
+		}
+		if (spokesmanPhoto != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_PHOTO,
+					QueryCondition.eq, spokesmanPhoto));
+		}
+		if (spokesmanPhoto_like != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_PHOTO,
+					QueryCondition.like, spokesmanPhoto_like));
+		}
+		if (spokesmanPhoto_isNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_PHOTO,
+					QueryCondition.isNull, spokesmanPhoto_isNull));
+		}
+		if (spokesmanPhoto_isNotNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_PHOTO,
+					QueryCondition.isNotNull, spokesmanPhoto_isNotNull));
+		}
+		if (spokesmanPhoto_in != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKESMAN_PHOTO,
+					QueryCondition.in, spokesmanPhoto_in));
+		}
+		if (spokesType != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKES_TYPE,
+					QueryCondition.eq, spokesType));
+		}
+		if (spokesType_gt != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKES_TYPE,
+					QueryCondition.gt, spokesType_gt));
+		}
+		if (spokesType_ge != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKES_TYPE,
+					QueryCondition.ge, spokesType_ge));
+		}
+		if (spokesType_lt != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKES_TYPE,
+					QueryCondition.lt, spokesType_lt));
+		}
+		if (spokesType_le != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKES_TYPE,
+					QueryCondition.le, spokesType_le));
+		}
+		if (spokesType_in != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.SPOKES_TYPE,
+					QueryCondition.in, spokesType_in));
+		}
+		if (chatContent != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.CHAT_CONTENT,
+					QueryCondition.eq, chatContent));
+		}
+		if (chatContent_like != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.CHAT_CONTENT,
+					QueryCondition.like, chatContent_like));
+		}
+		if (chatContent_isNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.CHAT_CONTENT,
+					QueryCondition.isNull, chatContent_isNull));
+		}
+		if (chatContent_isNotNull != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.CHAT_CONTENT,
+					QueryCondition.isNotNull, chatContent_isNotNull));
+		}
+		if (chatContent_in != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.CHAT_CONTENT,
+					QueryCondition.in, chatContent_in));
+		}
+		if (chatTime_gt != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.CHAT_TIME,
+					QueryCondition.gt, chatTime_gt));
+		}
+		if (chatTime_ge != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.CHAT_TIME,
+					QueryCondition.ge, chatTime_ge));
+		}
+		if (chatTime_lt != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.CHAT_TIME,
+					QueryCondition.lt, chatTime_lt));
+		}
+		if (chatTime_le != null) {
+			qc.andCondition(new QueryCondition(ChatEntity.CHAT_TIME,
+					QueryCondition.le, chatTime_le));
+		}
+		return qc;
+	}
+
+}

@@ -1,0 +1,142 @@
+package fsk.handler.fca;
+
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import fsk.entity.fca.FcaEntity;
+import fsk.pack.fca.FcaPack;
+import fsk.parse.fca.FcaParse;
+import fsk.service.fca.FcaService;
+import com.framework.system.common.service.SystemService;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.db.query.OrderVO;
+
+ /**   
+ * @Title: Handler
+ * @Description: 功能综合评定业务处理器
+ * @author feng.gu
+ * @date 2016-08-11 17:31:23
+ * @version V1.0   
+ *
+ */
+public class FcaHandler extends BaseHandler{
+	private static Logger logger = Logger.getLogger(FcaService.class);
+	/**
+	 * 解析器
+	 */
+	private FcaParse fcaParse = FcaParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private FcaService fcaService = FcaService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private FcaPack fcaPack = FcaPack.getInstance();
+
+	private static FcaHandler fcaHandler;
+	
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static FcaHandler getInstance() {
+		if (fcaHandler == null) {
+			fcaHandler = new FcaHandler();
+		}
+		return fcaHandler;
+	}
+
+	/**
+	 * 
+	 * @param type 1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type,String command,String reqStr, HttpServletRequest request,
+			HttpServletResponse response) {	
+		logger.debug("请求消息："+reqStr);
+		String resultStr="";
+		try {
+			// 解析
+			Map<String, Object> parseMap = fcaParse.parse(type,command,reqStr,request);		
+			String action = (String) parseMap.get("action");
+			FcaEntity fca = (FcaEntity) parseMap.get("fca");
+			List<FcaEntity> fcaList = (List<FcaEntity>) parseMap.get("fcaList");
+			Integer id = (Integer) parseMap.get("id");			
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+			
+						
+			// 业务处理
+			Object result=null;
+			if ("save".equals(action)) {
+				result = fcaService.save(fca);
+			} else if ("saveList".equals(action)) {
+				result = fcaService.saveList(fcaList);
+			} else if ("getById".equals(action)) {
+				result = fcaService.getById(id);
+			} else if ("getListByCondition".equals(action)) {
+			    //根据数据权限 增加查询条件
+				queryMap = systemService.addDataRule("FcaEntity",queryMap,request);
+				result = fcaService.getListByCondition(queryMap,orderList, pageno,
+						pagesize);
+			} else if ("del".equals(action)) {
+				result = fcaService.del(id);
+			} else if ("delList".equals(action)) {
+				result = fcaService.delList(queryMap);
+			}
+			// 封装
+			Map<String, Object> packMap = fcaPack.pack(type,action,result,fca);
+			String actionBack = (String)packMap.get("action");
+			String resultBack = (String)packMap.get("result");
+			String desBack = (String)packMap.get("des");
+			JSONObject pageBack = (JSONObject)packMap.get("page");
+			JSONObject contentBack = (JSONObject)packMap.get("content");
+			
+			JSONObject repJson = new JSONObject();
+			if(actionBack!=null&&!"".equals(actionBack)){
+				repJson.put("action", actionBack);
+			}
+			if(resultBack!=null&&!"".equals(resultBack)){
+				repJson.put("result", resultBack);
+			}
+			if(desBack!=null&&!"".equals(desBack)){
+				repJson.put("des", desBack);
+			}
+			if(pageBack!=null){
+				repJson.put("page", pageBack);
+			}
+			if(contentBack!=null&&!"".equals(contentBack)){
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息："+repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

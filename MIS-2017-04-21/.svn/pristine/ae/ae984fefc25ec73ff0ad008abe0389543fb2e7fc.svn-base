@@ -1,0 +1,236 @@
+package fsk.controller.show;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.framework.system.common.entity.module.ModuleEntity;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.util.JsonUtil;
+
+import fsk.handler.showCountHanler;
+
+@RequestMapping("/show")
+@Controller
+public class ShowController {
+	private static Logger logger = Logger.getLogger(ShowController.class);
+	/**
+	 * 处理器
+	 */
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 工单列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/system/show/ShowList");
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService.getHTMLModulesByRoleIdsAndModuleId(roleIds, htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		return mav;
+	}
+
+	/**
+	 * 大屏信息统计-获取人员信息
+	 * 
+	 */
+	@RequestMapping(params = "person")
+	@ResponseBody
+	public String showreturnolder(HttpServletRequest request) {
+		String msg = "";
+		try {
+			String reqmsg = request.getParameter("reqmsg");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return msg;
+			}
+			String rep = showCountHanler.handler(reqParams);
+			msg = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+		return msg;
+	}
+
+	/**
+	 * 大屏信息统计-获取业务统计信息
+	 * 
+	 */
+	@RequestMapping(params = "businessTask")
+	@ResponseBody
+	public String showreturntask(HttpServletRequest request) {
+		String msg = "";
+		try {
+			String reqmsg = request.getParameter("reqmsg");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return msg;
+			}
+			String rep = showCountHanler.handler(reqParams);
+			msg = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+		return msg;
+	}
+
+	/**
+	 * 大屏信息统计-获取业务统计信息
+	 * 
+	 */
+	@RequestMapping(params = "devMap")
+	@ResponseBody
+	public String showreturndev(HttpServletRequest request) {
+		String msg = "";
+		try {
+			String reqmsg = request.getParameter("reqmsg");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return msg;
+			}
+			String rep = showCountHanler.handler(reqParams);
+			msg = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+		return msg;
+	}
+
+	/**
+	 * 大屏信息统计-获取服务实时提醒信息
+	 * 
+	 */
+	@RequestMapping(params = "serviceRemind")
+	@ResponseBody
+	public String showreturnremind(HttpServletRequest request) {
+		String msg = "";
+		try {
+			String reqmsg = request.getParameter("reqmsg");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return msg;
+			}
+			String rep = showCountHanler.handler(reqParams);
+			msg = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+		return msg;
+	}
+
+	// 本月第一天
+	public String getMonthFirstDay() {
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.MONTH, 0);
+		c.set(Calendar.DAY_OF_MONTH, 1);// 设置为1号,当前日期既为本月第一天
+		String first = format.format(c.getTime()) + "000001";
+		return first;
+	}
+
+	// 本月最后一天
+	public String getMonthLastDay() {
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+		Calendar ca = Calendar.getInstance();
+		ca.set(Calendar.DAY_OF_MONTH, ca.getActualMaximum(Calendar.DAY_OF_MONTH));
+		String last = format.format(ca.getTime()) + "235959";
+		return last;
+	}
+
+	// 本周第一天
+	public String getWeekFirstDay() {
+		SimpleDateFormat dd = new SimpleDateFormat("yyyyMMdd");
+		Calendar c = Calendar.getInstance();
+		int day_of_week = c.get(Calendar.DAY_OF_WEEK) - 1;
+		if (day_of_week == 0) {
+			day_of_week = 7;
+		}
+		c.add(Calendar.DATE, -day_of_week + 1);
+		String str = dd.format(c.getTime()) + "000001";
+		return str;
+	}
+
+	// 本周最后一天
+	public String getWeekLasttDay() {
+		SimpleDateFormat dd = new SimpleDateFormat("yyyyMMdd");
+		Calendar c = Calendar.getInstance();
+		int day_of_week = c.get(Calendar.DAY_OF_WEEK) - 1;
+		if (day_of_week == 0) {
+			day_of_week = 7;
+		}
+		c.add(Calendar.DATE, -day_of_week + 7);
+		String str = dd.format(c.getTime()) + "235959";
+		return str;
+	}
+
+	// 根据日期区间返回中间日期集合
+	public static Map<String, Object> getDays(String start, String end) {
+		Map<String, Object> map = new LinkedHashMap<String, Object>();
+		Calendar cals = Calendar.getInstance();
+		Calendar cale = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+		Date dates = null;
+		Date datee = null;
+		try {
+			dates = sdf.parse(start);
+			datee = sdf.parse(end);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		cals.setTime(dates);
+		cale.setTime(datee);
+		while (!cals.after(cale)) {
+			String date = sdf.format(cals.getTime());
+			cals.add(Calendar.DAY_OF_YEAR, 1);
+			map.put(date, date);
+		}
+		return map;
+	}
+
+	// 七天前的时间
+	public String getSevenDay() {
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.DATE, -6);
+		Date monday = c.getTime();
+		String preMonday = sdf.format(monday) + "000001";
+		return preMonday;
+	}
+}

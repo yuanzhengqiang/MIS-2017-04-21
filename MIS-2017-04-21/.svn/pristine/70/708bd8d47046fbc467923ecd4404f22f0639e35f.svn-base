@@ -1,0 +1,855 @@
+package fsk.parse.mas;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.framework.system.util.JsonUtil;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+import fsk.entity.mas.MasEntity;
+
+
+
+
+import com.framework.system.util.JsonUtil;
+import com.framework.system.db.query.OrderVO;
+ /**   
+ * @Title: Parse
+ * @Description: 运动功能评定MAS解析器
+ * @author feng.gu
+ * @date 2016-07-19 13:24:31
+ * @version V1.0   
+ *
+ */
+public class MasParse {
+	private static Logger logger = Logger.getLogger(MasParse.class);
+	private static MasParse masParse;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static MasParse getInstance() {
+		if (masParse == null) {
+			masParse = new MasParse();
+		}
+		return masParse;
+	}
+
+	public Map<String, Object> parse(int type, String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			parseMap = this.parseByJson(command,reqStr, request);
+		} else if (type == 2) {
+			// xml
+			parseMap = this.parseByXml(command,reqStr, request);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByJson(String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		try {
+			String actionReturn = null;
+			MasEntity masReturn = null;
+			List<MasEntity> masListReturn = null;
+			Integer idReturn = null;			
+			Map<String, Object> queryMapReturn = null;
+			int pagenoReturn = 1;
+			int pagesizeReturn = 10;
+			List<OrderVO> orderListReturn = null;
+			
+						
+			//json
+			Map reqParams = JsonUtil.getMap4Json(reqStr);
+			JSONObject contentreq = (JSONObject)reqParams.get("content");
+			if ("ADD_MAS_INFO_REQUEST".equals(command)) {
+				actionReturn = "save";
+				masReturn = new MasEntity();
+				if(true){
+					if(contentreq!=null){
+												    						    Integer id = (Integer)contentreq.get("id");
+	                		if(id!=null){
+			                	masReturn.setId(id);
+			                }
+						    												    						    String countPoint = (String)contentreq.get("countPoint");
+	                		if(countPoint!=null){
+			                	masReturn.setCountPoint(countPoint);
+			                }
+						    												    						    String des = (String)contentreq.get("des");
+	                		if(des!=null){
+			                	masReturn.setDes(des);
+			                }
+						    												    						    Integer status = (Integer)contentreq.get("status");
+	                		if(status!=null){
+			                	masReturn.setStatus(status);
+			                }
+						    												    						    Integer score1 = (Integer)contentreq.get("score1");
+	                		if(score1!=null){
+			                	masReturn.setScore1(score1);
+			                }
+						    												    						    Integer score2 = (Integer)contentreq.get("score2");
+	                		if(score2!=null){
+			                	masReturn.setScore2(score2);
+			                }
+						    												    						    Integer score3 = (Integer)contentreq.get("score3");
+	                		if(score3!=null){
+			                	masReturn.setScore3(score3);
+			                }
+						    												    						    Integer score4 = (Integer)contentreq.get("score4");
+	                		if(score4!=null){
+			                	masReturn.setScore4(score4);
+			                }
+						    												    						    Integer score5 = (Integer)contentreq.get("score5");
+	                		if(score5!=null){
+			                	masReturn.setScore5(score5);
+			                }
+						    												    						    Integer score6 = (Integer)contentreq.get("score6");
+	                		if(score6!=null){
+			                	masReturn.setScore6(score6);
+			                }
+						    												    						    Integer score7 = (Integer)contentreq.get("score7");
+	                		if(score7!=null){
+			                	masReturn.setScore7(score7);
+			                }
+						    												    						    Integer score8 = (Integer)contentreq.get("score8");
+	                		if(score8!=null){
+			                	masReturn.setScore8(score8);
+			                }
+						    												    						    Integer score9 = (Integer)contentreq.get("score9");
+	                		if(score9!=null){
+			                	masReturn.setScore9(score9);
+			                }
+						    											}					
+				}
+							} else if ("QUERY_MAS_INFO_REQUEST".equals(command)) {
+				actionReturn = "getById";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");
+					        					}	
+				}
+			} else if ("QUERY_MAS_LIST_REQUEST".equals(command)) {
+				actionReturn = "getListByCondition";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																																String countPoint_like = (String)contentreq.get("countPoint_like");
+							String countPoint_isNull = (String)contentreq.get("countPoint_isNull");
+							String countPoint_isNotNull = (String)contentreq.get("countPoint_isNotNull");
+							String countPoint_in = (String)contentreq.get("countPoint_in");
+							String countPoint = (String)contentreq.get("countPoint");
+							if(countPoint_like!=null){
+	                        	queryMapReturn.put("countPoint_like", countPoint_like);
+							}
+							if(countPoint_isNull!=null){
+	                        	queryMapReturn.put("countPoint_isNull", countPoint_isNull);
+							}
+							if(countPoint_isNotNull!=null){
+	                        	queryMapReturn.put("countPoint_isNotNull", countPoint_isNotNull);
+							}
+							if(countPoint_in!=null){
+	                        	queryMapReturn.put("countPoint_in", countPoint_in);
+							}
+							if(countPoint!=null){
+	                        	queryMapReturn.put("countPoint", countPoint);
+							}						           
+																																							String des_like = (String)contentreq.get("des_like");
+							String des_isNull = (String)contentreq.get("des_isNull");
+							String des_isNotNull = (String)contentreq.get("des_isNotNull");
+							String des_in = (String)contentreq.get("des_in");
+							String des = (String)contentreq.get("des");
+							if(des_like!=null){
+	                        	queryMapReturn.put("des_like", des_like);
+							}
+							if(des_isNull!=null){
+	                        	queryMapReturn.put("des_isNull", des_isNull);
+							}
+							if(des_isNotNull!=null){
+	                        	queryMapReturn.put("des_isNotNull", des_isNotNull);
+							}
+							if(des_in!=null){
+	                        	queryMapReturn.put("des_in", des_in);
+							}
+							if(des!=null){
+	                        	queryMapReturn.put("des", des);
+							}						           
+																															Integer status_gt = (Integer)contentreq.get("status_gt");
+						Integer status_ge = (Integer)contentreq.get("status_ge");
+						Integer status_lt = (Integer)contentreq.get("status_lt");
+						Integer status_le = (Integer)contentreq.get("status_le");
+						String status_in = (String)contentreq.get("status_in");
+						Integer status = (Integer)contentreq.get("status");
+                        if(status_gt!=null){
+                        	queryMapReturn.put("status_gt", status_gt);
+						}
+						if(status_ge!=null){
+                        	queryMapReturn.put("status_ge", status_ge);
+						}
+						if(status_lt!=null){
+                        	queryMapReturn.put("status_lt", status_lt);
+						}
+						if(status_le!=null){
+                        	queryMapReturn.put("status_le", status_le);
+						}
+						if(status_in!=null){
+                        	queryMapReturn.put("status_in", status_in);
+						}
+						if(status!=null){
+                        	queryMapReturn.put("status", status);
+						}		
+																								Integer score1_gt = (Integer)contentreq.get("score1_gt");
+						Integer score1_ge = (Integer)contentreq.get("score1_ge");
+						Integer score1_lt = (Integer)contentreq.get("score1_lt");
+						Integer score1_le = (Integer)contentreq.get("score1_le");
+						String score1_in = (String)contentreq.get("score1_in");
+						Integer score1 = (Integer)contentreq.get("score1");
+                        if(score1_gt!=null){
+                        	queryMapReturn.put("score1_gt", score1_gt);
+						}
+						if(score1_ge!=null){
+                        	queryMapReturn.put("score1_ge", score1_ge);
+						}
+						if(score1_lt!=null){
+                        	queryMapReturn.put("score1_lt", score1_lt);
+						}
+						if(score1_le!=null){
+                        	queryMapReturn.put("score1_le", score1_le);
+						}
+						if(score1_in!=null){
+                        	queryMapReturn.put("score1_in", score1_in);
+						}
+						if(score1!=null){
+                        	queryMapReturn.put("score1", score1);
+						}		
+																								Integer score2_gt = (Integer)contentreq.get("score2_gt");
+						Integer score2_ge = (Integer)contentreq.get("score2_ge");
+						Integer score2_lt = (Integer)contentreq.get("score2_lt");
+						Integer score2_le = (Integer)contentreq.get("score2_le");
+						String score2_in = (String)contentreq.get("score2_in");
+						Integer score2 = (Integer)contentreq.get("score2");
+                        if(score2_gt!=null){
+                        	queryMapReturn.put("score2_gt", score2_gt);
+						}
+						if(score2_ge!=null){
+                        	queryMapReturn.put("score2_ge", score2_ge);
+						}
+						if(score2_lt!=null){
+                        	queryMapReturn.put("score2_lt", score2_lt);
+						}
+						if(score2_le!=null){
+                        	queryMapReturn.put("score2_le", score2_le);
+						}
+						if(score2_in!=null){
+                        	queryMapReturn.put("score2_in", score2_in);
+						}
+						if(score2!=null){
+                        	queryMapReturn.put("score2", score2);
+						}		
+																								Integer score3_gt = (Integer)contentreq.get("score3_gt");
+						Integer score3_ge = (Integer)contentreq.get("score3_ge");
+						Integer score3_lt = (Integer)contentreq.get("score3_lt");
+						Integer score3_le = (Integer)contentreq.get("score3_le");
+						String score3_in = (String)contentreq.get("score3_in");
+						Integer score3 = (Integer)contentreq.get("score3");
+                        if(score3_gt!=null){
+                        	queryMapReturn.put("score3_gt", score3_gt);
+						}
+						if(score3_ge!=null){
+                        	queryMapReturn.put("score3_ge", score3_ge);
+						}
+						if(score3_lt!=null){
+                        	queryMapReturn.put("score3_lt", score3_lt);
+						}
+						if(score3_le!=null){
+                        	queryMapReturn.put("score3_le", score3_le);
+						}
+						if(score3_in!=null){
+                        	queryMapReturn.put("score3_in", score3_in);
+						}
+						if(score3!=null){
+                        	queryMapReturn.put("score3", score3);
+						}		
+																								Integer score4_gt = (Integer)contentreq.get("score4_gt");
+						Integer score4_ge = (Integer)contentreq.get("score4_ge");
+						Integer score4_lt = (Integer)contentreq.get("score4_lt");
+						Integer score4_le = (Integer)contentreq.get("score4_le");
+						String score4_in = (String)contentreq.get("score4_in");
+						Integer score4 = (Integer)contentreq.get("score4");
+                        if(score4_gt!=null){
+                        	queryMapReturn.put("score4_gt", score4_gt);
+						}
+						if(score4_ge!=null){
+                        	queryMapReturn.put("score4_ge", score4_ge);
+						}
+						if(score4_lt!=null){
+                        	queryMapReturn.put("score4_lt", score4_lt);
+						}
+						if(score4_le!=null){
+                        	queryMapReturn.put("score4_le", score4_le);
+						}
+						if(score4_in!=null){
+                        	queryMapReturn.put("score4_in", score4_in);
+						}
+						if(score4!=null){
+                        	queryMapReturn.put("score4", score4);
+						}		
+																								Integer score5_gt = (Integer)contentreq.get("score5_gt");
+						Integer score5_ge = (Integer)contentreq.get("score5_ge");
+						Integer score5_lt = (Integer)contentreq.get("score5_lt");
+						Integer score5_le = (Integer)contentreq.get("score5_le");
+						String score5_in = (String)contentreq.get("score5_in");
+						Integer score5 = (Integer)contentreq.get("score5");
+                        if(score5_gt!=null){
+                        	queryMapReturn.put("score5_gt", score5_gt);
+						}
+						if(score5_ge!=null){
+                        	queryMapReturn.put("score5_ge", score5_ge);
+						}
+						if(score5_lt!=null){
+                        	queryMapReturn.put("score5_lt", score5_lt);
+						}
+						if(score5_le!=null){
+                        	queryMapReturn.put("score5_le", score5_le);
+						}
+						if(score5_in!=null){
+                        	queryMapReturn.put("score5_in", score5_in);
+						}
+						if(score5!=null){
+                        	queryMapReturn.put("score5", score5);
+						}		
+																								Integer score6_gt = (Integer)contentreq.get("score6_gt");
+						Integer score6_ge = (Integer)contentreq.get("score6_ge");
+						Integer score6_lt = (Integer)contentreq.get("score6_lt");
+						Integer score6_le = (Integer)contentreq.get("score6_le");
+						String score6_in = (String)contentreq.get("score6_in");
+						Integer score6 = (Integer)contentreq.get("score6");
+                        if(score6_gt!=null){
+                        	queryMapReturn.put("score6_gt", score6_gt);
+						}
+						if(score6_ge!=null){
+                        	queryMapReturn.put("score6_ge", score6_ge);
+						}
+						if(score6_lt!=null){
+                        	queryMapReturn.put("score6_lt", score6_lt);
+						}
+						if(score6_le!=null){
+                        	queryMapReturn.put("score6_le", score6_le);
+						}
+						if(score6_in!=null){
+                        	queryMapReturn.put("score6_in", score6_in);
+						}
+						if(score6!=null){
+                        	queryMapReturn.put("score6", score6);
+						}		
+																								Integer score7_gt = (Integer)contentreq.get("score7_gt");
+						Integer score7_ge = (Integer)contentreq.get("score7_ge");
+						Integer score7_lt = (Integer)contentreq.get("score7_lt");
+						Integer score7_le = (Integer)contentreq.get("score7_le");
+						String score7_in = (String)contentreq.get("score7_in");
+						Integer score7 = (Integer)contentreq.get("score7");
+                        if(score7_gt!=null){
+                        	queryMapReturn.put("score7_gt", score7_gt);
+						}
+						if(score7_ge!=null){
+                        	queryMapReturn.put("score7_ge", score7_ge);
+						}
+						if(score7_lt!=null){
+                        	queryMapReturn.put("score7_lt", score7_lt);
+						}
+						if(score7_le!=null){
+                        	queryMapReturn.put("score7_le", score7_le);
+						}
+						if(score7_in!=null){
+                        	queryMapReturn.put("score7_in", score7_in);
+						}
+						if(score7!=null){
+                        	queryMapReturn.put("score7", score7);
+						}		
+																								Integer score8_gt = (Integer)contentreq.get("score8_gt");
+						Integer score8_ge = (Integer)contentreq.get("score8_ge");
+						Integer score8_lt = (Integer)contentreq.get("score8_lt");
+						Integer score8_le = (Integer)contentreq.get("score8_le");
+						String score8_in = (String)contentreq.get("score8_in");
+						Integer score8 = (Integer)contentreq.get("score8");
+                        if(score8_gt!=null){
+                        	queryMapReturn.put("score8_gt", score8_gt);
+						}
+						if(score8_ge!=null){
+                        	queryMapReturn.put("score8_ge", score8_ge);
+						}
+						if(score8_lt!=null){
+                        	queryMapReturn.put("score8_lt", score8_lt);
+						}
+						if(score8_le!=null){
+                        	queryMapReturn.put("score8_le", score8_le);
+						}
+						if(score8_in!=null){
+                        	queryMapReturn.put("score8_in", score8_in);
+						}
+						if(score8!=null){
+                        	queryMapReturn.put("score8", score8);
+						}		
+																								Integer score9_gt = (Integer)contentreq.get("score9_gt");
+						Integer score9_ge = (Integer)contentreq.get("score9_ge");
+						Integer score9_lt = (Integer)contentreq.get("score9_lt");
+						Integer score9_le = (Integer)contentreq.get("score9_le");
+						String score9_in = (String)contentreq.get("score9_in");
+						Integer score9 = (Integer)contentreq.get("score9");
+                        if(score9_gt!=null){
+                        	queryMapReturn.put("score9_gt", score9_gt);
+						}
+						if(score9_ge!=null){
+                        	queryMapReturn.put("score9_ge", score9_ge);
+						}
+						if(score9_lt!=null){
+                        	queryMapReturn.put("score9_lt", score9_lt);
+						}
+						if(score9_le!=null){
+                        	queryMapReturn.put("score9_le", score9_le);
+						}
+						if(score9_in!=null){
+                        	queryMapReturn.put("score9_in", score9_in);
+						}
+						if(score9!=null){
+                        	queryMapReturn.put("score9", score9);
+						}		
+															
+						    							
+												}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				    Object orderreq = (Object) reqParams.get("order");
+					if (orderreq != null) {
+						JSONArray order = (JSONArray)orderreq;
+						orderListReturn = new ArrayList<OrderVO>();
+						for(int i=0;i<order.size();i++){
+							JSONObject obj = order.getJSONObject(i);
+							OrderVO orderVO = new OrderVO();
+							orderVO.setName((String)obj.get("column"));
+							orderVO.setOrderType((String)obj.get("type"));
+							orderListReturn.add(orderVO);
+						}						
+					}
+				}
+			} else if ("DEL_MAS_INFO_REQUEST".equals(command)) {
+				actionReturn = "del";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");	
+						    					}	
+				}
+			} else if ("DEL_MAS_LIST_REQUEST".equals(command)) {
+				actionReturn = "delList";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																																String countPoint_like = (String)contentreq.get("countPoint_like");
+							String countPoint_isNull = (String)contentreq.get("countPoint_isNull");
+							String countPoint_isNotNull = (String)contentreq.get("countPoint_isNotNull");
+							String countPoint_in = (String)contentreq.get("countPoint_in");
+							String countPoint = (String)contentreq.get("countPoint");
+							if(countPoint_like!=null){
+	                        	queryMapReturn.put("countPoint_like", countPoint_like);
+							}
+							if(countPoint_isNull!=null){
+	                        	queryMapReturn.put("countPoint_isNull", countPoint_isNull);
+							}
+							if(countPoint_isNotNull!=null){
+	                        	queryMapReturn.put("countPoint_isNotNull", countPoint_isNotNull);
+							}
+							if(countPoint_in!=null){
+	                        	queryMapReturn.put("countPoint_in", countPoint_in);
+							}
+							if(countPoint!=null){
+	                        	queryMapReturn.put("countPoint", countPoint);
+							}						           
+																																							String des_like = (String)contentreq.get("des_like");
+							String des_isNull = (String)contentreq.get("des_isNull");
+							String des_isNotNull = (String)contentreq.get("des_isNotNull");
+							String des_in = (String)contentreq.get("des_in");
+							String des = (String)contentreq.get("des");
+							if(des_like!=null){
+	                        	queryMapReturn.put("des_like", des_like);
+							}
+							if(des_isNull!=null){
+	                        	queryMapReturn.put("des_isNull", des_isNull);
+							}
+							if(des_isNotNull!=null){
+	                        	queryMapReturn.put("des_isNotNull", des_isNotNull);
+							}
+							if(des_in!=null){
+	                        	queryMapReturn.put("des_in", des_in);
+							}
+							if(des!=null){
+	                        	queryMapReturn.put("des", des);
+							}						           
+																															Integer status_gt = (Integer)contentreq.get("status_gt");
+						Integer status_ge = (Integer)contentreq.get("status_ge");
+						Integer status_lt = (Integer)contentreq.get("status_lt");
+						Integer status_le = (Integer)contentreq.get("status_le");
+						String status_in = (String)contentreq.get("status_in");
+						Integer status = (Integer)contentreq.get("status");
+                        if(status_gt!=null){
+                        	queryMapReturn.put("status_gt", status_gt);
+						}
+						if(status_ge!=null){
+                        	queryMapReturn.put("status_ge", status_ge);
+						}
+						if(status_lt!=null){
+                        	queryMapReturn.put("status_lt", status_lt);
+						}
+						if(status_le!=null){
+                        	queryMapReturn.put("status_le", status_le);
+						}
+						if(status_in!=null){
+                        	queryMapReturn.put("status_in", status_in);
+						}
+						if(status!=null){
+                        	queryMapReturn.put("status", status);
+						}		
+																								Integer score1_gt = (Integer)contentreq.get("score1_gt");
+						Integer score1_ge = (Integer)contentreq.get("score1_ge");
+						Integer score1_lt = (Integer)contentreq.get("score1_lt");
+						Integer score1_le = (Integer)contentreq.get("score1_le");
+						String score1_in = (String)contentreq.get("score1_in");
+						Integer score1 = (Integer)contentreq.get("score1");
+                        if(score1_gt!=null){
+                        	queryMapReturn.put("score1_gt", score1_gt);
+						}
+						if(score1_ge!=null){
+                        	queryMapReturn.put("score1_ge", score1_ge);
+						}
+						if(score1_lt!=null){
+                        	queryMapReturn.put("score1_lt", score1_lt);
+						}
+						if(score1_le!=null){
+                        	queryMapReturn.put("score1_le", score1_le);
+						}
+						if(score1_in!=null){
+                        	queryMapReturn.put("score1_in", score1_in);
+						}
+						if(score1!=null){
+                        	queryMapReturn.put("score1", score1);
+						}		
+																								Integer score2_gt = (Integer)contentreq.get("score2_gt");
+						Integer score2_ge = (Integer)contentreq.get("score2_ge");
+						Integer score2_lt = (Integer)contentreq.get("score2_lt");
+						Integer score2_le = (Integer)contentreq.get("score2_le");
+						String score2_in = (String)contentreq.get("score2_in");
+						Integer score2 = (Integer)contentreq.get("score2");
+                        if(score2_gt!=null){
+                        	queryMapReturn.put("score2_gt", score2_gt);
+						}
+						if(score2_ge!=null){
+                        	queryMapReturn.put("score2_ge", score2_ge);
+						}
+						if(score2_lt!=null){
+                        	queryMapReturn.put("score2_lt", score2_lt);
+						}
+						if(score2_le!=null){
+                        	queryMapReturn.put("score2_le", score2_le);
+						}
+						if(score2_in!=null){
+                        	queryMapReturn.put("score2_in", score2_in);
+						}
+						if(score2!=null){
+                        	queryMapReturn.put("score2", score2);
+						}		
+																								Integer score3_gt = (Integer)contentreq.get("score3_gt");
+						Integer score3_ge = (Integer)contentreq.get("score3_ge");
+						Integer score3_lt = (Integer)contentreq.get("score3_lt");
+						Integer score3_le = (Integer)contentreq.get("score3_le");
+						String score3_in = (String)contentreq.get("score3_in");
+						Integer score3 = (Integer)contentreq.get("score3");
+                        if(score3_gt!=null){
+                        	queryMapReturn.put("score3_gt", score3_gt);
+						}
+						if(score3_ge!=null){
+                        	queryMapReturn.put("score3_ge", score3_ge);
+						}
+						if(score3_lt!=null){
+                        	queryMapReturn.put("score3_lt", score3_lt);
+						}
+						if(score3_le!=null){
+                        	queryMapReturn.put("score3_le", score3_le);
+						}
+						if(score3_in!=null){
+                        	queryMapReturn.put("score3_in", score3_in);
+						}
+						if(score3!=null){
+                        	queryMapReturn.put("score3", score3);
+						}		
+																								Integer score4_gt = (Integer)contentreq.get("score4_gt");
+						Integer score4_ge = (Integer)contentreq.get("score4_ge");
+						Integer score4_lt = (Integer)contentreq.get("score4_lt");
+						Integer score4_le = (Integer)contentreq.get("score4_le");
+						String score4_in = (String)contentreq.get("score4_in");
+						Integer score4 = (Integer)contentreq.get("score4");
+                        if(score4_gt!=null){
+                        	queryMapReturn.put("score4_gt", score4_gt);
+						}
+						if(score4_ge!=null){
+                        	queryMapReturn.put("score4_ge", score4_ge);
+						}
+						if(score4_lt!=null){
+                        	queryMapReturn.put("score4_lt", score4_lt);
+						}
+						if(score4_le!=null){
+                        	queryMapReturn.put("score4_le", score4_le);
+						}
+						if(score4_in!=null){
+                        	queryMapReturn.put("score4_in", score4_in);
+						}
+						if(score4!=null){
+                        	queryMapReturn.put("score4", score4);
+						}		
+																								Integer score5_gt = (Integer)contentreq.get("score5_gt");
+						Integer score5_ge = (Integer)contentreq.get("score5_ge");
+						Integer score5_lt = (Integer)contentreq.get("score5_lt");
+						Integer score5_le = (Integer)contentreq.get("score5_le");
+						String score5_in = (String)contentreq.get("score5_in");
+						Integer score5 = (Integer)contentreq.get("score5");
+                        if(score5_gt!=null){
+                        	queryMapReturn.put("score5_gt", score5_gt);
+						}
+						if(score5_ge!=null){
+                        	queryMapReturn.put("score5_ge", score5_ge);
+						}
+						if(score5_lt!=null){
+                        	queryMapReturn.put("score5_lt", score5_lt);
+						}
+						if(score5_le!=null){
+                        	queryMapReturn.put("score5_le", score5_le);
+						}
+						if(score5_in!=null){
+                        	queryMapReturn.put("score5_in", score5_in);
+						}
+						if(score5!=null){
+                        	queryMapReturn.put("score5", score5);
+						}		
+																								Integer score6_gt = (Integer)contentreq.get("score6_gt");
+						Integer score6_ge = (Integer)contentreq.get("score6_ge");
+						Integer score6_lt = (Integer)contentreq.get("score6_lt");
+						Integer score6_le = (Integer)contentreq.get("score6_le");
+						String score6_in = (String)contentreq.get("score6_in");
+						Integer score6 = (Integer)contentreq.get("score6");
+                        if(score6_gt!=null){
+                        	queryMapReturn.put("score6_gt", score6_gt);
+						}
+						if(score6_ge!=null){
+                        	queryMapReturn.put("score6_ge", score6_ge);
+						}
+						if(score6_lt!=null){
+                        	queryMapReturn.put("score6_lt", score6_lt);
+						}
+						if(score6_le!=null){
+                        	queryMapReturn.put("score6_le", score6_le);
+						}
+						if(score6_in!=null){
+                        	queryMapReturn.put("score6_in", score6_in);
+						}
+						if(score6!=null){
+                        	queryMapReturn.put("score6", score6);
+						}		
+																								Integer score7_gt = (Integer)contentreq.get("score7_gt");
+						Integer score7_ge = (Integer)contentreq.get("score7_ge");
+						Integer score7_lt = (Integer)contentreq.get("score7_lt");
+						Integer score7_le = (Integer)contentreq.get("score7_le");
+						String score7_in = (String)contentreq.get("score7_in");
+						Integer score7 = (Integer)contentreq.get("score7");
+                        if(score7_gt!=null){
+                        	queryMapReturn.put("score7_gt", score7_gt);
+						}
+						if(score7_ge!=null){
+                        	queryMapReturn.put("score7_ge", score7_ge);
+						}
+						if(score7_lt!=null){
+                        	queryMapReturn.put("score7_lt", score7_lt);
+						}
+						if(score7_le!=null){
+                        	queryMapReturn.put("score7_le", score7_le);
+						}
+						if(score7_in!=null){
+                        	queryMapReturn.put("score7_in", score7_in);
+						}
+						if(score7!=null){
+                        	queryMapReturn.put("score7", score7);
+						}		
+																								Integer score8_gt = (Integer)contentreq.get("score8_gt");
+						Integer score8_ge = (Integer)contentreq.get("score8_ge");
+						Integer score8_lt = (Integer)contentreq.get("score8_lt");
+						Integer score8_le = (Integer)contentreq.get("score8_le");
+						String score8_in = (String)contentreq.get("score8_in");
+						Integer score8 = (Integer)contentreq.get("score8");
+                        if(score8_gt!=null){
+                        	queryMapReturn.put("score8_gt", score8_gt);
+						}
+						if(score8_ge!=null){
+                        	queryMapReturn.put("score8_ge", score8_ge);
+						}
+						if(score8_lt!=null){
+                        	queryMapReturn.put("score8_lt", score8_lt);
+						}
+						if(score8_le!=null){
+                        	queryMapReturn.put("score8_le", score8_le);
+						}
+						if(score8_in!=null){
+                        	queryMapReturn.put("score8_in", score8_in);
+						}
+						if(score8!=null){
+                        	queryMapReturn.put("score8", score8);
+						}		
+																								Integer score9_gt = (Integer)contentreq.get("score9_gt");
+						Integer score9_ge = (Integer)contentreq.get("score9_ge");
+						Integer score9_lt = (Integer)contentreq.get("score9_lt");
+						Integer score9_le = (Integer)contentreq.get("score9_le");
+						String score9_in = (String)contentreq.get("score9_in");
+						Integer score9 = (Integer)contentreq.get("score9");
+                        if(score9_gt!=null){
+                        	queryMapReturn.put("score9_gt", score9_gt);
+						}
+						if(score9_ge!=null){
+                        	queryMapReturn.put("score9_ge", score9_ge);
+						}
+						if(score9_lt!=null){
+                        	queryMapReturn.put("score9_lt", score9_lt);
+						}
+						if(score9_le!=null){
+                        	queryMapReturn.put("score9_le", score9_le);
+						}
+						if(score9_in!=null){
+                        	queryMapReturn.put("score9_in", score9_in);
+						}
+						if(score9!=null){
+                        	queryMapReturn.put("score9", score9);
+						}		
+																		
+											}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				}
+			}
+
+			if (actionReturn != null && !"".equals(actionReturn)) {
+				parseMap.put("action", actionReturn);
+			}
+			if (masReturn != null) {
+				parseMap.put("mas", masReturn);
+			}
+			if (masListReturn != null && masListReturn.size() > 0) {
+				parseMap.put("masList", masListReturn);
+			}
+			if (idReturn != null) {
+				parseMap.put("id", idReturn);
+			}	
+			if (orderListReturn != null && orderListReturn.size() > 0) {
+				parseMap.put("orderList", orderListReturn);
+			}		
+			if (queryMapReturn != null) {
+				parseMap.put("queryMap", queryMapReturn);
+			}
+			if (pagenoReturn > 0) {
+				parseMap.put("pageno", pagenoReturn);
+			}
+			if (pagesizeReturn > 0) {
+				parseMap.put("pagesize", pagesizeReturn);
+			}
+			
+			
+						
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByXml(String command,String reqStr,
+			HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

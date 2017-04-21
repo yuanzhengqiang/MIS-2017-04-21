@@ -1,0 +1,712 @@
+package fsk.util;
+
+import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import fsk.entity.physiologicalParametersHistory.PhysiologicalParametersHistoryEntity;
+import fsk.entity.service.ServiceEntity;
+import fsk.entity.serviceEmployee.ServiceEmployeeEntity;
+import fsk.entity.serviceTask.ServiceTaskEntity;
+import fsk.service.serviceTask.ServiceTaskService;
+
+public class SqlUtil {
+	private static String driverClass;
+	private static String url;
+	private static String user;
+	private static String password;
+	private static SimpleDateFormat formater = new SimpleDateFormat("yyyyMMddHHmmss");
+	private static DecimalFormat decimalFormat = new DecimalFormat("#.0000");
+	private static ServiceTaskService serviceTaskService = ServiceTaskService.getInstance();
+	static {
+		try {
+			Properties props = new Properties();
+			String separator = FileUtil.getFileSeparator();
+			String path = Thread.currentThread().getContextClassLoader().getResource("").toString();
+			if ("file".equals(path.substring(0, 4))) {
+				if ("\\".equals(separator))
+					path = path.substring(6);
+				else {
+					path = path.substring(5);
+				}
+			}
+			String localPath = path.substring(0, path.indexOf("WEB-INF")) + "WEB-INF" + separator + "conf" + separator + "db-config.properties";
+			localPath = URLDecoder.decode(localPath);
+			localPath = localPath.replace("/", separator);
+			localPath = localPath.replace("\\", separator);
+			props = FileUtil.readProperties(localPath);
+			driverClass = props.getProperty("db.connect.className");
+			url = props.getProperty("db.connect.url");
+			user = props.getProperty("db.connect.user");
+			password = props.getProperty("db.connect.password");
+			Class.forName(driverClass);
+		} catch (Exception e) {
+			throw new ExceptionInInitializerError(e);
+		}
+	}
+
+	public static String wechatQuery(Integer pageno, Integer pagesize, Integer olderId, String status) {
+		String response = "";
+		JSONObject jsonResponse = new JSONObject();
+		jsonResponse.put("action", "QUERY_SERVICE_TASK_LIST_RESPONSE");
+		jsonResponse.put("result", "100");
+		jsonResponse.put("des", "success");
+		if (pageno == null) {
+			pageno = 1;
+		}
+		if (pagesize == null) {
+			pagesize = 10;
+		}
+		int pagenum = (pageno - 1) * pagesize;
+		String sql = "";
+		String sqlCount = "";
+		//根据
+		if (status == null || "".equals(status)) {
+			sql = "SELECT * FROM `B_SERVICE_TASK` WHERE ((STATUS=4 OR STATUS=5 OR STATUS=6 OR STATUS=7 OR STATUS=8) OR (STATUS=1 AND SOURCE='微信')) AND OLDER_ID="
+					+ olderId + " ORDER BY SERVICE_START_TIME DESC " + " LIMIT " + pagenum + "," + pagesize;
+			sqlCount = "SELECT * FROM `B_SERVICE_TASK` WHERE ((STATUS=4 OR STATUS=6 OR STATUS=5 OR STATUS=7 OR STATUS=8) OR (STATUS=1 AND SOURCE='微信')) AND OLDER_ID="
+					+ olderId + " ORDER BY SERVICE_START_TIME DESC ";
+		} else if ("1".equals(status)) {
+			sql = "SELECT * FROM `B_SERVICE_TASK` WHERE STATUS=1 AND SOURCE='微信' AND OLDER_ID=" + olderId + " ORDER BY SERVICE_START_TIME DESC " + " LIMIT "
+					+ pagenum + "," + pagesize;
+			sqlCount = "SELECT * FROM `B_SERVICE_TASK` WHERE STATUS=1 AND SOURCE='微信' AND OLDER_ID=" + olderId + " ORDER BY SERVICE_START_TIME DESC ";
+		} else if ("8".equals(status)) {
+			sql = "SELECT * FROM `B_SERVICE_TASK` WHERE STATUS=8 AND OLDER_ID=" + olderId + " ORDER BY SERVICE_START_TIME DESC " + " LIMIT " + pagenum + ","
+					+ pagesize;
+			sqlCount = "SELECT * FROM `B_SERVICE_TASK` WHERE STATUS=8 AND OLDER_ID=" + olderId + " ORDER BY SERVICE_START_TIME DESC ";
+		} else if ("4".equals(status)) {
+			sql = "SELECT * FROM `B_SERVICE_TASK` WHERE STATUS=4 AND OLDER_ID=" + olderId + " ORDER BY SERVICE_START_TIME DESC " + " LIMIT " + pagenum + ","
+					+ pagesize;
+			sqlCount = "SELECT * FROM `B_SERVICE_TASK` WHERE STATUS=4 AND OLDER_ID=" + olderId + " ORDER BY SERVICE_START_TIME DESC ";
+		} else if ("5,6,7".equals(status)) {
+			sql = "SELECT * FROM `B_SERVICE_TASK` WHERE (STATUS=5 OR STATUS=6 OR STATUS=7 ) AND OLDER_ID=" + olderId + " ORDER BY SERVICE_START_TIME DESC "
+					+ " LIMIT " + pagenum + "," + pagesize;
+			sqlCount = "SELECT * FROM `B_SERVICE_TASK` WHERE (STATUS=5 OR STATUS=6 OR STATUS=7 ) AND OLDER_ID=" + olderId
+					+ " ORDER BY SERVICE_START_TIME DESC ";
+		}
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		ResultSet rscount = null;
+		JSONObject jsonContent = new JSONObject();
+		if (!"".equals(sql)) {
+			try {
+				conn = SqlUtil.getConnection();
+				pstmt = conn.prepareStatement(sql);
+				rs = pstmt.executeQuery();
+
+				JSONArray serviceTaskListArr = new JSONArray();
+				while (rs.next()) {
+					JSONObject json = new JSONObject();
+					json.put("id", (Integer) rs.getObject("ID"));
+					json.put("serviceCode", (String) rs.getObject("SERVICE_CODE"));
+					json.put("olderId", (Integer) rs.getObject("OLDER_ID"));
+					json.put("olderMemberNum", (String) rs.getObject("OLDER_MEMBER_NUM"));
+					json.put("olderName", (String) rs.getObject("OLDER_NAME"));
+					json.put("olderBirthdate", (String) rs.getObject("OLDER_BIRTHDATE"));
+					json.put("serviceAreaId", (Integer) rs.getObject("SERVICE_AREA_ID"));
+					json.put("serviceStreetId", (Integer) rs.getObject("SERVICE_STREET_ID"));
+					json.put("contactName", (String) rs.getObject("CONTACT_NAME"));
+					json.put("contactTel", (String) rs.getObject("CONTACT_TEL"));
+					json.put("address", (String) rs.getObject("ADDRESS"));
+					json.put("addressLong", (BigDecimal) rs.getObject("ADDRESS_LONG"));
+					json.put("addressLat", (BigDecimal) rs.getObject("ADDRESS_LAT"));
+					json.put("serviceExpectTime", (String) rs.getObject("SERVICE_EXPECT_TIME"));
+					json.put("serviceStartTime", (String) rs.getObject("SERVICE_START_TIME"));
+					json.put("serviceEndTime", (String) rs.getObject("SERVICE_END_TIME"));
+					json.put("serviceTimeCount", (Integer) rs.getObject("SERVICE_TIME_COUNT"));
+					json.put("serviceTimeStatus", (Integer) rs.getObject("SERVICE_TIME_STATUS"));
+					json.put("siteId", (Integer) rs.getObject("SITE_ID"));
+					json.put("siteName", (String) rs.getObject("SITE_NAME"));
+					json.put("nursingRecord", (String) rs.getObject("NURSING_RECORD"));
+					json.put("customerInformed", (String) rs.getObject("CUSTOMER_INFORMED"));
+					json.put("qualityEvaluation", (Integer) rs.getObject("QUALITY_EVALUATION"));
+					json.put("attitudeEvaluation", (Integer) rs.getObject("ATTITUDE_EVALUATION"));
+					json.put("courseNumber", (Integer) rs.getObject("COURSE_NUMBER"));
+					json.put("serviceNumber", (Integer) rs.getObject("SERVICE_NUMBER"));
+					json.put("price", (BigDecimal) rs.getObject("PRICE"));
+					json.put("source", (String) rs.getObject("SOURCE"));
+					json.put("healthInsurance", (Integer) rs.getObject("HEALTH_INSURANCE"));
+					json.put("status", (Integer) rs.getObject("STATUS"));
+					json.put("des", (String) rs.getObject("DES"));
+					json.put("addPerson", (String) rs.getObject("ADD_PERSON"));
+					json.put("addTime", (String) rs.getObject("ADD_TIME"));
+					json.put("visitPerson", (String) rs.getObject("VISIT_PERSON"));
+					json.put("visitTime", (String) rs.getObject("VISIT_TIME"));
+					json.put("satisfactionEvaluation", (BigDecimal) rs.getObject("SATISFACTION_EVALUATION"));
+					json.put("visitRecord", (String) rs.getObject("VISIT_RECORD"));
+					json.put("physiologicalParametersDes", (String) rs.getObject("PHYSIOLOGICAL_PARAMETERS_DES"));
+					json.put("visitServiceTime", (String) rs.getObject("VISIT_SERVICE_ATTITUDE"));
+					json.put("visitServiceAttitude", (String) rs.getObject("VISIT_SERVICE_ATTITUDE"));
+					json.put("visitServiceQuality", (String) rs.getObject("VISIT_SERVICE_QUALITY"));
+					json.put("chargeEmployeeId", (Integer) rs.getObject("CHARGE_EMPLOYEE_ID"));
+
+					JSONArray serviceJsonArr = new JSONArray();
+					JSONArray serviceEmployeeJsonArr = new JSONArray();
+					Integer id = (Integer) rs.getObject("ID");
+					Map<String, Object> queryMap = new HashMap<String, Object>();
+					queryMap.put("id", id);
+					List<ServiceTaskEntity> list = serviceTaskService.getListByCondition(queryMap, null, false, false, false, false, false, false, false,
+							false, false, false, true, true, false);
+
+					if (list != null && list.size() > 0) {
+						ServiceTaskEntity servicetask = list.get(0);
+						if (servicetask.getServiceList() != null && servicetask.getServiceList().size() > 0) {
+							for (ServiceEntity service : servicetask.getServiceList()) {
+								JSONObject serviceJson = new JSONObject();
+								serviceJson.put("id", service.getId());
+								serviceJson.put("name", service.getName());
+								serviceJson.put("code", service.getCode());
+								serviceJson.put("typeId", service.getTypeId());
+								serviceJson.put("status", service.getStatus());
+								serviceJson.put("marketPrice", service.getMarketPrice());
+								serviceJson.put("medicalPrice", service.getMedicalPrice());
+								serviceJson.put("unit", service.getUnit());
+								serviceJson.put("goDoor", service.getGoDoor());
+								serviceJson.put("serviceTimes", service.getServiceTimes());
+								serviceJson.put("needPerosn", service.getNeedPerosn());
+								serviceJson.put("des", service.getDes());
+								serviceJson.put("profile", service.getProfile());
+								serviceJson.put("createTime", service.getCreateTime());
+								serviceJsonArr.add(serviceJson);
+							}
+						}
+						if (servicetask.getServiceEmployeeList() != null && servicetask.getServiceEmployeeList().size() > 0) {
+							for (ServiceEmployeeEntity serviceEmployee : servicetask.getServiceEmployeeList()) {
+								JSONObject serviceEmployeeJson = new JSONObject();
+								serviceEmployeeJson.put("id", serviceEmployee.getId());
+								serviceEmployeeJson.put("employeeId", serviceEmployee.getEmployeeId());
+								serviceEmployeeJson.put("name", serviceEmployee.getName());
+								serviceEmployeeJson.put("employeeCode", serviceEmployee.getEmployeeCode());
+								serviceEmployeeJson.put("role", serviceEmployee.getRole());
+								serviceEmployeeJson.put("type", serviceEmployee.getType());
+								serviceEmployeeJson.put("serviceTaskId", serviceEmployee.getServiceTaskId());
+								serviceEmployeeJsonArr.add(serviceEmployeeJson);
+							}
+						}
+					}
+					json.put("serviceList", serviceJsonArr.toString());
+					json.put("serviceEmployeeList", serviceEmployeeJsonArr.toString());
+					serviceTaskListArr.add(json);
+					jsonContent.put("serviceTaskList", serviceTaskListArr.toString());
+					jsonResponse.put("content", jsonContent.toString());
+				}
+				//分页参数
+				
+				int recordCount = 0;
+				int pageCount = 0;
+				conn = SqlUtil.getConnection();
+				pstmt = conn.prepareStatement(sqlCount);
+				rscount = pstmt.executeQuery();
+				while (rscount.next()) {
+					recordCount++;
+					pageCount = recordCount % pagesize == 0 ? recordCount / pagesize : recordCount / pagesize + 1;// 页数
+					JSONObject jsonPage = new JSONObject();
+					jsonPage.put("recordCount", String.valueOf(recordCount));
+					jsonPage.put("pageCount", String.valueOf(pageCount));
+					jsonPage.put("pageno", String.valueOf(pageno));
+					jsonPage.put("pagesize", String.valueOf(pagesize));
+					jsonResponse.put("page", jsonPage.toString());
+				}
+				response = jsonResponse.toString();
+				response = new String(response.getBytes("utf-8"), "iso-8859-1");
+
+			} catch (Exception e) {
+				jsonResponse.put("result", "200");
+				jsonResponse.put("des", "failure");
+				response = jsonResponse.toString();
+			} finally {
+				// 关闭连接
+				SqlUtil.closeResultSet(rs);
+				SqlUtil.closeConnection(conn);
+				SqlUtil.closePreparedStatementt(pstmt);
+				SqlUtil.closeResultSet(rscount);
+			}
+		}
+
+		return response;
+	}
+
+	/**
+	 * 返回血压异常的历史记录以及统计
+	 * 
+	 * @param pageno
+	 * @param pagesize
+	 * @param olderId
+	 * @param createTime_ge
+	 * @param createTime_le
+	 * @return
+	 */
+	public static String getBloodPresure(Integer pageno, Integer pagesize, Integer olderId, String createTime_ge, String createTime_le) {
+		if (pageno == null) {
+			pageno = 1;
+		}
+		if (pagesize == null) {
+			pagesize = 10;
+		}
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		PreparedStatement pstmtcount = null;
+		int recordCount = 0;
+		int pageCount = 0;
+		ResultSet rs = null;
+		ResultSet rscount = null;
+		JSONObject repjosn = new JSONObject();
+		repjosn.put("action", "QUERY_PHYSIOLOGICAL_PARAMETERS_HISTORY_LIST_RESPONSE");
+
+		try {
+			int pagenum = (pageno - 1) * pagesize;
+
+			String sql = "SELECT * FROM `B_PHYSIOLOGICAL_PARAMETERS_HISTORY` WHERE (STATUS!=1 OR STATUS2!=1) AND TYPE=1";
+			if (createTime_ge != null) {
+				sql = sql + " AND CREATE_TIME>=" + "'" + createTime_ge + "'";
+			}
+			if (createTime_le != null) {
+				sql = sql + " AND CREATE_TIME<=" + "'" + createTime_le + "'";
+			}
+			sql = sql + " AND OLDER_ID = " + olderId + " LIMIT " + pagenum + "," + pagesize;
+			conn = SqlUtil.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			JSONArray contentass = new JSONArray();
+			while (rs.next()) {
+				JSONObject json = new JSONObject();
+				json.put("id", (Integer) rs.getObject("ID"));
+				json.put("olderId", (Integer) rs.getObject("OLDER_ID"));
+				json.put("type", (Integer) rs.getObject("TYPE"));
+				json.put("value", (BigDecimal) rs.getObject("VALUE"));
+				json.put("unit", (String) rs.getObject("UNIT"));
+				json.put("status", (Integer) rs.getObject("STATUS"));
+				json.put("measurePerson", (String) rs.getObject("MEASURE_PERSON"));
+				json.put("createTime", (String) rs.getObject("CREATE_TIME"));
+				json.put("value2", (BigDecimal) rs.getObject("VALUE2"));
+				json.put("status2", (Integer) rs.getObject("STATUS2"));
+				contentass.add(json);
+			}
+			String sql2 = "SELECT * FROM `B_PHYSIOLOGICAL_PARAMETERS_HISTORY` WHERE (STATUS!=1 OR STATUS2!=1) AND TYPE=1";
+			if (createTime_ge != null) {
+				sql2 = sql2 + " AND CREATE_TIME>=" + "'" + createTime_ge + "'";
+			}
+			if (createTime_le != null) {
+				sql2 = sql2 + " AND CREATE_TIME<=" + "'" + createTime_le + "'";
+			}
+			sql2 = sql2 + " AND OLDER_ID = " + olderId;
+			conn = SqlUtil.getConnection();
+			pstmt = conn.prepareStatement(sql2);
+			rs = pstmt.executeQuery();
+			List<PhysiologicalParametersHistoryEntity> list = new ArrayList<PhysiologicalParametersHistoryEntity>();
+			while (rs.next()) {
+				PhysiologicalParametersHistoryEntity entity = new PhysiologicalParametersHistoryEntity();
+				entity.setId((Integer) rs.getObject("ID"));
+				entity.setOlderId((Integer) rs.getObject("OLDER_ID"));
+				entity.setType((Integer) rs.getObject("TYPE"));
+				entity.setValue((BigDecimal) rs.getObject("VALUE"));
+				entity.setUnit((String) rs.getObject("UNIT"));
+				entity.setStatus((Integer) rs.getObject("STATUS"));
+				entity.setMeasurePerson((String) rs.getObject("MEASURE_PERSON"));
+				entity.setCreateTime((String) rs.getObject("CREATE_TIME"));
+				entity.setValue2((BigDecimal) rs.getObject("VALUE2"));
+				entity.setStatus2((Integer) rs.getObject("STATUS2"));
+				list.add(entity);
+				recordCount++;
+			}
+			JSONObject jsoncon = new JSONObject();
+			jsoncon.put("physiologicalParametersHistoryList", contentass.toString());
+			repjosn.put("result", "100");
+			repjosn.put("des", "success");
+			String tongji = getTong(list);
+			jsoncon.put("tongji", tongji);
+			pageCount = recordCount % pagesize == 0 ? recordCount / pagesize : recordCount / pagesize + 1;// 页数
+			JSONObject pagejson = new JSONObject();
+			pagejson.put("recordCount", String.valueOf(recordCount));
+			pagejson.put("pageCount", String.valueOf(pageCount));
+			pagejson.put("pageno", pageno);
+			pagejson.put("pagesize", pagesize);
+			repjosn.put("page", pagejson.toString());
+			repjosn.put("content", jsoncon.toString());
+		} catch (Exception e) {
+			System.out.println(e);
+			repjosn.put("result", "200");
+			repjosn.put("des", "failure");
+		} finally {
+			// 关闭连接
+			SqlUtil.closeResultSet(rs);
+			SqlUtil.closePreparedStatementt(pstmt);
+			SqlUtil.closeConnection(conn);
+			SqlUtil.closeResultSet(rscount);
+			SqlUtil.closePreparedStatementt(pstmtcount);
+		}
+
+		return repjosn.toString();
+	}
+
+	/**
+	 * 根据list返回生理参数的统计
+	 * 
+	 * @param parametersList
+	 * @return
+	 * @throws ParseException
+	 */
+	private static String getTong(List<PhysiologicalParametersHistoryEntity> parametersList) throws ParseException {
+		JSONObject tongji = new JSONObject();
+		if (parametersList != null && parametersList.size() > 0) {
+
+			// 将第一个生理参数作为比较项
+			PhysiologicalParametersHistoryEntity firstParameters = parametersList.get(0);
+			String minTime = firstParameters.getCreateTime();
+			String maxTime = firstParameters.getCreateTime();
+			int lowcon = 0;
+			int highcon = 0;
+			int yichang = 0;
+			int totalCountTemp = parametersList.size();
+			BigDecimal valueHige = firstParameters.getValue();
+			String valueHigeTime = firstParameters.getCreateTime();
+			BigDecimal valueLow = firstParameters.getValue();
+			String valueLowTime = firstParameters.getCreateTime();
+
+			BigDecimal valueHige2 = firstParameters.getValue2();
+			String valueHigeTime2 = firstParameters.getCreateTime();
+			BigDecimal valueLow2 = firstParameters.getValue2();
+			String valueLowTime2 = firstParameters.getCreateTime();
+			// 遍历list，做参数的统计
+			for (PhysiologicalParametersHistoryEntity parameters : parametersList) {
+				// 时间区间
+				String olderTime = parameters.getCreateTime();
+				if (olderTime != null) {
+					Date min = formater.parse(minTime);
+					Date max = formater.parse(maxTime);
+					Date newTime = formater.parse(olderTime);
+					if (newTime.getTime() < min.getTime()) {
+						minTime = olderTime;
+					}
+					if (newTime.getTime() > max.getTime()) {
+						maxTime = olderTime;
+					}
+				}
+				// 统计笔数
+				// totalCountTemp
+				// 正常异常
+				Integer statust = parameters.getStatus();
+				Integer statust2 = parameters.getStatus2();
+				if (statust != null && statust2 != null) {
+					if (statust != 1 || statust2 != 1) {
+						yichang++;
+					}
+					if (statust == 2 || statust2 == 2) {
+						highcon++;
+					}
+					if (statust == 3 || statust2 == 3) {
+						lowcon++;
+					}
+				}
+
+				// 最高值1
+				BigDecimal value = parameters.getValue();
+				if (value != null) {
+					if (value.compareTo(valueHige) == 1) {
+						valueHige = value;
+						valueHigeTime = parameters.getCreateTime();
+					}
+					if (value.compareTo(valueLow) == -1) {
+						valueLow = value;
+						valueLowTime = parameters.getCreateTime();
+					}
+				}
+
+				// 最高值2
+				BigDecimal value2 = parameters.getValue2();
+				if (value2 != null) {
+					if (value2.compareTo(valueHige2) == 1) {
+						valueHige2 = value2;
+						valueHigeTime2 = parameters.getCreateTime();
+					}
+					if (value2.compareTo(valueLow2) == -1) {
+						valueLow2 = value2;
+						valueLowTime2 = parameters.getCreateTime();
+					}
+				}
+
+			}
+			// 统计区间
+			String timeRange = minTime.substring(0, 4) + "-" + minTime.substring(4, 6) + "-" + minTime.substring(6, 8) + "～" + maxTime.substring(0, 4) + "-"
+					+ maxTime.substring(4, 6) + "-" + maxTime.substring(6, 8);
+			// 统计笔数
+			int totalCount = totalCountTemp;
+			// 异常笔数
+			int yichangnew = yichang;
+			// 偏高比例
+			float highconfloat = Float.parseFloat(decimalFormat.format((float) highcon / (float) totalCountTemp));
+			highconfloat = Float.parseFloat(decimalFormat.format(highconfloat * 100));
+			String highPercent = String.valueOf(highconfloat) + "%";
+			// 偏低比例
+			float lowconfloat = Float.parseFloat(decimalFormat.format((float) lowcon / (float) totalCountTemp));
+			lowconfloat = Float.parseFloat(decimalFormat.format(lowconfloat * 100));
+			String lowPercent = String.valueOf(lowconfloat) + "%";
+			int nolmal = totalCountTemp - yichang;
+			// 正常比例
+			float nolconfloat = Float.parseFloat(decimalFormat.format((float) nolmal / (float) totalCountTemp));
+			nolconfloat = Float.parseFloat(decimalFormat.format(nolconfloat * 100));
+			String nomalPercent = String.valueOf(nolconfloat) + "%";
+			//
+			valueHige = valueHige.setScale(0, BigDecimal.ROUND_HALF_UP);
+			valueHige2 = valueHige2.setScale(0, BigDecimal.ROUND_HALF_UP);
+			valueLow = valueLow.setScale(0, BigDecimal.ROUND_HALF_UP);
+			valueLow2 = valueLow2.setScale(0, BigDecimal.ROUND_HALF_UP);
+			if (valueHige != null && valueHigeTime != null) {
+				String highValue1 = "收缩压" + valueHige + "(" + valueHigeTime.substring(0, 4) + "-" + valueHigeTime.substring(4, 6) + "-"
+						+ valueHigeTime.substring(6, 8) + ")";
+				tongji.put("highValue1", highValue1);
+			}
+			if (valueHige2 != null && valueHigeTime2 != null) {
+				String highValue2 = "舒张压" + valueHige2 + "(" + valueHigeTime2.substring(0, 4) + "-" + valueHigeTime2.substring(4, 6) + "-"
+						+ valueHigeTime2.substring(6, 8) + ")";
+				tongji.put("highValue2", highValue2);
+			}
+			if (valueLow != null && valueLowTime != null) {
+				String lowValue1 = "收缩压" + valueLow + "(" + valueLowTime.substring(0, 4) + "-" + valueLowTime.substring(4, 6) + "-"
+						+ valueLowTime.substring(6, 8) + ")";
+				tongji.put("lowValue1", lowValue1);
+			}
+			if (valueLow2 != null && valueLowTime2 != null) {
+				String lowValue2 = "舒张压" + valueLow2 + "(" + valueLowTime2.substring(0, 4) + "-" + valueLowTime2.substring(4, 6) + "-"
+						+ valueLowTime2.substring(6, 8) + ")";
+				tongji.put("lowValue2", lowValue2);
+			}
+			tongji.put("timeRange", timeRange);
+			tongji.put("totalCount", totalCount);
+			tongji.put("inCount", yichangnew);
+			tongji.put("nomalPercent", nomalPercent);
+			tongji.put("highPercent", highPercent);
+			tongji.put("lowPercent", lowPercent);
+		} else {
+			tongji = getNullStatistics();
+		}
+
+		return tongji.toString();
+	}
+
+	public static String getids() {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String ids = "";
+		try {
+			// 查询结果
+			String sql = "SELECT * FROM `B_SERVICE_TASK` WHERE SOURCE <> '微信' OR SOURCE IS NULL";
+			conn = SqlUtil.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				Integer id = (Integer) rs.getObject("ID");
+				ids = ids + String.valueOf(id) + ",";
+			}
+			if (!"".equals(ids)) {
+				ids = ids.replaceAll(",,", ",");
+				ids = ids.substring(0, ids.length() - 1);
+			}
+		} catch (Exception e) {
+			ids = "0";
+		} finally {
+			// 关闭连接
+			SqlUtil.closeResultSet(rs);
+			SqlUtil.closeConnection(conn);
+			SqlUtil.closePreparedStatementt(pstmt);
+		}
+		return ids;
+
+	}
+
+	public static String getresult(int pageno, int pagesize) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		PreparedStatement pstmtcount = null;
+		int recordCount = 0;
+		int pageCount = 0;
+		ResultSet rs = null;
+		ResultSet rscount = null;
+		JSONObject repjosn = new JSONObject();
+		repjosn.put("action", "QUERY_SERVICE_TASK_LIST_RESPONSE");
+		String ids = "";
+		try {
+			// 查询结果
+			int pagenum = (pageno - 1) * pagesize;
+			String sql = "SELECT * FROM `B_SERVICE_TASK` WHERE SOURCE <> '微信'LIMIT " + pagenum + "," + pagesize;
+			conn = SqlUtil.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			JSONArray contentass = new JSONArray();
+			while (rs.next()) {
+				JSONObject json = new JSONObject();
+				json.put("id", (Integer) rs.getObject("ID"));
+				json.put("serviceCode", (String) rs.getObject("SERVICE_CODE"));
+				json.put("olderId", (Integer) rs.getObject("OLDER_ID"));
+				json.put("olderMemberNum", (String) rs.getObject("OLDER_MEMBER_NUM"));
+				json.put("olderName", (String) rs.getObject("OLDER_NAME"));
+				json.put("olderBirthdate", (String) rs.getObject("OLDER_BIRTHDATE"));
+				json.put("serviceAreaId", (Integer) rs.getObject("SERVICE_AREA_ID"));
+				json.put("serviceStreetId", (Integer) rs.getObject("SERVICE_STREET_ID"));
+				json.put("contactName", (String) rs.getObject("CONTACT_NAME"));
+				json.put("contactTel", (String) rs.getObject("CONTACT_TEL"));
+				json.put("address", (String) rs.getObject("ADDRESS"));
+				json.put("addressLong", (BigDecimal) rs.getObject("ADDRESS_LONG"));
+				json.put("addressLat", (BigDecimal) rs.getObject("ADDRESS_LAT"));
+				json.put("serviceExpectTime", (String) rs.getObject("SERVICE_EXPECT_TIME"));
+				json.put("serviceStartTime", (String) rs.getObject("SERVICE_START_TIME"));
+				json.put("serviceEndTime", (String) rs.getObject("SERVICE_END_TIME"));
+				json.put("serviceTimeCount", (Integer) rs.getObject("SERVICE_TIME_COUNT"));
+				json.put("serviceTimeStatus", (Integer) rs.getObject("SERVICE_TIME_STATUS"));
+				json.put("siteId", (Integer) rs.getObject("SITE_ID"));
+				json.put("siteName", (String) rs.getObject("SITE_NAME"));
+				json.put("nursingRecord", (String) rs.getObject("NURSING_RECORD"));
+				json.put("customerInformed", (String) rs.getObject("CUSTOMER_INFORMED"));
+				json.put("qualityEvaluation", (Integer) rs.getObject("QUALITY_EVALUATION"));
+				json.put("attitudeEvaluation", (Integer) rs.getObject("ATTITUDE_EVALUATION"));
+				json.put("courseNumber", (Integer) rs.getObject("COURSE_NUMBER"));
+				json.put("serviceNumber", (Integer) rs.getObject("SERVICE_NUMBER"));
+				json.put("price", (BigDecimal) rs.getObject("PRICE"));
+				json.put("source", (String) rs.getObject("SOURCE"));
+				json.put("healthInsurance", (Integer) rs.getObject("HEALTH_INSURANCE"));
+				json.put("status", (Integer) rs.getObject("STATUS"));
+				json.put("des", (String) rs.getObject("DES"));
+				json.put("addPerson", (String) rs.getObject("ADD_PERSON"));
+				json.put("addTime", (String) rs.getObject("ADD_TIME"));
+				json.put("visitPerson", (String) rs.getObject("VISIT_PERSON"));
+				json.put("visitTime", (String) rs.getObject("VISIT_TIME"));
+				json.put("satisfactionEvaluation", (BigDecimal) rs.getObject("SATISFACTION_EVALUATION"));
+				json.put("visitRecord", (String) rs.getObject("VISIT_RECORD"));
+				json.put("physiologicalParametersDes", (String) rs.getObject("PHYSIOLOGICAL_PARAMETERS_DES"));
+				json.put("visitServiceTime", (String) rs.getObject("VISIT_SERVICE_ATTITUDE"));
+				json.put("visitServiceAttitude", (String) rs.getObject("VISIT_SERVICE_ATTITUDE"));
+				json.put("visitServiceQuality", (String) rs.getObject("VISIT_SERVICE_QUALITY"));
+				json.put("chargeEmployeeId", (Integer) rs.getObject("CHARGE_EMPLOYEE_ID"));
+				contentass.add(json);
+			}
+			JSONObject jsoncon = new JSONObject();
+			jsoncon.put("serviceTaskList", contentass.toString());
+			repjosn.put("result", "100");
+			repjosn.put("des", "success");
+			// 页数记录数结果
+			String sqlcount = "SELECT * FROM `B_SERVICE_TASK` WHERE SOURCE <> '微信'";
+			pstmtcount = conn.prepareStatement(sqlcount);
+			rscount = pstmtcount.executeQuery();
+			while (rscount.next()) {
+				recordCount++;
+			}
+			pageCount = recordCount % pagesize == 0 ? recordCount / pagesize : recordCount / pagesize + 1;// 页数
+			JSONObject pagejson = new JSONObject();
+			pagejson.put("recordCount", String.valueOf(recordCount));
+			pagejson.put("pageCount", String.valueOf(pageCount));
+			repjosn.put("page", pagejson.toString());
+			repjosn.put("content", jsoncon.toString());
+
+		} catch (Exception e) {
+			repjosn.put("result", "200");
+			repjosn.put("des", "failure");
+		} finally {
+			// 关闭连接
+			SqlUtil.closeResultSet(rs);
+			SqlUtil.closePreparedStatementt(pstmt);
+			SqlUtil.closeConnection(conn);
+			SqlUtil.closeResultSet(rscount);
+		}
+		return repjosn.toString();
+	}
+
+	// 连接数据库
+	public static Connection getConnection() throws Exception {
+		Connection conn = DriverManager.getConnection(url, user, password);
+		return conn;
+	}
+
+	/**
+	 * 关闭ResultSet
+	 * 
+	 * @param rs
+	 */
+	public static void closeResultSet(ResultSet rs) {
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			rs = null;
+		}
+	}
+
+	/**
+	 * 关闭 PreparedStatement
+	 * 
+	 * @param stmt
+	 */
+	public static void closePreparedStatementt(PreparedStatement stmt) {
+		if (stmt != null) {
+			try {
+				stmt.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			stmt = null;
+		}
+	}
+
+	/**
+	 * 
+	 * 关闭数据库连接
+	 * 
+	 * @param conn
+	 */
+	public static void closeConnection(Connection conn) {
+		if (conn != null) {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			conn = null;
+		}
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private static JSONObject getNullStatistics() {
+		JSONObject tongji = new JSONObject();
+		tongji.put("timeRange", 0);
+		tongji.put("totalCount", 0);
+		tongji.put("inCount", 0);
+		tongji.put("nomalPercent", "");
+		tongji.put("highPercent", "");
+		tongji.put("lowPercent", "");
+		tongji.put("highValue1", "");
+		tongji.put("lowValue1", "");
+		tongji.put("highValue2", "");
+		tongji.put("lowValue2", "");
+		return tongji;
+	}
+
+	/**
+	 * main方法，测试
+	 * 
+	 * @param args
+	 */
+	// public static void main(String[] args) {
+	// System.out.println(wechatQuery(1, 10, 180, ""));
+	// }
+}

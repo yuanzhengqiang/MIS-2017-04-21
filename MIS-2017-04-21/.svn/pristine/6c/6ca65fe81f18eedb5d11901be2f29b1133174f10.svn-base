@@ -1,0 +1,28 @@
+package fsk.controller.older;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import fsk.init.SystemInit;
+
+@RequestMapping("/olderPar")
+@Controller	
+public class OlderParController {
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = null;
+		if (SystemInit.ecgpage != null) {
+			mav = new ModelAndView("/fsk/older/older_PhysiologicalParametersDatails2");
+		}else {
+			mav = new ModelAndView("/fsk/older/older_PhysiologicalParametersDatails");
+		}
+		String olderId = request.getParameter("olderId");
+		mav.addObject("olderId", olderId);
+		String typeIn = request.getParameter("typeIn");
+		mav.addObject("typeIn", typeIn);
+		return mav;
+	}
+}

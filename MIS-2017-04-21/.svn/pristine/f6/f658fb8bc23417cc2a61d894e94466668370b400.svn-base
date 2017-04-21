@@ -1,0 +1,263 @@
+package fsk.controller.ecgStick;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.framework.system.common.entity.json.AjaxJson;
+import com.framework.system.common.entity.module.ModuleEntity;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.util.JsonUtil;
+
+import fsk.entity.ecgStick.EcgStickEntity;
+import fsk.entity.physiologicalParametersCurrent.PhysiologicalParametersCurrentEntity;
+import fsk.handler.ecgStick.EcgStickHandler;
+import fsk.service.ecgStick.EcgStickService;
+import fsk.service.physiologicalParametersCurrent.PhysiologicalParametersCurrentService;
+
+@RequestMapping("/ecgStick")
+@Controller
+public class EcgStickController {
+	private static Logger logger = Logger.getLogger(EcgStickController.class);
+	/**
+	 * 处理器
+	 */
+	private EcgStickHandler ecgStickHandler = EcgStickHandler.getInstance();
+	/**
+	 * 服务类
+	 */
+	private EcgStickService ecgStickService = EcgStickService.getInstance();
+
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/ecgStick/EcgStickList");
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService.getHTMLModulesByRoleIdsAndModuleId(roleIds, htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		return mav;
+	}
+
+	/*
+	 * 跳转到实时心电图
+	 */
+	@RequestMapping(params = "realtime")
+	public ModelAndView realTime(HttpServletRequest request) {
+		/* 心率实时展示页面 */
+		ModelAndView mav = new ModelAndView("/fsk/ecgStick/EcgStickList");
+		String olderId = (String) request.getParameter("olderId");
+		int nOlderId = Integer.parseInt(olderId);
+		mav.addObject("olderId", nOlderId);
+		return mav;
+	}
+
+	/**
+	 * 批量删除 ids英文逗号间隔
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "del")
+	@ResponseBody
+	public AjaxJson del(HttpServletRequest request) {
+		AjaxJson j = new AjaxJson();
+		String result = "failure";
+		String des = "删除失败";
+		String ids = request.getParameter("ids");
+		if (ids != null && !"".equals(ids)) {
+			boolean falg = ecgStickService.del(ids);
+			if (falg) {
+				result = "success";
+				des = "删除成功";
+				Object userId = request.getSession().getAttribute("userId");
+				String ip = request.getRemoteAddr();
+				logger.debug("删除记录：userId为" + userId + "的用户删除了id为" + ids + "的ecgStick," + "来自ip: " + ip);
+			}
+		}
+		j.setResult(result);
+		j.setDes(des);
+		return j;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handler")
+	@ResponseBody
+	public String query(HttpServletRequest request, HttpServletResponse response) {
+		String msg = "";
+		try {
+			String reqmsg = request.getParameter("reqmsg");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return msg;
+			}
+			String action = (String) reqParams.get("action");
+			String rep = ecgStickHandler.doHandler(1, action, reqmsg, request, response);
+			msg = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+
+		return msg;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handlercontent")
+	public void queryApp(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			InputStream is = request.getInputStream();
+			byte[] bis = IOUtils.toByteArray(is);
+			String reqmsg = new String(bis, "UTF-8");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return;
+			}
+			String action = (String) reqParams.get("action");
+			String rep = ecgStickHandler.doHandler(1, action, reqmsg, request, response);
+			OutputStream os = response.getOutputStream();
+			os.write(rep.toString().getBytes("UTF-8"));
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+	}
+
+	/**
+	 * 实时获取心电测量数据 -- 每 2s 从 b_ecgstick 请求一次数据
+	 * 
+	 * @prama olderId 被测人 ID
+	 * @return
+	 */
+	@RequestMapping(params = "getecg")
+	@ResponseBody
+	public String getEcgData(String olderId, String nextTime) {
+		if (olderId == null || olderId.equals(""))
+			return "";
+
+		int olderid = Integer.parseInt(olderId);
+		int xinlv = getXinlv(olderid);
+		String ecgdata = "";
+		List<EcgStickEntity> ecgList = null;
+
+		long nexttime = 0;
+		try {
+			nexttime = Long.valueOf(nextTime);
+		} catch (Exception e) {
+			nexttime = 0;
+		}
+
+		if (nexttime > 0) {
+			Map<String, Object> queryMap = new HashMap<String, Object>();
+			queryMap.put("type", olderId);
+			queryMap.put("createTime_ge", nexttime);
+			queryMap.put("createTime_lt", nexttime + (long) 2000);
+			// 排序条件 -- 获得最开始的测量时间
+			List<OrderVO> orderList = new ArrayList<OrderVO>();
+			OrderVO order = new OrderVO();
+			order.setName("createTime");
+			order.setOrderType(OrderVO.asc);
+			orderList.add(order);
+
+			ecgList = EcgStickService.getInstance().getListByCondition(queryMap);
+			if (ecgList != null && ecgList.size() > 0) {
+				EcgStickEntity temp = ecgList.get(ecgList.size() - 1);
+				if (temp != null) {
+					nexttime = Long.valueOf(temp.getCreateTime());
+					temp = null;
+				}
+				/* 将心电数据拼接 */
+				for (int index = 0; index < ecgList.size(); index++) {
+					temp = ecgList.get(index);
+					if (temp != null)
+						ecgdata += temp.getData() + ",";
+				}
+
+				if (ecgdata != null && !ecgdata.equals("") && ecgdata.length() > 0)
+					ecgdata = ecgdata.substring(0, ecgdata.length() - 1); /* 去掉结尾逗号 */
+			} else {
+				xinlv = 0;
+			}
+		}
+
+		JSONObject jsonResult = new JSONObject();
+		jsonResult.put("nextTime", nexttime + (long) 2000);
+		jsonResult.put("ecgdata", ecgdata);
+		jsonResult.put("xinlv", xinlv);
+
+		String json2return = jsonResult.toString();
+		try {
+			json2return = new String(json2return.getBytes("utf-8"), "iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return json2return;
+	}
+
+	private int getXinlv(int olderId) {
+		int nXinlv = 0;
+		Map<String, Object> queryMap = new HashMap<String, Object>();
+		queryMap.put("olderId", olderId);
+		queryMap.put("type", 5); /* 心率 -- 5 */
+		List<PhysiologicalParametersCurrentEntity> list = PhysiologicalParametersCurrentService.getInstance().getListByCondition(queryMap);
+		if (list != null && list.size() > 0) {
+			PhysiologicalParametersCurrentEntity entity = list.get(0);
+			if (entity != null) {
+				nXinlv = entity.getValue().intValue();
+			}
+		}
+		return nXinlv;
+	}
+}

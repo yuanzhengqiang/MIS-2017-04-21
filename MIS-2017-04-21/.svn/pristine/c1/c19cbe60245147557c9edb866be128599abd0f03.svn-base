@@ -1,0 +1,301 @@
+package fsk.entity.service;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import fsk.entity.serviceChild.ServiceChildEntity;
+import fsk.entity.servicePhoto.ServicePhotoEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 服务项目
+ * @author feng.gu
+ * @date 2016-07-26 09:30:37
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_SERVICE")
+public class ServiceEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String NAME = "NAME";
+    public final static String CODE = "CODE";
+    public final static String TYPE_ID = "TYPE_ID";
+    public final static String STATUS = "STATUS";
+    public final static String MARKET_PRICE = "MARKET_PRICE";
+    public final static String MEDICAL_PRICE = "MEDICAL_PRICE";
+    public final static String UNIT = "UNIT";
+    public final static String GO_DOOR = "GO_DOOR";
+    public final static String SERVICE_TIMES = "SERVICE_TIMES";
+    public final static String NEED_PEROSN = "NEED_PEROSN";
+    public final static String DES = "DES";
+    public final static String PROFILE = "PROFILE";
+    public final static String CREATE_TIME = "CREATE_TIME";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 名称
+	 */
+	@ColumnDescription(name = "NAME")
+	private String name;
+    /**
+	 * 项目编号
+	 */
+	@ColumnDescription(name = "CODE")
+	private String code;
+    /**
+	 * 项目类别(数据字典)
+	 */
+	@ColumnDescription(name = "TYPE_ID")
+	private Integer typeId;
+    /**
+	 * 状态(1-有效 2-无效)
+	 */
+	@ColumnDescription(name = "STATUS")
+	private Integer status;
+    /**
+	 * 市场单价
+	 */
+	@ColumnDescription(name = "MARKET_PRICE")
+	private BigDecimal marketPrice;
+    /**
+	 * 医保单价
+	 */
+	@ColumnDescription(name = "MEDICAL_PRICE")
+	private BigDecimal medicalPrice;
+    /**
+	 * 单位
+	 */
+	@ColumnDescription(name = "UNIT")
+	private String unit;
+    /**
+	 * 是否上门(1-是 2-否)
+	 */
+	@ColumnDescription(name = "GO_DOOR")
+	private Integer goDoor;
+    /**
+	 * 可服务时间
+	 */
+	@ColumnDescription(name = "SERVICE_TIMES")
+	private String serviceTimes;
+    /**
+	 * 所需人员
+	 */
+	@ColumnDescription(name = "NEED_PEROSN")
+	private String needPerosn;
+    /**
+	 * 备注
+	 */
+	@ColumnDescription(name = "DES")
+	private String des;
+    /**
+	 * 项目简介
+	 */
+	@ColumnDescription(name = "PROFILE")
+	private String profile;
+    /**
+	 * 创建时间
+	 */
+	@ColumnDescription(name = "CREATE_TIME")
+	private String createTime;
+	
+	
+	/*增加服务子项和预计服务时长pei*/
+	private String fuwuSonNames;
+	private String yjfuwuTime;
+	private String serviceChildsComplete;
+	
+/*	private String childServiceStatus;
+    public String getChildServiceStatus() {
+		return childServiceStatus;
+	}
+
+	public void setChildServiceStatus(String childServiceStatus) {
+		this.childServiceStatus = childServiceStatus;
+	}*/
+
+	public String getServiceChildsComplete() {
+		return serviceChildsComplete;
+	}
+
+	public void setServiceChildsComplete(String serviceChildsComplete) {
+		this.serviceChildsComplete = serviceChildsComplete;
+	}
+
+	public String getFuwuSonNames() {
+		return fuwuSonNames;
+	}
+
+	public void setFuwuSonNames(String fuwuSonNames) {
+		this.fuwuSonNames = fuwuSonNames;
+	}
+
+	public String getYjfuwuTime() {
+		return yjfuwuTime;
+	}
+
+	public void setYjfuwuTime(String yjfuwuTime) {
+		this.yjfuwuTime = yjfuwuTime;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+    public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+    public Integer getTypeId() {
+		return typeId;
+	}
+
+	public void setTypeId(Integer typeId) {
+		this.typeId = typeId;
+	}
+    public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+    public BigDecimal getMarketPrice() {
+		return marketPrice;
+	}
+
+	public void setMarketPrice(BigDecimal marketPrice) {
+		this.marketPrice = marketPrice;
+	}
+    public BigDecimal getMedicalPrice() {
+		return medicalPrice;
+	}
+
+	public void setMedicalPrice(BigDecimal medicalPrice) {
+		this.medicalPrice = medicalPrice;
+	}
+    public String getUnit() {
+		return unit;
+	}
+
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
+    public Integer getGoDoor() {
+		return goDoor;
+	}
+
+	public void setGoDoor(Integer goDoor) {
+		this.goDoor = goDoor;
+	}
+    public String getServiceTimes() {
+		return serviceTimes;
+	}
+
+	public void setServiceTimes(String serviceTimes) {
+		this.serviceTimes = serviceTimes;
+	}
+    public String getNeedPerosn() {
+		return needPerosn;
+	}
+
+	public void setNeedPerosn(String needPerosn) {
+		this.needPerosn = needPerosn;
+	}
+    public String getDes() {
+		return des;
+	}
+
+	public void setDes(String des) {
+		this.des = des;
+	}
+    public String getProfile() {
+		return profile;
+	}
+
+	public void setProfile(String profile) {
+		this.profile = profile;
+	}
+    public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="DataDicEntity"	,joinColumn="ID"	)
+			
+			
+		private DataDicEntity type;
+	        
+	public DataDicEntity getType() {
+		return type;
+    }
+	
+	public void setType(DataDicEntity type) {
+		this.type = type;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="ServiceChildEntity"			,joinColumn="SERVICE_ID"
+			)
+			
+		private List<ServiceChildEntity> serviceChildList;
+	        
+	public List<ServiceChildEntity> getServiceChildList() {
+		return serviceChildList;
+	}
+	
+	public void setServiceChildList(List<ServiceChildEntity> serviceChildList) {
+		this.serviceChildList = serviceChildList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="ServicePhotoEntity"			,joinColumn="SERVICE_ID"
+			)
+			
+		private List<ServicePhotoEntity> servicePhotoList;
+	        
+	public List<ServicePhotoEntity> getServicePhotoList() {
+		return servicePhotoList;
+	}
+	
+	public void setServicePhotoList(List<ServicePhotoEntity> servicePhotoList) {
+		this.servicePhotoList = servicePhotoList;
+	}
+			
+			
+}

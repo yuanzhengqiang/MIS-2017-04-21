@@ -1,0 +1,1506 @@
+package com.framework.system.common.service.personInfo;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+
+
+import com.framework.system.common.entity.user.UserEntity;
+import com.framework.system.common.entity.user.UserEntity;
+
+import com.framework.system.common.entity.personInfo.PersonInfoEntity;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+
+
+/**   
+ * @Title: Service
+ * @Description: 用户个人信息服务类
+ * @author feng.gu
+ * @date 2015-12-03 17:36:50
+ * @version V1.0   
+ *
+ */
+public class PersonInfoService {
+	   private static Logger logger = Logger.getLogger(PersonInfoService.class);
+	   private DBManager dbManager = DBManager.getInstance();
+    		
+	   private static PersonInfoService personInfoService;
+	   /**
+	    * 获取实例	
+	    * @return
+	    */
+	   public static PersonInfoService getInstance(){
+		if(personInfoService==null){
+			personInfoService = new PersonInfoService();
+		}
+		return personInfoService;
+	   }
+	                 	                 				     				     				     				     
+				     	 
+	   /**
+		 * 保存记录
+		 * 
+		 * @param obj
+		 */
+		public boolean save(PersonInfoEntity personInfo) {			
+			boolean result =false;
+			if(personInfo!=null){
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					 tx.beginTransaction();					 					 
+					 					 				     				     					     //关联信息保存
+					     UserEntity createUser = personInfo.getCreateUser();
+						 if(createUser!=null){						   
+							 dbManager.saveNoTransaction(createUser);
+							 personInfo.setCreateUserId(createUser.getId());
+						 }						 
+				     				     				     					 					 				     				     					     //关联信息保存
+					     UserEntity updateUser = personInfo.getUpdateUser();
+						 if(updateUser!=null){						   
+							 dbManager.saveNoTransaction(updateUser);
+							 personInfo.setUpdateUserId(updateUser.getId());
+						 }						 
+				     				     				     					 					 result=dbManager.saveNoTransaction(personInfo);	
+					 tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {				    
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  			
+			}	
+			return result;
+		}
+		
+		/**
+		 * 批量保存记录
+		 * 
+		 * @param list
+		 */
+		public boolean saveList(List<PersonInfoEntity> personInfoList) {
+			boolean result = false;
+			if (personInfoList != null && personInfoList.size() > 0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 
+					for(PersonInfoEntity personInfo:personInfoList){
+						if(personInfo!=null){												  								 
+								 									 					                 								     								         //关联信息保存
+									     UserEntity createUser = personInfo.getCreateUser();
+										 if(createUser!=null){						   
+											 dbManager.saveNoTransaction(createUser);
+											 personInfo.setCreateUserId(createUser.getId());
+										 }									 
+								     								     								     								 									 					                 								     								         //关联信息保存
+									     UserEntity updateUser = personInfo.getUpdateUser();
+										 if(updateUser!=null){						   
+											 dbManager.saveNoTransaction(updateUser);
+											 personInfo.setUpdateUserId(updateUser.getId());
+										 }									 
+								     								     								     								 								 result=dbManager.saveNoTransaction(personInfo);								 			
+						}	
+					}
+				    tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		/**
+		 * 根据id读取记录
+		 * 
+		 * @param id
+		 *            主键
+		 * @param obj
+		 */
+		public PersonInfoEntity getById(Integer id) {
+			PersonInfoEntity obj = null;
+			if (id != null) {
+				obj = (PersonInfoEntity) dbManager.getById(id, PersonInfoEntity.class);			
+			}
+			return obj;
+		}
+		
+		/**
+		 * 根据id读取记录
+		 * @param id 主键
+		 		             	                 				     		 * @param createUserShow 是否查询关联信息
+				     				     				     		 		             	                 				     		 * @param updateUserShow 是否查询关联信息
+				     				     				     		 		 * @param obj
+		 */
+		public PersonInfoEntity getById(Integer id,Boolean createUserShow,Boolean updateUserShow) {
+			PersonInfoEntity obj = null;
+			if (id!=null) {
+				obj = (PersonInfoEntity)dbManager.getById(id, PersonInfoEntity.class);
+									 	                 				     				        //查询关联内容
+						if(createUserShow!=null&&createUserShow.booleanValue()&&obj!=null&&obj.getCreateUserId()>0){
+							UserEntity createUser = (UserEntity)dbManager.getById(obj.getCreateUserId(), UserEntity.class);
+							obj.setCreateUser(createUser);        	  	  
+						}
+				     				     				     				   					 	                 				     				        //查询关联内容
+						if(updateUserShow!=null&&updateUserShow.booleanValue()&&obj!=null&&obj.getUpdateUserId()>0){
+							UserEntity updateUser = (UserEntity)dbManager.getById(obj.getUpdateUserId(), UserEntity.class);
+							obj.setUpdateUser(updateUser);        	  	  
+						}
+				     				     				     				   			}
+			return obj;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合		
+		 * @return
+		 */
+		public List<Object> getListByCondition(Map<String,Object> queryMap) {
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+																										Object idnumber=queryMap.get("idnumber");
+					Object idnumber_like=queryMap.get("idnumber_like");
+					Object idnumber_isNull=queryMap.get("idnumber_isNull");
+					Object idnumber_isNotNull=queryMap.get("idnumber_isNotNull");
+					Object idnumber_in=queryMap.get("idnumber_in");
+																										Object gender=queryMap.get("gender");
+					Object gender_like=queryMap.get("gender_like");
+					Object gender_isNull=queryMap.get("gender_isNull");
+					Object gender_isNotNull=queryMap.get("gender_isNotNull");
+					Object gender_in=queryMap.get("gender_in");
+																										Object birthdate_gt=queryMap.get("birthdate_gt");
+					Object birthdate_ge=queryMap.get("birthdate_ge");
+					Object birthdate_lt=queryMap.get("birthdate_lt");
+					Object birthdate_le=queryMap.get("birthdate_le");
+																										Object mobile=queryMap.get("mobile");
+					Object mobile_like=queryMap.get("mobile_like");
+					Object mobile_isNull=queryMap.get("mobile_isNull");
+					Object mobile_isNotNull=queryMap.get("mobile_isNotNull");
+					Object mobile_in=queryMap.get("mobile_in");
+																										Object tel=queryMap.get("tel");
+					Object tel_like=queryMap.get("tel_like");
+					Object tel_isNull=queryMap.get("tel_isNull");
+					Object tel_isNotNull=queryMap.get("tel_isNotNull");
+					Object tel_in=queryMap.get("tel_in");
+																										Object email=queryMap.get("email");
+					Object email_like=queryMap.get("email_like");
+					Object email_isNull=queryMap.get("email_isNull");
+					Object email_isNotNull=queryMap.get("email_isNotNull");
+					Object email_in=queryMap.get("email_in");
+																										Object maritalStatus=queryMap.get("maritalStatus");
+					Object maritalStatus_like=queryMap.get("maritalStatus_like");
+					Object maritalStatus_isNull=queryMap.get("maritalStatus_isNull");
+					Object maritalStatus_isNotNull=queryMap.get("maritalStatus_isNotNull");
+					Object maritalStatus_in=queryMap.get("maritalStatus_in");
+																										Object workAddress=queryMap.get("workAddress");
+					Object workAddress_like=queryMap.get("workAddress_like");
+					Object workAddress_isNull=queryMap.get("workAddress_isNull");
+					Object workAddress_isNotNull=queryMap.get("workAddress_isNotNull");
+					Object workAddress_in=queryMap.get("workAddress_in");
+																										Object workFax=queryMap.get("workFax");
+					Object workFax_like=queryMap.get("workFax_like");
+					Object workFax_isNull=queryMap.get("workFax_isNull");
+					Object workFax_isNotNull=queryMap.get("workFax_isNotNull");
+					Object workFax_in=queryMap.get("workFax_in");
+																										Object nation=queryMap.get("nation");
+					Object nation_like=queryMap.get("nation_like");
+					Object nation_isNull=queryMap.get("nation_isNull");
+					Object nation_isNotNull=queryMap.get("nation_isNotNull");
+					Object nation_in=queryMap.get("nation_in");
+																										Object education=queryMap.get("education");
+					Object education_like=queryMap.get("education_like");
+					Object education_isNull=queryMap.get("education_isNull");
+					Object education_isNotNull=queryMap.get("education_isNotNull");
+					Object education_in=queryMap.get("education_in");
+																										Object school=queryMap.get("school");
+					Object school_like=queryMap.get("school_like");
+					Object school_isNull=queryMap.get("school_isNull");
+					Object school_isNotNull=queryMap.get("school_isNotNull");
+					Object school_in=queryMap.get("school_in");
+																										Object qqNum=queryMap.get("qqNum");
+					Object qqNum_like=queryMap.get("qqNum_like");
+					Object qqNum_isNull=queryMap.get("qqNum_isNull");
+					Object qqNum_isNotNull=queryMap.get("qqNum_isNotNull");
+					Object qqNum_in=queryMap.get("qqNum_in");
+																										Object wechatNum=queryMap.get("wechatNum");
+					Object wechatNum_like=queryMap.get("wechatNum_like");
+					Object wechatNum_isNull=queryMap.get("wechatNum_isNull");
+					Object wechatNum_isNotNull=queryMap.get("wechatNum_isNotNull");
+					Object wechatNum_in=queryMap.get("wechatNum_in");
+																					Object createUserId=queryMap.get("createUserId");
+					Object createUserId_gt=queryMap.get("createUserId_gt");
+					Object createUserId_ge=queryMap.get("createUserId_ge");
+					Object createUserId_lt=queryMap.get("createUserId_lt");
+					Object createUserId_le=queryMap.get("createUserId_le");
+					Object createUserId_in=queryMap.get("createUserId_in");
+																					Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+																					Object updateUserId=queryMap.get("updateUserId");
+					Object updateUserId_gt=queryMap.get("updateUserId_gt");
+					Object updateUserId_ge=queryMap.get("updateUserId_ge");
+					Object updateUserId_lt=queryMap.get("updateUserId_lt");
+					Object updateUserId_le=queryMap.get("updateUserId_le");
+					Object updateUserId_in=queryMap.get("updateUserId_in");
+																					Object updateTime_gt=queryMap.get("updateTime_gt");
+					Object updateTime_ge=queryMap.get("updateTime_ge");
+					Object updateTime_lt=queryMap.get("updateTime_lt");
+					Object updateTime_le=queryMap.get("updateTime_le");
+												
+			
+
+																				
+			
+			QueryCondition qc = new QueryCondition(PersonInfoEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.in, name_in));}
+				  															  					if(idnumber!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.eq, idnumber));}
+		            if(idnumber_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.like, idnumber_like));}
+		            if(idnumber_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.isNull, idnumber_isNull));}
+		            if(idnumber_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.isNotNull, idnumber_isNotNull));}
+				    if(idnumber_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.in, idnumber_in));}
+				  															  					if(gender!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.eq, gender));}
+		            if(gender_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.like, gender_like));}
+		            if(gender_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.isNull, gender_isNull));}
+		            if(gender_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.isNotNull, gender_isNotNull));}
+				    if(gender_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.in, gender_in));}
+				  															  					if(birthdate_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.gt, birthdate_gt));}
+					if(birthdate_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.ge, birthdate_ge));}
+					if(birthdate_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.lt, birthdate_lt));}
+					if(birthdate_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.le, birthdate_le));}
+				  															  					if(mobile!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.eq, mobile));}
+		            if(mobile_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.like, mobile_like));}
+		            if(mobile_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.isNull, mobile_isNull));}
+		            if(mobile_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.isNotNull, mobile_isNotNull));}
+				    if(mobile_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.in, mobile_in));}
+				  															  					if(tel!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.eq, tel));}
+		            if(tel_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.like, tel_like));}
+		            if(tel_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.isNull, tel_isNull));}
+		            if(tel_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.isNotNull, tel_isNotNull));}
+				    if(tel_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.in, tel_in));}
+				  															  					if(email!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.eq, email));}
+		            if(email_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.like, email_like));}
+		            if(email_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.isNull, email_isNull));}
+		            if(email_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.isNotNull, email_isNotNull));}
+				    if(email_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.in, email_in));}
+				  															  					if(maritalStatus!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.eq, maritalStatus));}
+		            if(maritalStatus_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.like, maritalStatus_like));}
+		            if(maritalStatus_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.isNull, maritalStatus_isNull));}
+		            if(maritalStatus_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.isNotNull, maritalStatus_isNotNull));}
+				    if(maritalStatus_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.in, maritalStatus_in));}
+				  															  					if(workAddress!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.eq, workAddress));}
+		            if(workAddress_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.like, workAddress_like));}
+		            if(workAddress_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.isNull, workAddress_isNull));}
+		            if(workAddress_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.isNotNull, workAddress_isNotNull));}
+				    if(workAddress_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.in, workAddress_in));}
+				  															  					if(workFax!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.eq, workFax));}
+		            if(workFax_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.like, workFax_like));}
+		            if(workFax_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.isNull, workFax_isNull));}
+		            if(workFax_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.isNotNull, workFax_isNotNull));}
+				    if(workFax_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.in, workFax_in));}
+				  															  					if(nation!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.eq, nation));}
+		            if(nation_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.like, nation_like));}
+		            if(nation_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.isNull, nation_isNull));}
+		            if(nation_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.isNotNull, nation_isNotNull));}
+				    if(nation_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.in, nation_in));}
+				  															  					if(education!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.eq, education));}
+		            if(education_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.like, education_like));}
+		            if(education_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.isNull, education_isNull));}
+		            if(education_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.isNotNull, education_isNotNull));}
+				    if(education_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.in, education_in));}
+				  															  					if(school!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.eq, school));}
+		            if(school_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.like, school_like));}
+		            if(school_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.isNull, school_isNull));}
+		            if(school_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.isNotNull, school_isNotNull));}
+				    if(school_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.in, school_in));}
+				  															  					if(qqNum!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.eq, qqNum));}
+		            if(qqNum_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.like, qqNum_like));}
+		            if(qqNum_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.isNull, qqNum_isNull));}
+		            if(qqNum_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.isNotNull, qqNum_isNotNull));}
+				    if(qqNum_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.in, qqNum_in));}
+				  															  					if(wechatNum!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.eq, wechatNum));}
+		            if(wechatNum_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.like, wechatNum_like));}
+		            if(wechatNum_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.isNull, wechatNum_isNull));}
+		            if(wechatNum_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.isNotNull, wechatNum_isNotNull));}
+				    if(wechatNum_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.in, wechatNum_in));}
+				  																if(createUserId!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.eq, createUserId));}
+					if(createUserId_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.gt, createUserId_gt));}
+					if(createUserId_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.ge, createUserId_ge));}
+					if(createUserId_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.lt, createUserId_lt));}
+					if(createUserId_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.le, createUserId_le));}
+					if(createUserId_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.in, createUserId_in));}
+															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  																if(updateUserId!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.eq, updateUserId));}
+					if(updateUserId_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.gt, updateUserId_gt));}
+					if(updateUserId_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.ge, updateUserId_ge));}
+					if(updateUserId_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.lt, updateUserId_lt));}
+					if(updateUserId_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.le, updateUserId_le));}
+					if(updateUserId_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.in, updateUserId_in));}
+															  					if(updateTime_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.gt, updateTime_gt));}
+					if(updateTime_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.ge, updateTime_ge));}
+					if(updateTime_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.lt, updateTime_lt));}
+					if(updateTime_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.le, updateTime_le));}
+				  										
+						  						  			            list = dbManager.queryByCondition(PersonInfoEntity.class,qc);           					
+			return list;
+		}
+		
+		
+		/**
+		 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 		             	                 				     		 * @param createUserShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		             	                 				     		 * @param updateUserShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		 * @return
+		 */
+		public List<Object> getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,Boolean createUserShow,Boolean updateUserShow) {
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+																										Object idnumber=queryMap.get("idnumber");
+					Object idnumber_like=queryMap.get("idnumber_like");
+					Object idnumber_isNull=queryMap.get("idnumber_isNull");
+					Object idnumber_isNotNull=queryMap.get("idnumber_isNotNull");
+					Object idnumber_in=queryMap.get("idnumber_in");
+																										Object gender=queryMap.get("gender");
+					Object gender_like=queryMap.get("gender_like");
+					Object gender_isNull=queryMap.get("gender_isNull");
+					Object gender_isNotNull=queryMap.get("gender_isNotNull");
+					Object gender_in=queryMap.get("gender_in");
+																										Object birthdate_gt=queryMap.get("birthdate_gt");
+					Object birthdate_ge=queryMap.get("birthdate_ge");
+					Object birthdate_lt=queryMap.get("birthdate_lt");
+					Object birthdate_le=queryMap.get("birthdate_le");
+																										Object mobile=queryMap.get("mobile");
+					Object mobile_like=queryMap.get("mobile_like");
+					Object mobile_isNull=queryMap.get("mobile_isNull");
+					Object mobile_isNotNull=queryMap.get("mobile_isNotNull");
+					Object mobile_in=queryMap.get("mobile_in");
+																										Object tel=queryMap.get("tel");
+					Object tel_like=queryMap.get("tel_like");
+					Object tel_isNull=queryMap.get("tel_isNull");
+					Object tel_isNotNull=queryMap.get("tel_isNotNull");
+					Object tel_in=queryMap.get("tel_in");
+																										Object email=queryMap.get("email");
+					Object email_like=queryMap.get("email_like");
+					Object email_isNull=queryMap.get("email_isNull");
+					Object email_isNotNull=queryMap.get("email_isNotNull");
+					Object email_in=queryMap.get("email_in");
+																										Object maritalStatus=queryMap.get("maritalStatus");
+					Object maritalStatus_like=queryMap.get("maritalStatus_like");
+					Object maritalStatus_isNull=queryMap.get("maritalStatus_isNull");
+					Object maritalStatus_isNotNull=queryMap.get("maritalStatus_isNotNull");
+					Object maritalStatus_in=queryMap.get("maritalStatus_in");
+																										Object workAddress=queryMap.get("workAddress");
+					Object workAddress_like=queryMap.get("workAddress_like");
+					Object workAddress_isNull=queryMap.get("workAddress_isNull");
+					Object workAddress_isNotNull=queryMap.get("workAddress_isNotNull");
+					Object workAddress_in=queryMap.get("workAddress_in");
+																										Object workFax=queryMap.get("workFax");
+					Object workFax_like=queryMap.get("workFax_like");
+					Object workFax_isNull=queryMap.get("workFax_isNull");
+					Object workFax_isNotNull=queryMap.get("workFax_isNotNull");
+					Object workFax_in=queryMap.get("workFax_in");
+																										Object nation=queryMap.get("nation");
+					Object nation_like=queryMap.get("nation_like");
+					Object nation_isNull=queryMap.get("nation_isNull");
+					Object nation_isNotNull=queryMap.get("nation_isNotNull");
+					Object nation_in=queryMap.get("nation_in");
+																										Object education=queryMap.get("education");
+					Object education_like=queryMap.get("education_like");
+					Object education_isNull=queryMap.get("education_isNull");
+					Object education_isNotNull=queryMap.get("education_isNotNull");
+					Object education_in=queryMap.get("education_in");
+																										Object school=queryMap.get("school");
+					Object school_like=queryMap.get("school_like");
+					Object school_isNull=queryMap.get("school_isNull");
+					Object school_isNotNull=queryMap.get("school_isNotNull");
+					Object school_in=queryMap.get("school_in");
+																										Object qqNum=queryMap.get("qqNum");
+					Object qqNum_like=queryMap.get("qqNum_like");
+					Object qqNum_isNull=queryMap.get("qqNum_isNull");
+					Object qqNum_isNotNull=queryMap.get("qqNum_isNotNull");
+					Object qqNum_in=queryMap.get("qqNum_in");
+																										Object wechatNum=queryMap.get("wechatNum");
+					Object wechatNum_like=queryMap.get("wechatNum_like");
+					Object wechatNum_isNull=queryMap.get("wechatNum_isNull");
+					Object wechatNum_isNotNull=queryMap.get("wechatNum_isNotNull");
+					Object wechatNum_in=queryMap.get("wechatNum_in");
+																					Object createUserId=queryMap.get("createUserId");
+					Object createUserId_gt=queryMap.get("createUserId_gt");
+					Object createUserId_ge=queryMap.get("createUserId_ge");
+					Object createUserId_lt=queryMap.get("createUserId_lt");
+					Object createUserId_le=queryMap.get("createUserId_le");
+					Object createUserId_in=queryMap.get("createUserId_in");
+																					Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+																					Object updateUserId=queryMap.get("updateUserId");
+					Object updateUserId_gt=queryMap.get("updateUserId_gt");
+					Object updateUserId_ge=queryMap.get("updateUserId_ge");
+					Object updateUserId_lt=queryMap.get("updateUserId_lt");
+					Object updateUserId_le=queryMap.get("updateUserId_le");
+					Object updateUserId_in=queryMap.get("updateUserId_in");
+																					Object updateTime_gt=queryMap.get("updateTime_gt");
+					Object updateTime_ge=queryMap.get("updateTime_ge");
+					Object updateTime_lt=queryMap.get("updateTime_lt");
+					Object updateTime_le=queryMap.get("updateTime_le");
+												
+			
+
+																				
+			
+			QueryCondition qc = new QueryCondition(PersonInfoEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.in, name_in));}
+				  															  					if(idnumber!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.eq, idnumber));}
+		            if(idnumber_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.like, idnumber_like));}
+		            if(idnumber_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.isNull, idnumber_isNull));}
+		            if(idnumber_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.isNotNull, idnumber_isNotNull));}
+				    if(idnumber_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.in, idnumber_in));}
+				  															  					if(gender!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.eq, gender));}
+		            if(gender_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.like, gender_like));}
+		            if(gender_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.isNull, gender_isNull));}
+		            if(gender_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.isNotNull, gender_isNotNull));}
+				    if(gender_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.in, gender_in));}
+				  															  					if(birthdate_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.gt, birthdate_gt));}
+					if(birthdate_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.ge, birthdate_ge));}
+					if(birthdate_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.lt, birthdate_lt));}
+					if(birthdate_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.le, birthdate_le));}
+				  															  					if(mobile!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.eq, mobile));}
+		            if(mobile_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.like, mobile_like));}
+		            if(mobile_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.isNull, mobile_isNull));}
+		            if(mobile_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.isNotNull, mobile_isNotNull));}
+				    if(mobile_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.in, mobile_in));}
+				  															  					if(tel!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.eq, tel));}
+		            if(tel_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.like, tel_like));}
+		            if(tel_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.isNull, tel_isNull));}
+		            if(tel_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.isNotNull, tel_isNotNull));}
+				    if(tel_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.in, tel_in));}
+				  															  					if(email!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.eq, email));}
+		            if(email_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.like, email_like));}
+		            if(email_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.isNull, email_isNull));}
+		            if(email_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.isNotNull, email_isNotNull));}
+				    if(email_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.in, email_in));}
+				  															  					if(maritalStatus!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.eq, maritalStatus));}
+		            if(maritalStatus_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.like, maritalStatus_like));}
+		            if(maritalStatus_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.isNull, maritalStatus_isNull));}
+		            if(maritalStatus_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.isNotNull, maritalStatus_isNotNull));}
+				    if(maritalStatus_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.in, maritalStatus_in));}
+				  															  					if(workAddress!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.eq, workAddress));}
+		            if(workAddress_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.like, workAddress_like));}
+		            if(workAddress_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.isNull, workAddress_isNull));}
+		            if(workAddress_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.isNotNull, workAddress_isNotNull));}
+				    if(workAddress_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.in, workAddress_in));}
+				  															  					if(workFax!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.eq, workFax));}
+		            if(workFax_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.like, workFax_like));}
+		            if(workFax_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.isNull, workFax_isNull));}
+		            if(workFax_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.isNotNull, workFax_isNotNull));}
+				    if(workFax_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.in, workFax_in));}
+				  															  					if(nation!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.eq, nation));}
+		            if(nation_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.like, nation_like));}
+		            if(nation_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.isNull, nation_isNull));}
+		            if(nation_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.isNotNull, nation_isNotNull));}
+				    if(nation_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.in, nation_in));}
+				  															  					if(education!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.eq, education));}
+		            if(education_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.like, education_like));}
+		            if(education_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.isNull, education_isNull));}
+		            if(education_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.isNotNull, education_isNotNull));}
+				    if(education_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.in, education_in));}
+				  															  					if(school!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.eq, school));}
+		            if(school_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.like, school_like));}
+		            if(school_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.isNull, school_isNull));}
+		            if(school_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.isNotNull, school_isNotNull));}
+				    if(school_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.in, school_in));}
+				  															  					if(qqNum!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.eq, qqNum));}
+		            if(qqNum_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.like, qqNum_like));}
+		            if(qqNum_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.isNull, qqNum_isNull));}
+		            if(qqNum_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.isNotNull, qqNum_isNotNull));}
+				    if(qqNum_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.in, qqNum_in));}
+				  															  					if(wechatNum!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.eq, wechatNum));}
+		            if(wechatNum_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.like, wechatNum_like));}
+		            if(wechatNum_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.isNull, wechatNum_isNull));}
+		            if(wechatNum_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.isNotNull, wechatNum_isNotNull));}
+				    if(wechatNum_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.in, wechatNum_in));}
+				  																if(createUserId!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.eq, createUserId));}
+					if(createUserId_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.gt, createUserId_gt));}
+					if(createUserId_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.ge, createUserId_ge));}
+					if(createUserId_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.lt, createUserId_lt));}
+					if(createUserId_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.le, createUserId_le));}
+					if(createUserId_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.in, createUserId_in));}
+															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  																if(updateUserId!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.eq, updateUserId));}
+					if(updateUserId_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.gt, updateUserId_gt));}
+					if(updateUserId_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.ge, updateUserId_ge));}
+					if(updateUserId_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.lt, updateUserId_lt));}
+					if(updateUserId_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.le, updateUserId_le));}
+					if(updateUserId_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.in, updateUserId_in));}
+															  					if(updateTime_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.gt, updateTime_gt));}
+					if(updateTime_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.ge, updateTime_ge));}
+					if(updateTime_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.lt, updateTime_lt));}
+					if(updateTime_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.le, updateTime_le));}
+				  										
+						  						  						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}			
+            list = dbManager.queryByConditions(PersonInfoEntity.class,qc,oc);
+                                    int a=0;
+            					             	                 				     				     if(createUserShow!=null&&createUserShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		             	                 				     				     if(updateUserShow!=null&&updateUserShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		                if(a>0&&list!=null&&list.size()>0){
+				List<Object> result = new ArrayList<Object>();
+				for(int i=0;i<list.size();i++){
+					PersonInfoEntity obj = (PersonInfoEntity)list.get(i);
+										 	                 				     				        //查询关联内容
+						if(createUserShow!=null&&createUserShow.booleanValue()&&obj!=null&&obj.getCreateUserId()>0){
+							UserEntity createUser = (UserEntity)dbManager.getById(obj.getCreateUserId(), UserEntity.class);
+							obj.setCreateUser(createUser);        	  	  
+						}
+				     				     				     				    					 	                 				     				        //查询关联内容
+						if(updateUserShow!=null&&updateUserShow.booleanValue()&&obj!=null&&obj.getUpdateUserId()>0){
+							UserEntity updateUser = (UserEntity)dbManager.getById(obj.getUpdateUserId(), UserEntity.class);
+							obj.setUpdateUser(updateUser);        	  	  
+						}
+				     				     				     				    					result.add(obj);					
+				}
+				list=result;			
+		}	
+					return list;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数		
+		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,int pageno,int pagesize) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+															  					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+				   															  					Object idnumber=queryMap.get("idnumber");
+					Object idnumber_like=queryMap.get("idnumber_like");
+					Object idnumber_isNull=queryMap.get("idnumber_isNull");
+					Object idnumber_isNotNull=queryMap.get("idnumber_isNotNull");
+					Object idnumber_in=queryMap.get("idnumber_in");
+				   															  					Object gender=queryMap.get("gender");
+					Object gender_like=queryMap.get("gender_like");
+					Object gender_isNull=queryMap.get("gender_isNull");
+					Object gender_isNotNull=queryMap.get("gender_isNotNull");
+					Object gender_in=queryMap.get("gender_in");
+				   															  					Object birthdate_gt=queryMap.get("birthdate_gt");
+					Object birthdate_ge=queryMap.get("birthdate_ge");
+					Object birthdate_lt=queryMap.get("birthdate_lt");
+					Object birthdate_le=queryMap.get("birthdate_le");
+				  															  					Object mobile=queryMap.get("mobile");
+					Object mobile_like=queryMap.get("mobile_like");
+					Object mobile_isNull=queryMap.get("mobile_isNull");
+					Object mobile_isNotNull=queryMap.get("mobile_isNotNull");
+					Object mobile_in=queryMap.get("mobile_in");
+				   															  					Object tel=queryMap.get("tel");
+					Object tel_like=queryMap.get("tel_like");
+					Object tel_isNull=queryMap.get("tel_isNull");
+					Object tel_isNotNull=queryMap.get("tel_isNotNull");
+					Object tel_in=queryMap.get("tel_in");
+				   															  					Object email=queryMap.get("email");
+					Object email_like=queryMap.get("email_like");
+					Object email_isNull=queryMap.get("email_isNull");
+					Object email_isNotNull=queryMap.get("email_isNotNull");
+					Object email_in=queryMap.get("email_in");
+				   															  					Object maritalStatus=queryMap.get("maritalStatus");
+					Object maritalStatus_like=queryMap.get("maritalStatus_like");
+					Object maritalStatus_isNull=queryMap.get("maritalStatus_isNull");
+					Object maritalStatus_isNotNull=queryMap.get("maritalStatus_isNotNull");
+					Object maritalStatus_in=queryMap.get("maritalStatus_in");
+				   															  					Object workAddress=queryMap.get("workAddress");
+					Object workAddress_like=queryMap.get("workAddress_like");
+					Object workAddress_isNull=queryMap.get("workAddress_isNull");
+					Object workAddress_isNotNull=queryMap.get("workAddress_isNotNull");
+					Object workAddress_in=queryMap.get("workAddress_in");
+				   															  					Object workFax=queryMap.get("workFax");
+					Object workFax_like=queryMap.get("workFax_like");
+					Object workFax_isNull=queryMap.get("workFax_isNull");
+					Object workFax_isNotNull=queryMap.get("workFax_isNotNull");
+					Object workFax_in=queryMap.get("workFax_in");
+				   															  					Object nation=queryMap.get("nation");
+					Object nation_like=queryMap.get("nation_like");
+					Object nation_isNull=queryMap.get("nation_isNull");
+					Object nation_isNotNull=queryMap.get("nation_isNotNull");
+					Object nation_in=queryMap.get("nation_in");
+				   															  					Object education=queryMap.get("education");
+					Object education_like=queryMap.get("education_like");
+					Object education_isNull=queryMap.get("education_isNull");
+					Object education_isNotNull=queryMap.get("education_isNotNull");
+					Object education_in=queryMap.get("education_in");
+				   															  					Object school=queryMap.get("school");
+					Object school_like=queryMap.get("school_like");
+					Object school_isNull=queryMap.get("school_isNull");
+					Object school_isNotNull=queryMap.get("school_isNotNull");
+					Object school_in=queryMap.get("school_in");
+				   															  					Object qqNum=queryMap.get("qqNum");
+					Object qqNum_like=queryMap.get("qqNum_like");
+					Object qqNum_isNull=queryMap.get("qqNum_isNull");
+					Object qqNum_isNotNull=queryMap.get("qqNum_isNotNull");
+					Object qqNum_in=queryMap.get("qqNum_in");
+				   															  					Object wechatNum=queryMap.get("wechatNum");
+					Object wechatNum_like=queryMap.get("wechatNum_like");
+					Object wechatNum_isNull=queryMap.get("wechatNum_isNull");
+					Object wechatNum_isNotNull=queryMap.get("wechatNum_isNotNull");
+					Object wechatNum_in=queryMap.get("wechatNum_in");
+				   																Object createUserId=queryMap.get("createUserId");
+					Object createUserId_gt=queryMap.get("createUserId_gt");
+					Object createUserId_ge=queryMap.get("createUserId_ge");
+					Object createUserId_lt=queryMap.get("createUserId_lt");
+					Object createUserId_le=queryMap.get("createUserId_le");
+					Object createUserId_in=queryMap.get("createUserId_in");
+															  					Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+				  																Object updateUserId=queryMap.get("updateUserId");
+					Object updateUserId_gt=queryMap.get("updateUserId_gt");
+					Object updateUserId_ge=queryMap.get("updateUserId_ge");
+					Object updateUserId_lt=queryMap.get("updateUserId_lt");
+					Object updateUserId_le=queryMap.get("updateUserId_le");
+					Object updateUserId_in=queryMap.get("updateUserId_in");
+															  					Object updateTime_gt=queryMap.get("updateTime_gt");
+					Object updateTime_ge=queryMap.get("updateTime_ge");
+					Object updateTime_lt=queryMap.get("updateTime_lt");
+					Object updateTime_le=queryMap.get("updateTime_le");
+				  							
+			
+
+																				
+			
+			QueryCondition qc = new QueryCondition(PersonInfoEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.in, name_in));}
+				  															  					if(idnumber!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.eq, idnumber));}
+		            if(idnumber_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.like, idnumber_like));}
+		            if(idnumber_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.isNull, idnumber_isNull));}
+		            if(idnumber_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.isNotNull, idnumber_isNotNull));}
+				    if(idnumber_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.in, idnumber_in));}
+				  															  					if(gender!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.eq, gender));}
+		            if(gender_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.like, gender_like));}
+		            if(gender_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.isNull, gender_isNull));}
+		            if(gender_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.isNotNull, gender_isNotNull));}
+				    if(gender_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.in, gender_in));}
+				  															  					if(birthdate_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.gt, birthdate_gt));}
+					if(birthdate_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.ge, birthdate_ge));}
+					if(birthdate_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.lt, birthdate_lt));}
+					if(birthdate_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.le, birthdate_le));}
+				  															  					if(mobile!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.eq, mobile));}
+		            if(mobile_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.like, mobile_like));}
+		            if(mobile_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.isNull, mobile_isNull));}
+		            if(mobile_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.isNotNull, mobile_isNotNull));}
+				    if(mobile_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.in, mobile_in));}
+				  															  					if(tel!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.eq, tel));}
+		            if(tel_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.like, tel_like));}
+		            if(tel_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.isNull, tel_isNull));}
+		            if(tel_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.isNotNull, tel_isNotNull));}
+				    if(tel_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.in, tel_in));}
+				  															  					if(email!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.eq, email));}
+		            if(email_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.like, email_like));}
+		            if(email_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.isNull, email_isNull));}
+		            if(email_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.isNotNull, email_isNotNull));}
+				    if(email_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.in, email_in));}
+				  															  					if(maritalStatus!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.eq, maritalStatus));}
+		            if(maritalStatus_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.like, maritalStatus_like));}
+		            if(maritalStatus_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.isNull, maritalStatus_isNull));}
+		            if(maritalStatus_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.isNotNull, maritalStatus_isNotNull));}
+				    if(maritalStatus_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.in, maritalStatus_in));}
+				  															  					if(workAddress!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.eq, workAddress));}
+		            if(workAddress_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.like, workAddress_like));}
+		            if(workAddress_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.isNull, workAddress_isNull));}
+		            if(workAddress_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.isNotNull, workAddress_isNotNull));}
+				    if(workAddress_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.in, workAddress_in));}
+				  															  					if(workFax!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.eq, workFax));}
+		            if(workFax_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.like, workFax_like));}
+		            if(workFax_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.isNull, workFax_isNull));}
+		            if(workFax_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.isNotNull, workFax_isNotNull));}
+				    if(workFax_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.in, workFax_in));}
+				  															  					if(nation!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.eq, nation));}
+		            if(nation_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.like, nation_like));}
+		            if(nation_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.isNull, nation_isNull));}
+		            if(nation_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.isNotNull, nation_isNotNull));}
+				    if(nation_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.in, nation_in));}
+				  															  					if(education!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.eq, education));}
+		            if(education_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.like, education_like));}
+		            if(education_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.isNull, education_isNull));}
+		            if(education_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.isNotNull, education_isNotNull));}
+				    if(education_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.in, education_in));}
+				  															  					if(school!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.eq, school));}
+		            if(school_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.like, school_like));}
+		            if(school_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.isNull, school_isNull));}
+		            if(school_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.isNotNull, school_isNotNull));}
+				    if(school_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.in, school_in));}
+				  															  					if(qqNum!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.eq, qqNum));}
+		            if(qqNum_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.like, qqNum_like));}
+		            if(qqNum_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.isNull, qqNum_isNull));}
+		            if(qqNum_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.isNotNull, qqNum_isNotNull));}
+				    if(qqNum_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.in, qqNum_in));}
+				  															  					if(wechatNum!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.eq, wechatNum));}
+		            if(wechatNum_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.like, wechatNum_like));}
+		            if(wechatNum_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.isNull, wechatNum_isNull));}
+		            if(wechatNum_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.isNotNull, wechatNum_isNotNull));}
+				    if(wechatNum_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.in, wechatNum_in));}
+				  																if(createUserId!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.eq, createUserId));}
+					if(createUserId_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.gt, createUserId_gt));}
+					if(createUserId_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.ge, createUserId_ge));}
+					if(createUserId_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.lt, createUserId_lt));}
+					if(createUserId_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.le, createUserId_le));}
+					if(createUserId_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.in, createUserId_in));}
+															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  																if(updateUserId!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.eq, updateUserId));}
+					if(updateUserId_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.gt, updateUserId_gt));}
+					if(updateUserId_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.ge, updateUserId_ge));}
+					if(updateUserId_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.lt, updateUserId_lt));}
+					if(updateUserId_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.le, updateUserId_le));}
+					if(updateUserId_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.in, updateUserId_in));}
+															  					if(updateTime_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.gt, updateTime_gt));}
+					if(updateTime_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.ge, updateTime_ge));}
+					if(updateTime_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.lt, updateTime_lt));}
+					if(updateTime_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.le, updateTime_le));}
+				  										
+						  						  			            pagelist = dbManager.queryByCondition(PersonInfoEntity.class,qc,pageno,pagesize);	                      			
+			return pagelist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数
+		 		             	                 				     		 * @param createUserShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		             	                 				     		 * @param updateUserShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,int pageno,int pagesize,Boolean createUserShow,Boolean updateUserShow) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+															  					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+				   															  					Object idnumber=queryMap.get("idnumber");
+					Object idnumber_like=queryMap.get("idnumber_like");
+					Object idnumber_isNull=queryMap.get("idnumber_isNull");
+					Object idnumber_isNotNull=queryMap.get("idnumber_isNotNull");
+					Object idnumber_in=queryMap.get("idnumber_in");
+				   															  					Object gender=queryMap.get("gender");
+					Object gender_like=queryMap.get("gender_like");
+					Object gender_isNull=queryMap.get("gender_isNull");
+					Object gender_isNotNull=queryMap.get("gender_isNotNull");
+					Object gender_in=queryMap.get("gender_in");
+				   															  					Object birthdate_gt=queryMap.get("birthdate_gt");
+					Object birthdate_ge=queryMap.get("birthdate_ge");
+					Object birthdate_lt=queryMap.get("birthdate_lt");
+					Object birthdate_le=queryMap.get("birthdate_le");
+				  															  					Object mobile=queryMap.get("mobile");
+					Object mobile_like=queryMap.get("mobile_like");
+					Object mobile_isNull=queryMap.get("mobile_isNull");
+					Object mobile_isNotNull=queryMap.get("mobile_isNotNull");
+					Object mobile_in=queryMap.get("mobile_in");
+				   															  					Object tel=queryMap.get("tel");
+					Object tel_like=queryMap.get("tel_like");
+					Object tel_isNull=queryMap.get("tel_isNull");
+					Object tel_isNotNull=queryMap.get("tel_isNotNull");
+					Object tel_in=queryMap.get("tel_in");
+				   															  					Object email=queryMap.get("email");
+					Object email_like=queryMap.get("email_like");
+					Object email_isNull=queryMap.get("email_isNull");
+					Object email_isNotNull=queryMap.get("email_isNotNull");
+					Object email_in=queryMap.get("email_in");
+				   															  					Object maritalStatus=queryMap.get("maritalStatus");
+					Object maritalStatus_like=queryMap.get("maritalStatus_like");
+					Object maritalStatus_isNull=queryMap.get("maritalStatus_isNull");
+					Object maritalStatus_isNotNull=queryMap.get("maritalStatus_isNotNull");
+					Object maritalStatus_in=queryMap.get("maritalStatus_in");
+				   															  					Object workAddress=queryMap.get("workAddress");
+					Object workAddress_like=queryMap.get("workAddress_like");
+					Object workAddress_isNull=queryMap.get("workAddress_isNull");
+					Object workAddress_isNotNull=queryMap.get("workAddress_isNotNull");
+					Object workAddress_in=queryMap.get("workAddress_in");
+				   															  					Object workFax=queryMap.get("workFax");
+					Object workFax_like=queryMap.get("workFax_like");
+					Object workFax_isNull=queryMap.get("workFax_isNull");
+					Object workFax_isNotNull=queryMap.get("workFax_isNotNull");
+					Object workFax_in=queryMap.get("workFax_in");
+				   															  					Object nation=queryMap.get("nation");
+					Object nation_like=queryMap.get("nation_like");
+					Object nation_isNull=queryMap.get("nation_isNull");
+					Object nation_isNotNull=queryMap.get("nation_isNotNull");
+					Object nation_in=queryMap.get("nation_in");
+				   															  					Object education=queryMap.get("education");
+					Object education_like=queryMap.get("education_like");
+					Object education_isNull=queryMap.get("education_isNull");
+					Object education_isNotNull=queryMap.get("education_isNotNull");
+					Object education_in=queryMap.get("education_in");
+				   															  					Object school=queryMap.get("school");
+					Object school_like=queryMap.get("school_like");
+					Object school_isNull=queryMap.get("school_isNull");
+					Object school_isNotNull=queryMap.get("school_isNotNull");
+					Object school_in=queryMap.get("school_in");
+				   															  					Object qqNum=queryMap.get("qqNum");
+					Object qqNum_like=queryMap.get("qqNum_like");
+					Object qqNum_isNull=queryMap.get("qqNum_isNull");
+					Object qqNum_isNotNull=queryMap.get("qqNum_isNotNull");
+					Object qqNum_in=queryMap.get("qqNum_in");
+				   															  					Object wechatNum=queryMap.get("wechatNum");
+					Object wechatNum_like=queryMap.get("wechatNum_like");
+					Object wechatNum_isNull=queryMap.get("wechatNum_isNull");
+					Object wechatNum_isNotNull=queryMap.get("wechatNum_isNotNull");
+					Object wechatNum_in=queryMap.get("wechatNum_in");
+				   																Object createUserId=queryMap.get("createUserId");
+					Object createUserId_gt=queryMap.get("createUserId_gt");
+					Object createUserId_ge=queryMap.get("createUserId_ge");
+					Object createUserId_lt=queryMap.get("createUserId_lt");
+					Object createUserId_le=queryMap.get("createUserId_le");
+					Object createUserId_in=queryMap.get("createUserId_in");
+															  					Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+				  																Object updateUserId=queryMap.get("updateUserId");
+					Object updateUserId_gt=queryMap.get("updateUserId_gt");
+					Object updateUserId_ge=queryMap.get("updateUserId_ge");
+					Object updateUserId_lt=queryMap.get("updateUserId_lt");
+					Object updateUserId_le=queryMap.get("updateUserId_le");
+					Object updateUserId_in=queryMap.get("updateUserId_in");
+															  					Object updateTime_gt=queryMap.get("updateTime_gt");
+					Object updateTime_ge=queryMap.get("updateTime_ge");
+					Object updateTime_lt=queryMap.get("updateTime_lt");
+					Object updateTime_le=queryMap.get("updateTime_le");
+				  							
+			
+
+																				
+			
+			QueryCondition qc = new QueryCondition(PersonInfoEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.in, name_in));}
+				  															  					if(idnumber!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.eq, idnumber));}
+		            if(idnumber_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.like, idnumber_like));}
+		            if(idnumber_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.isNull, idnumber_isNull));}
+		            if(idnumber_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.isNotNull, idnumber_isNotNull));}
+				    if(idnumber_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.in, idnumber_in));}
+				  															  					if(gender!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.eq, gender));}
+		            if(gender_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.like, gender_like));}
+		            if(gender_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.isNull, gender_isNull));}
+		            if(gender_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.isNotNull, gender_isNotNull));}
+				    if(gender_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.in, gender_in));}
+				  															  					if(birthdate_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.gt, birthdate_gt));}
+					if(birthdate_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.ge, birthdate_ge));}
+					if(birthdate_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.lt, birthdate_lt));}
+					if(birthdate_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.le, birthdate_le));}
+				  															  					if(mobile!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.eq, mobile));}
+		            if(mobile_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.like, mobile_like));}
+		            if(mobile_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.isNull, mobile_isNull));}
+		            if(mobile_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.isNotNull, mobile_isNotNull));}
+				    if(mobile_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.in, mobile_in));}
+				  															  					if(tel!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.eq, tel));}
+		            if(tel_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.like, tel_like));}
+		            if(tel_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.isNull, tel_isNull));}
+		            if(tel_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.isNotNull, tel_isNotNull));}
+				    if(tel_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.in, tel_in));}
+				  															  					if(email!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.eq, email));}
+		            if(email_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.like, email_like));}
+		            if(email_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.isNull, email_isNull));}
+		            if(email_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.isNotNull, email_isNotNull));}
+				    if(email_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.in, email_in));}
+				  															  					if(maritalStatus!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.eq, maritalStatus));}
+		            if(maritalStatus_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.like, maritalStatus_like));}
+		            if(maritalStatus_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.isNull, maritalStatus_isNull));}
+		            if(maritalStatus_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.isNotNull, maritalStatus_isNotNull));}
+				    if(maritalStatus_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.in, maritalStatus_in));}
+				  															  					if(workAddress!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.eq, workAddress));}
+		            if(workAddress_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.like, workAddress_like));}
+		            if(workAddress_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.isNull, workAddress_isNull));}
+		            if(workAddress_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.isNotNull, workAddress_isNotNull));}
+				    if(workAddress_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.in, workAddress_in));}
+				  															  					if(workFax!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.eq, workFax));}
+		            if(workFax_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.like, workFax_like));}
+		            if(workFax_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.isNull, workFax_isNull));}
+		            if(workFax_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.isNotNull, workFax_isNotNull));}
+				    if(workFax_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.in, workFax_in));}
+				  															  					if(nation!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.eq, nation));}
+		            if(nation_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.like, nation_like));}
+		            if(nation_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.isNull, nation_isNull));}
+		            if(nation_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.isNotNull, nation_isNotNull));}
+				    if(nation_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.in, nation_in));}
+				  															  					if(education!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.eq, education));}
+		            if(education_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.like, education_like));}
+		            if(education_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.isNull, education_isNull));}
+		            if(education_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.isNotNull, education_isNotNull));}
+				    if(education_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.in, education_in));}
+				  															  					if(school!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.eq, school));}
+		            if(school_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.like, school_like));}
+		            if(school_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.isNull, school_isNull));}
+		            if(school_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.isNotNull, school_isNotNull));}
+				    if(school_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.in, school_in));}
+				  															  					if(qqNum!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.eq, qqNum));}
+		            if(qqNum_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.like, qqNum_like));}
+		            if(qqNum_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.isNull, qqNum_isNull));}
+		            if(qqNum_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.isNotNull, qqNum_isNotNull));}
+				    if(qqNum_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.in, qqNum_in));}
+				  															  					if(wechatNum!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.eq, wechatNum));}
+		            if(wechatNum_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.like, wechatNum_like));}
+		            if(wechatNum_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.isNull, wechatNum_isNull));}
+		            if(wechatNum_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.isNotNull, wechatNum_isNotNull));}
+				    if(wechatNum_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.in, wechatNum_in));}
+				  																if(createUserId!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.eq, createUserId));}
+					if(createUserId_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.gt, createUserId_gt));}
+					if(createUserId_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.ge, createUserId_ge));}
+					if(createUserId_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.lt, createUserId_lt));}
+					if(createUserId_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.le, createUserId_le));}
+					if(createUserId_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.in, createUserId_in));}
+															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  																if(updateUserId!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.eq, updateUserId));}
+					if(updateUserId_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.gt, updateUserId_gt));}
+					if(updateUserId_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.ge, updateUserId_ge));}
+					if(updateUserId_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.lt, updateUserId_lt));}
+					if(updateUserId_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.le, updateUserId_le));}
+					if(updateUserId_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.in, updateUserId_in));}
+															  					if(updateTime_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.gt, updateTime_gt));}
+					if(updateTime_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.ge, updateTime_ge));}
+					if(updateTime_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.lt, updateTime_lt));}
+					if(updateTime_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.le, updateTime_le));}
+				  										
+						  						  						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}		
+            pagelist = dbManager.queryByConditions(PersonInfoEntity.class,qc,oc,pageno,pagesize);	           
+                                    int a=0;
+            					             	                 				     				     if(createUserShow!=null&&createUserShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		             	                 				     				     if(updateUserShow!=null&&updateUserShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		                if(a>0&&pagelist!=null&&pagelist.getResultList()!=null&&pagelist.getResultList().size()>0){
+				List<Object> result = new ArrayList<Object>();
+				for(int i=0;i<pagelist.getResultList().size();i++){
+					PersonInfoEntity obj = (PersonInfoEntity)pagelist.getResultList().get(i);
+										 	                 				     				        //查询关联内容
+						if(createUserShow!=null&&createUserShow.booleanValue()&&obj!=null&&obj.getCreateUserId()>0){
+							UserEntity createUser = (UserEntity)dbManager.getById(obj.getCreateUserId(), UserEntity.class);
+							obj.setCreateUser(createUser);        	  	  
+						}
+				     				     				     				    					 	                 				     				        //查询关联内容
+						if(updateUserShow!=null&&updateUserShow.booleanValue()&&obj!=null&&obj.getUpdateUserId()>0){
+							UserEntity updateUser = (UserEntity)dbManager.getById(obj.getUpdateUserId(), UserEntity.class);
+							obj.setUpdateUser(updateUser);        	  	  
+						}
+				     				     				     				    					result.add(obj);					
+				}
+				pagelist.setResultList(result);			
+		}	
+					return pagelist;
+		}
+		
+		/**
+		 * 删除记录
+		 * 
+		 * @param id 主键
+		 * @param obj
+		 */
+		public boolean del(Integer id,Boolean delCreateUser,Boolean delUpdateUser) {
+			boolean result = false;
+			if (id !=null&&id>0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 					
+										 	                 				     					    //删除关联信息
+						if(delCreateUser!=null&&delCreateUser.booleanValue()){	
+							PersonInfoEntity personInfo = (PersonInfoEntity)dbManager.getById(id, PersonInfoEntity.class);
+							if(personInfo!=null&&personInfo.getCreateUserId()!=null){
+								dbManager.delNoTransaction(personInfo.getCreateUserId(), UserEntity.class);
+							}						
+						}
+				     				     				     										 	                 				     					    //删除关联信息
+						if(delUpdateUser!=null&&delUpdateUser.booleanValue()){	
+							PersonInfoEntity personInfo = (PersonInfoEntity)dbManager.getById(id, PersonInfoEntity.class);
+							if(personInfo!=null&&personInfo.getUpdateUserId()!=null){
+								dbManager.delNoTransaction(personInfo.getUpdateUserId(), UserEntity.class);
+							}						
+						}
+				     				     				     										result = dbManager.delNoTransaction(id, PersonInfoEntity.class);
+					tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		/**
+		 * 批量删除记录
+		 * 
+		 * @param ids
+		 *            主键 英文逗号间隔
+		 * @param obj
+		 */
+		public boolean del(String ids) {
+			boolean result = false;
+			if (ids != null && !"".equals(ids.trim())) {
+				TransactionManager tx = DbUtils.getTranManager();
+				try {
+					tx.beginTransaction();
+					QueryCondition qc = new QueryCondition(PersonInfoEntity.ID,QueryCondition.in, ids);
+					result = dbManager.delByConditionsNoTransaction(PersonInfoEntity.class, qc);
+					tx.commitAndClose();
+				} catch (Exception e) {
+					logger.error("数据库提交失败！");
+					logger.error(e);
+					result = false;
+					try {
+						tx.rollbackAndClose();
+					} catch (Exception ex) {
+						logger.error("数据库回滚失败！");
+						logger.error(ex);
+					}
+				}
+			}
+			return result;
+		}
+
+		/**
+		 * 批量条件删除记录
+		 * @param queryMap 查询条件集合
+		 */
+		public boolean delList(Map<String,Object> queryMap,Boolean delCreateUser,Boolean delUpdateUser) {
+			boolean result = false;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+															  					Object name=queryMap.get("name");
+					Object name_like=queryMap.get("name_like");
+					Object name_isNull=queryMap.get("name_isNull");
+					Object name_isNotNull=queryMap.get("name_isNotNull");
+					Object name_in=queryMap.get("name_in");
+				  															  					Object idnumber=queryMap.get("idnumber");
+					Object idnumber_like=queryMap.get("idnumber_like");
+					Object idnumber_isNull=queryMap.get("idnumber_isNull");
+					Object idnumber_isNotNull=queryMap.get("idnumber_isNotNull");
+					Object idnumber_in=queryMap.get("idnumber_in");
+				  															  					Object gender=queryMap.get("gender");
+					Object gender_like=queryMap.get("gender_like");
+					Object gender_isNull=queryMap.get("gender_isNull");
+					Object gender_isNotNull=queryMap.get("gender_isNotNull");
+					Object gender_in=queryMap.get("gender_in");
+				  															  					Object birthdate_gt=queryMap.get("birthdate_gt");
+					Object birthdate_ge=queryMap.get("birthdate_ge");
+					Object birthdate_lt=queryMap.get("birthdate_lt");
+					Object birthdate_le=queryMap.get("birthdate_le");
+				  															  					Object mobile=queryMap.get("mobile");
+					Object mobile_like=queryMap.get("mobile_like");
+					Object mobile_isNull=queryMap.get("mobile_isNull");
+					Object mobile_isNotNull=queryMap.get("mobile_isNotNull");
+					Object mobile_in=queryMap.get("mobile_in");
+				  															  					Object tel=queryMap.get("tel");
+					Object tel_like=queryMap.get("tel_like");
+					Object tel_isNull=queryMap.get("tel_isNull");
+					Object tel_isNotNull=queryMap.get("tel_isNotNull");
+					Object tel_in=queryMap.get("tel_in");
+				  															  					Object email=queryMap.get("email");
+					Object email_like=queryMap.get("email_like");
+					Object email_isNull=queryMap.get("email_isNull");
+					Object email_isNotNull=queryMap.get("email_isNotNull");
+					Object email_in=queryMap.get("email_in");
+				  															  					Object maritalStatus=queryMap.get("maritalStatus");
+					Object maritalStatus_like=queryMap.get("maritalStatus_like");
+					Object maritalStatus_isNull=queryMap.get("maritalStatus_isNull");
+					Object maritalStatus_isNotNull=queryMap.get("maritalStatus_isNotNull");
+					Object maritalStatus_in=queryMap.get("maritalStatus_in");
+				  															  					Object workAddress=queryMap.get("workAddress");
+					Object workAddress_like=queryMap.get("workAddress_like");
+					Object workAddress_isNull=queryMap.get("workAddress_isNull");
+					Object workAddress_isNotNull=queryMap.get("workAddress_isNotNull");
+					Object workAddress_in=queryMap.get("workAddress_in");
+				  															  					Object workFax=queryMap.get("workFax");
+					Object workFax_like=queryMap.get("workFax_like");
+					Object workFax_isNull=queryMap.get("workFax_isNull");
+					Object workFax_isNotNull=queryMap.get("workFax_isNotNull");
+					Object workFax_in=queryMap.get("workFax_in");
+				  															  					Object nation=queryMap.get("nation");
+					Object nation_like=queryMap.get("nation_like");
+					Object nation_isNull=queryMap.get("nation_isNull");
+					Object nation_isNotNull=queryMap.get("nation_isNotNull");
+					Object nation_in=queryMap.get("nation_in");
+				  															  					Object education=queryMap.get("education");
+					Object education_like=queryMap.get("education_like");
+					Object education_isNull=queryMap.get("education_isNull");
+					Object education_isNotNull=queryMap.get("education_isNotNull");
+					Object education_in=queryMap.get("education_in");
+				  															  					Object school=queryMap.get("school");
+					Object school_like=queryMap.get("school_like");
+					Object school_isNull=queryMap.get("school_isNull");
+					Object school_isNotNull=queryMap.get("school_isNotNull");
+					Object school_in=queryMap.get("school_in");
+				  															  					Object qqNum=queryMap.get("qqNum");
+					Object qqNum_like=queryMap.get("qqNum_like");
+					Object qqNum_isNull=queryMap.get("qqNum_isNull");
+					Object qqNum_isNotNull=queryMap.get("qqNum_isNotNull");
+					Object qqNum_in=queryMap.get("qqNum_in");
+				  															  					Object wechatNum=queryMap.get("wechatNum");
+					Object wechatNum_like=queryMap.get("wechatNum_like");
+					Object wechatNum_isNull=queryMap.get("wechatNum_isNull");
+					Object wechatNum_isNotNull=queryMap.get("wechatNum_isNotNull");
+					Object wechatNum_in=queryMap.get("wechatNum_in");
+				  																Object createUserId=queryMap.get("createUserId");
+					Object createUserId_gt=queryMap.get("createUserId_gt");
+					Object createUserId_ge=queryMap.get("createUserId_ge");
+					Object createUserId_lt=queryMap.get("createUserId_lt");
+					Object createUserId_le=queryMap.get("createUserId_le");
+					Object createUserId_in=queryMap.get("createUserId_in");
+															  					Object createTime_gt=queryMap.get("createTime_gt");
+					Object createTime_ge=queryMap.get("createTime_ge");
+					Object createTime_lt=queryMap.get("createTime_lt");
+					Object createTime_le=queryMap.get("createTime_le");
+				  																Object updateUserId=queryMap.get("updateUserId");
+					Object updateUserId_gt=queryMap.get("updateUserId_gt");
+					Object updateUserId_ge=queryMap.get("updateUserId_ge");
+					Object updateUserId_lt=queryMap.get("updateUserId_lt");
+					Object updateUserId_le=queryMap.get("updateUserId_le");
+					Object updateUserId_in=queryMap.get("updateUserId_in");
+															  					Object updateTime_gt=queryMap.get("updateTime_gt");
+					Object updateTime_ge=queryMap.get("updateTime_ge");
+					Object updateTime_lt=queryMap.get("updateTime_lt");
+					Object updateTime_le=queryMap.get("updateTime_le");
+				  																											
+			QueryCondition qc = new QueryCondition(PersonInfoEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.ID, QueryCondition.in, id_in));}
+															  					if(name!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.eq, name));}
+		            if(name_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.like, name_like));}
+		            if(name_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.isNull, name_isNull));}
+		            if(name_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.isNotNull, name_isNotNull));}
+				    if(name_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NAME, QueryCondition.in, name_in));}
+				  															  					if(idnumber!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.eq, idnumber));}
+		            if(idnumber_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.like, idnumber_like));}
+		            if(idnumber_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.isNull, idnumber_isNull));}
+		            if(idnumber_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.isNotNull, idnumber_isNotNull));}
+				    if(idnumber_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.IDNUMBER, QueryCondition.in, idnumber_in));}
+				  															  					if(gender!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.eq, gender));}
+		            if(gender_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.like, gender_like));}
+		            if(gender_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.isNull, gender_isNull));}
+		            if(gender_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.isNotNull, gender_isNotNull));}
+				    if(gender_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.GENDER, QueryCondition.in, gender_in));}
+				  															  					if(birthdate_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.gt, birthdate_gt));}
+					if(birthdate_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.ge, birthdate_ge));}
+					if(birthdate_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.lt, birthdate_lt));}
+					if(birthdate_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.BIRTHDATE, QueryCondition.le, birthdate_le));}
+				  															  					if(mobile!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.eq, mobile));}
+		            if(mobile_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.like, mobile_like));}
+		            if(mobile_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.isNull, mobile_isNull));}
+		            if(mobile_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.isNotNull, mobile_isNotNull));}
+				    if(mobile_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MOBILE, QueryCondition.in, mobile_in));}
+				  															  					if(tel!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.eq, tel));}
+		            if(tel_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.like, tel_like));}
+		            if(tel_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.isNull, tel_isNull));}
+		            if(tel_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.isNotNull, tel_isNotNull));}
+				    if(tel_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.TEL, QueryCondition.in, tel_in));}
+				  															  					if(email!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.eq, email));}
+		            if(email_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.like, email_like));}
+		            if(email_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.isNull, email_isNull));}
+		            if(email_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.isNotNull, email_isNotNull));}
+				    if(email_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EMAIL, QueryCondition.in, email_in));}
+				  															  					if(maritalStatus!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.eq, maritalStatus));}
+		            if(maritalStatus_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.like, maritalStatus_like));}
+		            if(maritalStatus_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.isNull, maritalStatus_isNull));}
+		            if(maritalStatus_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.isNotNull, maritalStatus_isNotNull));}
+				    if(maritalStatus_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.MARITAL_STATUS, QueryCondition.in, maritalStatus_in));}
+				  															  					if(workAddress!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.eq, workAddress));}
+		            if(workAddress_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.like, workAddress_like));}
+		            if(workAddress_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.isNull, workAddress_isNull));}
+		            if(workAddress_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.isNotNull, workAddress_isNotNull));}
+				    if(workAddress_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_ADDRESS, QueryCondition.in, workAddress_in));}
+				  															  					if(workFax!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.eq, workFax));}
+		            if(workFax_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.like, workFax_like));}
+		            if(workFax_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.isNull, workFax_isNull));}
+		            if(workFax_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.isNotNull, workFax_isNotNull));}
+				    if(workFax_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WORK_FAX, QueryCondition.in, workFax_in));}
+				  															  					if(nation!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.eq, nation));}
+		            if(nation_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.like, nation_like));}
+		            if(nation_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.isNull, nation_isNull));}
+		            if(nation_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.isNotNull, nation_isNotNull));}
+				    if(nation_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.NATION, QueryCondition.in, nation_in));}
+				  															  					if(education!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.eq, education));}
+		            if(education_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.like, education_like));}
+		            if(education_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.isNull, education_isNull));}
+		            if(education_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.isNotNull, education_isNotNull));}
+				    if(education_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.EDUCATION, QueryCondition.in, education_in));}
+				  															  					if(school!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.eq, school));}
+		            if(school_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.like, school_like));}
+		            if(school_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.isNull, school_isNull));}
+		            if(school_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.isNotNull, school_isNotNull));}
+				    if(school_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.SCHOOL, QueryCondition.in, school_in));}
+				  															  					if(qqNum!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.eq, qqNum));}
+		            if(qqNum_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.like, qqNum_like));}
+		            if(qqNum_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.isNull, qqNum_isNull));}
+		            if(qqNum_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.isNotNull, qqNum_isNotNull));}
+				    if(qqNum_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.QQ_NUM, QueryCondition.in, qqNum_in));}
+				  															  					if(wechatNum!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.eq, wechatNum));}
+		            if(wechatNum_like!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.like, wechatNum_like));}
+		            if(wechatNum_isNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.isNull, wechatNum_isNull));}
+		            if(wechatNum_isNotNull!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.isNotNull, wechatNum_isNotNull));}
+				    if(wechatNum_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.WECHAT_NUM, QueryCondition.in, wechatNum_in));}
+				  																if(createUserId!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.eq, createUserId));}
+					if(createUserId_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.gt, createUserId_gt));}
+					if(createUserId_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.ge, createUserId_ge));}
+					if(createUserId_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.lt, createUserId_lt));}
+					if(createUserId_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.le, createUserId_le));}
+					if(createUserId_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_USER_ID, QueryCondition.in, createUserId_in));}
+															  					if(createTime_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.gt, createTime_gt));}
+					if(createTime_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.ge, createTime_ge));}
+					if(createTime_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.lt, createTime_lt));}
+					if(createTime_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.CREATE_TIME, QueryCondition.le, createTime_le));}
+				  																if(updateUserId!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.eq, updateUserId));}
+					if(updateUserId_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.gt, updateUserId_gt));}
+					if(updateUserId_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.ge, updateUserId_ge));}
+					if(updateUserId_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.lt, updateUserId_lt));}
+					if(updateUserId_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.le, updateUserId_le));}
+					if(updateUserId_in!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_USER_ID, QueryCondition.in, updateUserId_in));}
+															  					if(updateTime_gt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.gt, updateTime_gt));}
+					if(updateTime_ge!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.ge, updateTime_ge));}
+					if(updateTime_lt!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.lt, updateTime_lt));}
+					if(updateTime_le!=null){qc.andCondition(new QueryCondition(PersonInfoEntity.UPDATE_TIME, QueryCondition.le, updateTime_le));}
+				  										
+				            				            						if (qc.getQueryNextCondition()!=null) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 						
+										 	                 				     					     //删除关联信息
+						if(delCreateUser!=null&&delCreateUser.booleanValue()){
+							List<Object> list=dbManager.queryByCondition(PersonInfoEntity.class,qc);
+							String strIds="";
+							if(list!=null&&list.size()>0){
+								for(Object obj:list){
+									PersonInfoEntity entity=(PersonInfoEntity)obj;
+									strIds += entity.getCreateUserId()+",";
+								}
+								strIds = strIds.substring(0, strIds.length()-1);
+							}
+							if(strIds!=null&&!"".equals(strIds)){
+								QueryCondition qc1 = new QueryCondition(UserEntity.ID, QueryCondition.in, strIds);
+								dbManager.delByConditionsNoTransaction(UserEntity.class, qc1);
+							}
+							
+						}
+				     				     				     										 	                 				     					     //删除关联信息
+						if(delUpdateUser!=null&&delUpdateUser.booleanValue()){
+							List<Object> list=dbManager.queryByCondition(PersonInfoEntity.class,qc);
+							String strIds="";
+							if(list!=null&&list.size()>0){
+								for(Object obj:list){
+									PersonInfoEntity entity=(PersonInfoEntity)obj;
+									strIds += entity.getUpdateUserId()+",";
+								}
+								strIds = strIds.substring(0, strIds.length()-1);
+							}
+							if(strIds!=null&&!"".equals(strIds)){
+								QueryCondition qc1 = new QueryCondition(UserEntity.ID, QueryCondition.in, strIds);
+								dbManager.delByConditionsNoTransaction(UserEntity.class, qc1);
+							}
+							
+						}
+				     				     				     										result = dbManager.delByConditionsNoTransaction(PersonInfoEntity.class,qc);				
+					tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		
+}

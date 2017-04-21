@@ -1,0 +1,269 @@
+package weixin.controller;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import weixin.tools.SignUtil;
+import weixin.tools.WXUtil;
+
+import com.framework.system.util.JsonUtil;
+
+import fsk.init.SystemInit;
+import fsk.thread.GetAccessTokenThread;
+
+@RequestMapping("/wechatOlder")
+@Controller
+public class WeixinOlderController {
+	private static Logger logger = Logger
+			.getLogger(WeixinOlderController.class);
+
+	/**
+	 * 列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView(
+				"/weixin/weixinOlder/weixinOlderList");
+		//true则代表正式环境，可以开启获取token线程，获取微信服务器数据
+		if("formal".equals(SystemInit.weixinmsgpush)){
+			SignUtil.getAccess_tokenByThread();
+		}
+		String flag = "";
+		if (request.getParameter("flag") != null
+				&& !"".equals(request.getParameter("flag"))) {
+			flag = (String) request.getParameter("flag");
+		}
+		String openid = "";
+		if (flag.equals("flag")) {// 内部跳转
+			openid = (String) request.getSession().getAttribute("weixinopenid");
+		} else {
+			openid = SignUtil.getopenid(request.getParameter("code"));
+			request.getSession().setAttribute("weixinopenid", openid);
+		}
+		Integer wechatId = null;
+		if (openid != null && !openid.equals("")) {
+			String reqmsg = "{\"action\":\"QUERY_WECHAT_LIST_REQUEST\",\"page\":{\"pageno\":\"1\",\"pagesize\":\"1\"},\"content\":{\"openid\":\""
+					+ openid + "\"}}";
+			String ifFinish = SignUtil.doHttpPost(SignUtil.handlerurl
+					+ "/wechat.do?handlerWechat", reqmsg);
+			Map reqParams = JsonUtil.getMap4Json(ifFinish);
+			if (reqParams != null) {
+				JSONObject content = (JSONObject) reqParams.get("content");
+				JSONArray wechatList = null;
+				if (content != null) {
+					Object object = content.get("wechatList");
+					if (object != null) {
+						wechatList = (JSONArray) object;
+					}
+					if (wechatList != null) {
+						JSONObject objtemp = wechatList.getJSONObject(0);
+						wechatId = (Integer) objtemp.get("id");// 登录用户信息表主键
+					}
+				}
+			}
+		}
+		mav.addObject("wechatId", wechatId);
+		return mav;
+	}
+
+	/**
+	 * 新增页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "mainAdd")
+	public ModelAndView mainAdd(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView(
+				"/weixin/weixinOlder/weixinOlderAdd");
+		//true则代表正式环境，可以开启获取token线程，获取微信服务器数据
+		if("formal".equals(SystemInit.weixinmsgpush)){
+			SignUtil.getAccess_tokenByThread();
+		}
+		String name = "";
+		String wechatId = "";
+		if (request.getParameter("wechatId") != null
+				&& !"".equals(request.getParameter("wechatId"))) {
+			wechatId = (String) request.getParameter("wechatId");
+		}
+		String olderNumberId = "";
+		String serviceId = "";
+		String flag = "";
+		if (request.getParameter("name") != null
+				&& !"".equals(request.getParameter("name"))) {
+			name = (String) request.getParameter("name");
+			try {
+				byte source[] = name.getBytes("iso8859-1");
+				name = new String(source, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}
+		if (request.getParameter("olderNumberId") != null
+				&& !"".equals(request.getParameter("olderNumberId"))) {
+			olderNumberId = (String) request.getParameter("olderNumberId");
+		}
+		if (request.getParameter("flag") != null
+				&& !"".equals(request.getParameter("flag"))) {
+			flag = (String) request.getParameter("flag");
+		}
+		if (request.getParameter("serviceId") != null
+				&& !"".equals(request.getParameter("serviceId"))) {
+			serviceId = (String) request.getParameter("serviceId");
+		}
+		if (!"".equals(wechatId)) {
+			mav.addObject("wechatId", wechatId);
+		}
+
+		mav.addObject("name", name);
+		mav.addObject("olderNumberId", olderNumberId);
+		mav.addObject("serviceId", serviceId);
+		mav.addObject("flag", flag);
+
+		if (flag.equals("longActingInsuranceAgent")) {// 页面有拍照功能，加载微信拍照接口参数
+			String appId = SignUtil.APPID;
+			String ticket = "";
+			// 1、获取AccessToken
+			String access_token = SystemInit.access_token;
+			// 2、获取Ticket
+			ticket = SystemInit.jsapi_ticket;
+			// 3、获取时间戳
+			String timeStamp = WXUtil.getTimeStamp();
+			// 4、获取随机字符串
+			String nonceStr = WXUtil.getNonceStr();
+			// 5、获取url
+			String url = SignUtil.weChatPhotoUrl + wechatId + "&weixin=weixin";
+
+			String openid = "";
+			if ("".equals(wechatId)) {// 菜单跳转,不带wechatId
+				url = SignUtil.weChatPhotoUrl.replace("&wechatId=", "")
+						+ "&weixin=weixin";// 菜单跳转,url改变不带wechatId
+				if (request.getSession().getAttribute("weixinopenid") != null
+						&& !"".equals(request.getSession().getAttribute(
+								"weixinopenid"))) {
+					openid = (String) request.getSession().getAttribute(
+							"weixinopenid");
+				} else {
+					openid = SignUtil.getopenid(request.getParameter("code"));
+					request.getSession().setAttribute("weixinopenid", openid);
+				}
+				if (openid != null && !openid.equals("")) {
+					String reqmsg = "{\"action\":\"QUERY_WECHAT_LIST_REQUEST\",\"page\":{\"pageno\":\"1\",\"pagesize\":\"1\"},\"content\":{\"openid\":\""
+							+ openid + "\"}}";
+					String ifFinish = SignUtil.doHttpPost(SignUtil.handlerurl
+							+ "/wechat.do?handlerWechat", reqmsg);
+					Map reqParams = JsonUtil.getMap4Json(ifFinish);
+					if (reqParams != null) {
+						JSONObject content = (JSONObject) reqParams
+								.get("content");
+						JSONArray wechatList = null;
+						if (content != null) {
+							Object object = content.get("wechatList");
+							if (object != null) {
+								wechatList = (JSONArray) object;
+							}
+							if (wechatList != null) {
+								JSONObject objtemp = wechatList
+										.getJSONObject(0);
+								wechatId = (Integer) objtemp.get("id") + "";// 登录用户信息表主键
+							}
+						}
+					}
+				}
+				mav.addObject("wechatId", wechatId);
+			}
+			logger.debug("微信服务器url==" + url);
+			// 6、将参数排序并拼接字符串
+			String str = "jsapi_ticket=" + ticket + "&noncestr=" + nonceStr
+					+ "&timestamp=" + timeStamp + "&url=" + url;
+			// 7、将字符串进行sha1加密
+			String signature = SHA1(str);
+
+			mav.addObject("appId", appId);
+			mav.addObject("timeStamp", timeStamp);
+			mav.addObject("nonceStr", nonceStr);
+			mav.addObject("signature", signature);
+			mav.addObject("access_token", access_token);
+
+		}
+		return mav;
+	}
+
+	/**
+	 * 详情页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "mainXQ")
+	public ModelAndView centerXQ(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView(
+				"/weixin/weixinOlder/weixinOlderDetail");
+		String olderId = request.getParameter("olderId");
+		String openid = (String) request.getSession().getAttribute(
+				"weixinopenid");
+		mav.addObject("openid", openid);
+		mav.addObject("olderId", olderId);
+		return mav;
+	}
+
+	/**
+	 * 根据微信接口规则，字符串sha1加密,生成签名
+	 * 
+	 * @param decript
+	 * @return
+	 */
+	public static String SHA1(String decript) {
+		try {
+			MessageDigest digest = java.security.MessageDigest
+					.getInstance("SHA-1");
+			digest.update(decript.getBytes());
+			byte messageDigest[] = digest.digest();
+			// Create Hex String
+			StringBuffer hexString = new StringBuffer();
+			// 字节数组转换为 十六进制 数
+			for (int i = 0; i < messageDigest.length; i++) {
+				String shaHex = Integer.toHexString(messageDigest[i] & 0xFF);
+				if (shaHex.length() < 2) {
+					hexString.append(0);
+				}
+				hexString.append(shaHex);
+			}
+			return hexString.toString();
+
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+}

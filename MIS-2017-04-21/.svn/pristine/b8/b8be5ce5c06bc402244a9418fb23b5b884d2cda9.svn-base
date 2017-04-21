@@ -1,0 +1,1373 @@
+package fsk.parse.chat;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.framework.system.util.JsonUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import com.framework.system.db.manager.DBManager;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+import fsk.entity.chat.ChatEntity;
+
+
+
+import fsk.entity.older.OlderEntity;
+
+import com.framework.system.util.JsonUtil;
+import com.framework.system.db.query.OrderVO;
+ /**   
+ * @Title: Parse
+ * @Description: 聊天记录解析器
+ * @author feng.gu
+ * @date 2016-10-26 15:38:06
+ * @version V1.0   
+ *
+ */
+public class ChatParse {
+	private static Logger logger = Logger.getLogger(ChatParse.class);
+	private static ChatParse chatParse;
+	private DBManager dbManager = DBManager.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static ChatParse getInstance() {
+		if (chatParse == null) {
+			chatParse = new ChatParse();
+		}
+		return chatParse;
+	}
+
+	public Map<String, Object> parse(int type, String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			parseMap = this.parseByJson(command,reqStr, request);
+		} else if (type == 2) {
+			// xml
+			parseMap = this.parseByXml(command,reqStr, request);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByJson(String command,String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		try {
+			String actionReturn = null;
+			ChatEntity chatReturn = null;
+			List<ChatEntity> chatListReturn = null;
+			Integer idReturn = null;			
+			Map<String, Object> queryMapReturn = null;
+			int pagenoReturn = 1;
+			int pagesizeReturn = 10;
+			List<OrderVO> orderListReturn = null;
+			
+															Boolean olderShowReturn = false;
+			Boolean delOlderReturn = false;
+															
+			//json
+			Map reqParams = JsonUtil.getMap4Json(reqStr);
+			JSONObject contentreq = (JSONObject)reqParams.get("content");
+			if ("ADD_CHAT_INFO_REQUEST".equals(command)) {
+				actionReturn = "save";
+				chatReturn = new ChatEntity();
+				if(true){
+					if(contentreq!=null){
+												    						    Integer id = (Integer)contentreq.get("id");
+	                		if(id!=null){
+	                		    	                		    chatReturn  = (ChatEntity)dbManager.getById(id, ChatEntity.class);	                		    
+	                		    			                	chatReturn.setId(id);
+			                }
+						    												    						    String recordCode = (String)contentreq.get("recordCode");
+	                		if(recordCode!=null){
+	                		    			                	chatReturn.setRecordCode(recordCode);
+			                }
+						    												    						    String themeCode = (String)contentreq.get("themeCode");
+	                		if(themeCode!=null){
+	                		    			                	chatReturn.setThemeCode(themeCode);
+			                }
+						    												    						    Integer olderId = (Integer)contentreq.get("olderId");
+	                		if(olderId!=null){
+	                		    			                	chatReturn.setOlderId(olderId);
+			                }
+						    												    						    String olderName = (String)contentreq.get("olderName");
+	                		if(olderName!=null){
+	                		    			                	chatReturn.setOlderName(olderName);
+			                }
+						    												    						    String olderMemberNum = (String)contentreq.get("olderMemberNum");
+	                		if(olderMemberNum!=null){
+	                		    			                	chatReturn.setOlderMemberNum(olderMemberNum);
+			                }
+						    												    						    Integer spokesmanType = (Integer)contentreq.get("spokesmanType");
+	                		if(spokesmanType!=null){
+	                		    			                	chatReturn.setSpokesmanType(spokesmanType);
+			                }
+						    												    						    Integer spokesmanId = (Integer)contentreq.get("spokesmanId");
+	                		if(spokesmanId!=null){
+	                		    			                	chatReturn.setSpokesmanId(spokesmanId);
+			                }
+						    												    						    String spokesmanName = (String)contentreq.get("spokesmanName");
+	                		if(spokesmanName!=null){
+	                		    			                	chatReturn.setSpokesmanName(spokesmanName);
+			                }
+						    												    						    String spokesmanPhoto = (String)contentreq.get("spokesmanPhoto");
+	                		if(spokesmanPhoto!=null){
+	                		    			                	chatReturn.setSpokesmanPhoto(spokesmanPhoto);
+			                }
+						    												    						    Integer spokesType = (Integer)contentreq.get("spokesType");
+	                		if(spokesType!=null){
+	                		    			                	chatReturn.setSpokesType(spokesType);
+			                }
+						    												    						    String chatContent = (String)contentreq.get("chatContent");
+	                		if(chatContent!=null){
+	                		    			                	chatReturn.setChatContent(chatContent);
+			                }
+						    												    						    String chatTime = (String)contentreq.get("chatTime");
+	                		if(chatTime!=null){
+	                		    			                	chatReturn.setChatTime(chatTime);
+			                }
+						    											}					
+				}
+																				if(true){
+					Object older = contentreq.get("older");
+					if(older!=null){
+						JSONObject obj = (JSONObject)older;
+						if(obj!=null){
+							OlderEntity entity = new OlderEntity();						
+																						    Integer id = (Integer)obj.get("id");
+		                		if(id!=null){
+				                	entity.setId(id);
+				                }
+							    																						    Integer nurseEmployeeId = (Integer)obj.get("nurseEmployeeId");
+		                		if(nurseEmployeeId!=null){
+				                	entity.setNurseEmployeeId(nurseEmployeeId);
+				                }
+							    																						    Integer userId = (Integer)obj.get("userId");
+		                		if(userId!=null){
+				                	entity.setUserId(userId);
+				                }
+							    																						    String memberNum = (String)obj.get("memberNum");
+		                		if(memberNum!=null){
+				                	entity.setMemberNum(memberNum);
+				                }
+							    																						    String memberCard = (String)obj.get("memberCard");
+		                		if(memberCard!=null){
+				                	entity.setMemberCard(memberCard);
+				                }
+							    																						    String memberSource = (String)obj.get("memberSource");
+		                		if(memberSource!=null){
+				                	entity.setMemberSource(memberSource);
+				                }
+							    																						    String attentionPoint = (String)obj.get("attentionPoint");
+		                		if(attentionPoint!=null){
+				                	entity.setAttentionPoint(attentionPoint);
+				                }
+							    																						    Integer nurseLevel = (Integer)obj.get("nurseLevel");
+		                		if(nurseLevel!=null){
+				                	entity.setNurseLevel(nurseLevel);
+				                }
+							    																						    Integer memberStatus = (Integer)obj.get("memberStatus");
+		                		if(memberStatus!=null){
+				                	entity.setMemberStatus(memberStatus);
+				                }
+							    																						    String lastAssessmentDate = (String)obj.get("lastAssessmentDate");
+		                		if(lastAssessmentDate!=null){
+				                	entity.setLastAssessmentDate(lastAssessmentDate);
+				                }
+							    																						    Integer assessmentCycle = (Integer)obj.get("assessmentCycle");
+		                		if(assessmentCycle!=null){
+				                	entity.setAssessmentCycle(assessmentCycle);
+				                }
+							    																						     							     Double chargeMonth = JsonUtil.getJSONDouble(obj, "chargeMonth");
+								 if (chargeMonth != null) {
+									entity.setChargeMonth(BigDecimal.valueOf(chargeMonth));
+								 }
+							     							     							    																						    Integer requiredServiceTimes = (Integer)obj.get("requiredServiceTimes");
+		                		if(requiredServiceTimes!=null){
+				                	entity.setRequiredServiceTimes(requiredServiceTimes);
+				                }
+							    																						    Integer alreadyServiceTimes = (Integer)obj.get("alreadyServiceTimes");
+		                		if(alreadyServiceTimes!=null){
+				                	entity.setAlreadyServiceTimes(alreadyServiceTimes);
+				                }
+							    																						    String mainPhoto = (String)obj.get("mainPhoto");
+		                		if(mainPhoto!=null){
+				                	entity.setMainPhoto(mainPhoto);
+				                }
+							    																						    String name = (String)obj.get("name");
+		                		if(name!=null){
+				                	entity.setName(name);
+				                }
+							    																						    String idnumber = (String)obj.get("idnumber");
+		                		if(idnumber!=null){
+				                	entity.setIdnumber(idnumber);
+				                }
+							    																						    String socialSecurityNumber = (String)obj.get("socialSecurityNumber");
+		                		if(socialSecurityNumber!=null){
+				                	entity.setSocialSecurityNumber(socialSecurityNumber);
+				                }
+							    																						    String gender = (String)obj.get("gender");
+		                		if(gender!=null){
+				                	entity.setGender(gender);
+				                }
+							    																						    String birthdate = (String)obj.get("birthdate");
+		                		if(birthdate!=null){
+				                	entity.setBirthdate(birthdate);
+				                }
+							    																						    String nation = (String)obj.get("nation");
+		                		if(nation!=null){
+				                	entity.setNation(nation);
+				                }
+							    																						    String education = (String)obj.get("education");
+		                		if(education!=null){
+				                	entity.setEducation(education);
+				                }
+							    																						    String maritalStatus = (String)obj.get("maritalStatus");
+		                		if(maritalStatus!=null){
+				                	entity.setMaritalStatus(maritalStatus);
+				                }
+							    																						    String occupation = (String)obj.get("occupation");
+		                		if(occupation!=null){
+				                	entity.setOccupation(occupation);
+				                }
+							    																						    String homeTel = (String)obj.get("homeTel");
+		                		if(homeTel!=null){
+				                	entity.setHomeTel(homeTel);
+				                }
+							    																						    String mobileTel = (String)obj.get("mobileTel");
+		                		if(mobileTel!=null){
+				                	entity.setMobileTel(mobileTel);
+				                }
+							    																						    String bloodType = (String)obj.get("bloodType");
+		                		if(bloodType!=null){
+				                	entity.setBloodType(bloodType);
+				                }
+							    																						    String symptom = (String)obj.get("symptom");
+		                		if(symptom!=null){
+				                	entity.setSymptom(symptom);
+				                }
+							    																						    String symptomOther = (String)obj.get("symptomOther");
+		                		if(symptomOther!=null){
+				                	entity.setSymptomOther(symptomOther);
+				                }
+							    																						    String drugAllergy = (String)obj.get("drugAllergy");
+		                		if(drugAllergy!=null){
+				                	entity.setDrugAllergy(drugAllergy);
+				                }
+							    																						    String drugAllergyOther = (String)obj.get("drugAllergyOther");
+		                		if(drugAllergyOther!=null){
+				                	entity.setDrugAllergyOther(drugAllergyOther);
+				                }
+							    																						    String cognitive = (String)obj.get("cognitive");
+		                		if(cognitive!=null){
+				                	entity.setCognitive(cognitive);
+				                }
+							    																						    String emotion = (String)obj.get("emotion");
+		                		if(emotion!=null){
+				                	entity.setEmotion(emotion);
+				                }
+							    																						    String sportsFre = (String)obj.get("sportsFre");
+		                		if(sportsFre!=null){
+				                	entity.setSportsFre(sportsFre);
+				                }
+							    																						    Integer sportsTime = (Integer)obj.get("sportsTime");
+		                		if(sportsTime!=null){
+				                	entity.setSportsTime(sportsTime);
+				                }
+							    																						    Integer holdSportsTime = (Integer)obj.get("holdSportsTime");
+		                		if(holdSportsTime!=null){
+				                	entity.setHoldSportsTime(holdSportsTime);
+				                }
+							    																						    String sportsType = (String)obj.get("sportsType");
+		                		if(sportsType!=null){
+				                	entity.setSportsType(sportsType);
+				                }
+							    																						    String diet = (String)obj.get("diet");
+		                		if(diet!=null){
+				                	entity.setDiet(diet);
+				                }
+							    																						    String smoking = (String)obj.get("smoking");
+		                		if(smoking!=null){
+				                	entity.setSmoking(smoking);
+				                }
+							    																						    Integer smokingDay = (Integer)obj.get("smokingDay");
+		                		if(smokingDay!=null){
+				                	entity.setSmokingDay(smokingDay);
+				                }
+							    																						    String quitAlcohol = (String)obj.get("quitAlcohol");
+		                		if(quitAlcohol!=null){
+				                	entity.setQuitAlcohol(quitAlcohol);
+				                }
+							    																						    Integer quitAlcoholAge = (Integer)obj.get("quitAlcoholAge");
+		                		if(quitAlcoholAge!=null){
+				                	entity.setQuitAlcoholAge(quitAlcoholAge);
+				                }
+							    																						    Integer startAlcoholAge = (Integer)obj.get("startAlcoholAge");
+		                		if(startAlcoholAge!=null){
+				                	entity.setStartAlcoholAge(startAlcoholAge);
+				                }
+							    																						    Integer drunkYear = (Integer)obj.get("drunkYear");
+		                		if(drunkYear!=null){
+				                	entity.setDrunkYear(drunkYear);
+				                }
+							    																						    String alcoholType = (String)obj.get("alcoholType");
+		                		if(alcoholType!=null){
+				                	entity.setAlcoholType(alcoholType);
+				                }
+							    																						    String alcoholTypeOther = (String)obj.get("alcoholTypeOther");
+		                		if(alcoholTypeOther!=null){
+				                	entity.setAlcoholTypeOther(alcoholTypeOther);
+				                }
+							    																						    String brainBloodVessel = (String)obj.get("brainBloodVessel");
+		                		if(brainBloodVessel!=null){
+				                	entity.setBrainBloodVessel(brainBloodVessel);
+				                }
+							    																						    String brainBloodVesselOther = (String)obj.get("brainBloodVesselOther");
+		                		if(brainBloodVesselOther!=null){
+				                	entity.setBrainBloodVesselOther(brainBloodVesselOther);
+				                }
+							    																						    String kindney = (String)obj.get("kindney");
+		                		if(kindney!=null){
+				                	entity.setKindney(kindney);
+				                }
+							    																						    String kindneyOther = (String)obj.get("kindneyOther");
+		                		if(kindneyOther!=null){
+				                	entity.setKindneyOther(kindneyOther);
+				                }
+							    																						    String heart = (String)obj.get("heart");
+		                		if(heart!=null){
+				                	entity.setHeart(heart);
+				                }
+							    																						    String heartOther = (String)obj.get("heartOther");
+		                		if(heartOther!=null){
+				                	entity.setHeartOther(heartOther);
+				                }
+							    																						    String bloodVessel = (String)obj.get("bloodVessel");
+		                		if(bloodVessel!=null){
+				                	entity.setBloodVessel(bloodVessel);
+				                }
+							    																						    String bloodVesselOther = (String)obj.get("bloodVesselOther");
+		                		if(bloodVesselOther!=null){
+				                	entity.setBloodVesselOther(bloodVesselOther);
+				                }
+							    																						    String eye = (String)obj.get("eye");
+		                		if(eye!=null){
+				                	entity.setEye(eye);
+				                }
+							    																						    String eyeOther = (String)obj.get("eyeOther");
+		                		if(eyeOther!=null){
+				                	entity.setEyeOther(eyeOther);
+				                }
+							    																						    String otherDisease = (String)obj.get("otherDisease");
+		                		if(otherDisease!=null){
+				                	entity.setOtherDisease(otherDisease);
+				                }
+							    																						    Integer serviceProvinceId = (Integer)obj.get("serviceProvinceId");
+		                		if(serviceProvinceId!=null){
+				                	entity.setServiceProvinceId(serviceProvinceId);
+				                }
+							    																						    Integer serviceCityId = (Integer)obj.get("serviceCityId");
+		                		if(serviceCityId!=null){
+				                	entity.setServiceCityId(serviceCityId);
+				                }
+							    																						    Integer serviceAreaId = (Integer)obj.get("serviceAreaId");
+		                		if(serviceAreaId!=null){
+				                	entity.setServiceAreaId(serviceAreaId);
+				                }
+							    																						    Integer serviceStreetId = (Integer)obj.get("serviceStreetId");
+		                		if(serviceStreetId!=null){
+				                	entity.setServiceStreetId(serviceStreetId);
+				                }
+							    																						    String familyComposition = (String)obj.get("familyComposition");
+		                		if(familyComposition!=null){
+				                	entity.setFamilyComposition(familyComposition);
+				                }
+							    																						    String live = (String)obj.get("live");
+		                		if(live!=null){
+				                	entity.setLive(live);
+				                }
+							    																						    String liveOther = (String)obj.get("liveOther");
+		                		if(liveOther!=null){
+				                	entity.setLiveOther(liveOther);
+				                }
+							    																						    String economic = (String)obj.get("economic");
+		                		if(economic!=null){
+				                	entity.setEconomic(economic);
+				                }
+							    																						    String economicOther = (String)obj.get("economicOther");
+		                		if(economicOther!=null){
+				                	entity.setEconomicOther(economicOther);
+				                }
+							    																						    String house = (String)obj.get("house");
+		                		if(house!=null){
+				                	entity.setHouse(house);
+				                }
+							    																						    String houseOther = (String)obj.get("houseOther");
+		                		if(houseOther!=null){
+				                	entity.setHouseOther(houseOther);
+				                }
+							    																						    String interest = (String)obj.get("interest");
+		                		if(interest!=null){
+				                	entity.setInterest(interest);
+				                }
+							    																						    String lifeExperience = (String)obj.get("lifeExperience");
+		                		if(lifeExperience!=null){
+				                	entity.setLifeExperience(lifeExperience);
+				                }
+							    																						    String specialExperience = (String)obj.get("specialExperience");
+		                		if(specialExperience!=null){
+				                	entity.setSpecialExperience(specialExperience);
+				                }
+							    																						    String specialExperienceOther = (String)obj.get("specialExperienceOther");
+		                		if(specialExperienceOther!=null){
+				                	entity.setSpecialExperienceOther(specialExperienceOther);
+				                }
+							    																						    String residence = (String)obj.get("residence");
+		                		if(residence!=null){
+				                	entity.setResidence(residence);
+				                }
+							    																						    String elevator = (String)obj.get("elevator");
+		                		if(elevator!=null){
+				                	entity.setElevator(elevator);
+				                }
+							    																						    String step = (String)obj.get("step");
+		                		if(step!=null){
+				                	entity.setStep(step);
+				                }
+							    																						    String stepOther = (String)obj.get("stepOther");
+		                		if(stepOther!=null){
+				                	entity.setStepOther(stepOther);
+				                }
+							    																						    String restroom = (String)obj.get("restroom");
+		                		if(restroom!=null){
+				                	entity.setRestroom(restroom);
+				                }
+							    																						    String restroomOther = (String)obj.get("restroomOther");
+		                		if(restroomOther!=null){
+				                	entity.setRestroomOther(restroomOther);
+				                }
+							    																						    String bathroomTub = (String)obj.get("bathroomTub");
+		                		if(bathroomTub!=null){
+				                	entity.setBathroomTub(bathroomTub);
+				                }
+							    																						    String bathroomShower = (String)obj.get("bathroomShower");
+		                		if(bathroomShower!=null){
+				                	entity.setBathroomShower(bathroomShower);
+				                }
+							    																						    String bathroomStrip = (String)obj.get("bathroomStrip");
+		                		if(bathroomStrip!=null){
+				                	entity.setBathroomStrip(bathroomStrip);
+				                }
+							    																						    String kitchenOther = (String)obj.get("kitchenOther");
+		                		if(kitchenOther!=null){
+				                	entity.setKitchenOther(kitchenOther);
+				                }
+							    																						    String kitchen = (String)obj.get("kitchen");
+		                		if(kitchen!=null){
+				                	entity.setKitchen(kitchen);
+				                }
+							    																						    String clean = (String)obj.get("clean");
+		                		if(clean!=null){
+				                	entity.setClean(clean);
+				                }
+							    																						    String shopping = (String)obj.get("shopping");
+		                		if(shopping!=null){
+				                	entity.setShopping(shopping);
+				                }
+							    																						    String shoppingTraffic = (String)obj.get("shoppingTraffic");
+		                		if(shoppingTraffic!=null){
+				                	entity.setShoppingTraffic(shoppingTraffic);
+				                }
+							    																						    String shoppingAccessibility = (String)obj.get("shoppingAccessibility");
+		                		if(shoppingAccessibility!=null){
+				                	entity.setShoppingAccessibility(shoppingAccessibility);
+				                }
+							    																						    String shoppingOther = (String)obj.get("shoppingOther");
+		                		if(shoppingOther!=null){
+				                	entity.setShoppingOther(shoppingOther);
+				                }
+							    																						    String livingEnvironmentDefect = (String)obj.get("livingEnvironmentDefect");
+		                		if(livingEnvironmentDefect!=null){
+				                	entity.setLivingEnvironmentDefect(livingEnvironmentDefect);
+				                }
+							    																						    String dailyWater = (String)obj.get("dailyWater");
+		                		if(dailyWater!=null){
+				                	entity.setDailyWater(dailyWater);
+				                }
+							    																						    String dailyDrinking = (String)obj.get("dailyDrinking");
+		                		if(dailyDrinking!=null){
+				                	entity.setDailyDrinking(dailyDrinking);
+				                }
+							    																						    String drinking = (String)obj.get("drinking");
+		                		if(drinking!=null){
+				                	entity.setDrinking(drinking);
+				                }
+							    																						    String gadget = (String)obj.get("gadget");
+		                		if(gadget!=null){
+				                	entity.setGadget(gadget);
+				                }
+							    																						    String mainFood = (String)obj.get("mainFood");
+		                		if(mainFood!=null){
+				                	entity.setMainFood(mainFood);
+				                }
+							    																						    String fruitsVegetables = (String)obj.get("fruitsVegetables");
+		                		if(fruitsVegetables!=null){
+				                	entity.setFruitsVegetables(fruitsVegetables);
+				                }
+							    																						    String salt = (String)obj.get("salt");
+		                		if(salt!=null){
+				                	entity.setSalt(salt);
+				                }
+							    																						    String oil = (String)obj.get("oil");
+		                		if(oil!=null){
+				                	entity.setOil(oil);
+				                }
+							    																						    String fish = (String)obj.get("fish");
+		                		if(fish!=null){
+				                	entity.setFish(fish);
+				                }
+							    																						    String meat = (String)obj.get("meat");
+		                		if(meat!=null){
+				                	entity.setMeat(meat);
+				                }
+							    																						    String beanProducts = (String)obj.get("beanProducts");
+		                		if(beanProducts!=null){
+				                	entity.setBeanProducts(beanProducts);
+				                }
+							    																						    String milk = (String)obj.get("milk");
+		                		if(milk!=null){
+				                	entity.setMilk(milk);
+				                }
+							    																						    String foodForm = (String)obj.get("foodForm");
+		                		if(foodForm!=null){
+				                	entity.setFoodForm(foodForm);
+				                }
+							    																						    String dysphagia = (String)obj.get("dysphagia");
+		                		if(dysphagia!=null){
+				                	entity.setDysphagia(dysphagia);
+				                }
+							    																						    String morningSit = (String)obj.get("morningSit");
+		                		if(morningSit!=null){
+				                	entity.setMorningSit(morningSit);
+				                }
+							    																						    String noonSit = (String)obj.get("noonSit");
+		                		if(noonSit!=null){
+				                	entity.setNoonSit(noonSit);
+				                }
+							    																						    String nightSit = (String)obj.get("nightSit");
+		                		if(nightSit!=null){
+				                	entity.setNightSit(nightSit);
+				                }
+							    																						    String lateAfternoonTea = (String)obj.get("lateAfternoonTea");
+		                		if(lateAfternoonTea!=null){
+				                	entity.setLateAfternoonTea(lateAfternoonTea);
+				                }
+							    																						    String urine = (String)obj.get("urine");
+		                		if(urine!=null){
+				                	entity.setUrine(urine);
+				                }
+							    																						    String urineNum = (String)obj.get("urineNum");
+		                		if(urineNum!=null){
+				                	entity.setUrineNum(urineNum);
+				                }
+							    																						    String urineMethod = (String)obj.get("urineMethod");
+		                		if(urineMethod!=null){
+				                	entity.setUrineMethod(urineMethod);
+				                }
+							    																						    String urineType = (String)obj.get("urineType");
+		                		if(urineType!=null){
+				                	entity.setUrineType(urineType);
+				                }
+							    																						    String urineTypeOther = (String)obj.get("urineTypeOther");
+		                		if(urineTypeOther!=null){
+				                	entity.setUrineTypeOther(urineTypeOther);
+				                }
+							    																						    String shit = (String)obj.get("shit");
+		                		if(shit!=null){
+				                	entity.setShit(shit);
+				                }
+							    																						    String shitDay = (String)obj.get("shitDay");
+		                		if(shitDay!=null){
+				                	entity.setShitDay(shitDay);
+				                }
+							    																						    String shitMethod = (String)obj.get("shitMethod");
+		                		if(shitMethod!=null){
+				                	entity.setShitMethod(shitMethod);
+				                }
+							    																						    String shitType = (String)obj.get("shitType");
+		                		if(shitType!=null){
+				                	entity.setShitType(shitType);
+				                }
+							    																						    String shitTypeOther = (String)obj.get("shitTypeOther");
+		                		if(shitTypeOther!=null){
+				                	entity.setShitTypeOther(shitTypeOther);
+				                }
+							    																						    String sportsForm = (String)obj.get("sportsForm");
+		                		if(sportsForm!=null){
+				                	entity.setSportsForm(sportsForm);
+				                }
+							    																						    String sportsT = (String)obj.get("sportsT");
+		                		if(sportsT!=null){
+				                	entity.setSportsT(sportsT);
+				                }
+							    																						    String sportsF = (String)obj.get("sportsF");
+		                		if(sportsF!=null){
+				                	entity.setSportsF(sportsF);
+				                }
+							    																						    String sportsNo = (String)obj.get("sportsNo");
+		                		if(sportsNo!=null){
+				                	entity.setSportsNo(sportsNo);
+				                }
+							    																						    String bathNum = (String)obj.get("bathNum");
+		                		if(bathNum!=null){
+				                	entity.setBathNum(bathNum);
+				                }
+							    																						    String bathMethod = (String)obj.get("bathMethod");
+		                		if(bathMethod!=null){
+				                	entity.setBathMethod(bathMethod);
+				                }
+							    																						    String goOut = (String)obj.get("goOut");
+		                		if(goOut!=null){
+				                	entity.setGoOut(goOut);
+				                }
+							    																						    String goOutOther = (String)obj.get("goOutOther");
+		                		if(goOutOther!=null){
+				                	entity.setGoOutOther(goOutOther);
+				                }
+							    																						    String brush = (String)obj.get("brush");
+		                		if(brush!=null){
+				                	entity.setBrush(brush);
+				                }
+							    																						    String communication = (String)obj.get("communication");
+		                		if(communication!=null){
+				                	entity.setCommunication(communication);
+				                }
+							    																						    String sleepHour = (String)obj.get("sleepHour");
+		                		if(sleepHour!=null){
+				                	entity.setSleepHour(sleepHour);
+				                }
+							    																						    String sleepQuality = (String)obj.get("sleepQuality");
+		                		if(sleepQuality!=null){
+				                	entity.setSleepQuality(sleepQuality);
+				                }
+							    																						    String morningSpirit = (String)obj.get("morningSpirit");
+		                		if(morningSpirit!=null){
+				                	entity.setMorningSpirit(morningSpirit);
+				                }
+							    																						     							     Double accountNum = JsonUtil.getJSONDouble(obj, "accountNum");
+								 if (accountNum != null) {
+									entity.setAccountNum(BigDecimal.valueOf(accountNum));
+								 }
+							     							     							    																						    String lastChatTime = (String)obj.get("lastChatTime");
+		                		if(lastChatTime!=null){
+				                	entity.setLastChatTime(lastChatTime);
+				                }
+							    																						    String lastChatContent = (String)obj.get("lastChatContent");
+		                		if(lastChatContent!=null){
+				                	entity.setLastChatContent(lastChatContent);
+				                }
+							    																						    String hasNewNotice = (String)obj.get("hasNewNotice");
+		                		if(hasNewNotice!=null){
+				                	entity.setHasNewNotice(hasNewNotice);
+				                }
+							    														chatReturn.setOlder(entity);
+						}						
+					}
+				}
+																			} else if ("QUERY_CHAT_INFO_REQUEST".equals(command)) {
+				actionReturn = "getById";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");
+					        																												String olderShow = (String)contentreq.get("olderShow");
+							if("true".equals(olderShow)){
+								olderShowReturn = true;
+							}
+																																	}	
+				}
+			} else if ("QUERY_CHAT_LIST_REQUEST".equals(command)) {
+				actionReturn = "getListByCondition";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																																String recordCode_like = (String)contentreq.get("recordCode_like");
+							String recordCode_isNull = (String)contentreq.get("recordCode_isNull");
+							String recordCode_isNotNull = (String)contentreq.get("recordCode_isNotNull");
+							String recordCode_in = (String)contentreq.get("recordCode_in");
+							String recordCode = (String)contentreq.get("recordCode");
+							if(recordCode_like!=null){
+	                        	queryMapReturn.put("recordCode_like", recordCode_like);
+							}
+							if(recordCode_isNull!=null){
+	                        	queryMapReturn.put("recordCode_isNull", recordCode_isNull);
+							}
+							if(recordCode_isNotNull!=null){
+	                        	queryMapReturn.put("recordCode_isNotNull", recordCode_isNotNull);
+							}
+							if(recordCode_in!=null){
+	                        	queryMapReturn.put("recordCode_in", recordCode_in);
+							}
+							if(recordCode!=null){
+	                        	queryMapReturn.put("recordCode", recordCode);
+							}						           
+																																							String themeCode_like = (String)contentreq.get("themeCode_like");
+							String themeCode_isNull = (String)contentreq.get("themeCode_isNull");
+							String themeCode_isNotNull = (String)contentreq.get("themeCode_isNotNull");
+							String themeCode_in = (String)contentreq.get("themeCode_in");
+							String themeCode = (String)contentreq.get("themeCode");
+							if(themeCode_like!=null){
+	                        	queryMapReturn.put("themeCode_like", themeCode_like);
+							}
+							if(themeCode_isNull!=null){
+	                        	queryMapReturn.put("themeCode_isNull", themeCode_isNull);
+							}
+							if(themeCode_isNotNull!=null){
+	                        	queryMapReturn.put("themeCode_isNotNull", themeCode_isNotNull);
+							}
+							if(themeCode_in!=null){
+	                        	queryMapReturn.put("themeCode_in", themeCode_in);
+							}
+							if(themeCode!=null){
+	                        	queryMapReturn.put("themeCode", themeCode);
+							}						           
+																															Integer olderId_gt = (Integer)contentreq.get("olderId_gt");
+						Integer olderId_ge = (Integer)contentreq.get("olderId_ge");
+						Integer olderId_lt = (Integer)contentreq.get("olderId_lt");
+						Integer olderId_le = (Integer)contentreq.get("olderId_le");
+						String olderId_in = (String)contentreq.get("olderId_in");
+						Integer olderId = (Integer)contentreq.get("olderId");
+                        if(olderId_gt!=null){
+                        	queryMapReturn.put("olderId_gt", olderId_gt);
+						}
+						if(olderId_ge!=null){
+                        	queryMapReturn.put("olderId_ge", olderId_ge);
+						}
+						if(olderId_lt!=null){
+                        	queryMapReturn.put("olderId_lt", olderId_lt);
+						}
+						if(olderId_le!=null){
+                        	queryMapReturn.put("olderId_le", olderId_le);
+						}
+						if(olderId_in!=null){
+                        	queryMapReturn.put("olderId_in", olderId_in);
+						}
+						if(olderId!=null){
+                        	queryMapReturn.put("olderId", olderId);
+						}		
+																																String olderName_like = (String)contentreq.get("olderName_like");
+							String olderName_isNull = (String)contentreq.get("olderName_isNull");
+							String olderName_isNotNull = (String)contentreq.get("olderName_isNotNull");
+							String olderName_in = (String)contentreq.get("olderName_in");
+							String olderName = (String)contentreq.get("olderName");
+							if(olderName_like!=null){
+	                        	queryMapReturn.put("olderName_like", olderName_like);
+							}
+							if(olderName_isNull!=null){
+	                        	queryMapReturn.put("olderName_isNull", olderName_isNull);
+							}
+							if(olderName_isNotNull!=null){
+	                        	queryMapReturn.put("olderName_isNotNull", olderName_isNotNull);
+							}
+							if(olderName_in!=null){
+	                        	queryMapReturn.put("olderName_in", olderName_in);
+							}
+							if(olderName!=null){
+	                        	queryMapReturn.put("olderName", olderName);
+							}						           
+																																							String olderMemberNum_like = (String)contentreq.get("olderMemberNum_like");
+							String olderMemberNum_isNull = (String)contentreq.get("olderMemberNum_isNull");
+							String olderMemberNum_isNotNull = (String)contentreq.get("olderMemberNum_isNotNull");
+							String olderMemberNum_in = (String)contentreq.get("olderMemberNum_in");
+							String olderMemberNum = (String)contentreq.get("olderMemberNum");
+							if(olderMemberNum_like!=null){
+	                        	queryMapReturn.put("olderMemberNum_like", olderMemberNum_like);
+							}
+							if(olderMemberNum_isNull!=null){
+	                        	queryMapReturn.put("olderMemberNum_isNull", olderMemberNum_isNull);
+							}
+							if(olderMemberNum_isNotNull!=null){
+	                        	queryMapReturn.put("olderMemberNum_isNotNull", olderMemberNum_isNotNull);
+							}
+							if(olderMemberNum_in!=null){
+	                        	queryMapReturn.put("olderMemberNum_in", olderMemberNum_in);
+							}
+							if(olderMemberNum!=null){
+	                        	queryMapReturn.put("olderMemberNum", olderMemberNum);
+							}						           
+																															Integer spokesmanType_gt = (Integer)contentreq.get("spokesmanType_gt");
+						Integer spokesmanType_ge = (Integer)contentreq.get("spokesmanType_ge");
+						Integer spokesmanType_lt = (Integer)contentreq.get("spokesmanType_lt");
+						Integer spokesmanType_le = (Integer)contentreq.get("spokesmanType_le");
+						String spokesmanType_in = (String)contentreq.get("spokesmanType_in");
+						Integer spokesmanType = (Integer)contentreq.get("spokesmanType");
+                        if(spokesmanType_gt!=null){
+                        	queryMapReturn.put("spokesmanType_gt", spokesmanType_gt);
+						}
+						if(spokesmanType_ge!=null){
+                        	queryMapReturn.put("spokesmanType_ge", spokesmanType_ge);
+						}
+						if(spokesmanType_lt!=null){
+                        	queryMapReturn.put("spokesmanType_lt", spokesmanType_lt);
+						}
+						if(spokesmanType_le!=null){
+                        	queryMapReturn.put("spokesmanType_le", spokesmanType_le);
+						}
+						if(spokesmanType_in!=null){
+                        	queryMapReturn.put("spokesmanType_in", spokesmanType_in);
+						}
+						if(spokesmanType!=null){
+                        	queryMapReturn.put("spokesmanType", spokesmanType);
+						}		
+																								Integer spokesmanId_gt = (Integer)contentreq.get("spokesmanId_gt");
+						Integer spokesmanId_ge = (Integer)contentreq.get("spokesmanId_ge");
+						Integer spokesmanId_lt = (Integer)contentreq.get("spokesmanId_lt");
+						Integer spokesmanId_le = (Integer)contentreq.get("spokesmanId_le");
+						String spokesmanId_in = (String)contentreq.get("spokesmanId_in");
+						Integer spokesmanId = (Integer)contentreq.get("spokesmanId");
+                        if(spokesmanId_gt!=null){
+                        	queryMapReturn.put("spokesmanId_gt", spokesmanId_gt);
+						}
+						if(spokesmanId_ge!=null){
+                        	queryMapReturn.put("spokesmanId_ge", spokesmanId_ge);
+						}
+						if(spokesmanId_lt!=null){
+                        	queryMapReturn.put("spokesmanId_lt", spokesmanId_lt);
+						}
+						if(spokesmanId_le!=null){
+                        	queryMapReturn.put("spokesmanId_le", spokesmanId_le);
+						}
+						if(spokesmanId_in!=null){
+                        	queryMapReturn.put("spokesmanId_in", spokesmanId_in);
+						}
+						if(spokesmanId!=null){
+                        	queryMapReturn.put("spokesmanId", spokesmanId);
+						}		
+																																String spokesmanName_like = (String)contentreq.get("spokesmanName_like");
+							String spokesmanName_isNull = (String)contentreq.get("spokesmanName_isNull");
+							String spokesmanName_isNotNull = (String)contentreq.get("spokesmanName_isNotNull");
+							String spokesmanName_in = (String)contentreq.get("spokesmanName_in");
+							String spokesmanName = (String)contentreq.get("spokesmanName");
+							if(spokesmanName_like!=null){
+	                        	queryMapReturn.put("spokesmanName_like", spokesmanName_like);
+							}
+							if(spokesmanName_isNull!=null){
+	                        	queryMapReturn.put("spokesmanName_isNull", spokesmanName_isNull);
+							}
+							if(spokesmanName_isNotNull!=null){
+	                        	queryMapReturn.put("spokesmanName_isNotNull", spokesmanName_isNotNull);
+							}
+							if(spokesmanName_in!=null){
+	                        	queryMapReturn.put("spokesmanName_in", spokesmanName_in);
+							}
+							if(spokesmanName!=null){
+	                        	queryMapReturn.put("spokesmanName", spokesmanName);
+							}						           
+																																							String spokesmanPhoto_like = (String)contentreq.get("spokesmanPhoto_like");
+							String spokesmanPhoto_isNull = (String)contentreq.get("spokesmanPhoto_isNull");
+							String spokesmanPhoto_isNotNull = (String)contentreq.get("spokesmanPhoto_isNotNull");
+							String spokesmanPhoto_in = (String)contentreq.get("spokesmanPhoto_in");
+							String spokesmanPhoto = (String)contentreq.get("spokesmanPhoto");
+							if(spokesmanPhoto_like!=null){
+	                        	queryMapReturn.put("spokesmanPhoto_like", spokesmanPhoto_like);
+							}
+							if(spokesmanPhoto_isNull!=null){
+	                        	queryMapReturn.put("spokesmanPhoto_isNull", spokesmanPhoto_isNull);
+							}
+							if(spokesmanPhoto_isNotNull!=null){
+	                        	queryMapReturn.put("spokesmanPhoto_isNotNull", spokesmanPhoto_isNotNull);
+							}
+							if(spokesmanPhoto_in!=null){
+	                        	queryMapReturn.put("spokesmanPhoto_in", spokesmanPhoto_in);
+							}
+							if(spokesmanPhoto!=null){
+	                        	queryMapReturn.put("spokesmanPhoto", spokesmanPhoto);
+							}						           
+																															Integer spokesType_gt = (Integer)contentreq.get("spokesType_gt");
+						Integer spokesType_ge = (Integer)contentreq.get("spokesType_ge");
+						Integer spokesType_lt = (Integer)contentreq.get("spokesType_lt");
+						Integer spokesType_le = (Integer)contentreq.get("spokesType_le");
+						String spokesType_in = (String)contentreq.get("spokesType_in");
+						Integer spokesType = (Integer)contentreq.get("spokesType");
+                        if(spokesType_gt!=null){
+                        	queryMapReturn.put("spokesType_gt", spokesType_gt);
+						}
+						if(spokesType_ge!=null){
+                        	queryMapReturn.put("spokesType_ge", spokesType_ge);
+						}
+						if(spokesType_lt!=null){
+                        	queryMapReturn.put("spokesType_lt", spokesType_lt);
+						}
+						if(spokesType_le!=null){
+                        	queryMapReturn.put("spokesType_le", spokesType_le);
+						}
+						if(spokesType_in!=null){
+                        	queryMapReturn.put("spokesType_in", spokesType_in);
+						}
+						if(spokesType!=null){
+                        	queryMapReturn.put("spokesType", spokesType);
+						}		
+																																String chatContent_like = (String)contentreq.get("chatContent_like");
+							String chatContent_isNull = (String)contentreq.get("chatContent_isNull");
+							String chatContent_isNotNull = (String)contentreq.get("chatContent_isNotNull");
+							String chatContent_in = (String)contentreq.get("chatContent_in");
+							String chatContent = (String)contentreq.get("chatContent");
+							if(chatContent_like!=null){
+	                        	queryMapReturn.put("chatContent_like", chatContent_like);
+							}
+							if(chatContent_isNull!=null){
+	                        	queryMapReturn.put("chatContent_isNull", chatContent_isNull);
+							}
+							if(chatContent_isNotNull!=null){
+	                        	queryMapReturn.put("chatContent_isNotNull", chatContent_isNotNull);
+							}
+							if(chatContent_in!=null){
+	                        	queryMapReturn.put("chatContent_in", chatContent_in);
+							}
+							if(chatContent!=null){
+	                        	queryMapReturn.put("chatContent", chatContent);
+							}						           
+																																							String chatTime_gt = (String)contentreq.get("chatTime_gt");
+							String chatTime_ge = (String)contentreq.get("chatTime_ge");
+							String chatTime_lt = (String)contentreq.get("chatTime_lt");
+							String chatTime_le = (String)contentreq.get("chatTime_le");
+	                        if(chatTime_gt!=null){
+	                        	queryMapReturn.put("chatTime_gt", chatTime_gt);
+							}
+							if(chatTime_ge!=null){
+	                        	queryMapReturn.put("chatTime_ge", chatTime_ge);
+							}
+							if(chatTime_lt!=null){
+	                        	queryMapReturn.put("chatTime_lt", chatTime_lt);
+							}
+							if(chatTime_le!=null){
+	                        	queryMapReturn.put("chatTime_le", chatTime_le);
+							} 
+																						
+						    																												
+																																			String olderShow = (String)contentreq.get("olderShow");
+							if("true".equals(olderShow)){
+								olderShowReturn = true;
+							}
+																																	}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				    Object orderreq = (Object) reqParams.get("order");
+					if (orderreq != null) {
+						JSONArray order = (JSONArray)orderreq;
+						orderListReturn = new ArrayList<OrderVO>();
+						for(int i=0;i<order.size();i++){
+							JSONObject obj = order.getJSONObject(i);
+							OrderVO orderVO = new OrderVO();
+							orderVO.setName((String)obj.get("column"));
+							orderVO.setOrderType((String)obj.get("type"));
+							orderListReturn.add(orderVO);
+						}						
+					}
+				}
+			} else if ("DEL_CHAT_INFO_REQUEST".equals(command)) {
+				actionReturn = "del";
+				if(true){
+					if(contentreq!=null){
+						idReturn = (Integer)contentreq.get("id");	
+						    																												String delOlder = (String)contentreq.get("delOlder");
+							if("true".equals(delOlder)){
+								delOlderReturn = true;
+							}
+																																	}	
+				}
+			} else if ("DEL_CHAT_LIST_REQUEST".equals(command)) {
+				actionReturn = "delList";
+				if(true){
+					if(contentreq!=null){
+						queryMapReturn = new HashMap<String, Object>();
+																		Integer id_gt = (Integer)contentreq.get("id_gt");
+						Integer id_ge = (Integer)contentreq.get("id_ge");
+						Integer id_lt = (Integer)contentreq.get("id_lt");
+						Integer id_le = (Integer)contentreq.get("id_le");
+						String id_in = (String)contentreq.get("id_in");
+						Integer id = (Integer)contentreq.get("id");
+                        if(id_gt!=null){
+                        	queryMapReturn.put("id_gt", id_gt);
+						}
+						if(id_ge!=null){
+                        	queryMapReturn.put("id_ge", id_ge);
+						}
+						if(id_lt!=null){
+                        	queryMapReturn.put("id_lt", id_lt);
+						}
+						if(id_le!=null){
+                        	queryMapReturn.put("id_le", id_le);
+						}
+						if(id_in!=null){
+                        	queryMapReturn.put("id_in", id_in);
+						}
+						if(id!=null){
+                        	queryMapReturn.put("id", id);
+						}		
+																																String recordCode_like = (String)contentreq.get("recordCode_like");
+							String recordCode_isNull = (String)contentreq.get("recordCode_isNull");
+							String recordCode_isNotNull = (String)contentreq.get("recordCode_isNotNull");
+							String recordCode_in = (String)contentreq.get("recordCode_in");
+							String recordCode = (String)contentreq.get("recordCode");
+							if(recordCode_like!=null){
+	                        	queryMapReturn.put("recordCode_like", recordCode_like);
+							}
+							if(recordCode_isNull!=null){
+	                        	queryMapReturn.put("recordCode_isNull", recordCode_isNull);
+							}
+							if(recordCode_isNotNull!=null){
+	                        	queryMapReturn.put("recordCode_isNotNull", recordCode_isNotNull);
+							}
+							if(recordCode_in!=null){
+	                        	queryMapReturn.put("recordCode_in", recordCode_in);
+							}
+							if(recordCode!=null){
+	                        	queryMapReturn.put("recordCode", recordCode);
+							}						           
+																																							String themeCode_like = (String)contentreq.get("themeCode_like");
+							String themeCode_isNull = (String)contentreq.get("themeCode_isNull");
+							String themeCode_isNotNull = (String)contentreq.get("themeCode_isNotNull");
+							String themeCode_in = (String)contentreq.get("themeCode_in");
+							String themeCode = (String)contentreq.get("themeCode");
+							if(themeCode_like!=null){
+	                        	queryMapReturn.put("themeCode_like", themeCode_like);
+							}
+							if(themeCode_isNull!=null){
+	                        	queryMapReturn.put("themeCode_isNull", themeCode_isNull);
+							}
+							if(themeCode_isNotNull!=null){
+	                        	queryMapReturn.put("themeCode_isNotNull", themeCode_isNotNull);
+							}
+							if(themeCode_in!=null){
+	                        	queryMapReturn.put("themeCode_in", themeCode_in);
+							}
+							if(themeCode!=null){
+	                        	queryMapReturn.put("themeCode", themeCode);
+							}						           
+																															Integer olderId_gt = (Integer)contentreq.get("olderId_gt");
+						Integer olderId_ge = (Integer)contentreq.get("olderId_ge");
+						Integer olderId_lt = (Integer)contentreq.get("olderId_lt");
+						Integer olderId_le = (Integer)contentreq.get("olderId_le");
+						String olderId_in = (String)contentreq.get("olderId_in");
+						Integer olderId = (Integer)contentreq.get("olderId");
+                        if(olderId_gt!=null){
+                        	queryMapReturn.put("olderId_gt", olderId_gt);
+						}
+						if(olderId_ge!=null){
+                        	queryMapReturn.put("olderId_ge", olderId_ge);
+						}
+						if(olderId_lt!=null){
+                        	queryMapReturn.put("olderId_lt", olderId_lt);
+						}
+						if(olderId_le!=null){
+                        	queryMapReturn.put("olderId_le", olderId_le);
+						}
+						if(olderId_in!=null){
+                        	queryMapReturn.put("olderId_in", olderId_in);
+						}
+						if(olderId!=null){
+                        	queryMapReturn.put("olderId", olderId);
+						}		
+																																String olderName_like = (String)contentreq.get("olderName_like");
+							String olderName_isNull = (String)contentreq.get("olderName_isNull");
+							String olderName_isNotNull = (String)contentreq.get("olderName_isNotNull");
+							String olderName_in = (String)contentreq.get("olderName_in");
+							String olderName = (String)contentreq.get("olderName");
+							if(olderName_like!=null){
+	                        	queryMapReturn.put("olderName_like", olderName_like);
+							}
+							if(olderName_isNull!=null){
+	                        	queryMapReturn.put("olderName_isNull", olderName_isNull);
+							}
+							if(olderName_isNotNull!=null){
+	                        	queryMapReturn.put("olderName_isNotNull", olderName_isNotNull);
+							}
+							if(olderName_in!=null){
+	                        	queryMapReturn.put("olderName_in", olderName_in);
+							}
+							if(olderName!=null){
+	                        	queryMapReturn.put("olderName", olderName);
+							}						           
+																																							String olderMemberNum_like = (String)contentreq.get("olderMemberNum_like");
+							String olderMemberNum_isNull = (String)contentreq.get("olderMemberNum_isNull");
+							String olderMemberNum_isNotNull = (String)contentreq.get("olderMemberNum_isNotNull");
+							String olderMemberNum_in = (String)contentreq.get("olderMemberNum_in");
+							String olderMemberNum = (String)contentreq.get("olderMemberNum");
+							if(olderMemberNum_like!=null){
+	                        	queryMapReturn.put("olderMemberNum_like", olderMemberNum_like);
+							}
+							if(olderMemberNum_isNull!=null){
+	                        	queryMapReturn.put("olderMemberNum_isNull", olderMemberNum_isNull);
+							}
+							if(olderMemberNum_isNotNull!=null){
+	                        	queryMapReturn.put("olderMemberNum_isNotNull", olderMemberNum_isNotNull);
+							}
+							if(olderMemberNum_in!=null){
+	                        	queryMapReturn.put("olderMemberNum_in", olderMemberNum_in);
+							}
+							if(olderMemberNum!=null){
+	                        	queryMapReturn.put("olderMemberNum", olderMemberNum);
+							}						           
+																															Integer spokesmanType_gt = (Integer)contentreq.get("spokesmanType_gt");
+						Integer spokesmanType_ge = (Integer)contentreq.get("spokesmanType_ge");
+						Integer spokesmanType_lt = (Integer)contentreq.get("spokesmanType_lt");
+						Integer spokesmanType_le = (Integer)contentreq.get("spokesmanType_le");
+						String spokesmanType_in = (String)contentreq.get("spokesmanType_in");
+						Integer spokesmanType = (Integer)contentreq.get("spokesmanType");
+                        if(spokesmanType_gt!=null){
+                        	queryMapReturn.put("spokesmanType_gt", spokesmanType_gt);
+						}
+						if(spokesmanType_ge!=null){
+                        	queryMapReturn.put("spokesmanType_ge", spokesmanType_ge);
+						}
+						if(spokesmanType_lt!=null){
+                        	queryMapReturn.put("spokesmanType_lt", spokesmanType_lt);
+						}
+						if(spokesmanType_le!=null){
+                        	queryMapReturn.put("spokesmanType_le", spokesmanType_le);
+						}
+						if(spokesmanType_in!=null){
+                        	queryMapReturn.put("spokesmanType_in", spokesmanType_in);
+						}
+						if(spokesmanType!=null){
+                        	queryMapReturn.put("spokesmanType", spokesmanType);
+						}		
+																								Integer spokesmanId_gt = (Integer)contentreq.get("spokesmanId_gt");
+						Integer spokesmanId_ge = (Integer)contentreq.get("spokesmanId_ge");
+						Integer spokesmanId_lt = (Integer)contentreq.get("spokesmanId_lt");
+						Integer spokesmanId_le = (Integer)contentreq.get("spokesmanId_le");
+						String spokesmanId_in = (String)contentreq.get("spokesmanId_in");
+						Integer spokesmanId = (Integer)contentreq.get("spokesmanId");
+                        if(spokesmanId_gt!=null){
+                        	queryMapReturn.put("spokesmanId_gt", spokesmanId_gt);
+						}
+						if(spokesmanId_ge!=null){
+                        	queryMapReturn.put("spokesmanId_ge", spokesmanId_ge);
+						}
+						if(spokesmanId_lt!=null){
+                        	queryMapReturn.put("spokesmanId_lt", spokesmanId_lt);
+						}
+						if(spokesmanId_le!=null){
+                        	queryMapReturn.put("spokesmanId_le", spokesmanId_le);
+						}
+						if(spokesmanId_in!=null){
+                        	queryMapReturn.put("spokesmanId_in", spokesmanId_in);
+						}
+						if(spokesmanId!=null){
+                        	queryMapReturn.put("spokesmanId", spokesmanId);
+						}		
+																																String spokesmanName_like = (String)contentreq.get("spokesmanName_like");
+							String spokesmanName_isNull = (String)contentreq.get("spokesmanName_isNull");
+							String spokesmanName_isNotNull = (String)contentreq.get("spokesmanName_isNotNull");
+							String spokesmanName_in = (String)contentreq.get("spokesmanName_in");
+							String spokesmanName = (String)contentreq.get("spokesmanName");
+							if(spokesmanName_like!=null){
+	                        	queryMapReturn.put("spokesmanName_like", spokesmanName_like);
+							}
+							if(spokesmanName_isNull!=null){
+	                        	queryMapReturn.put("spokesmanName_isNull", spokesmanName_isNull);
+							}
+							if(spokesmanName_isNotNull!=null){
+	                        	queryMapReturn.put("spokesmanName_isNotNull", spokesmanName_isNotNull);
+							}
+							if(spokesmanName_in!=null){
+	                        	queryMapReturn.put("spokesmanName_in", spokesmanName_in);
+							}
+							if(spokesmanName!=null){
+	                        	queryMapReturn.put("spokesmanName", spokesmanName);
+							}						           
+																																							String spokesmanPhoto_like = (String)contentreq.get("spokesmanPhoto_like");
+							String spokesmanPhoto_isNull = (String)contentreq.get("spokesmanPhoto_isNull");
+							String spokesmanPhoto_isNotNull = (String)contentreq.get("spokesmanPhoto_isNotNull");
+							String spokesmanPhoto_in = (String)contentreq.get("spokesmanPhoto_in");
+							String spokesmanPhoto = (String)contentreq.get("spokesmanPhoto");
+							if(spokesmanPhoto_like!=null){
+	                        	queryMapReturn.put("spokesmanPhoto_like", spokesmanPhoto_like);
+							}
+							if(spokesmanPhoto_isNull!=null){
+	                        	queryMapReturn.put("spokesmanPhoto_isNull", spokesmanPhoto_isNull);
+							}
+							if(spokesmanPhoto_isNotNull!=null){
+	                        	queryMapReturn.put("spokesmanPhoto_isNotNull", spokesmanPhoto_isNotNull);
+							}
+							if(spokesmanPhoto_in!=null){
+	                        	queryMapReturn.put("spokesmanPhoto_in", spokesmanPhoto_in);
+							}
+							if(spokesmanPhoto!=null){
+	                        	queryMapReturn.put("spokesmanPhoto", spokesmanPhoto);
+							}						           
+																															Integer spokesType_gt = (Integer)contentreq.get("spokesType_gt");
+						Integer spokesType_ge = (Integer)contentreq.get("spokesType_ge");
+						Integer spokesType_lt = (Integer)contentreq.get("spokesType_lt");
+						Integer spokesType_le = (Integer)contentreq.get("spokesType_le");
+						String spokesType_in = (String)contentreq.get("spokesType_in");
+						Integer spokesType = (Integer)contentreq.get("spokesType");
+                        if(spokesType_gt!=null){
+                        	queryMapReturn.put("spokesType_gt", spokesType_gt);
+						}
+						if(spokesType_ge!=null){
+                        	queryMapReturn.put("spokesType_ge", spokesType_ge);
+						}
+						if(spokesType_lt!=null){
+                        	queryMapReturn.put("spokesType_lt", spokesType_lt);
+						}
+						if(spokesType_le!=null){
+                        	queryMapReturn.put("spokesType_le", spokesType_le);
+						}
+						if(spokesType_in!=null){
+                        	queryMapReturn.put("spokesType_in", spokesType_in);
+						}
+						if(spokesType!=null){
+                        	queryMapReturn.put("spokesType", spokesType);
+						}		
+																																String chatContent_like = (String)contentreq.get("chatContent_like");
+							String chatContent_isNull = (String)contentreq.get("chatContent_isNull");
+							String chatContent_isNotNull = (String)contentreq.get("chatContent_isNotNull");
+							String chatContent_in = (String)contentreq.get("chatContent_in");
+							String chatContent = (String)contentreq.get("chatContent");
+							if(chatContent_like!=null){
+	                        	queryMapReturn.put("chatContent_like", chatContent_like);
+							}
+							if(chatContent_isNull!=null){
+	                        	queryMapReturn.put("chatContent_isNull", chatContent_isNull);
+							}
+							if(chatContent_isNotNull!=null){
+	                        	queryMapReturn.put("chatContent_isNotNull", chatContent_isNotNull);
+							}
+							if(chatContent_in!=null){
+	                        	queryMapReturn.put("chatContent_in", chatContent_in);
+							}
+							if(chatContent!=null){
+	                        	queryMapReturn.put("chatContent", chatContent);
+							}						           
+																																							String chatTime_gt = (String)contentreq.get("chatTime_gt");
+							String chatTime_ge = (String)contentreq.get("chatTime_ge");
+							String chatTime_lt = (String)contentreq.get("chatTime_lt");
+							String chatTime_le = (String)contentreq.get("chatTime_le");
+	                        if(chatTime_gt!=null){
+	                        	queryMapReturn.put("chatTime_gt", chatTime_gt);
+							}
+							if(chatTime_ge!=null){
+	                        	queryMapReturn.put("chatTime_ge", chatTime_ge);
+							}
+							if(chatTime_lt!=null){
+	                        	queryMapReturn.put("chatTime_lt", chatTime_lt);
+							}
+							if(chatTime_le!=null){
+	                        	queryMapReturn.put("chatTime_le", chatTime_le);
+							} 
+																									
+																														String delOlder = (String)contentreq.get("delOlder");
+						if("true".equals(delOlder)){
+							delOlderReturn = true;
+						}
+																													}
+					JSONObject pagereq = (JSONObject)reqParams.get("page");
+				    if (pagereq != null) {
+				    String pagenotemp = (String)pagereq.get("pageno");
+				    String pagesizetemp = (String)pagereq.get("pagesize");
+				    if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+				          pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+				    }
+				    if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+				          pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+				        }
+				    }
+				}
+			}
+
+			if (actionReturn != null && !"".equals(actionReturn)) {
+				parseMap.put("action", actionReturn);
+			}
+			if (chatReturn != null) {
+				parseMap.put("chat", chatReturn);
+			}
+			if (chatListReturn != null && chatListReturn.size() > 0) {
+				parseMap.put("chatList", chatListReturn);
+			}
+			if (idReturn != null) {
+				parseMap.put("id", idReturn);
+			}	
+			if (orderListReturn != null && orderListReturn.size() > 0) {
+				parseMap.put("orderList", orderListReturn);
+			}		
+			if (queryMapReturn != null) {
+				parseMap.put("queryMap", queryMapReturn);
+			}
+			if (pagenoReturn > 0) {
+				parseMap.put("pageno", pagenoReturn);
+			}
+			if (pagesizeReturn > 0) {
+				parseMap.put("pagesize", pagesizeReturn);
+			}
+			
+			
+															if (olderShowReturn != null) {
+				parseMap.put("olderShow", olderShowReturn);
+			}
+			if (delOlderReturn != null) {
+				parseMap.put("delOlder", delOlderReturn);
+			}
+															
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByXml(String command,String reqStr,
+			HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

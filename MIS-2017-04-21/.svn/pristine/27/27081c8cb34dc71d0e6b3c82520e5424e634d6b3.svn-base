@@ -1,0 +1,226 @@
+package fsk.entity.olderAddress;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.older.OlderEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 老人地址表
+ * @author feng.gu
+ * @date 2017-02-08 12:41:57
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_OLDER_ADDRESS")
+public class OlderAddressEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String OLDER_ID = "OLDER_ID";
+    public final static String ADDRESS_TYPE = "ADDRESS_TYPE";
+    public final static String PROVINCE_ID = "PROVINCE_ID";
+    public final static String CITY_ID = "CITY_ID";
+    public final static String AREA_ID = "AREA_ID";
+    public final static String ADDRESS = "ADDRESS";
+    public final static String STREET = "STREET";
+    public final static String COMMITTEE_VILLAGE = "COMMITTEE_VILLAGE";
+    public final static String ROAD = "ROAD";
+    public final static String LANE = "LANE";
+    public final static String NUMBER = "NUMBER";
+    public final static String ROOM = "ROOM";
+    public final static String ZIP_CODE = "ZIP_CODE";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 老人ID
+	 */
+	@ColumnDescription(name = "OLDER_ID")
+	private Integer olderId;
+    /**
+	 * 地址类型
+	 */
+	@ColumnDescription(name = "ADDRESS_TYPE")
+	private Integer addressType;
+    /**
+	 * 省
+	 */
+	@ColumnDescription(name = "PROVINCE_ID")
+	private Integer provinceId;
+    /**
+	 * 市
+	 */
+	@ColumnDescription(name = "CITY_ID")
+	private Integer cityId;
+    /**
+	 * 区
+	 */
+	@ColumnDescription(name = "AREA_ID")
+	private Integer areaId;
+    /**
+	 * 具体地址
+	 */
+	@ColumnDescription(name = "ADDRESS")
+	private String address;
+    /**
+	 * 街道
+	 */
+	@ColumnDescription(name = "STREET")
+	private String street;
+    /**
+	 * 居委/村
+	 */
+	@ColumnDescription(name = "COMMITTEE_VILLAGE")
+	private String committeeVillage;
+    /**
+	 * 路
+	 */
+	@ColumnDescription(name = "ROAD")
+	private String road;
+    /**
+	 * 弄
+	 */
+	@ColumnDescription(name = "LANE")
+	private String lane;
+    /**
+	 * 号
+	 */
+	@ColumnDescription(name = "NUMBER")
+	private String number;
+    /**
+	 * 室
+	 */
+	@ColumnDescription(name = "ROOM")
+	private String room;
+    /**
+	 * 邮编
+	 */
+	@ColumnDescription(name = "ZIP_CODE")
+	private String zipCode;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getOlderId() {
+		return olderId;
+	}
+
+	public void setOlderId(Integer olderId) {
+		this.olderId = olderId;
+	}
+    public Integer getAddressType() {
+		return addressType;
+	}
+
+	public void setAddressType(Integer addressType) {
+		this.addressType = addressType;
+	}
+    public Integer getProvinceId() {
+		return provinceId;
+	}
+
+	public void setProvinceId(Integer provinceId) {
+		this.provinceId = provinceId;
+	}
+    public Integer getCityId() {
+		return cityId;
+	}
+
+	public void setCityId(Integer cityId) {
+		this.cityId = cityId;
+	}
+    public Integer getAreaId() {
+		return areaId;
+	}
+
+	public void setAreaId(Integer areaId) {
+		this.areaId = areaId;
+	}
+    public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+    public String getStreet() {
+		return street;
+	}
+
+	public void setStreet(String street) {
+		this.street = street;
+	}
+    public String getCommitteeVillage() {
+		return committeeVillage;
+	}
+
+	public void setCommitteeVillage(String committeeVillage) {
+		this.committeeVillage = committeeVillage;
+	}
+    public String getRoad() {
+		return road;
+	}
+
+	public void setRoad(String road) {
+		this.road = road;
+	}
+    public String getLane() {
+		return lane;
+	}
+
+	public void setLane(String lane) {
+		this.lane = lane;
+	}
+    public String getNumber() {
+		return number;
+	}
+
+	public void setNumber(String number) {
+		this.number = number;
+	}
+    public String getRoom() {
+		return room;
+	}
+
+	public void setRoom(String room) {
+		this.room = room;
+	}
+    public String getZipCode() {
+		return zipCode;
+	}
+
+	public void setZipCode(String zipCode) {
+		this.zipCode = zipCode;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="OlderEntity"	,joinColumn="ID"	)
+			
+			
+		private OlderEntity older;
+	        
+	public OlderEntity getOlder() {
+		return older;
+    }
+	
+	public void setOlder(OlderEntity older) {
+		this.older = older;
+	}
+			
+}

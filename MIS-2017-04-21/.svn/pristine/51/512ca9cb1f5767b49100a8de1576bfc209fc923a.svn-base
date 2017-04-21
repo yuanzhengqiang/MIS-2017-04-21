@@ -1,0 +1,173 @@
+@charset "UTF-8";
+
+@import url(id.css);
+
+@import url(class.css);
+
+@import url(ie.css);
+
+@import url(webkit.css);
+
+@media print {
+	* {
+		display: none;
+	}
+}
+
+* {
+	empty-cells: show;
+	border: 0;
+	font-family: "Microsoft Yahei" !important;
+}
+
+body {
+	margin: 0;
+	overflow: auto;
+	background: #fff;
+}
+
+div {
+	width: auto;
+}
+
+span {
+	cursor: pointer;
+}
+
+a {
+	color: #FE8101;
+	text-decoration: none;
+	border: 0;
+	cursor: pointer;
+}
+
+a:link {
+	
+}
+
+a:hover {
+	color: #7fbe26;
+	text-decoration: none !important;
+}
+
+hr {
+	width: 100%;
+	height: 1px;
+	background: #dedede;
+}
+
+h4 {
+	margin-top: 0.5em;
+	text-align: left;
+	font-weight: bold;
+	border-bottom: 1px dotted #9A9A9A;
+}
+
+table {
+	border-collapse: collapse;
+	border: 0;
+	margin: auto;
+}
+
+caption {
+	height: 1.5em;
+	line-height: 1.5em;
+	margin: 0.5em;
+	text-align: left;
+	font-size: 24px;
+	font-weight: bolder;
+	color: #f39800 !important;
+}
+
+th,td {
+	margin: 0 !important;
+	padding: 2px !important;
+	border: 0;
+	text-align: left;
+	color: #555555;
+}
+
+th {
+	height: 2.4em;
+	text-align: center;
+}
+
+th img {
+}
+
+input[type="text"], input[type="password"] {
+	width: 60%;
+	padding: 0.1em 0.5em;
+	border: 1px #dcdcdc solid;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-o-border-radius: 5px;
+	-moz-border-radius: 5px;
+	background: #FFF;
+	color: #A9A9A9;
+	font-size: 14px;
+}
+
+input[type="button"] {
+	margin: 0 0.2em;
+	padding: 0 0.5em;
+	background: #f39801;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-o-border-radius: 5px;
+	-moz-border-radius: 5px;
+	font-size: 16px;
+	color: #ffffff;
+	cursor: pointer;
+}
+
+input[type="button"]:hover {
+	background: #c27a01;
+}
+
+select {
+	height: 2em;
+	background: #FFDC6B;
+	border: 1px #D19405 solid;
+	color: #573000;
+	padding: 0.1em;
+}
+
+select:hover {
+	background: #FFE98E;
+}
+
+img {
+	border: none;
+}
+
+ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+li {
+}
+
+iframe {
+	width: 100%;
+	height: 760px;
+	overflow: hidden;
+}
+
+textarea {
+	background: #fff;
+}
+
+pre {
+	width: 100%;
+	white-space: pre-wrap;
+	text-align: left;
+}
+
+embed {
+	position: absolute;
+	top: 0;
+	visibility: hidden;
+}

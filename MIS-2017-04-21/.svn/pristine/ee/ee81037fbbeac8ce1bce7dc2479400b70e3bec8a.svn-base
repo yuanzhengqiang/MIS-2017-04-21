@@ -1,0 +1,29 @@
+/*    */ package fsk.entity.vo.gateway;
+/*    */ 
+/*    */ import java.util.ArrayList;
+/*    */ import java.util.List;
+/*    */ 
+/*    */ public class FUrinedetects
+/*    */ {
+/* 13 */   private List<FUrinedetect> urinedetects = new ArrayList();
+/*    */ 
+/*    */   public List<FUrinedetect> getUrinedetects() {
+/* 16 */     return this.urinedetects;
+/*    */   }
+/*    */ 
+/*    */   public void setUrinedetects(List<FUrinedetect> urinedetects) {
+/* 20 */     this.urinedetects = urinedetects;
+/*    */   }
+/*    */ 
+/*    */   public void add(FUrinedetect obj) {
+/* 24 */     if (this.urinedetects == null) {
+/* 25 */       this.urinedetects = new ArrayList();
+/*    */     }
+/* 27 */     this.urinedetects.add(obj);
+/*    */   }
+/*    */ }
+
+/* Location:           E:\jhpt\WEB-INF\classes\
+ * Qualified Name:     jhpt.entity.vo.gateway.FUrinedetects
+ * JD-Core Version:    0.6.1
+ */

@@ -1,0 +1,259 @@
+package fsk.handler;
+
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import sun.security.jgss.spi.MechanismFactory;
+
+import fsk.entity.dev.DevEntity;
+import fsk.entity.ecgStick.EcgStickEntity;
+import fsk.entity.physiologicalParametersCurrent.PhysiologicalParametersCurrentEntity;
+import fsk.entity.physiologicalParametersHistory.PhysiologicalParametersHistoryEntity;
+import fsk.entity.vo.gateway.Frame;
+import fsk.init.SystemInit;
+import fsk.service.dev.DevService;
+import fsk.service.ecgStick.EcgStickService;
+import fsk.service.physiologicalParametersCurrent.PhysiologicalParametersCurrentService;
+import fsk.service.physiologicalParametersHistory.PhysiologicalParametersHistoryService;
+
+/*
+ * 对心电贴 上传的数据进行处理
+ */
+public class ECGStickMessageHandler {
+
+	private static Logger logger = Logger
+			.getLogger(ECGStickMessageHandler.class);
+
+	private static SimpleDateFormat formater = new SimpleDateFormat(
+			"yyyyMMddHHmmss");
+
+	private static int hisEcgId = 0;
+
+	private static int olderId = 0;
+	
+	private static String ecgResult = "";
+
+	/*
+	 * 处理数据保存到数据库
+	 */
+	public boolean handler(String[] data) {
+		/*
+		 * 在设备表中有老人的 ID， 当获取到数据后，可获得设备的 id, 为设备的唯一标识 以 id 确认老人的 ID
+		 */
+		try {
+			if (data != null && data.length > 0) {
+				ArrayList<String> ecg_list = new ArrayList<String>(); /* 心电图 list */
+				for (int index = 0; index < data.length; index++) {
+					JSONObject obj = JSONObject.fromObject(data[index]);
+					if (obj != null) {
+						String type_data = (String) obj.get("type");
+						if (type_data.equals("start")) {
+							String key = (String) obj.get("id");
+							DevEntity devInfo = (DevEntity) SystemInit.devInfoMap
+									.get(key);
+							if (devInfo != null) {
+								olderId = devInfo.getOlderId();
+							} else {
+								/* 如果缓存中没有设备信息，则到数据库中去查找 */
+								Map<String, Object> query_map_dev = new HashMap<String, Object>();
+								query_map_dev.put("code", key);
+								List<DevEntity> list_temp = DevService
+										.getInstance().getListByCondition(
+												query_map_dev);
+								if (list_temp != null && list_temp.size() > 0) {
+									devInfo = list_temp.get(0);
+									if (devInfo != null) {
+										olderId = devInfo.getOlderId();
+										if (olderId == 0)
+											return false;
+									}
+								} else {
+									logger.info("无人使用此此心电贴：id = " + key);
+									return false;
+								}
+							}
+
+							if (true) { /* 因为要在 b_ecgstick 表中存入历史数据的 id，所以要先存历史记录 */
+								PhysiologicalParametersHistoryEntity hisEntityEcg = new PhysiologicalParametersHistoryEntity();
+								Date date = new Date();
+								hisEntityEcg.setOlderId(olderId); /* 被测量老人的 ID */
+								hisEntityEcg.setCreateTime(formater
+										.format(date)); /* 创建时间 */
+								hisEntityEcg.setMeasurePerson("云心电贴"); /* 测量的人 */
+								hisEntityEcg.setType(16); /* 16 - 心电图 */
+								hisEntityEcg.setValue(BigDecimal.valueOf(0));	/* 用于标记本次数据测量装态 1--结束，0--开始 */
+								Date date_start = new Date();
+								hisEntityEcg.setValue2(BigDecimal.valueOf(date_start.getTime())); /* 本次数据测量的开始时间 ms */
+								boolean bRet = PhysiologicalParametersHistoryService
+										.getInstance().save(hisEntityEcg);
+								if (true == bRet) {
+									hisEcgId = hisEntityEcg.getId();
+								} else {
+									logger.error("数据保存失败");
+								}
+							}
+						} else if (type_data.equals("ecg")) { /* 每一次接收缓冲区读取完毕就将这一次读到的所有 ecg 图像数据保存为一组 */
+							String ecg_data = obj.get("data").toString(); /* 心电数据 */
+							if (ecg_data != null && ecg_data.length() > 0) {
+								ecg_data = ecg_data.substring(1,
+										ecg_data.length() - 1); /* 截掉数据中的 [ ] */
+								ecg_list.add(ecg_data);
+							}
+							/* 心电分析数据 */
+							if (obj.get("result") != null) {
+								JSONArray ecg_result = JSONArray.fromObject(obj.get("result"));
+								for (int _index = 0; _index < ecg_result.size(); _index++) {
+									String str = (String) ecg_result.get(_index);
+									/* 这里要去掉重复的分析结果 */
+									if (ecgResult.length() > 0) {
+										String ecg_ret_temp = "," + ecgResult;
+										String reg=".*," + str +",.*";
+										if (!ecg_ret_temp.matches(reg))
+											ecgResult += str + ",";
+									}
+								}
+							}
+						} else if (type_data.equals("ht")) {
+							/* 每收到一条心率数据就更新到 b_physiological_parameters_current 中 */
+							String data_xinlv = obj.get("data").toString();
+							data_xinlv = data_xinlv.substring(1, data_xinlv.length() - 1); /* 截掉 [] */
+							BigDecimal xinlv_data = BigDecimal.valueOf(Double.parseDouble(data_xinlv));
+							Date date = new Date();
+							Map<String, Object> queryMap = new HashMap<String, Object>();
+							queryMap.put("olderId", olderId);
+							queryMap.put("type", 5);
+							List<PhysiologicalParametersCurrentEntity> entity_list = PhysiologicalParametersCurrentService
+									.getInstance().getListByCondition(queryMap);
+							PhysiologicalParametersCurrentEntity currDataEntity = null;
+							if (entity_list != null && entity_list.size() > 0) {
+								currDataEntity = entity_list.get(0); /* 获得 要更新的 老人的心率数据 */
+								if (currDataEntity != null) {
+									currDataEntity.setValue(xinlv_data);
+									currDataEntity.setCreateTime(formater
+											.format(date));
+									currDataEntity.setMeasurePerson("云心电贴");
+								}
+							} else {
+								currDataEntity = new PhysiologicalParametersCurrentEntity();
+								currDataEntity.setCreateTime(formater
+										.format(date));
+								currDataEntity.setType(5);
+								currDataEntity.setValue(xinlv_data);
+								currDataEntity.setOlderId(olderId);
+								currDataEntity.setMeasurePerson("云心电贴");
+							}
+							if (currDataEntity != null) {
+								boolean bRetCur = PhysiologicalParametersCurrentService
+										.getInstance().save(currDataEntity);
+								if (false == bRetCur)
+									logger.error("心电贴心率数据保存到 b_physiological_parameters_current 失败");
+								PhysiologicalParametersHistoryEntity hisDataEntity = new PhysiologicalParametersHistoryEntity();
+								hisDataEntity.setCreateTime(formater
+										.format(new Date()));
+								hisDataEntity.setOlderId(olderId);
+								hisDataEntity.setValue(xinlv_data);
+								hisDataEntity.setType(5); /* 5 -- 心率 */
+								boolean bRetHis = PhysiologicalParametersHistoryService
+										.getInstance().save(hisDataEntity);
+								if (false == bRetHis)
+									logger.error("心电贴心率数据保存到 b_physiological_parameters_history 失败");
+							}
+						} else if (type_data.equals("stop")) {
+							/* 设置本次数据测量结束标记 -- 标记为结束 */
+							Map<String, Object> _queryMap = new HashMap<String, Object>();
+							_queryMap.put("id", hisEcgId);
+							List<PhysiologicalParametersHistoryEntity> _list = PhysiologicalParametersHistoryService
+									.getInstance().getListByCondition(_queryMap);
+							if (_list != null && _list.size() > 0) {
+								PhysiologicalParametersHistoryEntity _entity = _list.get(0);
+								if (_entity != null) {
+									_entity.setValue(BigDecimal.valueOf(1));
+									if (!PhysiologicalParametersHistoryService.getInstance().save(_entity))
+										logger.error("心电数据测量标记重置失败");
+								}
+							}
+							
+							/* 将心电分析结果存入当前表和历史表 */
+							if (ecgResult != null && ecgResult.length() > 0) {
+								Date date_ecg_result = new Date();
+								String str_date = formater.format(date_ecg_result);
+								PhysiologicalParametersHistoryEntity entity_ecg_ret1 = new PhysiologicalParametersHistoryEntity();
+								entity_ecg_ret1.setOlderId(olderId);
+								entity_ecg_ret1.setUnit(ecgResult);
+								entity_ecg_ret1.setType(15);	/* 15 -- 心电分析结果 */
+								entity_ecg_ret1.setCreateTime(str_date);
+								PhysiologicalParametersHistoryService.getInstance().save(entity_ecg_ret1);
+								
+								PhysiologicalParametersCurrentEntity entity_ecg_ret2 = new PhysiologicalParametersCurrentEntity();
+								entity_ecg_ret2.setCreateTime(str_date);
+								entity_ecg_ret2.setOlderId(olderId);
+								entity_ecg_ret2.setType(15);
+								entity_ecg_ret2.setUnit(ecgResult);
+								PhysiologicalParametersCurrentService.getInstance().save(entity_ecg_ret2);
+							}
+							
+							/* 清空所有全局变量 */
+							ecgResult = "";
+							hisEcgId = 0;
+							olderId = 0;
+							ecg_list.clear();
+							return false;
+						} else {
+							logger.error("未知的心电数据类型: 类型为: " + type_data);
+						}
+					} else {
+						logger.error("心电数据解析失败: 解析数据为: " + data);
+					}
+				}
+				/* 将数据保存到 b_ecgstick 表中*/
+				saveDataToEcg(ecg_list);
+			}
+		} catch (Exception e) {
+			logger.error(e);
+		}
+		return true;
+	}
+
+	/*
+	 * 将 心电 数据保存到数据库
+	 * 
+	 * @param ecg_list 待保存心电图数据
+	 * 
+	 * @ arrLen 有多少条数据
+	 */
+	private void saveDataToEcg(ArrayList<String> ecg_list) {
+		if (ecg_list.size() > 0) {
+			String ecg_str = "";
+			for (int index = 0; index < ecg_list.size(); index++) { /* 将list 中的10条数据拼接 */
+				ecg_str = ecg_str + ecg_list.get(index) + ",";
+			}
+			if (ecg_str.length() > 0 && !ecg_str.equals("")) { /* 去掉最后面的逗号 */
+				ecg_str = ecg_str.substring(0, ecg_str.length() - 1);
+			}
+
+			/* 将心电数据保存到 b_ecgstick 表 */
+			EcgStickEntity entity_ecg_data = new EcgStickEntity();
+			Date date = new Date();
+			entity_ecg_data.setCreateTime(Long.toString(date.getTime()));
+			entity_ecg_data.setData(ecg_str); /* 每个 ecg_str 中包括 10 条上传的心电图数据 */
+			entity_ecg_data.setType(olderId); /* 放入olderId, 用于实时获取心电数据 */
+			entity_ecg_data.setPhysiologicalParametersHistoryId(hisEcgId);
+			boolean bRet = EcgStickService.getInstance().save(entity_ecg_data);
+			if (true == bRet) {
+				ecg_list.clear(); /* 清空 ecg_list，保证下一次保存数据的正确 */
+			} else {
+				logger.error("心电数据保存失败");
+			}
+		}
+	}
+}

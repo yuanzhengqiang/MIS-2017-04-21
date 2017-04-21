@@ -1,0 +1,79 @@
+package fsk.entity.sore;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 压疮风险评估
+ * @author feng.gu
+ * @date 2016-07-19 11:09:14
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_SORE")
+public class SoreEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String COUNT_POINT = "COUNT_POINT";
+    public final static String DES = "DES";
+    public final static String STATUS = "STATUS";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 总得分
+	 */
+	@ColumnDescription(name = "COUNT_POINT")
+	private String countPoint;
+    /**
+	 * 总得分说明
+	 */
+	@ColumnDescription(name = "DES")
+	private String des;
+    /**
+	 * 完成状态
+	 */
+	@ColumnDescription(name = "STATUS")
+	private Integer status;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public String getCountPoint() {
+		return countPoint;
+	}
+
+	public void setCountPoint(String countPoint) {
+		this.countPoint = countPoint;
+	}
+    public String getDes() {
+		return des;
+	}
+
+	public void setDes(String des) {
+		this.des = des;
+	}
+    public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+        
+    	
+}

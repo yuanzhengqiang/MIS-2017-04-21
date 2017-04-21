@@ -1,0 +1,149 @@
+package com.framework.system.common.handler.privilege;
+
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.common.entity.privilege.PrivilegeEntity;
+import com.framework.system.common.pack.privilege.PrivilegePack;
+import com.framework.system.common.parse.privilege.PrivilegeParse;
+import com.framework.system.common.service.privilege.PrivilegeService;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.db.query.OrderVO;
+
+/**
+ * @Title: Handler
+ * @Description: 系统权限业务处理器
+ * @author feng.gu
+ * @date 2015-12-02 09:20:59
+ * @version V1.0
+ * 
+ */
+public class PrivilegeHandler extends BaseHandler {
+	private static Logger logger = Logger.getLogger(PrivilegeService.class);
+	/**
+	 * 解析器
+	 */
+	private PrivilegeParse privilegeParse = PrivilegeParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private PrivilegeService privilegeService = PrivilegeService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private PrivilegePack privilegePack = PrivilegePack.getInstance();
+
+	private static PrivilegeHandler privilegeHandler;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static PrivilegeHandler getInstance() {
+		if (privilegeHandler == null) {
+			privilegeHandler = new PrivilegeHandler();
+		}
+		return privilegeHandler;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type, String command, String reqStr,
+			HttpServletRequest request, HttpServletResponse response) {
+		String resultStr = "";
+		try {
+			// 解析
+			Map<String, Object> parseMap = privilegeParse.parse(type, command,
+					reqStr, request);
+			String action = (String) parseMap.get("action");
+			PrivilegeEntity privilege = (PrivilegeEntity) parseMap
+					.get("privilege");
+			List<PrivilegeEntity> privilegeList = (List<PrivilegeEntity>) parseMap
+					.get("privilegeList");
+			Integer id = (Integer) parseMap.get("id");
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap
+					.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+
+			Boolean roleShow = (Boolean) parseMap.get("roleShow");
+			Boolean delRole = (Boolean) parseMap.get("delRole");
+			Boolean moduleShow = (Boolean) parseMap.get("moduleShow");
+			Boolean delModule = (Boolean) parseMap.get("delModule");
+			Boolean createUserShow = (Boolean) parseMap.get("createUserShow");
+			Boolean delCreateUser = (Boolean) parseMap.get("delCreateUser");
+
+			// 业务处理
+			Object result = null;
+			if ("save".equals(action)) {
+				result = privilegeService.save(privilege);
+			} else if ("saveList".equals(action)) {
+				result = privilegeService.saveList(privilegeList);
+			} else if ("getById".equals(action)) {
+				result = privilegeService.getById(id, roleShow, moduleShow,
+						createUserShow);
+			} else if ("getListByCondition".equals(action)) {
+				result = privilegeService.getListByCondition(queryMap,
+						orderList, pageno, pagesize, roleShow, moduleShow,
+						createUserShow);
+			} else if ("del".equals(action)) {
+				result = privilegeService.del(id, delRole, delModule,
+						delCreateUser);
+			} else if ("delList".equals(action)) {
+				result = privilegeService.delList(queryMap, delRole, delModule,
+						delCreateUser);
+			}
+			// 封装
+			Map<String, Object> packMap = privilegePack.pack(type, action,
+					result, privilege);
+			String actionBack = (String) packMap.get("action");
+			String resultBack = (String) packMap.get("result");
+			String desBack = (String) packMap.get("des");
+			JSONObject pageBack = (JSONObject) packMap.get("page");
+			JSONObject contentBack = (JSONObject) packMap.get("content");
+
+			JSONObject repJson = new JSONObject();
+			if (actionBack != null && !"".equals(actionBack)) {
+				repJson.put("action", actionBack);
+			}
+			if (resultBack != null && !"".equals(resultBack)) {
+				repJson.put("result", resultBack);
+			}
+			if (desBack != null && !"".equals(desBack)) {
+				repJson.put("des", desBack);
+			}
+			if (pageBack != null) {
+				repJson.put("page", pageBack);
+			}
+			if (contentBack != null && !"".equals(contentBack)) {
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息：" + repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

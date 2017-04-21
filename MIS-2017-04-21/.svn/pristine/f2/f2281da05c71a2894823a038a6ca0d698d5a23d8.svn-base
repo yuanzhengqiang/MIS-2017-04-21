@@ -1,0 +1,145 @@
+package com.framework.system.common.handler.operator;
+
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.common.entity.operator.OperatorEntity;
+import com.framework.system.common.pack.operator.OperatorPack;
+import com.framework.system.common.parse.operator.OperatorParse;
+import com.framework.system.common.service.operator.OperatorService;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.db.query.OrderVO;
+
+/**
+ * @Title: Handler
+ * @Description: 操作功能业务处理器
+ * @author feng.gu
+ * @date 2015-12-02 09:20:58
+ * @version V1.0
+ * 
+ */
+public class OperatorHandler extends BaseHandler {
+	private static Logger logger = Logger.getLogger(OperatorService.class);
+	/**
+	 * 解析器
+	 */
+	private OperatorParse operatorParse = OperatorParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private OperatorService operatorService = OperatorService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private OperatorPack operatorPack = OperatorPack.getInstance();
+
+	private static OperatorHandler operatorHandler;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static OperatorHandler getInstance() {
+		if (operatorHandler == null) {
+			operatorHandler = new OperatorHandler();
+		}
+		return operatorHandler;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type, String command, String reqStr,
+			HttpServletRequest request, HttpServletResponse response) {
+		String resultStr = "";
+		try {
+			// 解析
+			Map<String, Object> parseMap = operatorParse.parse(type, command,
+					reqStr, request);
+			String action = (String) parseMap.get("action");
+			OperatorEntity operator = (OperatorEntity) parseMap.get("operator");
+			List<OperatorEntity> operatorList = (List<OperatorEntity>) parseMap
+					.get("operatorList");
+			Integer id = (Integer) parseMap.get("id");
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap
+					.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+
+			Boolean createUserShow = (Boolean) parseMap.get("createUserShow");
+			Boolean delCreateUser = (Boolean) parseMap.get("delCreateUser");
+			Boolean updateUserShow = (Boolean) parseMap.get("updateUserShow");
+			Boolean delUpdateUser = (Boolean) parseMap.get("delUpdateUser");
+
+			// 业务处理
+			Object result = null;
+			if ("save".equals(action)) {
+				result = operatorService.save(operator);
+			} else if ("saveList".equals(action)) {
+				result = operatorService.saveList(operatorList);
+			} else if ("getById".equals(action)) {
+				result = operatorService.getById(id, createUserShow,
+						updateUserShow);
+			} else if ("getListByCondition".equals(action)) {
+				result = operatorService.getListByCondition(queryMap,
+						orderList, pageno, pagesize, createUserShow,
+						updateUserShow);
+			} else if ("del".equals(action)) {
+				result = operatorService.del(id, delCreateUser, delUpdateUser);
+			} else if ("delList".equals(action)) {
+				result = operatorService.delList(queryMap, delCreateUser,
+						delUpdateUser);
+			}
+			// 封装
+			Map<String, Object> packMap = operatorPack.pack(type, action,
+					result, operator);
+			String actionBack = (String) packMap.get("action");
+			String resultBack = (String) packMap.get("result");
+			String desBack = (String) packMap.get("des");
+			JSONObject pageBack = (JSONObject) packMap.get("page");
+			JSONObject contentBack = (JSONObject) packMap.get("content");
+
+			JSONObject repJson = new JSONObject();
+			if (actionBack != null && !"".equals(actionBack)) {
+				repJson.put("action", actionBack);
+			}
+			if (resultBack != null && !"".equals(resultBack)) {
+				repJson.put("result", resultBack);
+			}
+			if (desBack != null && !"".equals(desBack)) {
+				repJson.put("des", desBack);
+			}
+			if (pageBack != null) {
+				repJson.put("page", pageBack);
+			}
+			if (contentBack != null && !"".equals(contentBack)) {
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息：" + repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

@@ -1,0 +1,236 @@
+package fsk.controller.healthAssessment;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.framework.system.common.entity.json.AjaxJson;
+import com.framework.system.common.entity.module.ModuleEntity;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.db.query.PageList;
+import com.framework.system.util.JsonUtil;
+
+import fsk.entity.older.OlderEntity;
+import fsk.handler.healthAssessment.HealthAssessmentHandler;
+import fsk.service.healthAssessment.HealthAssessmentService;
+import fsk.service.older.OlderService;
+
+@RequestMapping("/healthAssessment")
+@Controller
+public class HealthAssessmentController {
+	private static Logger logger = Logger.getLogger(HealthAssessmentController.class);
+	/**
+	 * 处理器
+	 */
+	private HealthAssessmentHandler healthAssessmentHandler = HealthAssessmentHandler.getInstance();
+	/**
+	 * 服务类
+	 */
+	private HealthAssessmentService healthAssessmentService = HealthAssessmentService.getInstance();
+	private OlderService olderService = OlderService.getInstance();
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/healthAssessment/HealthAssessmentList");
+		Integer userId = (Integer) request.getSession().getAttribute("userId");// 登录用户ID
+		// 根据登录角色和当前菜单模块获取要显示的页面模块
+		String moduleId = request.getParameter("moduleId");
+		String roleIds = (String) request.getSession().getAttribute("roleIds");
+		if (roleIds != null && moduleId != null) {
+			// 获取需要控制的页面元素
+			List<ModuleEntity> htmlModules = systemService.getChildModulesByTwoModuleId(moduleId);
+			if (htmlModules != null && htmlModules.size() > 0) {
+				for (ModuleEntity module : htmlModules) {
+					request.setAttribute(module.getCode() + "_control", "yes");
+				}
+				// 查询需要控制的页面元素的显示权限
+				List<ModuleEntity> modules = systemService.getHTMLModulesByRoleIdsAndModuleId(roleIds, htmlModules);
+				if (modules != null && modules.size() > 0) {
+					for (ModuleEntity module : modules) {
+						request.setAttribute(module.getCode() + "_show", "yes");
+					}
+				}
+			}
+		}
+		mav.addObject("userId", userId);
+		return mav;
+	}
+
+	/**
+	 * 批量删除 ids英文逗号间隔
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "del")
+	@ResponseBody
+	public AjaxJson del(HttpServletRequest request) {
+		AjaxJson j = new AjaxJson();
+		String result = "failure";
+		String des = "删除失败";
+		String ids = request.getParameter("ids");
+		if (ids != null && !"".equals(ids)) {
+			boolean falg = healthAssessmentService.del(ids);
+			if (falg) {
+				result = "success";
+				des = "删除成功";
+			}
+		}
+		j.setResult(result);
+		j.setDes(des);
+		return j;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handler")
+	@ResponseBody
+	public String query(HttpServletRequest request, HttpServletResponse response) {
+		String msg = "";
+		try {
+			String reqmsg = request.getParameter("reqmsg");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return msg;
+			}
+			String action = (String) reqParams.get("action");
+			String rep = healthAssessmentHandler.doHandler(1, action, reqmsg, request, response);
+			msg = new String(rep.getBytes("utf-8"), "iso-8859-1");
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+
+		return msg;
+	}
+
+	/**
+	 * 检查会员号是否存在
+	 * 
+	 * @param idnumber
+	 * @return
+	 */
+	@RequestMapping(params = "checkHYH")
+	@ResponseBody
+	public String checkHYH(String idnumber, HttpServletRequest request) {
+		Integer id = null;
+		Map<String, Object> query = new HashMap<String, Object>();
+		query.put("memberNum", idnumber);
+
+		query = systemService.addDataRuleByRoles("OlderEntity", query, request);
+		PageList oldList = olderService.getListByCondition(query, null, 1, 1, null, null, null, null, null, null, null);
+		JSONObject jsonResult = new JSONObject();
+		if (oldList != null && oldList.getResultList() != null && oldList.getResultList().size() == 1) {
+			List<Object> objlist = oldList.getResultList();
+			for (Object obj : objlist) {
+				OlderEntity olds = (OlderEntity) obj;
+				id = olds.getId();
+			}
+			jsonResult.put("id", id);
+			jsonResult.put("des", "success");
+		} else {
+			jsonResult.put("des", "failure");
+		}
+
+		String json2return = jsonResult.toString();
+		try {
+			json2return = new String(json2return.getBytes("utf-8"), "iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+
+		}
+		return json2return;
+	}
+
+	/**
+	 * 检查会员卡号是否存在
+	 * 
+	 * @param idnumber
+	 * @return
+	 */
+	@RequestMapping(params = "checkHYKH")
+	@ResponseBody
+	public String checkHYKH(String idnumber_Card, HttpServletRequest request) {
+		Integer id = null;
+		Map<String, Object> query = new HashMap<String, Object>();
+		query.put("memberCard", idnumber_Card);
+		query = systemService.addDataRuleByRoles("OlderEntity", query, request);
+		PageList oldList = olderService.getListByCondition(query, null, 1, 1, null, null, null, null, null, null, null);
+		JSONObject jsonResult = new JSONObject();
+
+		if (oldList != null && oldList.getResultList() != null && oldList.getResultList().size() == 1) {
+			List<Object> objlist = oldList.getResultList();
+			for (Object obj : objlist) {
+				OlderEntity olds = (OlderEntity) obj;
+				id = olds.getId();
+			}
+			jsonResult.put("id", id);
+			jsonResult.put("des", "success");
+		} else {
+			jsonResult.put("des", "failure");
+		}
+
+		String json2return = jsonResult.toString();
+		try {
+			json2return = new String(json2return.getBytes("utf-8"), "iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+
+		}
+		return json2return;
+	}
+
+	/**
+	 * 消息体格式请求处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(params = "handlercontent")
+	public void queryApp(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			InputStream is = request.getInputStream();
+			byte[] bis = IOUtils.toByteArray(is);
+			String reqmsg = new String(bis, "UTF-8");
+			Map reqParams = JsonUtil.getMap4Json(reqmsg);
+			if (reqParams == null) {
+				return;
+			}
+			String action = (String) reqParams.get("action");
+			String rep = healthAssessmentHandler.doHandler(1, action, reqmsg, request, response);
+			OutputStream os = response.getOutputStream();
+			os.write(rep.toString().getBytes("UTF-8"));
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+	}
+
+}

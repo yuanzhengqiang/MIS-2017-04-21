@@ -1,0 +1,54 @@
+package fsk.thread;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
+import fsk.entity.nursingPlan.NursingPlanEntity;
+import fsk.service.nursingPlan.NursingPlanService;
+
+public class UpdateNursingPlanStatusThread extends Thread {
+
+	private static Logger logger = Logger.getLogger(ReadMemberStatusThread.class);
+	private static NursingPlanService nursingPlanService = NursingPlanService.getInstance();
+	private static SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
+
+	public void run() {
+		// 休眠240秒，减小系统重启时的cpu开支
+		try {
+			Thread.sleep(4 * 60 * 1000);
+		} catch (InterruptedException e1) {
+			logger.debug(e1);
+		}
+		logger.debug("定时更新护理计划状态线程开启");
+		while (true) {
+			try {
+				logger.debug("开始更新护理计划状态");
+				// 获得状态为1(有效),且结束日期小于当前日期的护理计划
+				String curTime = formater.format(new Date()) + "000000";
+				Map<String, Object> queryMap = new HashMap<String, Object>();
+				queryMap.put("status_in", "0,1,2");
+				queryMap.put("endDate_lt", curTime);
+				List<NursingPlanEntity> NursingPlanList = nursingPlanService.getListByCondition(queryMap);
+				if (NursingPlanList != null && NursingPlanList.size() > 0) {
+					List<NursingPlanEntity> nursingPlanList = new ArrayList<NursingPlanEntity>();
+					for (NursingPlanEntity entity : NursingPlanList) {
+						// 更新状态
+						entity.setStatus(3);
+						nursingPlanList.add(entity);
+						nursingPlanService.saveList(nursingPlanList);
+					}
+				}
+				//每隔一小时执行一次
+				Thread.sleep(60 * 60 * 1000);
+			} catch (InterruptedException e) {
+				logger.debug(e);
+			}
+		}
+	}
+}

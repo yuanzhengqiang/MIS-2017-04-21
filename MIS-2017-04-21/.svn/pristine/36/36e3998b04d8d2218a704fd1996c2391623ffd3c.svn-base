@@ -1,0 +1,142 @@
+package fsk.handler.recovery;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.common.service.SystemService;
+import com.framework.system.db.query.OrderVO;
+
+import fsk.entity.recovery.RecoveryEntity;
+import fsk.pack.recovery.RecoveryPack;
+import fsk.parse.recovery.RecoveryParse;
+import fsk.service.recovery.RecoveryService;
+
+/**
+ * @Title: Handler
+ * @Description: 康复评估业务处理器
+ * @author feng.gu
+ * @date 2016-07-12 15:06:34
+ * @version V1.0
+ * 
+ */
+public class RecoveryHandler extends BaseHandler {
+	private static Logger logger = Logger.getLogger(RecoveryService.class);
+	/**
+	 * 解析器
+	 */
+	private RecoveryParse recoveryParse = RecoveryParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private RecoveryService recoveryService = RecoveryService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private RecoveryPack recoveryPack = RecoveryPack.getInstance();
+
+	private static RecoveryHandler recoveryHandler;
+
+	/**
+	 * 系统服务类
+	 */
+	private SystemService systemService = SystemService.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static RecoveryHandler getInstance() {
+		if (recoveryHandler == null) {
+			recoveryHandler = new RecoveryHandler();
+		}
+		return recoveryHandler;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type, String command, String reqStr, HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("请求消息：" + reqStr);
+		String resultStr = "";
+		try {
+			// 解析
+			Map<String, Object> parseMap = recoveryParse.parse(type, command, reqStr, request);
+			String action = (String) parseMap.get("action");
+			RecoveryEntity recovery = (RecoveryEntity) parseMap.get("recovery");
+			List<RecoveryEntity> recoveryList = (List<RecoveryEntity>) parseMap.get("recoveryList");
+			Integer id = (Integer) parseMap.get("id");
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+
+			Boolean skinLesionsListShow = (Boolean) parseMap.get("skinLesionsListShow");
+			Boolean delSkinLesionsList = (Boolean) parseMap.get("delSkinLesionsList");
+
+			// 业务处理
+			Object result = null;
+			if ("save".equals(action)) {
+				result = recoveryService.save(recovery);
+			} else if ("saveList".equals(action)) {
+				result = recoveryService.saveList(recoveryList);
+			} else if ("getById".equals(action)) {
+				result = recoveryService.getById(id, skinLesionsListShow);
+			} else if ("getListByCondition".equals(action)) {
+				// 根据数据权限 增加查询条件
+				queryMap = systemService.addDataRule("RecoveryEntity", queryMap, request);
+				result = recoveryService.getListByCondition(queryMap, orderList, pageno, pagesize, skinLesionsListShow);
+			} else if ("del".equals(action)) {
+				result = recoveryService.del(id, delSkinLesionsList);
+			} else if ("delList".equals(action)) {
+				result = recoveryService.delList(queryMap, delSkinLesionsList);
+			}
+			// 封装
+			Map<String, Object> packMap = recoveryPack.pack(type, action, result, recovery);
+			String actionBack = (String) packMap.get("action");
+			String resultBack = (String) packMap.get("result");
+			String desBack = (String) packMap.get("des");
+			JSONObject pageBack = (JSONObject) packMap.get("page");
+			JSONObject contentBack = (JSONObject) packMap.get("content");
+
+			JSONObject repJson = new JSONObject();
+			if (actionBack != null && !"".equals(actionBack)) {
+				repJson.put("action", actionBack);
+			}
+			if (resultBack != null && !"".equals(resultBack)) {
+				repJson.put("result", resultBack);
+			}
+			if (desBack != null && !"".equals(desBack)) {
+				repJson.put("des", desBack);
+			}
+			if (pageBack != null) {
+				repJson.put("page", pageBack);
+			}
+			if (contentBack != null && !"".equals(contentBack)) {
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息：" + repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

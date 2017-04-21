@@ -1,0 +1,959 @@
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java"%> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="shortcut icon" href="images/logo.png">
+
+	<title>健康评估任务列表</title>
+
+	<!-- Bootstrap core CSS -->
+	<link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+
+	<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+	  <script src="../../assets/js/html5shiv.js"></script>
+	  <script src="../../assets/js/respond.min.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
+  	<link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
+  	<link href="js/jquery.icheck/skins/square/blue.css" rel="stylesheet">
+
+  	<link rel="stylesheet" href="js/jquery.crop/css/jquery.Jcrop.css" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" />	
+	<link rel="stylesheet" type="text/css" href="js/jquery.datatables/bootstrap-adapter/css/datatables.css" />
+	<script type="text/javascript" src="js/sortListTool.js"></script>
+<style>
+.hideAndShow{display:none;}
+.hideul{position:absolute;top:33px;z-index:200;right:15px;left:15px;display:none}
+.hideul ul{ border:1px solid #ccc;width:100%;background:#f4f4f4;padding-left:0}
+.hideul ul li{ list-style-type:none;text-indent:20px}
+.hideul ul li:hover{ background:#ddd}
+.no-bg-border{background-color:#fff;border:none}
+</style>
+<script type="text/javascript" src="js/addressJS.js"></script>
+</head>
+
+<body>	
+<div id="cl-wrapper" style="padding-top:0px">	
+		<div class="container-fluid" style="padding: 0px">
+		<!-- 头部开始 -->
+			<div class="page-head">
+				<h2>健康评估任务列表</h2>
+				<ol class="breadcrumb">
+					<li>健康管理</li>
+					<input type="hidden" value="" id="sortType">
+					<input type="hidden" value="" id="sortColumn">
+					<li class="active">健康评估任务列表</li>
+				</ol>
+			</div>
+		</div>
+		<!-- 头部结束 -->
+	<div class="cl-mcont">
+    <div class="block-flat">
+		<div class="row">
+					<div class=" col-xs-4 col-sm-2 col-md-2 col-lg-1" style="padding-top:5px">
+						 <strong>老人姓名</strong>
+					</div>
+					<div class=" col-xs-8 col-sm-4 col-md-4 col-lg-2" style="position:relative">
+						<div class="input-group " >
+							<input class="form-control"  type="text" id="oldinput_search" onclick="getolderName()" oninput="getolderName()" onmouseout="javascript:$('#hideul-1').hide();" onmouseover="javascript:$('#hideul-1').show();">
+							<span class="input-group-btn"><button class="btn btn-primary " type="button"><span class="fa fa-search"></span></button></span>
+						</div>
+						<div class="hideul" id="hideul-1"  onmouseover="javascript:$('#hideul-1').show();" onmouseout="javascript:$('#hideul-1').hide();">
+							<ul id="hideul_nei1">
+							
+							</ul>
+						</div>
+					</div>
+					<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="padding-top:5px">
+						<strong>评估人</strong> 
+					</div>
+					<div class=" col-xs-8 col-sm-4 col-md-4 col-lg-2" style="position:relative">
+						<div class="input-group " >
+							<input class="form-control"  type="text" id="pgrinput_search" onclick="getepgrName()" oninput="getepgrName()" onmouseout="javascript:$('#hideul-2').hide();" onmouseover="javascript:$('#hideul-2').show();">
+							<span class="input-group-btn"><button class="btn btn-primary " type="button"><span class="fa fa-search"></span></button></span>
+						</div>
+						<div class="hideul" id="hideul-2"  onmouseover="javascript:$('#hideul-2').show();" onmouseout="javascript:$('#hideul-2').hide();">
+							<ul id="hideul_nei2">
+							
+							</ul>
+						</div>
+					</div>
+					<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="padding-top:5px">
+						 <strong>分配人</strong> 
+					</div>
+					<div class=" col-xs-8 col-sm-4 col-md-4 col-lg-2" style="position:relative">
+						<div class="input-group " >
+							<input class="form-control"  type="text" id="fprinput_search" onclick="getefprName()" oninput="getefprName()" onmouseout="javascript:$('#hideul-3').hide();" onmouseover="javascript:$('#hideul-3').show();">
+							<span class="input-group-btn"><button class="btn btn-primary " type="button"><span class="fa fa-search"></span></button></span>
+						</div>
+						<div class="hideul" id="hideul-3"  onmouseover="javascript:$('#hideul-3').show();" onmouseout="javascript:$('#hideul-3').hide();">
+							<ul id="hideul_nei3">
+							
+							</ul>
+						</div>
+					</div>
+					<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="padding-top:5px">
+						 <strong>任务状态</strong>
+					</div>
+					<div class="col-xs-8 col-sm-4 col-md-4 col-lg-2" style="margin-bottom:25px;">
+						<select class="form-control" type="text" id="rwzt_input"  >
+						<option value="">全部</option>
+						<option value="1">待评估</option>
+						<option value="2">评估完成待审核</option>
+						<option value="3">审核通过</option>
+						<option value="4">取消</option>												
+						</select>
+								  
+					</div>
+					<div class="col-xs-12 col-sm-2 col-md-2 col-lg-1 hideAndShow" style="padding-top:5px">
+						 <strong>期望完成时间区间</strong>
+					</div>
+					<div class="col-xs-12 col-sm-10 col-md-10 col-lg-5 hideAndShow" style="">						
+                		<div class="input-group">
+                		<input class="datetime form-control"  size="10" type="text" id="qwwcsjstart_input" readonly="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
+                		<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+                		<span class="input-group-addon no-bg-border">~</span>
+                		<input class="datetime form-control"   size="10" type="text" id="qwwcsjend_input" readonly="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
+                		<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+                		</div>
+					</div>
+					<div class="col-xs-12 col-sm-2 col-md-2 col-lg-1 hideAndShow" style="padding-top:5px">
+						 <strong>审核通过时间区间</strong>
+					</div>
+					<div class="col-xs-12 col-sm-10 col-md-10 col-lg-5 hideAndShow" style="">						
+                		<div class="input-group">
+                		<input class="datetime form-control"  size="10" type="text" id="shtgsjstart_input" readonly="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
+                		<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+                		<span class="input-group-addon no-bg-border">~</span>
+                		<input class="datetime form-control"   size="10" type="text" id="shtgsjend_input" readonly="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
+                		<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+                		</div>
+					</div>
+
+					<!-- 查询框结束 -->
+					<!-- 操作按钮开始 -->
+					
+						<div class="col-sm-12" style="margin-top:15px">	
+							<c:if test="${healthtask_query_btn_control != 'yes' or healthtask_query_btn_show == 'yes'}">
+								<button class="btn btn-primary" style="margin-bottom: 0px !important; height: 34px;margin-left:0;" onclick="query()">查询</button>
+							</c:if>	
+							<a style="cursor:pointer;text-decoration:underline;vertical-align:bottom;" onclick="$('.hideAndShow').toggle();">更多查询条件</a>
+							<div class="btn-group" style="margin-right:0px;float:right">
+		  						 <c:if test="${healthtask_add_btn_control != 'yes' or healthtask_add_btn_show == 'yes'}">
+		 						 <button type="button" class="btn btn-primary  " style="margin-right:5px"  onclick="doAdd()">
+									<span><i class="fa fa-plus" style="margin-right:5px;"></i>新增</span>
+		 						 </button>
+		 						 <a href="<%=request.getContextPath()%>/assessmentTask.do?mainAdd" id="addA" target="_blank" style="display:none;">新增</a>
+		 						 </c:if>
+		 						 <c:if test="${healthtask_quxiao_btn_control != 'yes' or healthtask_quxiao_btn_show == 'yes'}">
+		 						 <button type="button" class="btn btn-default "   onclick="doDel()">
+									<span><i class="fa fa-times-circle" style="margin-right:5px;"></i>取消</span>
+		 						 </button>
+								 </c:if>
+						 	</div>
+						</div>
+				
+					<!-- 操作按钮结束 -->
+		             <!-- 数据表格开始 -->
+				
+						<div class="col-sm-12">							
+							<table class="table table-bordered  hover" id="" >
+								<thead>
+									<tr>
+									<th style="width:2%;"><input id="allselectchecker" type="checkbox" class="col_selector" onclick="selectAll();"></th>
+										<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_olderName')"><strong>老人</strong></th>
+										<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_distributeName')"><strong>分配人</strong></th>
+										<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_assessmentName')"><strong>评估人</strong></th>
+										<th name="needSort" class="sorting" onclick="queryBySort(this,'healthAssessmentType')"><strong>评估类别</strong></th>
+										<th name="needSort" class="sorting" onclick="queryBySort(this,'taskStatus')"><strong>任务状态</strong></th>
+										<th name="needSort" class="sorting" onclick="queryBySort(this,'expectedCompletionTime')"><strong>期望完成时间</strong></th>
+										<th name="needSort" class="sorting" onclick="queryBySort(this,'auditPassTime')"><strong>审核通过时间</strong></th>
+										<th><strong>操作</strong></th>
+									</tr>
+								</thead>
+								<tbody id="datacontainer" role="alert" aria-live="polite" aria-relevant="all">		
+								<!-- <tr>
+								<td><input type="checkbox" class="col_selector"></td>
+								<td>老王</td>
+								<td>张站长</td>
+								<td>医生刘</td>
+								<td>混合评估</td>
+								<td>待评估</td>
+								<td>2016-09-09 23:59:59</td>
+								<td>2016-09-09 23:59:59</td>
+								<td><div class="btn-group">
+							                              <button class="btn btn-default btn-xs" type="button">操作</button>
+							                              <button data-toggle="dropdown" class="btn btn-xs btn-primary dropdown-toggle" type="button">
+							                                <span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+							                              </button>
+							                              <ul role="menu" class="dropdown-menu pull-right">
+							                                <li><a href="###">查看任务详情</a></li>
+							                                <li><a href="###">评估内容</a></li>
+							                                <li><a href="###">取消评估</a></li>
+							                              </ul>
+							                            </div>
+							     </td>
+								</tr>	 -->																												
+								</tbody>
+							</table>
+						</div>
+						<!-- 数据条数提示开始 -->
+						<div class="row">
+								<div class="col-sm-12">
+											<div class="pull-left">
+												<div id="datatable_info" class="dataTables_info">
+													当前显示0 条总记录中的第0-0条
+												</div>
+											</div>
+											<div class="clearfix"></div>
+								</div>
+						</div>
+						<!-- 数据条数提示结束 -->
+						<!-- 分页条开始 -->
+						<div class="row">
+						<div class="col-sm-4">
+							<div class="" id="">
+							每页 <select id="pageSizeSelector"  size="1" name="datatable2_length" onchange="query()"><option selected="selected" value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> 条</label>
+							</div>
+						</div>
+						<div class="col-sm-8">
+							<div class="pull-right">
+								<div class="">
+									<ul id="paginationArea" class="pagination" style="margin-top:0">
+									<li class="prev disabled"><a href="#"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+									<li class="active"><a href="#">1</a></li>
+									<li class="next"><a href="#">下一页&nbsp;<span class="fa fa-angle-right"></span></a></li></ul>
+								</div>
+							</div>
+						</div>
+						</div>
+						<!-- 分页条结束 -->
+					</div>
+				</div>
+
+			</div> 
+	
+		</div> <!-- 主页面结束 -->
+
+    <!-- 模态框开始-->
+               
+
+           
+<div class="md-overlay"></div>
+
+
+	<script src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+	<script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+  <script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
+	<script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
+	<script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+  <script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>   
+  <script type="text/javascript" src="js/masonry.js"></script>
+  <script type="text/javascript" src="js/jquery.crop/js/jquery.Jcrop.js"></script>
+
+  <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+  <script src="js/jquery.upload/js/jquery.iframe-transport.js"></script>
+  <!-- The basic File Upload plugin -->
+  <script src="js/jquery.upload/js/jquery.fileupload.js"></script>
+	<script type="text/javascript" src="js/behaviour/general.js"></script>
+	<script type="text/javascript" src="js/jquery.icheck/icheck.min.js"></script>
+    
+    <script type="text/javascript">
+//根据排序规则重新查询
+function queryBySort(par,column){
+	var classFlag = listSortClickEvent(par);
+	var type = judgmentChinese(column);
+	if(type != null && type != ""){
+		classFlag = type + classFlag;
+		column = column.substr(8,column.length);
+	}
+	$("#sortType").val(classFlag);
+	$("#sortColumn").val(column);
+	go2page(currentshownpage);
+}
+
+      $(document).ready(function(){
+      	//首页工作台链接跳转此处的时候，带上条件信息
+      	var taskStatus="<%=request.getAttribute("taskStatus")%>";
+      	if(taskStatus != null && taskStatus != ""){
+      		$("#rwzt_input").val(taskStatus);
+      		var stratTime="<%=request.getAttribute("stratTime")%>";
+      		var endTime="<%=request.getAttribute("endTime")%>";
+      		if(stratTime != null && stratTime != ""){
+      			$("#shtgsjstart_input").val(stratTime);
+      		}
+      		if(endTime != null && endTime != ""){
+      			$("#shtgsjend_input").val(endTime);
+      		}
+      	}
+      	var pgsName="<%=request.getAttribute("pgsName")%>";
+      	if(pgsName != null && pgsName != ""){
+      		$("#pgrinput_search").val(pgsName);
+      	}
+      	
+        //initialize the javascript
+        query();
+    	$(".deleteThisTime").click(function(){               //清除日期框中的值
+    	      $(this).parent().prev()[0].value = "";
+    	      // $(this).parent().siblings("input").val("");
+    	    });
+        App.init();
+
+	  });
+      
+//实时获取老人姓名
+function getolderName(){
+	var reqmsg="{'action':'QUERY_OLDER_LIST_REQUEST','page':{'pageno':'1','pagesize':'5'},'content':{";
+	var name = $.trim($("#oldinput_search").val());
+	if (name != null && name != "") {
+		reqmsg += "\"name_like\":\"" + name + "\"";
+	}else{
+		$("#hideul_nei1").html("");
+		$("#hideul-1").hide();
+		return;
+	}
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "older.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.olderList != null){
+            	  		jQuery.each(data.content.olderList, function(i, item) {
+            	  				if(item != null){
+		    						htmlcode += "<li onclick=\"olderNamefuzhi('" + item.name + "')\">" + item.name + "</li>";		
+            	  				}	
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#hideul_nei1").html(htmlcode);
+		    	  $("#hideul-1").show();
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//老人姓名赋值
+function olderNamefuzhi(name){
+	$("#oldinput_search").val(name);
+	$("#hideul_nei1").html("");
+	$("#hideul-1").hide();
+}
+//实时获取评估人姓名
+function getepgrName(){
+	var reqmsg="{'action':'QUERY_EMPLOYEE_LIST_REQUEST','page':{'pageno':'1','pagesize':'5'},'content':{";
+	var name = $.trim($("#pgrinput_search").val());
+	if (name != null && name != "") {
+		reqmsg += "\"name_like\":\"" + name + "\"";
+	}else{
+		$("#hideul_nei2").html("");
+		$("#hideul-2").hide();
+		return;
+	}
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "employee.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.employeeList != null){
+            	  		jQuery.each(data.content.employeeList, function(i, item) {
+            	  				if(item != null){
+		    						htmlcode += "<li onclick=\"pgrNamefuzhi('" + item.name + "')\">" + item.name + "</li>";		
+            	  				}	
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#hideul_nei2").html(htmlcode);
+		    	  $("#hideul-2").show();
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//评估人姓名赋值
+function pgrNamefuzhi(name){
+	$("#pgrinput_search").val(name);
+	$("#hideul_nei2").html("");
+	$("#hideul-2").hide();
+}
+//实时获取分配人姓名
+function getefprName(){
+	var reqmsg="{'action':'QUERY_EMPLOYEE_LIST_REQUEST','page':{'pageno':'1','pagesize':'5'},'content':{";
+	var name = $.trim($("#fprinput_search").val());
+	if (name != null && name != "") {
+		reqmsg += "\"name_like\":\"" + name + "\"";
+	}else{
+		$("#hideul_nei3").html("");
+		$("#hideul-3").hide();
+		return;
+	}
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "employee.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.employeeList != null){
+            	  		jQuery.each(data.content.employeeList, function(i, item) {
+            	  				if(item != null){
+		    						htmlcode += "<li onclick=\"fprNamefuzhi('" + item.name + "')\">" + item.name + "</li>";		
+            	  				}	
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#hideul_nei3").html(htmlcode);
+		    	  $("#hideul-3").show();
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//分配人姓名赋值
+function fprNamefuzhi(name){
+	$("#fprinput_search").val(name);
+	$("#hideul_nei3").html("");
+	$("#hideul-3").hide();
+}
+
+	//列表开始
+	var currentshownpage = 1;
+	function selectAll() {
+		if ($("#allselectchecker").is(':checked')) {
+			$(".col_selector").prop("checked", true);
+		} else {
+			$(".col_selector").prop("checked", false);
+		}
+	}
+	//查询健康评估任务信息
+	function query() {
+		go2page(1);
+	}
+	
+	function go2page(pagenumber){
+	var pagesize = $("#pageSizeSelector option:selected").val();
+	var oldinput_search = $.trim($("#oldinput_search").val());
+	var pgrinput_search = $.trim($("#pgrinput_search").val());
+	var fprinput_search = $.trim($("#fprinput_search").val());
+	var rwzt_input = $("#rwzt_input").val();
+	
+	var qwwcsjstart_input = $("#qwwcsjstart_input").val();
+	var qwwcsjend_input = $("#qwwcsjend_input").val();
+	var shtgsjstart_input = $("#shtgsjstart_input").val();
+	var shtgsjend_input = $("#shtgsjend_input").val();
+	if(qwwcsjstart_input !="" && qwwcsjend_input !="" && qwwcsjstart_input > qwwcsjend_input){
+		alert("期望完成开始时间不能大于结束时间");
+		return;
+	}
+	if(shtgsjstart_input !="" && shtgsjend_input !="" && shtgsjstart_input > shtgsjend_input){
+		alert("审核通过开始时间不能大于结束时间");
+		return;
+	}
+	
+	var reqmsg="{'action':'QUERY_ASSESSMENT_TASK_LIST_REQUEST',";
+	
+	var sortType = $("#sortType").val();
+	var sortColumn = $("#sortColumn").val();
+	if(sortType != null && sortType != ""){
+		reqmsg += "'order':[{'column':'" + sortColumn + "','type':'" + sortType + "'}],";
+	}
+	
+	reqmsg += "'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+
+	if (oldinput_search != null && oldinput_search != "") {
+		reqmsg += "\"olderName_like\":\"" + oldinput_search + "\",";
+	}
+	if (pgrinput_search != null && pgrinput_search != "") {
+		reqmsg += "\"assessmentName_like\":\"" + pgrinput_search + "\",";
+	}
+	if (fprinput_search != null && fprinput_search != "") {
+		reqmsg += "\"distributeName_like\":\"" + fprinput_search + "\",";
+	}
+	if (rwzt_input != null && rwzt_input != "") {
+		reqmsg += "\"taskStatus\":" + rwzt_input + ",";
+	}
+	if (qwwcsjstart_input != null && qwwcsjstart_input != "") {
+		reqmsg += "\"expectedCompletionTime_ge\":\"" + qwwcsjstart_input.substring(0, 4) + qwwcsjstart_input.substring(5, 7) + qwwcsjstart_input.substring(8, 10) + "000001" + "\",";
+	}
+	if (qwwcsjend_input != null && qwwcsjend_input != "") {
+		reqmsg += "\"expectedCompletionTime_le\":\"" + qwwcsjend_input.substring(0, 4) + qwwcsjend_input.substring(5, 7) + qwwcsjend_input.substring(8, 10) + "235959" + "\",";
+	}
+	if (shtgsjstart_input != null && shtgsjstart_input != "") {
+		reqmsg += "\"auditPassTime_ge\":\"" + shtgsjstart_input.substring(0, 4) + shtgsjstart_input.substring(5, 7) + shtgsjstart_input.substring(8, 10) + "000001" + "\",";
+	}
+	if (shtgsjend_input != null && shtgsjend_input != "") {
+		reqmsg += "\"auditPassTime_le\":\"" + shtgsjend_input.substring(0, 4) + shtgsjend_input.substring(5, 7) + shtgsjend_input.substring(8, 10) + "235959" + "\",";
+	}
+	
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:true,
+          url : "assessmentTask.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  changeData(data);
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//评估类别转化
+function changeType(type){
+	var typeName = "";
+	switch(type){
+		case 1:
+			typeName = "康复评估";
+			break;
+		case 2:
+			typeName = "护理评估";
+			break;
+		case 3:
+			typeName = "混合健康评估";
+			break;
+		default:
+			typeName = "未知";
+			break;
+	}
+	return typeName;
+}
+//评估类别转化
+function changeTaskStatus(taskStatus){
+	var taskStatusName = "";
+	switch(taskStatus){
+		case 1:
+			taskStatusName = "待评估";
+			break;
+		case 2:
+			taskStatusName = "评估完成待审核";
+			break;
+		case 3:
+			taskStatusName = "审核通过";
+			break;
+		case 4:
+			taskStatusName = "取消";
+			break;
+		default:
+			taskStatusName = "未知";
+			break;
+	}
+	return taskStatusName;
+}
+function changeData(data){
+	var htmlcode = "";
+	if (data.content != null) {
+		jQuery.each(data.content.assessmentTaskList, function(i, item) {
+			htmlcode += "<tr class=\"gradeA odd\"><td><input type=\"checkbox\" value=\"" + item.id + "-" + item.healthAssessmentId + "\" class=\"col_selector\"></td>";		
+		    htmlcode += "<td>" + item.olderName + "</td>";	
+		    htmlcode += "<td>" + item.distributeName + "</td>";
+		    htmlcode += "<td>" + item.assessmentName + "</td>";
+		    htmlcode += "<td>" + changeType(item.healthAssessmentType) + "</td>";
+		    htmlcode += "<td>" + changeTaskStatus(item.taskStatus) + "</td>";
+		    htmlcode += "<td>" + formateTime2(item.expectedCompletionTime) + "</td>";
+		    if(item.auditPassTime == null || item.auditPassTime == ""){
+		    	htmlcode += "<td>审核未通过</td>";	
+		    }else{
+		    	htmlcode += "<td>" + formateTime(item.auditPassTime) + "</td>";	
+			}
+			htmlcode += "<td><div class=\"btn-group\">";
+			htmlcode += "<button class=\"btn btn-default btn-xs\" type=\"button\">操作</button>";
+			htmlcode += "<button data-toggle=\"dropdown\" class=\"btn btn-xs btn-primary dropdown-toggle\" type=\"button\">";
+			htmlcode += "<span class=\"caret\" style=\"padding:0;\"></span>";
+			htmlcode += "<span class=\"sr-only\">Toggle Dropdown</span>";
+			htmlcode += "</button>";
+			htmlcode += "<ul role=\"menu\" class=\"dropdown-menu pull-right\">";
+			var headUrl = "<%=request.getContextPath()%>";
+			<c:if test="${healthtask_queryXQ_opt_control != 'yes' or healthtask_queryXQ_opt_show == 'yes'}">
+			htmlcode += "<li><a href=\""+headUrl+"/assessmentTask.do?mainDetails&id="+item.id+"\" target=\"_blank\">查看任务详情</a></li>";
+			</c:if>	
+			<c:if test="${healthtask_querypgnr_opt_control != 'yes' or healthtask_querypgnr_opt_show == 'yes'}">
+			if(item.healthAssessmentType == 1){
+				htmlcode += "<li><a href=\""+headUrl+"/rehabilitationEvaluation.do?main&oldid=" + item.olderId + "&id=" + item.healthAssessmentId + "\" target=\"_blank\">评估内容</a></li>";
+			}else if(item.healthAssessmentType == 2){
+				htmlcode += "<li><a href=\""+headUrl+"/nursingEvaluation.do?main&oldid=" + item.olderId + "&id=" + item.healthAssessmentId + "\" target=\"_blank\">评估内容</a></li>";
+			}else if(item.healthAssessmentType == 3){
+				htmlcode += "<li><a href=\""+headUrl+"/mixedhealthassessment.do?main&oldid=" + item.olderId + "&id=" + item.healthAssessmentId + "\" target=\"_blank\">评估内容</a></li>";
+			}
+			</c:if>	
+			<c:if test="${healthtask_quxiaopg_opt_control != 'yes' or healthtask_quxiaopg_opt_show == 'yes'}">
+			htmlcode += "<li onclick=\"del2('" + item.id + "','" + item.healthAssessmentId + "')\"><a href=\"###\">取消评估</a></li>";
+			</c:if>	
+			htmlcode += "</ul>";
+			htmlcode += "</div></td>";		
+			htmlcode += "</tr>";
+		});
+	}
+	$("#datacontainer").html(htmlcode);
+	if (data.page != null) {
+		genaratePaginateHtml(data.page.pageno, data.page.pageCount);
+		genarateRecordNumberHtml(data.page.pageno, data.page.pagesize, data.page.recordCount);
+	} else {
+		genaratePaginateHtml(1, 1);
+		genarateRecordNumberHtml(1, 10, 0);
+	}
+}
+/**
+ * 格式化时间
+ * @method formateTime
+ * @param {String} time 时间信息(YYYYMMDDHHmmSS)
+ * @return 格式化的时间(YYYY-MM-DD HH:mm:SS)
+ */
+function formateTime(time) {
+	if (time != null && time.length == 14) {
+		return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8) + " " + time.substring(8, 10) + ":" + time.substring(10, 12) + ":" + time.substring(12, 14);
+	} else {
+		return time;
+	}
+}
+/**
+ * 格式化时间
+ * @method formateTime
+ * @param {String} time 时间信息(YYYYMMDDHHmmSS)
+ * @return 格式化的时间(YYYY-MM-DD)
+ */
+function formateTime2(time) {
+	if (time != null && time.length == 14) {
+		return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8);
+	} else {
+		return time;
+	}
+}
+/**
+ * 生成记录数信息
+ * @method genarateRecordNumberHtml
+ * @param {Number} currentpage 当前页
+ * @param {Number} pagesize 每页记录条目数
+ * @param {Number} totalRecord 总记录数
+ */
+function genarateRecordNumberHtml(currentpage, pagesize, totalRecord) {
+	var recordInfos = "";
+	if (totalRecord > 0) {
+	    recordInfos = "当前显示" + totalRecord + "条总记录";
+		recordInfos += "中第" + ((currentpage - 1) * pagesize + 1) + "-";
+		if (currentpage * pagesize > totalRecord) {
+			recordInfos += totalRecord;
+		} else {
+			recordInfos += currentpage * pagesize;
+		}
+		recordInfos += "条 ";
+	} else {
+		recordInfos = "当前显示0 条总记录中的第0-0条";
+	}
+	
+	$("#datatable_info").html(recordInfos);
+}
+
+/**
+ * 生成分页信息
+ * @method genaratePaginateHtml
+ * @param {Number} currentpage 当前页
+ * @param {Number} totalpage 总页数
+ */
+function genaratePaginateHtml(currentpage, totalpage, pagesize) {
+	currentshownpage = currentpage;
+
+	var htmlcode = "";
+	
+	//上一页
+	if (currentpage > 1) {
+		htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page('1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+		htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page('" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+	} else {
+		htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+		htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+	}
+	
+	//具体页码
+	if (totalpage <= 5) {
+		for (var i = 1; i <= totalpage; i++) {
+			if (currentpage == i) {
+				htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+			} else {
+				htmlcode += "<li><a href=\"#\" onclick=\"go2page('" + i + "')\">" + i + "</a></li>";
+			}
+		}
+	} else {
+		var startpage = currentpage;
+		var endpage = currentpage;
+		while (true) {
+			if (endpage - startpage >= 4) {
+				break;
+			} else {
+				if (startpage > 1) {
+					startpage = startpage - 1;
+				}
+				if (endpage < totalpage) {
+					endpage = endpage - (-1);
+				}
+			}
+		}
+		
+		for (var i = startpage; i <= endpage; i++) {
+			if (currentpage == i) {
+				htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+			} else {
+				htmlcode += "<li><a href=\"#\" onclick=\"go2page('" + i + "')\">" + i + "</a></li>";
+			}
+		}
+	}
+	
+	//下一页
+	if (totalpage > currentpage) {
+		htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page('" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page('" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+	} else {
+		htmlcode += "<li class=\"next disabled\"><a href=\"#\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		htmlcode += "<li class=\"next disabled\"><a href=\"#\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+	}
+	$("#paginationArea").html(htmlcode);
+}
+
+//新增或编辑
+function doAdd() {
+	document.getElementById("addA").click();
+}
+
+//获取当前时间return yyyymmddhhmmss
+function getNowFormatDate() {
+    var date = new Date();
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    var strHour = date.getHours();
+    var strMinutes = date.getMinutes();
+    var strSeconds = date.getSeconds();
+    
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    if (strHour >= 0 && strHour <= 9) {
+        strHour = "0" + strHour;
+    }
+    if (strMinutes >= 0 && strMinutes <= 9) {
+        strMinutes = "0" + strMinutes;
+    }
+    if (strSeconds >= 0 && strSeconds <= 9) {
+        strSeconds = "0" + strSeconds;
+    }
+    var currentdate = date.getFullYear() + "" + month + "" + strDate + "" + strHour + "" + strMinutes + "" + strSeconds;
+    return currentdate;
+}
+
+//获取当前登陆员工姓名
+	function getLoginName(){
+    	  var userId_login = "<%=request.getAttribute("userId")%>";
+		  var reqmsg="{'action':'QUERY_EMPLOYEE_LIST_REQUEST','page':{'pageno':'1','pagesize':'1'},'content':{\"userId\":"+userId_login+"}}";
+		  var name="";
+		  jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "employee.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  if (data.content != null) {
+            	  	if(data.content.employeeList != null && data.content.employeeList.length == 1){
+            	  	   name = data.content.employeeList[0].name;
+            	  	}
+            	  }
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     	  });
+     	  return name;
+	}
+	
+//取消评估
+function del2(Id,healthId){
+	if (confirm("是否确认取消?"))  {  
+	var reqmsg="{'action':'ADD_ASSESSMENT_TASK_INFO_REQUEST','content':{";
+	if (Id != null && Id != "") {
+		reqmsg += "\"id\":" + Id + ",";
+	}
+	reqmsg += "\"taskStatus\":4,";
+	reqmsg += "\"healthAssessmentId\":" + healthId + ",";
+	reqmsg += "\"assessmentLogList\":[{";
+	reqmsg += "\"type\":5,";
+	reqmsg += "\"createTime\":\"" + getNowFormatDate() + "\",";
+	var name = getLoginName();
+	if(name == ""){
+		alert("当前非员工,无法操作");
+		return;
+	}else{
+		reqmsg += "\"personName\":\"" + name + "\",";
+	}
+	reqmsg += "}],";
+	
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:true,
+          url : "assessmentTask.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	 go2page(currentshownpage);
+              	 alert("操作成功");
+              }else if(data.des=="failure"){
+                 alert("操作失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+     }
+}
+//删除
+function doDel() {
+	var selectedItemNumber = $("tbody .col_selector:checked").length;
+	if (selectedItemNumber >= 1) {
+	  var Ids = "";
+	  var name = getLoginName();
+	  var id = "";
+	  var healthId = "";
+	  if(name == ""){
+		alert("当前非员工,无法操作");
+		return;
+	  }
+	  if (confirm("是否确认取消?"))  { 
+		$("tbody .col_selector:checked").each(function() {
+			Ids = $(this).val();
+			if(Ids.split("-").length == 2){
+				id = Ids.split("-")[0];
+				healthId = Ids.split("-")[1];
+			}
+			var reqmsg="{'action':'ADD_ASSESSMENT_TASK_INFO_REQUEST','content':{";
+			if (id != null && id != "") {
+				reqmsg += "\"id\":" + id + ",";
+			}
+			reqmsg += "\"taskStatus\":4,";
+			if (healthId != null && healthId != "") {
+				reqmsg += "\"healthAssessmentId\":" + healthId + ",";
+			}
+			reqmsg += "\"assessmentLogList\":[{";
+			reqmsg += "\"type\":5,";
+			reqmsg += "\"createTime\":\"" + getNowFormatDate() + "\",";
+			reqmsg += "\"personName\":\"" + name + "\",";
+			reqmsg += "}],";
+	
+			reqmsg += "}}";
+
+    		jQuery.ajax({
+          		type : "post",
+          		async:false,
+          		url : "assessmentTask.do?handler",
+          		dataType : "json",
+          		data: {
+          		     "reqmsg":reqmsg
+          		},
+          		success : function(data){
+          		    if(data.des=="success"){
+          		    	 go2page(currentshownpage);
+          		    	 //alert("操作成功");
+          		    }else if(data.des=="failure"){
+          		    	return;
+          		        alert("操作失败");
+          		    }
+          		},
+          		error:function(){
+	      		     alert("error");
+         		 }
+     		});
+		});
+		alert("操作成功");
+	  }
+	} else {
+		alert("请选择要取消的数据");
+	}
+}
+    </script>
+
+
+  <script src="js/behaviour/voice-commands.js"></script>
+  <script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+<script type="text/javascript" src="js/jquery.form.js"></script>
+</body>
+</html>

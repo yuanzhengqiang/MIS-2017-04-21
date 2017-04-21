@@ -1,0 +1,271 @@
+package fsk.entity.examinationRecord;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.older.OlderEntity;
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.examinationRecordFile.ExaminationRecordFileEntity;
+import fsk.entity.examinationRecordPhoto.ExaminationRecordPhotoEntity;
+import fsk.entity.examinationData.ExaminationDataEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 体检记录信息表
+ * @author feng.gu
+ * @date 2016-10-11 15:23:10
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_EXAMINATION_RECORD")
+public class ExaminationRecordEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String OLDER_ID = "OLDER_ID";
+    public final static String OLDER_NAME = "OLDER_NAME";
+    public final static String OLDER_AGE = "OLDER_AGE";
+    public final static String EXAMINATION_ORGANIZATION = "EXAMINATION_ORGANIZATION";
+    public final static String EXAMINATION_TIME = "EXAMINATION_TIME";
+    public final static String CREATE_TIME = "CREATE_TIME";
+    public final static String CREATE_EMPLOYEE_ID = "CREATE_EMPLOYEE_ID";
+    public final static String CREATE_EMPLOYEE_NAME = "CREATE_EMPLOYEE_NAME";
+    public final static String CONTACT_TEL = "CONTACT_TEL";
+    public final static String CONCLUSION = "CONCLUSION";
+    public final static String SUGGESTION = "SUGGESTION";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 老人ID
+	 */
+	@ColumnDescription(name = "OLDER_ID")
+	private Integer olderId;
+    /**
+	 * 老人姓名
+	 */
+	@ColumnDescription(name = "OLDER_NAME")
+	private String olderName;
+    /**
+	 * 老人年龄
+	 */
+	@ColumnDescription(name = "OLDER_AGE")
+	private String olderAge;
+    /**
+	 * 体检机构
+	 */
+	@ColumnDescription(name = "EXAMINATION_ORGANIZATION")
+	private String examinationOrganization;
+    /**
+	 * 体检时间
+	 */
+	@ColumnDescription(name = "EXAMINATION_TIME")
+	private String examinationTime;
+    /**
+	 * 记录时间
+	 */
+	@ColumnDescription(name = "CREATE_TIME")
+	private String createTime;
+    /**
+	 * 记录人ID
+	 */
+	@ColumnDescription(name = "CREATE_EMPLOYEE_ID")
+	private Integer createEmployeeId;
+    /**
+	 * 记录人
+	 */
+	@ColumnDescription(name = "CREATE_EMPLOYEE_NAME")
+	private String createEmployeeName;
+    /**
+	 * 联系电话
+	 */
+	@ColumnDescription(name = "CONTACT_TEL")
+	private String contactTel;
+    /**
+	 * 体检报告结论
+	 */
+	@ColumnDescription(name = "CONCLUSION")
+	private String conclusion;
+    /**
+	 * 体检报告建议
+	 */
+	@ColumnDescription(name = "SUGGESTION")
+	private String suggestion;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getOlderId() {
+		return olderId;
+	}
+
+	public void setOlderId(Integer olderId) {
+		this.olderId = olderId;
+	}
+    public String getOlderName() {
+		return olderName;
+	}
+
+	public void setOlderName(String olderName) {
+		this.olderName = olderName;
+	}
+    public String getOlderAge() {
+		return olderAge;
+	}
+
+	public void setOlderAge(String olderAge) {
+		this.olderAge = olderAge;
+	}
+    public String getExaminationOrganization() {
+		return examinationOrganization;
+	}
+
+	public void setExaminationOrganization(String examinationOrganization) {
+		this.examinationOrganization = examinationOrganization;
+	}
+    public String getExaminationTime() {
+		return examinationTime;
+	}
+
+	public void setExaminationTime(String examinationTime) {
+		this.examinationTime = examinationTime;
+	}
+    public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+    public Integer getCreateEmployeeId() {
+		return createEmployeeId;
+	}
+
+	public void setCreateEmployeeId(Integer createEmployeeId) {
+		this.createEmployeeId = createEmployeeId;
+	}
+    public String getCreateEmployeeName() {
+		return createEmployeeName;
+	}
+
+	public void setCreateEmployeeName(String createEmployeeName) {
+		this.createEmployeeName = createEmployeeName;
+	}
+    public String getContactTel() {
+		return contactTel;
+	}
+
+	public void setContactTel(String contactTel) {
+		this.contactTel = contactTel;
+	}
+    public String getConclusion() {
+		return conclusion;
+	}
+
+	public void setConclusion(String conclusion) {
+		this.conclusion = conclusion;
+	}
+    public String getSuggestion() {
+		return suggestion;
+	}
+
+	public void setSuggestion(String suggestion) {
+		this.suggestion = suggestion;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="OlderEntity"	,joinColumn="ID"	)
+			
+			
+		private OlderEntity older;
+	        
+	public OlderEntity getOlder() {
+		return older;
+    }
+	
+	public void setOlder(OlderEntity older) {
+		this.older = older;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="EmployeeEntity"	,joinColumn="ID"	)
+			
+			
+		private EmployeeEntity createEmployee;
+	        
+	public EmployeeEntity getCreateEmployee() {
+		return createEmployee;
+    }
+	
+	public void setCreateEmployee(EmployeeEntity createEmployee) {
+		this.createEmployee = createEmployee;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="ExaminationRecordFileEntity"			,joinColumn="EXAMINATION_RECORD_ID"
+			)
+			
+		private List<ExaminationRecordFileEntity> examinationRecordFileList;
+	        
+	public List<ExaminationRecordFileEntity> getExaminationRecordFileList() {
+		return examinationRecordFileList;
+	}
+	
+	public void setExaminationRecordFileList(List<ExaminationRecordFileEntity> examinationRecordFileList) {
+		this.examinationRecordFileList = examinationRecordFileList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="ExaminationRecordPhotoEntity"			,joinColumn="EXAMINATION_RECORD_ID"
+			)
+			
+		private List<ExaminationRecordPhotoEntity> examinationRecordPhotoList;
+	        
+	public List<ExaminationRecordPhotoEntity> getExaminationRecordPhotoList() {
+		return examinationRecordPhotoList;
+	}
+	
+	public void setExaminationRecordPhotoList(List<ExaminationRecordPhotoEntity> examinationRecordPhotoList) {
+		this.examinationRecordPhotoList = examinationRecordPhotoList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="ExaminationDataEntity"			,joinColumn="EXAMINATION_RECORD_ID"
+			)
+			
+		private List<ExaminationDataEntity> examinationDataList;
+	        
+	public List<ExaminationDataEntity> getExaminationDataList() {
+		return examinationDataList;
+	}
+	
+	public void setExaminationDataList(List<ExaminationDataEntity> examinationDataList) {
+		this.examinationDataList = examinationDataList;
+	}
+			
+			
+}

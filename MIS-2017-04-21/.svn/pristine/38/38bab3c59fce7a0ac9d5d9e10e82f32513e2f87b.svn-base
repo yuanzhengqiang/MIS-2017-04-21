@@ -1,0 +1,690 @@
+package fsk.service.servicePhoto;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+
+
+import fsk.entity.service.ServiceEntity;
+
+import fsk.entity.servicePhoto.ServicePhotoEntity;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+
+
+/**   
+ * @Title: Service
+ * @Description: 服务项目图片服务类
+ * @author feng.gu
+ * @date 2016-07-25 14:30:39
+ * @version V1.0   
+ *
+ */
+public class ServicePhotoService {
+	   private static Logger logger = Logger.getLogger(ServicePhotoService.class);
+	   private DBManager dbManager = DBManager.getInstance();
+    		
+	   private static ServicePhotoService servicePhotoService;
+	   /**
+	    * 获取实例	
+	    * @return
+	    */
+	   public static ServicePhotoService getInstance(){
+		if(servicePhotoService==null){
+			servicePhotoService = new ServicePhotoService();
+		}
+		return servicePhotoService;
+	   }
+	                 	                 				     				     				     				     
+				     	 
+	   /**
+		 * 保存记录
+		 * 
+		 * @param obj
+		 */
+		public boolean save(ServicePhotoEntity servicePhoto) {			
+			boolean result =false;
+			if(servicePhoto!=null){
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					 tx.beginTransaction();					 					 
+					 					 				     				     					     //关联信息保存
+					     ServiceEntity service = servicePhoto.getService();
+						 if(service!=null){						   
+							 dbManager.saveNoTransaction(service);
+							 servicePhoto.setServiceId(service.getId());
+						 }						 
+				     				     				     					 					 result=dbManager.saveNoTransaction(servicePhoto);	
+					 tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {				    
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  			
+			}	
+			return result;
+		}
+		
+		/**
+		 * 批量保存记录
+		 * 
+		 * @param list
+		 */
+		public boolean saveList(List<ServicePhotoEntity> servicePhotoList) {
+			boolean result = false;
+			if (servicePhotoList != null && servicePhotoList.size() > 0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 
+					for(ServicePhotoEntity servicePhoto:servicePhotoList){
+						if(servicePhoto!=null){												  								 
+								 									 					                 								     								         //关联信息保存
+									     ServiceEntity service = servicePhoto.getService();
+										 if(service!=null){						   
+											 dbManager.saveNoTransaction(service);
+											 servicePhoto.setServiceId(service.getId());
+										 }									 
+								     								     								     								 								 result=dbManager.saveNoTransaction(servicePhoto);								 			
+						}	
+					}
+				    tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+				/**
+		 * 根据id读取记录
+		 * 
+		 * @param id
+		 *            主键
+		 * @param obj
+		 */
+		public ServicePhotoEntity getById(Integer id) {
+			ServicePhotoEntity obj = null;
+			if (id != null) {
+				obj = (ServicePhotoEntity) dbManager.getById(id, ServicePhotoEntity.class);			
+			}
+			return obj;
+		}
+				
+		
+		/**
+		 * 根据id读取记录
+		 * @param id 主键
+		 		             	                 				     		 * @param serviceShow 是否查询关联信息
+				     				     				     		 		 * @param obj
+		 */
+		public ServicePhotoEntity getById(Integer id,Boolean serviceShow) {
+			ServicePhotoEntity obj = null;
+			if (id!=null) {
+				obj = (ServicePhotoEntity)dbManager.getById(id, ServicePhotoEntity.class);
+									 	                 				     				        //查询关联内容
+						if(serviceShow!=null&&serviceShow.booleanValue()&&obj!=null&&obj.getServiceId()!=null&&obj.getServiceId()>0){
+							ServiceEntity service = (ServiceEntity)dbManager.getById(obj.getServiceId(), ServiceEntity.class);
+							obj.setService(service);        	  	  
+						}
+				     				     				     				   			}
+			return obj;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合		
+		 * @return
+		 */
+		public List<ServicePhotoEntity> getListByCondition(Map<String,Object> queryMap) {
+		    List<ServicePhotoEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object serviceId=queryMap.get("serviceId");
+					Object serviceId_gt=queryMap.get("serviceId_gt");
+					Object serviceId_ge=queryMap.get("serviceId_ge");
+					Object serviceId_lt=queryMap.get("serviceId_lt");
+					Object serviceId_le=queryMap.get("serviceId_le");
+					Object serviceId_in=queryMap.get("serviceId_in");
+																					Object photoUrl=queryMap.get("photoUrl");
+					Object photoUrl_like=queryMap.get("photoUrl_like");
+					Object photoUrl_isNull=queryMap.get("photoUrl_isNull");
+					Object photoUrl_isNotNull=queryMap.get("photoUrl_isNotNull");
+					Object photoUrl_in=queryMap.get("photoUrl_in");
+																					Object showIndex=queryMap.get("showIndex");
+					Object showIndex_gt=queryMap.get("showIndex_gt");
+					Object showIndex_ge=queryMap.get("showIndex_ge");
+					Object showIndex_lt=queryMap.get("showIndex_lt");
+					Object showIndex_le=queryMap.get("showIndex_le");
+					Object showIndex_in=queryMap.get("showIndex_in");
+							
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(ServicePhotoEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.in, id_in));}
+																if(serviceId!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.eq, serviceId));}
+					if(serviceId_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.gt, serviceId_gt));}
+					if(serviceId_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.ge, serviceId_ge));}
+					if(serviceId_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.lt, serviceId_lt));}
+					if(serviceId_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.le, serviceId_le));}
+					if(serviceId_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.in, serviceId_in));}
+															  					if(photoUrl!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.eq, photoUrl));}
+		            if(photoUrl_like!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.like, photoUrl_like));}
+		            if(photoUrl_isNull!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.isNull, photoUrl_isNull));}
+		            if(photoUrl_isNotNull!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.isNotNull, photoUrl_isNotNull));}
+				    if(photoUrl_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.in, photoUrl_in));}
+				  																if(showIndex!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.eq, showIndex));}
+					if(showIndex_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.gt, showIndex_gt));}
+					if(showIndex_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.ge, showIndex_ge));}
+					if(showIndex_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.lt, showIndex_lt));}
+					if(showIndex_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.le, showIndex_le));}
+					if(showIndex_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.in, showIndex_in));}
+										
+						  			            list = dbManager.queryByCondition(ServicePhotoEntity.class,qc);    
+            if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<ServicePhotoEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((ServicePhotoEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		
+		/**
+		 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 		             	                 				     		 * @param serviceShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		 * @return
+		 */
+		public List<ServicePhotoEntity> getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,Boolean serviceShow) {
+			List<ServicePhotoEntity> returnlist = null;
+			List<Object> list = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object serviceId=queryMap.get("serviceId");
+					Object serviceId_gt=queryMap.get("serviceId_gt");
+					Object serviceId_ge=queryMap.get("serviceId_ge");
+					Object serviceId_lt=queryMap.get("serviceId_lt");
+					Object serviceId_le=queryMap.get("serviceId_le");
+					Object serviceId_in=queryMap.get("serviceId_in");
+																					Object photoUrl=queryMap.get("photoUrl");
+					Object photoUrl_like=queryMap.get("photoUrl_like");
+					Object photoUrl_isNull=queryMap.get("photoUrl_isNull");
+					Object photoUrl_isNotNull=queryMap.get("photoUrl_isNotNull");
+					Object photoUrl_in=queryMap.get("photoUrl_in");
+																					Object showIndex=queryMap.get("showIndex");
+					Object showIndex_gt=queryMap.get("showIndex_gt");
+					Object showIndex_ge=queryMap.get("showIndex_ge");
+					Object showIndex_lt=queryMap.get("showIndex_lt");
+					Object showIndex_le=queryMap.get("showIndex_le");
+					Object showIndex_in=queryMap.get("showIndex_in");
+							
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(ServicePhotoEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.in, id_in));}
+																if(serviceId!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.eq, serviceId));}
+					if(serviceId_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.gt, serviceId_gt));}
+					if(serviceId_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.ge, serviceId_ge));}
+					if(serviceId_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.lt, serviceId_lt));}
+					if(serviceId_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.le, serviceId_le));}
+					if(serviceId_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.in, serviceId_in));}
+															  					if(photoUrl!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.eq, photoUrl));}
+		            if(photoUrl_like!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.like, photoUrl_like));}
+		            if(photoUrl_isNull!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.isNull, photoUrl_isNull));}
+		            if(photoUrl_isNotNull!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.isNotNull, photoUrl_isNotNull));}
+				    if(photoUrl_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.in, photoUrl_in));}
+				  																if(showIndex!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.eq, showIndex));}
+					if(showIndex_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.gt, showIndex_gt));}
+					if(showIndex_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.ge, showIndex_ge));}
+					if(showIndex_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.lt, showIndex_lt));}
+					if(showIndex_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.le, showIndex_le));}
+					if(showIndex_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.in, showIndex_in));}
+										
+						  						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}			
+            list = dbManager.queryByConditions(ServicePhotoEntity.class,qc,oc);
+                                    int a=0;
+            					             	                 				     				     if(serviceShow!=null&&serviceShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		                if(a>0&&list!=null&&list.size()>0){
+				List<Object> result = new ArrayList<Object>();
+				for(int i=0;i<list.size();i++){
+					ServicePhotoEntity obj = (ServicePhotoEntity)list.get(i);
+										 	                 				     				        //查询关联内容
+						if(serviceShow!=null&&serviceShow.booleanValue()&&obj!=null&&obj.getServiceId()!=null&&obj.getServiceId()>0){
+							ServiceEntity service = (ServiceEntity)dbManager.getById(obj.getServiceId(), ServiceEntity.class);
+							obj.setService(service);        	  	  
+						}
+				     				     				     				    					result.add(obj);					
+				}
+				list=result;			
+		}	
+					if(list!=null&&list.size()>0){
+               returnlist = new ArrayList<ServicePhotoEntity>();
+               for (Object obj:list) {           
+                 returnlist.add((ServicePhotoEntity)obj);
+               }
+            }       					
+			return returnlist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数		
+		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,int pageno,int pagesize) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object serviceId=queryMap.get("serviceId");
+					Object serviceId_gt=queryMap.get("serviceId_gt");
+					Object serviceId_ge=queryMap.get("serviceId_ge");
+					Object serviceId_lt=queryMap.get("serviceId_lt");
+					Object serviceId_le=queryMap.get("serviceId_le");
+					Object serviceId_in=queryMap.get("serviceId_in");
+															  					Object photoUrl=queryMap.get("photoUrl");
+					Object photoUrl_like=queryMap.get("photoUrl_like");
+					Object photoUrl_isNull=queryMap.get("photoUrl_isNull");
+					Object photoUrl_isNotNull=queryMap.get("photoUrl_isNotNull");
+					Object photoUrl_in=queryMap.get("photoUrl_in");
+				   																Object showIndex=queryMap.get("showIndex");
+					Object showIndex_gt=queryMap.get("showIndex_gt");
+					Object showIndex_ge=queryMap.get("showIndex_ge");
+					Object showIndex_lt=queryMap.get("showIndex_lt");
+					Object showIndex_le=queryMap.get("showIndex_le");
+					Object showIndex_in=queryMap.get("showIndex_in");
+							
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(ServicePhotoEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.in, id_in));}
+																if(serviceId!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.eq, serviceId));}
+					if(serviceId_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.gt, serviceId_gt));}
+					if(serviceId_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.ge, serviceId_ge));}
+					if(serviceId_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.lt, serviceId_lt));}
+					if(serviceId_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.le, serviceId_le));}
+					if(serviceId_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.in, serviceId_in));}
+															  					if(photoUrl!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.eq, photoUrl));}
+		            if(photoUrl_like!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.like, photoUrl_like));}
+		            if(photoUrl_isNull!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.isNull, photoUrl_isNull));}
+		            if(photoUrl_isNotNull!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.isNotNull, photoUrl_isNotNull));}
+				    if(photoUrl_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.in, photoUrl_in));}
+				  																if(showIndex!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.eq, showIndex));}
+					if(showIndex_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.gt, showIndex_gt));}
+					if(showIndex_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.ge, showIndex_ge));}
+					if(showIndex_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.lt, showIndex_lt));}
+					if(showIndex_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.le, showIndex_le));}
+					if(showIndex_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.in, showIndex_in));}
+										
+						  			            pagelist = dbManager.queryByCondition(ServicePhotoEntity.class,qc,pageno,pagesize);	                      			
+			return pagelist;
+		}
+		
+		/**
+		 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+		 * @param queryMap 查询条件集合
+		 * @param orderList 排序条件集合
+		 * @param pageno 查询页码
+		 * @param pagesize 查询每页记录条数
+		 		             	                 				     		 * @param serviceShow 是否查询关联信息,默认false(当为true时注意效率)
+				     				     				     		 		 * @return
+		 */
+		public PageList getListByCondition(Map<String,Object> queryMap,List<OrderVO> orderList,int pageno,int pagesize,Boolean serviceShow) {
+			PageList pagelist = null;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object serviceId=queryMap.get("serviceId");
+					Object serviceId_gt=queryMap.get("serviceId_gt");
+					Object serviceId_ge=queryMap.get("serviceId_ge");
+					Object serviceId_lt=queryMap.get("serviceId_lt");
+					Object serviceId_le=queryMap.get("serviceId_le");
+					Object serviceId_in=queryMap.get("serviceId_in");
+															  					Object photoUrl=queryMap.get("photoUrl");
+					Object photoUrl_like=queryMap.get("photoUrl_like");
+					Object photoUrl_isNull=queryMap.get("photoUrl_isNull");
+					Object photoUrl_isNotNull=queryMap.get("photoUrl_isNotNull");
+					Object photoUrl_in=queryMap.get("photoUrl_in");
+				   																Object showIndex=queryMap.get("showIndex");
+					Object showIndex_gt=queryMap.get("showIndex_gt");
+					Object showIndex_ge=queryMap.get("showIndex_ge");
+					Object showIndex_lt=queryMap.get("showIndex_lt");
+					Object showIndex_le=queryMap.get("showIndex_le");
+					Object showIndex_in=queryMap.get("showIndex_in");
+							
+			
+
+													
+			
+			QueryCondition qc = new QueryCondition(ServicePhotoEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.in, id_in));}
+																if(serviceId!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.eq, serviceId));}
+					if(serviceId_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.gt, serviceId_gt));}
+					if(serviceId_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.ge, serviceId_ge));}
+					if(serviceId_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.lt, serviceId_lt));}
+					if(serviceId_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.le, serviceId_le));}
+					if(serviceId_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.in, serviceId_in));}
+															  					if(photoUrl!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.eq, photoUrl));}
+		            if(photoUrl_like!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.like, photoUrl_like));}
+		            if(photoUrl_isNull!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.isNull, photoUrl_isNull));}
+		            if(photoUrl_isNotNull!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.isNotNull, photoUrl_isNotNull));}
+				    if(photoUrl_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.in, photoUrl_in));}
+				  																if(showIndex!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.eq, showIndex));}
+					if(showIndex_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.gt, showIndex_gt));}
+					if(showIndex_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.ge, showIndex_ge));}
+					if(showIndex_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.lt, showIndex_lt));}
+					if(showIndex_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.le, showIndex_le));}
+					if(showIndex_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.in, showIndex_in));}
+										
+						  						OrderByCondition oc = null;
+			if(orderList!=null&&orderList.size()>0){
+				for(int i=0;i<orderList.size();i++){
+					OrderVO order = orderList.get(i);
+					String orderColumnt =null;
+					String orderType=null;
+					if(order.getName()!=null&&!"".equals(order.getName())){
+						orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+						orderType = order.getOrderType();
+						if(orderType==null||"".equals(orderType.trim())){
+							orderType=OrderByCondition.desc;
+						}
+						if(i==0){
+							oc = new OrderByCondition(orderColumnt,orderType);
+						}else{
+							oc.orderByCondition(new OrderByCondition(orderColumnt,orderType));
+						}					
+					}
+					
+				}
+			}		
+            pagelist = dbManager.queryByConditions(ServicePhotoEntity.class,qc,oc,pageno,pagesize);	           
+                                    int a=0;
+            					             	                 				     				     if(serviceShow!=null&&serviceShow.booleanValue()){
+						a++;
+					 }
+				     				     				     		    		                if(a>0&&pagelist!=null&&pagelist.getResultList()!=null&&pagelist.getResultList().size()>0){
+				List<Object> result = new ArrayList<Object>();
+				for(int i=0;i<pagelist.getResultList().size();i++){
+					ServicePhotoEntity obj = (ServicePhotoEntity)pagelist.getResultList().get(i);
+										 	                 				     				        //查询关联内容
+						if(serviceShow!=null&&serviceShow.booleanValue()&&obj!=null&&obj.getServiceId()!=null&&obj.getServiceId()>0){
+							ServiceEntity service = (ServiceEntity)dbManager.getById(obj.getServiceId(), ServiceEntity.class);
+							obj.setService(service);        	  	  
+						}
+				     				     				     				    					result.add(obj);					
+				}
+				pagelist.setResultList(result);			
+		}	
+					return pagelist;
+		}
+		
+		/**
+		 * 删除记录
+		 * 
+		 * @param id 主键
+		 * @param obj
+		 */
+		public boolean del(Integer id,Boolean delService) {
+			boolean result = false;
+			if (id !=null&&id>0) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 					
+										 	                 				     					    //删除关联信息
+						if(delService!=null&&delService.booleanValue()){	
+							ServicePhotoEntity servicePhoto = (ServicePhotoEntity)dbManager.getById(id, ServicePhotoEntity.class);
+							if(servicePhoto!=null&&servicePhoto.getServiceId()!=null){
+								dbManager.delNoTransaction(servicePhoto.getServiceId(), ServiceEntity.class);
+							}						
+						}
+				     				     				     										result = dbManager.delNoTransaction(id, ServicePhotoEntity.class);
+					tx.commitAndClose(); 
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		/**
+		 * 批量删除记录
+		 * 
+		 * @param ids
+		 *            主键 英文逗号间隔
+		 * @param obj
+		 */
+		public boolean del(String ids) {
+			boolean result = false;
+			if (ids != null && !"".equals(ids.trim())) {
+				TransactionManager tx = DbUtils.getTranManager();
+				try {
+					tx.beginTransaction();
+					QueryCondition qc = new QueryCondition(ServicePhotoEntity.ID,QueryCondition.in, ids);
+					result = dbManager.delByConditionsNoTransaction(ServicePhotoEntity.class, qc);
+					tx.commitAndClose();
+				} catch (Exception e) {
+					logger.error("数据库提交失败！");
+					logger.error(e);
+					result = false;
+					try {
+						tx.rollbackAndClose();
+					} catch (Exception ex) {
+						logger.error("数据库回滚失败！");
+						logger.error(ex);
+					}
+				}
+			}
+			return result;
+		}
+
+		/**
+		 * 批量条件删除记录
+		 * @param queryMap 查询条件集合
+		 */
+		public boolean delList(Map<String,Object> queryMap,Boolean delService) {
+			boolean result = false;
+			if(queryMap==null){
+				queryMap = new HashMap<String,Object>();
+			}
+												Object id=queryMap.get("id");
+					Object id_gt=queryMap.get("id_gt");
+					Object id_ge=queryMap.get("id_ge");
+					Object id_lt=queryMap.get("id_lt");
+					Object id_le=queryMap.get("id_le");
+					Object id_in=queryMap.get("id_in");
+																Object serviceId=queryMap.get("serviceId");
+					Object serviceId_gt=queryMap.get("serviceId_gt");
+					Object serviceId_ge=queryMap.get("serviceId_ge");
+					Object serviceId_lt=queryMap.get("serviceId_lt");
+					Object serviceId_le=queryMap.get("serviceId_le");
+					Object serviceId_in=queryMap.get("serviceId_in");
+															  					Object photoUrl=queryMap.get("photoUrl");
+					Object photoUrl_like=queryMap.get("photoUrl_like");
+					Object photoUrl_isNull=queryMap.get("photoUrl_isNull");
+					Object photoUrl_isNotNull=queryMap.get("photoUrl_isNotNull");
+					Object photoUrl_in=queryMap.get("photoUrl_in");
+				  																Object showIndex=queryMap.get("showIndex");
+					Object showIndex_gt=queryMap.get("showIndex_gt");
+					Object showIndex_ge=queryMap.get("showIndex_ge");
+					Object showIndex_lt=queryMap.get("showIndex_lt");
+					Object showIndex_le=queryMap.get("showIndex_le");
+					Object showIndex_in=queryMap.get("showIndex_in");
+																				
+			QueryCondition qc = new QueryCondition(ServicePhotoEntity.ID, QueryCondition.gt, "0");				
+												if(id!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.eq, id));}
+					if(id_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.gt, id_gt));}
+					if(id_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.ge, id_ge));}
+					if(id_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.lt, id_lt));}
+					if(id_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.le, id_le));}
+					if(id_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.ID, QueryCondition.in, id_in));}
+																if(serviceId!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.eq, serviceId));}
+					if(serviceId_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.gt, serviceId_gt));}
+					if(serviceId_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.ge, serviceId_ge));}
+					if(serviceId_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.lt, serviceId_lt));}
+					if(serviceId_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.le, serviceId_le));}
+					if(serviceId_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SERVICE_ID, QueryCondition.in, serviceId_in));}
+															  					if(photoUrl!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.eq, photoUrl));}
+		            if(photoUrl_like!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.like, photoUrl_like));}
+		            if(photoUrl_isNull!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.isNull, photoUrl_isNull));}
+		            if(photoUrl_isNotNull!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.isNotNull, photoUrl_isNotNull));}
+				    if(photoUrl_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.PHOTO_URL, QueryCondition.in, photoUrl_in));}
+				  																if(showIndex!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.eq, showIndex));}
+					if(showIndex_gt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.gt, showIndex_gt));}
+					if(showIndex_ge!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.ge, showIndex_ge));}
+					if(showIndex_lt!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.lt, showIndex_lt));}
+					if(showIndex_le!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.le, showIndex_le));}
+					if(showIndex_in!=null){qc.andCondition(new QueryCondition(ServicePhotoEntity.SHOW_INDEX, QueryCondition.in, showIndex_in));}
+										
+				            						if (qc.getQueryNextCondition()!=null) {
+				TransactionManager tx = DbUtils.getTranManager();   
+				try{   
+					tx.beginTransaction(); 						
+										 	                 				     					     //删除关联信息
+						if(delService!=null&&delService.booleanValue()){
+							List<Object> list=dbManager.queryByConditionNoTransaction(ServicePhotoEntity.class,qc);
+							String strIds="";
+							if(list!=null&&list.size()>0){
+								for(Object obj:list){
+									ServicePhotoEntity entity=(ServicePhotoEntity)obj;
+									strIds += entity.getServiceId()+",";
+								}
+								strIds = strIds.substring(0, strIds.length()-1);
+							}
+							if(strIds!=null&&!"".equals(strIds)){
+								QueryCondition qc1 = new QueryCondition(ServiceEntity.ID, QueryCondition.in, strIds);
+								dbManager.delByConditionsNoTransaction(ServiceEntity.class, qc1);
+							}
+							
+						}
+				     				     				     										result = dbManager.delByConditionsNoTransaction(ServicePhotoEntity.class,qc);				
+					tx.commitAndClose();  
+				}catch (Exception e) { 
+					 logger.error("数据库提交失败！");
+					 logger.error(e);
+					 result = false;
+				     try {
+						   tx.rollbackAndClose();
+					 } catch (Exception ex) {					   
+						   logger.error("数据库回滚失败！");
+						   logger.error(ex);
+					 }   
+				}  
+			}
+			return result;
+		}
+		
+		
+}

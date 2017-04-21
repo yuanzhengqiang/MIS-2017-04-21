@@ -1,0 +1,3676 @@
+package fsk.parse.healthAssessment;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.util.JsonUtil;
+
+import fsk.entity.adl.AdlEntity;
+import fsk.entity.barthel.BarthelEntity;
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.fall.FallEntity;
+import fsk.entity.fca.FcaEntity;
+import fsk.entity.healthAssessment.HealthAssessmentEntity;
+import fsk.entity.healthReport.HealthReportEntity;
+import fsk.entity.healthReportPhoto.HealthReportPhotoEntity;
+import fsk.entity.mas.MasEntity;
+import fsk.entity.mmse.MmseEntity;
+import fsk.entity.nutrition.NutritionEntity;
+import fsk.entity.older.OlderEntity;
+import fsk.entity.recovery.RecoveryEntity;
+import fsk.entity.skinLesions.SkinLesionsEntity;
+import fsk.entity.sore.SoreEntity;
+
+/**
+ * @Title: Parse
+ * @Description: 健康评估解析器
+ * @author feng.gu
+ * @date 2016-08-11 17:31:29
+ * @version V1.0
+ * 
+ */
+public class HealthAssessmentParse {
+	private static Logger logger = Logger
+			.getLogger(HealthAssessmentParse.class);
+	private static HealthAssessmentParse healthAssessmentParse;
+	private DBManager dbManager = DBManager.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static HealthAssessmentParse getInstance() {
+		if (healthAssessmentParse == null) {
+			healthAssessmentParse = new HealthAssessmentParse();
+		}
+		return healthAssessmentParse;
+	}
+
+	public Map<String, Object> parse(int type, String command, String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			parseMap = this.parseByJson(command, reqStr, request);
+		} else if (type == 2) {
+			// xml
+			parseMap = this.parseByXml(command, reqStr, request);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByJson(String command, String reqStr,
+			HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		try {
+			String actionReturn = null;
+			HealthAssessmentEntity healthAssessmentReturn = null;
+			List<HealthAssessmentEntity> healthAssessmentListReturn = null;
+			Integer idReturn = null;
+			Map<String, Object> queryMapReturn = null;
+			int pagenoReturn = 1;
+			int pagesizeReturn = 10;
+			List<OrderVO> orderListReturn = null;
+
+			Boolean employeeShowReturn = false;
+			Boolean delEmployeeReturn = false;
+			Boolean olderShowReturn = false;
+			Boolean delOlderReturn = false;
+			Boolean healthReportShowReturn = false;
+			Boolean delHealthReportReturn = false;
+			Boolean recoveryShowReturn = false;
+			Boolean delRecoveryReturn = false;
+			Boolean adlShowReturn = false;
+			Boolean delAdlReturn = false;
+			Boolean nutritionShowReturn = false;
+			Boolean delNutritionReturn = false;
+			Boolean fallShowReturn = false;
+			Boolean delFallReturn = false;
+			Boolean soreShowReturn = false;
+			Boolean delSoreReturn = false;
+			Boolean mmseShowReturn = false;
+			Boolean delMmseReturn = false;
+			Boolean masShowReturn = false;
+			Boolean delMasReturn = false;
+			Boolean barthelShowReturn = false;
+			Boolean delBarthelReturn = false;
+			Boolean fcaShowReturn = false;
+			Boolean delFcaReturn = false;
+
+			// json
+			Map reqParams = JsonUtil.getMap4Json(reqStr);
+			JSONObject contentreq = (JSONObject) reqParams.get("content");
+			if ("ADD_HEALTH_ASSESSMENT_INFO_REQUEST".equals(command)) {
+				actionReturn = "save";
+				healthAssessmentReturn = new HealthAssessmentEntity();
+				if (true) {
+					if (contentreq != null) {
+						Integer id = (Integer) contentreq.get("id");
+						if (id != null) {
+							healthAssessmentReturn.setId(id);
+							/*分量保存pei*/
+							healthAssessmentReturn  = (HealthAssessmentEntity)dbManager.getById(id, HealthAssessmentEntity.class);
+						}
+						String assessmentTime = (String) contentreq
+								.get("assessmentTime");
+						if (assessmentTime != null) {
+							healthAssessmentReturn
+									.setAssessmentTime(assessmentTime);
+						}
+						Integer olderId = (Integer) contentreq.get("olderId");
+						if (olderId != null) {
+							healthAssessmentReturn.setOlderId(olderId);
+						}
+						Integer employeeId = (Integer) contentreq
+								.get("employeeId");
+						if (employeeId != null) {
+							healthAssessmentReturn.setEmployeeId(employeeId);
+						}
+						Integer type = (Integer) contentreq.get("type");
+						if (type != null) {
+							healthAssessmentReturn.setType(type);
+						}
+						Integer status = (Integer) contentreq.get("status");
+						if (status != null) {
+							healthAssessmentReturn.setStatus(status);
+						}
+						Integer healthReportId = (Integer) contentreq
+								.get("healthReportId");
+						if (healthReportId != null) {
+							healthAssessmentReturn
+									.setHealthReportId(healthReportId);
+						}
+						Integer recoveryId = (Integer) contentreq
+								.get("recoveryId");
+						if (recoveryId != null) {
+							healthAssessmentReturn.setRecoveryId(recoveryId);
+						}
+						Integer adlId = (Integer) contentreq.get("adlId");
+						if (adlId != null) {
+							healthAssessmentReturn.setAdlId(adlId);
+						}
+						Integer nutritionId = (Integer) contentreq
+								.get("nutritionId");
+						if (nutritionId != null) {
+							healthAssessmentReturn.setNutritionId(nutritionId);
+						}
+						Integer fallId = (Integer) contentreq.get("fallId");
+						if (fallId != null) {
+							healthAssessmentReturn.setFallId(fallId);
+						}
+						Integer soreId = (Integer) contentreq.get("soreId");
+						if (soreId != null) {
+							healthAssessmentReturn.setSoreId(soreId);
+						}
+						Integer mmseId = (Integer) contentreq.get("mmseId");
+						if (mmseId != null) {
+							healthAssessmentReturn.setMmseId(mmseId);
+						}
+						Integer taskStatus = (Integer) contentreq
+								.get("taskStatus");
+						if (taskStatus != null) {
+							healthAssessmentReturn.setTaskStatus(taskStatus);
+						}
+						Integer masId = (Integer) contentreq.get("masId");
+						if (masId != null) {
+							healthAssessmentReturn.setMasId(masId);
+						}
+						Integer barthelId = (Integer) contentreq
+								.get("barthelId");
+						if (barthelId != null) {
+							healthAssessmentReturn.setBarthelId(barthelId);
+						}
+						Integer fcaId = (Integer) contentreq.get("fcaId");
+						if (fcaId != null) {
+							healthAssessmentReturn.setFcaId(fcaId);
+						}
+					}
+				}
+				if (true) {
+					Object employee = contentreq.get("employee");
+					if (employee != null) {
+						JSONObject obj = (JSONObject) employee;
+						if (obj != null) {
+							EmployeeEntity entity = new EmployeeEntity();
+							healthAssessmentReturn.setEmployee(entity);
+						}
+					}
+				}
+				if (true) {
+					Object older = contentreq.get("older");
+					if (older != null) {
+						JSONObject obj = (JSONObject) older;
+						if (obj != null) {
+							OlderEntity entity = new OlderEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							Integer nurseEmployeeId = (Integer) obj
+									.get("nurseEmployeeId");
+							if (nurseEmployeeId != null) {
+								entity.setNurseEmployeeId(nurseEmployeeId);
+							}
+							Integer userId = (Integer) obj.get("userId");
+							if (userId != null) {
+								entity.setUserId(userId);
+							}
+							String memberNum = (String) obj.get("memberNum");
+							if (memberNum != null) {
+								entity.setMemberNum(memberNum);
+							}
+							String memberSource = (String) obj
+									.get("memberSource");
+							if (memberSource != null) {
+								entity.setMemberSource(memberSource);
+							}
+							String attentionPoint = (String) obj
+									.get("attentionPoint");
+							if (attentionPoint != null) {
+								entity.setAttentionPoint(attentionPoint);
+							}
+							Integer nurseLevel = (Integer) obj
+									.get("nurseLevel");
+							if (nurseLevel != null) {
+								entity.setNurseLevel(nurseLevel);
+							}
+							Integer memberStatus = (Integer) obj
+									.get("memberStatus");
+							if (memberStatus != null) {
+								entity.setMemberStatus(memberStatus);
+							}
+							String lastAssessmentDate = (String) obj
+									.get("lastAssessmentDate");
+							if (lastAssessmentDate != null) {
+								entity.setLastAssessmentDate(lastAssessmentDate);
+							}
+							Integer assessmentCycle = (Integer) obj
+									.get("assessmentCycle");
+							if (assessmentCycle != null) {
+								entity.setAssessmentCycle(assessmentCycle);
+							}
+							Double chargeMonth = JsonUtil.getJSONDouble(obj,
+									"chargeMonth");
+							if (chargeMonth != null) {
+								entity.setChargeMonth(BigDecimal
+										.valueOf(chargeMonth));
+							}
+							Integer requiredServiceTimes = (Integer) obj
+									.get("requiredServiceTimes");
+							if (requiredServiceTimes != null) {
+								entity.setRequiredServiceTimes(requiredServiceTimes);
+							}
+							Integer alreadyServiceTimes = (Integer) obj
+									.get("alreadyServiceTimes");
+							if (alreadyServiceTimes != null) {
+								entity.setAlreadyServiceTimes(alreadyServiceTimes);
+							}
+							String mainPhoto = (String) obj.get("mainPhoto");
+							if (mainPhoto != null) {
+								entity.setMainPhoto(mainPhoto);
+							}
+							String name = (String) obj.get("name");
+							if (name != null) {
+								entity.setName(name);
+							}
+							String idnumber = (String) obj.get("idnumber");
+							if (idnumber != null) {
+								entity.setIdnumber(idnumber);
+							}
+							String socialSecurityNumber = (String) obj
+									.get("socialSecurityNumber");
+							if (socialSecurityNumber != null) {
+								entity.setSocialSecurityNumber(socialSecurityNumber);
+							}
+							String gender = (String) obj.get("gender");
+							if (gender != null) {
+								entity.setGender(gender);
+							}
+							String birthdate = (String) obj.get("birthdate");
+							if (birthdate != null) {
+								entity.setBirthdate(birthdate);
+							}
+							String nation = (String) obj.get("nation");
+							if (nation != null) {
+								entity.setNation(nation);
+							}
+							String education = (String) obj.get("education");
+							if (education != null) {
+								entity.setEducation(education);
+							}
+							String maritalStatus = (String) obj
+									.get("maritalStatus");
+							if (maritalStatus != null) {
+								entity.setMaritalStatus(maritalStatus);
+							}
+							String occupation = (String) obj.get("occupation");
+							if (occupation != null) {
+								entity.setOccupation(occupation);
+							}
+							String homeTel = (String) obj.get("homeTel");
+							if (homeTel != null) {
+								entity.setHomeTel(homeTel);
+							}
+							String mobileTel = (String) obj.get("mobileTel");
+							if (mobileTel != null) {
+								entity.setMobileTel(mobileTel);
+							}
+							String bloodType = (String) obj.get("bloodType");
+							if (bloodType != null) {
+								entity.setBloodType(bloodType);
+							}
+							String symptom = (String) obj.get("symptom");
+							if (symptom != null) {
+								entity.setSymptom(symptom);
+							}
+							String symptomOther = (String) obj
+									.get("symptomOther");
+							if (symptomOther != null) {
+								entity.setSymptomOther(symptomOther);
+							}
+							String drugAllergy = (String) obj
+									.get("drugAllergy");
+							if (drugAllergy != null) {
+								entity.setDrugAllergy(drugAllergy);
+							}
+							String drugAllergyOther = (String) obj
+									.get("drugAllergyOther");
+							if (drugAllergyOther != null) {
+								entity.setDrugAllergyOther(drugAllergyOther);
+							}
+							String cognitive = (String) obj.get("cognitive");
+							if (cognitive != null) {
+								entity.setCognitive(cognitive);
+							}
+							String emotion = (String) obj.get("emotion");
+							if (emotion != null) {
+								entity.setEmotion(emotion);
+							}
+							String sportsFre = (String) obj.get("sportsFre");
+							if (sportsFre != null) {
+								entity.setSportsFre(sportsFre);
+							}
+							Integer sportsTime = (Integer) obj
+									.get("sportsTime");
+							if (sportsTime != null) {
+								entity.setSportsTime(sportsTime);
+							}
+							Integer holdSportsTime = (Integer) obj
+									.get("holdSportsTime");
+							if (holdSportsTime != null) {
+								entity.setHoldSportsTime(holdSportsTime);
+							}
+							String sportsType = (String) obj.get("sportsType");
+							if (sportsType != null) {
+								entity.setSportsType(sportsType);
+							}
+							String diet = (String) obj.get("diet");
+							if (diet != null) {
+								entity.setDiet(diet);
+							}
+							String smoking = (String) obj.get("smoking");
+							if (smoking != null) {
+								entity.setSmoking(smoking);
+							}
+							Integer smokingDay = (Integer) obj
+									.get("smokingDay");
+							if (smokingDay != null) {
+								entity.setSmokingDay(smokingDay);
+							}
+							String quitAlcohol = (String) obj
+									.get("quitAlcohol");
+							if (quitAlcohol != null) {
+								entity.setQuitAlcohol(quitAlcohol);
+							}
+							Integer quitAlcoholAge = (Integer) obj
+									.get("quitAlcoholAge");
+							if (quitAlcoholAge != null) {
+								entity.setQuitAlcoholAge(quitAlcoholAge);
+							}
+							Integer startAlcoholAge = (Integer) obj
+									.get("startAlcoholAge");
+							if (startAlcoholAge != null) {
+								entity.setStartAlcoholAge(startAlcoholAge);
+							}
+							Integer drunkYear = (Integer) obj.get("drunkYear");
+							if (drunkYear != null) {
+								entity.setDrunkYear(drunkYear);
+							}
+							String alcoholType = (String) obj
+									.get("alcoholType");
+							if (alcoholType != null) {
+								entity.setAlcoholType(alcoholType);
+							}
+							String alcoholTypeOther = (String) obj
+									.get("alcoholTypeOther");
+							if (alcoholTypeOther != null) {
+								entity.setAlcoholTypeOther(alcoholTypeOther);
+							}
+							String brainBloodVessel = (String) obj
+									.get("brainBloodVessel");
+							if (brainBloodVessel != null) {
+								entity.setBrainBloodVessel(brainBloodVessel);
+							}
+							String brainBloodVesselOther = (String) obj
+									.get("brainBloodVesselOther");
+							if (brainBloodVesselOther != null) {
+								entity.setBrainBloodVesselOther(brainBloodVesselOther);
+							}
+							String kindney = (String) obj.get("kindney");
+							if (kindney != null) {
+								entity.setKindney(kindney);
+							}
+							String kindneyOther = (String) obj
+									.get("kindneyOther");
+							if (kindneyOther != null) {
+								entity.setKindneyOther(kindneyOther);
+							}
+							String heart = (String) obj.get("heart");
+							if (heart != null) {
+								entity.setHeart(heart);
+							}
+							String heartOther = (String) obj.get("heartOther");
+							if (heartOther != null) {
+								entity.setHeartOther(heartOther);
+							}
+							String bloodVessel = (String) obj
+									.get("bloodVessel");
+							if (bloodVessel != null) {
+								entity.setBloodVessel(bloodVessel);
+							}
+							String bloodVesselOther = (String) obj
+									.get("bloodVesselOther");
+							if (bloodVesselOther != null) {
+								entity.setBloodVesselOther(bloodVesselOther);
+							}
+							String eye = (String) obj.get("eye");
+							if (eye != null) {
+								entity.setEye(eye);
+							}
+							String eyeOther = (String) obj.get("eyeOther");
+							if (eyeOther != null) {
+								entity.setEyeOther(eyeOther);
+							}
+							String otherDisease = (String) obj
+									.get("otherDisease");
+							if (otherDisease != null) {
+								entity.setOtherDisease(otherDisease);
+							}
+							Integer serviceProvinceId = (Integer) obj
+									.get("serviceProvinceId");
+							if (serviceProvinceId != null) {
+								entity.setServiceProvinceId(serviceProvinceId);
+							}
+							Integer serviceCityId = (Integer) obj
+									.get("serviceCityId");
+							if (serviceCityId != null) {
+								entity.setServiceCityId(serviceCityId);
+							}
+							Integer serviceAreaId = (Integer) obj
+									.get("serviceAreaId");
+							if (serviceAreaId != null) {
+								entity.setServiceAreaId(serviceAreaId);
+							}
+							Integer serviceStreetId = (Integer) obj
+									.get("serviceStreetId");
+							if (serviceStreetId != null) {
+								entity.setServiceStreetId(serviceStreetId);
+							}
+							String familyComposition = (String) obj
+									.get("familyComposition");
+							if (familyComposition != null) {
+								entity.setFamilyComposition(familyComposition);
+							}
+							String live = (String) obj.get("live");
+							if (live != null) {
+								entity.setLive(live);
+							}
+							String liveOther = (String) obj.get("liveOther");
+							if (liveOther != null) {
+								entity.setLiveOther(liveOther);
+							}
+							String economic = (String) obj.get("economic");
+							if (economic != null) {
+								entity.setEconomic(economic);
+							}
+							String economicOther = (String) obj
+									.get("economicOther");
+							if (economicOther != null) {
+								entity.setEconomicOther(economicOther);
+							}
+							String house = (String) obj.get("house");
+							if (house != null) {
+								entity.setHouse(house);
+							}
+							String houseOther = (String) obj.get("houseOther");
+							if (houseOther != null) {
+								entity.setHouseOther(houseOther);
+							}
+							String interest = (String) obj.get("interest");
+							if (interest != null) {
+								entity.setInterest(interest);
+							}
+							String lifeExperience = (String) obj
+									.get("lifeExperience");
+							if (lifeExperience != null) {
+								entity.setLifeExperience(lifeExperience);
+							}
+							String specialExperience = (String) obj
+									.get("specialExperience");
+							if (specialExperience != null) {
+								entity.setSpecialExperience(specialExperience);
+							}
+							String specialExperienceOther = (String) obj
+									.get("specialExperienceOther");
+							if (specialExperienceOther != null) {
+								entity.setSpecialExperienceOther(specialExperienceOther);
+							}
+							String residence = (String) obj.get("residence");
+							if (residence != null) {
+								entity.setResidence(residence);
+							}
+							String elevator = (String) obj.get("elevator");
+							if (elevator != null) {
+								entity.setElevator(elevator);
+							}
+							String step = (String) obj.get("step");
+							if (step != null) {
+								entity.setStep(step);
+							}
+							String stepOther = (String) obj.get("stepOther");
+							if (stepOther != null) {
+								entity.setStepOther(stepOther);
+							}
+							String restroom = (String) obj.get("restroom");
+							if (restroom != null) {
+								entity.setRestroom(restroom);
+							}
+							String restroomOther = (String) obj
+									.get("restroomOther");
+							if (restroomOther != null) {
+								entity.setRestroomOther(restroomOther);
+							}
+							String bathroomTub = (String) obj
+									.get("bathroomTub");
+							if (bathroomTub != null) {
+								entity.setBathroomTub(bathroomTub);
+							}
+							String bathroomShower = (String) obj
+									.get("bathroomShower");
+							if (bathroomShower != null) {
+								entity.setBathroomShower(bathroomShower);
+							}
+							String bathroomStrip = (String) obj
+									.get("bathroomStrip");
+							if (bathroomStrip != null) {
+								entity.setBathroomStrip(bathroomStrip);
+							}
+							String kitchenOther = (String) obj
+									.get("kitchenOther");
+							if (kitchenOther != null) {
+								entity.setKitchenOther(kitchenOther);
+							}
+							String kitchen = (String) obj.get("kitchen");
+							if (kitchen != null) {
+								entity.setKitchen(kitchen);
+							}
+							String clean = (String) obj.get("clean");
+							if (clean != null) {
+								entity.setClean(clean);
+							}
+							String shopping = (String) obj.get("shopping");
+							if (shopping != null) {
+								entity.setShopping(shopping);
+							}
+							String shoppingTraffic = (String) obj
+									.get("shoppingTraffic");
+							if (shoppingTraffic != null) {
+								entity.setShoppingTraffic(shoppingTraffic);
+							}
+							String shoppingAccessibility = (String) obj
+									.get("shoppingAccessibility");
+							if (shoppingAccessibility != null) {
+								entity.setShoppingAccessibility(shoppingAccessibility);
+							}
+							String shoppingOther = (String) obj
+									.get("shoppingOther");
+							if (shoppingOther != null) {
+								entity.setShoppingOther(shoppingOther);
+							}
+							String livingEnvironmentDefect = (String) obj
+									.get("livingEnvironmentDefect");
+							if (livingEnvironmentDefect != null) {
+								entity.setLivingEnvironmentDefect(livingEnvironmentDefect);
+							}
+							String dailyWater = (String) obj.get("dailyWater");
+							if (dailyWater != null) {
+								entity.setDailyWater(dailyWater);
+							}
+							String dailyDrinking = (String) obj
+									.get("dailyDrinking");
+							if (dailyDrinking != null) {
+								entity.setDailyDrinking(dailyDrinking);
+							}
+							String drinking = (String) obj.get("drinking");
+							if (drinking != null) {
+								entity.setDrinking(drinking);
+							}
+							String gadget = (String) obj.get("gadget");
+							if (gadget != null) {
+								entity.setGadget(gadget);
+							}
+							String mainFood = (String) obj.get("mainFood");
+							if (mainFood != null) {
+								entity.setMainFood(mainFood);
+							}
+							String fruitsVegetables = (String) obj
+									.get("fruitsVegetables");
+							if (fruitsVegetables != null) {
+								entity.setFruitsVegetables(fruitsVegetables);
+							}
+							String salt = (String) obj.get("salt");
+							if (salt != null) {
+								entity.setSalt(salt);
+							}
+							String oil = (String) obj.get("oil");
+							if (oil != null) {
+								entity.setOil(oil);
+							}
+							String fish = (String) obj.get("fish");
+							if (fish != null) {
+								entity.setFish(fish);
+							}
+							String meat = (String) obj.get("meat");
+							if (meat != null) {
+								entity.setMeat(meat);
+							}
+							String beanProducts = (String) obj
+									.get("beanProducts");
+							if (beanProducts != null) {
+								entity.setBeanProducts(beanProducts);
+							}
+							String milk = (String) obj.get("milk");
+							if (milk != null) {
+								entity.setMilk(milk);
+							}
+							String foodForm = (String) obj.get("foodForm");
+							if (foodForm != null) {
+								entity.setFoodForm(foodForm);
+							}
+							String dysphagia = (String) obj.get("dysphagia");
+							if (dysphagia != null) {
+								entity.setDysphagia(dysphagia);
+							}
+							String morningSit = (String) obj.get("morningSit");
+							if (morningSit != null) {
+								entity.setMorningSit(morningSit);
+							}
+							String noonSit = (String) obj.get("noonSit");
+							if (noonSit != null) {
+								entity.setNoonSit(noonSit);
+							}
+							String nightSit = (String) obj.get("nightSit");
+							if (nightSit != null) {
+								entity.setNightSit(nightSit);
+							}
+							String lateAfternoonTea = (String) obj
+									.get("lateAfternoonTea");
+							if (lateAfternoonTea != null) {
+								entity.setLateAfternoonTea(lateAfternoonTea);
+							}
+							String urine = (String) obj.get("urine");
+							if (urine != null) {
+								entity.setUrine(urine);
+							}
+							String urineNum = (String) obj.get("urineNum");
+							if (urineNum != null) {
+								entity.setUrineNum(urineNum);
+							}
+							String urineMethod = (String) obj
+									.get("urineMethod");
+							if (urineMethod != null) {
+								entity.setUrineMethod(urineMethod);
+							}
+							String urineType = (String) obj.get("urineType");
+							if (urineType != null) {
+								entity.setUrineType(urineType);
+							}
+							String urineTypeOther = (String) obj
+									.get("urineTypeOther");
+							if (urineTypeOther != null) {
+								entity.setUrineTypeOther(urineTypeOther);
+							}
+							String shit = (String) obj.get("shit");
+							if (shit != null) {
+								entity.setShit(shit);
+							}
+							String shitDay = (String) obj.get("shitDay");
+							if (shitDay != null) {
+								entity.setShitDay(shitDay);
+							}
+							String shitMethod = (String) obj.get("shitMethod");
+							if (shitMethod != null) {
+								entity.setShitMethod(shitMethod);
+							}
+							String shitType = (String) obj.get("shitType");
+							if (shitType != null) {
+								entity.setShitType(shitType);
+							}
+							String shitTypeOther = (String) obj
+									.get("shitTypeOther");
+							if (shitTypeOther != null) {
+								entity.setShitTypeOther(shitTypeOther);
+							}
+							String sportsForm = (String) obj.get("sportsForm");
+							if (sportsForm != null) {
+								entity.setSportsForm(sportsForm);
+							}
+							String sportsT = (String) obj.get("sportsT");
+							if (sportsT != null) {
+								entity.setSportsT(sportsT);
+							}
+							String sportsF = (String) obj.get("sportsF");
+							if (sportsF != null) {
+								entity.setSportsF(sportsF);
+							}
+							String sportsNo = (String) obj.get("sportsNo");
+							if (sportsNo != null) {
+								entity.setSportsNo(sportsNo);
+							}
+							String bathNum = (String) obj.get("bathNum");
+							if (bathNum != null) {
+								entity.setBathNum(bathNum);
+							}
+							String bathMethod = (String) obj.get("bathMethod");
+							if (bathMethod != null) {
+								entity.setBathMethod(bathMethod);
+							}
+							String goOut = (String) obj.get("goOut");
+							if (goOut != null) {
+								entity.setGoOut(goOut);
+							}
+							String goOutOther = (String) obj.get("goOutOther");
+							if (goOutOther != null) {
+								entity.setGoOutOther(goOutOther);
+							}
+							String brush = (String) obj.get("brush");
+							if (brush != null) {
+								entity.setBrush(brush);
+							}
+							String communication = (String) obj
+									.get("communication");
+							if (communication != null) {
+								entity.setCommunication(communication);
+							}
+							String sleepHour = (String) obj.get("sleepHour");
+							if (sleepHour != null) {
+								entity.setSleepHour(sleepHour);
+							}
+							String sleepQuality = (String) obj
+									.get("sleepQuality");
+							if (sleepQuality != null) {
+								entity.setSleepQuality(sleepQuality);
+							}
+							String morningSpirit = (String) obj
+									.get("morningSpirit");
+							if (morningSpirit != null) {
+								entity.setMorningSpirit(morningSpirit);
+							}
+							healthAssessmentReturn.setOlder(entity);
+						}
+					}
+				}
+				if (true) {
+					Object healthReport = contentreq.get("healthReport");
+					if (healthReport != null) {
+						JSONObject obj = (JSONObject) healthReport;
+						if (obj != null) {
+							HealthReportEntity entity = new HealthReportEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							String assessmentTime = (String) obj
+									.get("assessmentTime");
+							if (assessmentTime != null) {
+								entity.setAssessmentTime(assessmentTime);
+							}
+							Integer employeeId = (Integer) obj
+									.get("employeeId");
+							if (employeeId != null) {
+								entity.setEmployeeId(employeeId);
+							}
+							String diseaseSummary = (String) obj
+									.get("diseaseSummary");
+							if (diseaseSummary != null) {
+								entity.setDiseaseSummary(diseaseSummary);
+							}
+							String recentRehabilitationGoals = (String) obj
+									.get("recentRehabilitationGoals");
+							if (recentRehabilitationGoals != null) {
+								entity.setRecentRehabilitationGoals(recentRehabilitationGoals);
+							}
+							String rehabilitationLongTermGoal = (String) obj
+									.get("rehabilitationLongTermGoal");
+							if (rehabilitationLongTermGoal != null) {
+								entity.setRehabilitationLongTermGoal(rehabilitationLongTermGoal);
+							}
+							String trainingProgram = (String) obj
+									.get("trainingProgram");
+							if (trainingProgram != null) {
+								entity.setTrainingProgram(trainingProgram);
+							}
+							Integer status = (Integer) obj.get("status");
+							if (status != null) {
+								entity.setStatus(status);
+							}
+							String mainProblem = (String) obj
+									.get("mainProblem");
+							if (mainProblem != null) {
+								entity.setMainProblem(mainProblem);
+							}
+							String suggest = (String) obj.get("suggest");
+							if (suggest != null) {
+								entity.setSuggest(suggest);
+							}
+							/* pei增加healthReportPhotoList */
+							if (true) {
+								Object healRep = obj
+										.get("healthReportPhotoList");
+								if (healRep != null) {
+									JSONArray list = (JSONArray) healRep;
+									if (list != null) {
+										List<HealthReportPhotoEntity> entityList = new ArrayList<HealthReportPhotoEntity>();
+										for (int i = 0; i < list.size(); i++) {
+											JSONObject obj2 = list
+													.getJSONObject(i);
+											if (obj2 != null) {
+												HealthReportPhotoEntity healentity = new HealthReportPhotoEntity();
+												Integer id2 = (Integer) obj2
+														.get("id");
+												if (id != null) {
+													healentity.setId(id2);
+												}
+												Integer healthReportId = (Integer) obj2
+														.get("healthReportId");
+												if (healthReportId != null) {
+													healentity
+															.setHealthReportId(healthReportId);
+												}
+
+												String photoUrl = (String) obj2
+														.get("photoUrl");
+												if (photoUrl != null) {
+													healentity
+															.setPhotoUrl(photoUrl);
+												}
+												String title = (String) obj2
+														.get("title");
+												if (title != null) {
+													healentity
+															.setTitle(title);
+												}
+												String des = (String) obj2
+														.get("des");
+												if (des != null) {
+													healentity
+															.setDes(des);
+												}
+												
+												Integer showIndex = (Integer) obj2
+														.get("showIndex");
+												if (showIndex != null) {
+													healentity
+															.setShowIndex(showIndex);
+												}
+												entityList.add(healentity);
+											}
+										}
+										entity.setHealthReportPhotoList(entityList);
+									}
+								}
+							}
+							//
+							healthAssessmentReturn.setHealthReport(entity);
+						}
+					}
+				}
+				if (true) {
+					Object recovery = contentreq.get("recovery");
+					if (recovery != null) {
+						JSONObject obj = (JSONObject) recovery;
+						if (obj != null) {
+							RecoveryEntity entity = new RecoveryEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							String recoveryTimeForTheFirstTime = (String) obj
+									.get("recoveryTimeForTheFirstTime");
+							if (recoveryTimeForTheFirstTime != null) {
+								entity.setRecoveryTimeForTheFirstTime(recoveryTimeForTheFirstTime);
+							}
+							Double bloodPressure1 = JsonUtil.getJSONDouble(obj,
+									"bloodPressure1");
+							if (bloodPressure1 != null) {
+								entity.setBloodPressure1(BigDecimal
+										.valueOf(bloodPressure1));
+							}
+							Double bloodPressure2 = JsonUtil.getJSONDouble(obj,
+									"bloodPressure2");
+							if (bloodPressure2 != null) {
+								entity.setBloodPressure2(BigDecimal
+										.valueOf(bloodPressure2));
+							}
+							Double pulse = JsonUtil.getJSONDouble(obj, "pulse");
+							if (pulse != null) {
+								entity.setPulse(BigDecimal.valueOf(pulse));
+							}
+							Double heartRate = JsonUtil.getJSONDouble(obj,
+									"heartRate");
+							if (heartRate != null) {
+								entity.setHeartRate(BigDecimal
+										.valueOf(heartRate));
+							}
+							String rhythm = (String) obj.get("rhythm");
+							if (rhythm != null) {
+								entity.setRhythm(rhythm);
+							}
+							Double breathing = JsonUtil.getJSONDouble(obj,
+									"breathing");
+							if (breathing != null) {
+								entity.setBreathing(BigDecimal
+										.valueOf(breathing));
+							}
+							String skinLesions = (String) obj
+									.get("skinLesions");
+							if (skinLesions != null) {
+								entity.setSkinLesions(skinLesions);
+							}
+							String stateOfConsciousness = (String) obj
+									.get("stateOfConsciousness");
+							if (stateOfConsciousness != null) {
+								entity.setStateOfConsciousness(stateOfConsciousness);
+							}
+							String languageFunction = (String) obj
+									.get("languageFunction");
+							if (languageFunction != null) {
+								entity.setLanguageFunction(languageFunction);
+							}
+							String bilateralNormal = (String) obj
+									.get("bilateralNormal");
+							if (bilateralNormal != null) {
+								entity.setBilateralNormal(bilateralNormal);
+							}
+							String dysfunction = (String) obj
+									.get("dysfunction");
+							if (dysfunction != null) {
+								entity.setDysfunction(dysfunction);
+							}
+							String handedness = (String) obj.get("handedness");
+							if (handedness != null) {
+								entity.setHandedness(handedness);
+							}
+							String limitedJointMovementOrFracture = (String) obj
+									.get("limitedJointMovementOrFracture");
+							if (limitedJointMovementOrFracture != null) {
+								entity.setLimitedJointMovementOrFracture(limitedJointMovementOrFracture);
+							}
+							String muscleToneUpperLimb = (String) obj
+									.get("muscleToneUpperLimb");
+							if (muscleToneUpperLimb != null) {
+								entity.setMuscleToneUpperLimb(muscleToneUpperLimb);
+							}
+							String muscleToneLowerLimb = (String) obj
+									.get("muscleToneLowerLimb");
+							if (muscleToneLowerLimb != null) {
+								entity.setMuscleToneLowerLimb(muscleToneLowerLimb);
+							}
+							String theBalanceFunctionOfTheSeat = (String) obj
+									.get("theBalanceFunctionOfTheSeat");
+							if (theBalanceFunctionOfTheSeat != null) {
+								entity.setTheBalanceFunctionOfTheSeat(theBalanceFunctionOfTheSeat);
+							}
+							String balanceFunction = (String) obj
+									.get("balanceFunction");
+							if (balanceFunction != null) {
+								entity.setBalanceFunction(balanceFunction);
+							}
+							String upperLimbMuscleStrength = (String) obj
+									.get("upperLimbMuscleStrength");
+							if (upperLimbMuscleStrength != null) {
+								entity.setUpperLimbMuscleStrength(upperLimbMuscleStrength);
+							}
+							String muscleStrengthOfLowerLimb = (String) obj
+									.get("muscleStrengthOfLowerLimb");
+							if (muscleStrengthOfLowerLimb != null) {
+								entity.setMuscleStrengthOfLowerLimb(muscleStrengthOfLowerLimb);
+							}
+							String reflectionDeepReflection = (String) obj
+									.get("reflectionDeepReflection");
+							if (reflectionDeepReflection != null) {
+								entity.setReflectionDeepReflection(reflectionDeepReflection);
+							}
+							String reflexShallowReflection = (String) obj
+									.get("reflexShallowReflection");
+							if (reflexShallowReflection != null) {
+								entity.setReflexShallowReflection(reflexShallowReflection);
+							}
+							String reflexPathologicalReflex = (String) obj
+									.get("reflexPathologicalReflex");
+							if (reflexPathologicalReflex != null) {
+								entity.setReflexPathologicalReflex(reflexPathologicalReflex);
+							}
+							String walkingAbilityWalkingAlone = (String) obj
+									.get("walkingAbilityWalkingAlone");
+							if (walkingAbilityWalkingAlone != null) {
+								entity.setWalkingAbilityWalkingAlone(walkingAbilityWalkingAlone);
+							}
+							String withTheSupportOfAssistiveWalking = (String) obj
+									.get("withTheSupportOfAssistiveWalking");
+							if (withTheSupportOfAssistiveWalking != null) {
+								entity.setWithTheSupportOfAssistiveWalking(withTheSupportOfAssistiveWalking);
+							}
+							String canNotWalk = (String) obj.get("canNotWalk");
+							if (canNotWalk != null) {
+								entity.setCanNotWalk(canNotWalk);
+							}
+							String coordinatedFingerNoseTest = (String) obj
+									.get("coordinatedFingerNoseTest");
+							if (coordinatedFingerNoseTest != null) {
+								entity.setCoordinatedFingerNoseTest(coordinatedFingerNoseTest);
+							}
+							String coordinatedStandShaking = (String) obj
+									.get("coordinatedStandShaking");
+							if (coordinatedStandShaking != null) {
+								entity.setCoordinatedStandShaking(coordinatedStandShaking);
+							}
+							String coordinatedTremor = (String) obj
+									.get("coordinatedTremor");
+							if (coordinatedTremor != null) {
+								entity.setCoordinatedTremor(coordinatedTremor);
+							}
+							String coordinationAndKneeTibiaTest = (String) obj
+									.get("coordinationAndKneeTibiaTest");
+							if (coordinationAndKneeTibiaTest != null) {
+								entity.setCoordinationAndKneeTibiaTest(coordinationAndKneeTibiaTest);
+							}
+							Double barthelIndex = JsonUtil.getJSONDouble(obj,
+									"barthelIndex");
+							if (barthelIndex != null) {
+								entity.setBarthelIndex(BigDecimal
+										.valueOf(barthelIndex));
+							}
+							Double masEvaluation = JsonUtil.getJSONDouble(obj,
+									"masEvaluation");
+							if (masEvaluation != null) {
+								entity.setMasEvaluation(BigDecimal
+										.valueOf(masEvaluation));
+							}
+							Double facEvaluation = JsonUtil.getJSONDouble(obj,
+									"facEvaluation");
+							if (facEvaluation != null) {
+								entity.setFacEvaluation(BigDecimal
+										.valueOf(facEvaluation));
+							}
+							String shoulderSubluxation = (String) obj
+									.get("shoulderSubluxation");
+							if (shoulderSubluxation != null) {
+								entity.setShoulderSubluxation(shoulderSubluxation);
+							}
+							String contractureOfAchillesTendon = (String) obj
+									.get("contractureOfAchillesTendon");
+							if (contractureOfAchillesTendon != null) {
+								entity.setContractureOfAchillesTendon(contractureOfAchillesTendon);
+							}
+							String varusFootDrop = (String) obj
+									.get("varusFootDrop");
+							if (varusFootDrop != null) {
+								entity.setVarusFootDrop(varusFootDrop);
+							}
+							String kneeTooDeep = (String) obj
+									.get("kneeTooDeep");
+							if (kneeTooDeep != null) {
+								entity.setKneeTooDeep(kneeTooDeep);
+							}
+							String shallowFeeling = (String) obj
+									.get("shallowFeeling");
+							if (shallowFeeling != null) {
+								entity.setShallowFeeling(shallowFeeling);
+							}
+							String deepFeeling = (String) obj
+									.get("deepFeeling");
+							if (deepFeeling != null) {
+								entity.setDeepFeeling(deepFeeling);
+							}
+							String complexFeeling = (String) obj
+									.get("complexFeeling");
+							if (complexFeeling != null) {
+								entity.setComplexFeeling(complexFeeling);
+							}
+							String pain = (String) obj.get("pain");
+							if (pain != null) {
+								entity.setPain(pain);
+							}
+							String jointMobility = (String) obj
+									.get("jointMobility");
+							if (jointMobility != null) {
+								entity.setJointMobility(jointMobility);
+							}
+							/* pei */
+
+							if (true) {
+								Object employee = obj.get("skinLesionsList");
+								if (employee != null) {
+									JSONArray list = (JSONArray) employee;
+									if (list != null) {
+										List<SkinLesionsEntity> entityList = new ArrayList<SkinLesionsEntity>();
+										for (int i = 0; i < list.size(); i++) {
+											JSONObject obj2 = list
+													.getJSONObject(i);
+											if (obj2 != null) {
+												SkinLesionsEntity entity2 = new SkinLesionsEntity();
+
+												Integer id2 = (Integer) obj2
+														.get("id");
+												if (id != null) {
+													entity2.setId(id2);
+												}
+												Integer recId2 = (Integer) obj2
+														.get("recoveryId");
+												if (recId2 != null) {
+													entity2.setRecoveryId(recId2);
+												}
+												String positong2 = (String) obj2
+														.get("position");
+												if (positong2 != null) {
+													entity2.setPosition(positong2);
+												}
+												Double positionLong = JsonUtil
+														.getJSONDouble(obj2,
+																"positionLong");
+												if (positionLong != null) {
+													entity2.setPositionLong(BigDecimal
+															.valueOf(positionLong));
+												}
+												Double positionWide = JsonUtil
+														.getJSONDouble(obj2,
+																"positionWide");
+												if (positionWide != null) {
+													entity2.setPositionWide(BigDecimal
+															.valueOf(positionWide));
+												}
+												Double siteDeep = JsonUtil
+														.getJSONDouble(obj2,
+																"siteDeep");
+												if (siteDeep != null) {
+													entity2.setSiteDeep(BigDecimal
+															.valueOf(siteDeep));
+												}
+												entityList.add(entity2);
+											}
+										}
+										entity.setSkinLesionsList(entityList);
+									}
+
+								}
+
+							}
+							//
+							healthAssessmentReturn.setRecovery(entity);
+						}
+					}
+				}
+				if (true) {
+					Object adl = contentreq.get("adl");
+					if (adl != null) {
+						JSONObject obj = (JSONObject) adl;
+						if (obj != null) {
+							AdlEntity entity = new AdlEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							Double countPoint = JsonUtil.getJSONDouble(obj,
+									"countPoint");
+							if (countPoint != null) {
+								entity.setCountPoint(BigDecimal
+										.valueOf(countPoint));
+							}
+							String des = (String) obj.get("des");
+							if (des != null) {
+								entity.setDes(des);
+							}
+							Integer status = (Integer) obj.get("status");
+							if (status != null) {
+								entity.setStatus(status);
+							}
+							Double washYourFace = JsonUtil.getJSONDouble(obj,
+									"washYourFace");
+							if (washYourFace != null) {
+								entity.setWashYourFace(BigDecimal
+										.valueOf(washYourFace));
+							}
+							Double brushTeeth = JsonUtil.getJSONDouble(obj,
+									"brushTeeth");
+							if (brushTeeth != null) {
+								entity.setBrushTeeth(BigDecimal
+										.valueOf(brushTeeth));
+							}
+							Double combHair = JsonUtil.getJSONDouble(obj,
+									"combHair");
+							if (combHair != null) {
+								entity.setCombHair(BigDecimal.valueOf(combHair));
+							}
+							Double useAHandkerchief = JsonUtil.getJSONDouble(
+									obj, "useAHandkerchief");
+							if (useAHandkerchief != null) {
+								entity.setUseAHandkerchief(BigDecimal
+										.valueOf(useAHandkerchief));
+							}
+							Double shaveMakeup = JsonUtil.getJSONDouble(obj,
+									"shaveMakeup");
+							if (shaveMakeup != null) {
+								entity.setShaveMakeup(BigDecimal
+										.valueOf(shaveMakeup));
+							}
+							Double suctionWithASuctionTube = JsonUtil
+									.getJSONDouble(obj,
+											"suctionWithASuctionTube");
+							if (suctionWithASuctionTube != null) {
+								entity.setSuctionWithASuctionTube(BigDecimal
+										.valueOf(suctionWithASuctionTube));
+							}
+							Double toEatWithASpoon = JsonUtil.getJSONDouble(
+									obj, "toEatWithASpoon");
+							if (toEatWithASpoon != null) {
+								entity.setToEatWithASpoon(BigDecimal
+										.valueOf(toEatWithASpoon));
+							}
+							Double theBowl = JsonUtil.getJSONDouble(obj,
+									"theBowl");
+							if (theBowl != null) {
+								entity.setTheBowl(BigDecimal.valueOf(theBowl));
+							}
+							Double drinkingWaterWithACup = JsonUtil
+									.getJSONDouble(obj, "drinkingWaterWithACup");
+							if (drinkingWaterWithACup != null) {
+								entity.setDrinkingWaterWithACup(BigDecimal
+										.valueOf(drinkingWaterWithACup));
+							}
+							Double eatingWithChopsticks = JsonUtil
+									.getJSONDouble(obj, "eatingWithChopsticks");
+							if (eatingWithChopsticks != null) {
+								entity.setEatingWithChopsticks(BigDecimal
+										.valueOf(eatingWithChopsticks));
+							}
+							Double wearOffCoat = JsonUtil.getJSONDouble(obj,
+									"wearOffCoat");
+							if (wearOffCoat != null) {
+								entity.setWearOffCoat(BigDecimal
+										.valueOf(wearOffCoat));
+							}
+							Double wearOffTrousers = JsonUtil.getJSONDouble(
+									obj, "wearOffTrousers");
+							if (wearOffTrousers != null) {
+								entity.setWearOffTrousers(BigDecimal
+										.valueOf(wearOffTrousers));
+							}
+							Double wearOffSocks = JsonUtil.getJSONDouble(obj,
+									"wearOffSocks");
+							if (wearOffSocks != null) {
+								entity.setWearOffSocks(BigDecimal
+										.valueOf(wearOffSocks));
+							}
+							Double wearOffShoes = JsonUtil.getJSONDouble(obj,
+									"wearOffShoes");
+							if (wearOffShoes != null) {
+								entity.setWearOffShoes(BigDecimal
+										.valueOf(wearOffShoes));
+							}
+							Double wearOffSupport = JsonUtil.getJSONDouble(obj,
+									"wearOffSupport");
+							if (wearOffSupport != null) {
+								entity.setWearOffSupport(BigDecimal
+										.valueOf(wearOffSupport));
+							}
+							Double canControlTheUrine = JsonUtil.getJSONDouble(
+									obj, "canControlTheUrine");
+							if (canControlTheUrine != null) {
+								entity.setCanControlTheUrine(BigDecimal
+										.valueOf(canControlTheUrine));
+							}
+							Double canControlStool = JsonUtil.getJSONDouble(
+									obj, "canControlStool");
+							if (canControlStool != null) {
+								entity.setCanControlStool(BigDecimal
+										.valueOf(canControlStool));
+							}
+							Double afterSelfTreatment = JsonUtil.getJSONDouble(
+									obj, "afterSelfTreatment");
+							if (afterSelfTreatment != null) {
+								entity.setAfterSelfTreatment(BigDecimal
+										.valueOf(afterSelfTreatment));
+							}
+							Double flushTheToiletAfterUse = JsonUtil
+									.getJSONDouble(obj,
+											"flushTheToiletAfterUse");
+							if (flushTheToiletAfterUse != null) {
+								entity.setFlushTheToiletAfterUse(BigDecimal
+										.valueOf(flushTheToiletAfterUse));
+							}
+							Double useToiletPaper = JsonUtil.getJSONDouble(obj,
+									"useToiletPaper");
+							if (useToiletPaper != null) {
+								entity.setUseToiletPaper(BigDecimal
+										.valueOf(useToiletPaper));
+							}
+							Double forward5mTurn = JsonUtil.getJSONDouble(obj,
+									"forward5mTurn");
+							if (forward5mTurn != null) {
+								entity.setForward5mTurn(BigDecimal
+										.valueOf(forward5mTurn));
+							}
+							Double over10mObstacle = JsonUtil.getJSONDouble(
+									obj, "over10mObstacle");
+							if (over10mObstacle != null) {
+								entity.setOver10mObstacle(BigDecimal
+										.valueOf(over10mObstacle));
+							}
+							Double holding5kgGo10m = JsonUtil.getJSONDouble(
+									obj, "holding5kgGo10m");
+							if (holding5kgGo10m != null) {
+								entity.setHolding5kgGo10m(BigDecimal
+										.valueOf(holding5kgGo10m));
+							}
+							Double adlWrite = JsonUtil.getJSONDouble(obj,
+									"adlWrite");
+							if (adlWrite != null) {
+								entity.setAdlWrite(BigDecimal.valueOf(adlWrite));
+							}
+							Double communicateWithOthers = JsonUtil
+									.getJSONDouble(obj, "communicateWithOthers");
+							if (communicateWithOthers != null) {
+								entity.setCommunicateWithOthers(BigDecimal
+										.valueOf(communicateWithOthers));
+							}
+							Double fanShuye = JsonUtil.getJSONDouble(obj,
+									"fanShuye");
+							if (fanShuye != null) {
+								entity.setFanShuye(BigDecimal.valueOf(fanShuye));
+							}
+							Double adlCall = JsonUtil.getJSONDouble(obj,
+									"adlCall");
+							if (adlCall != null) {
+								entity.setAdlCall(BigDecimal.valueOf(adlCall));
+							}
+							Double useTheEnvelope = JsonUtil.getJSONDouble(obj,
+									"useTheEnvelope");
+							if (useTheEnvelope != null) {
+								entity.setUseTheEnvelope(BigDecimal
+										.valueOf(useTheEnvelope));
+							}
+							Double theUseOfPlugSwitch = JsonUtil.getJSONDouble(
+									obj, "theUseOfPlugSwitch");
+							if (theUseOfPlugSwitch != null) {
+								entity.setTheUseOfPlugSwitch(BigDecimal
+										.valueOf(theUseOfPlugSwitch));
+							}
+							Double nailClippers = JsonUtil.getJSONDouble(obj,
+									"nailClippers");
+							if (nailClippers != null) {
+								entity.setNailClippers(BigDecimal
+										.valueOf(nailClippers));
+							}
+							Double switchWaterTap = JsonUtil.getJSONDouble(obj,
+									"switchWaterTap");
+							if (switchWaterTap != null) {
+								entity.setSwitchWaterTap(BigDecimal
+										.valueOf(switchWaterTap));
+							}
+							Double shearUse = JsonUtil.getJSONDouble(obj,
+									"shearUse");
+							if (shearUse != null) {
+								entity.setShearUse(BigDecimal.valueOf(shearUse));
+							}
+							Double useLock = JsonUtil.getJSONDouble(obj,
+									"useLock");
+							if (useLock != null) {
+								entity.setUseLock(BigDecimal.valueOf(useLock));
+							}
+							Double openBottleCap = JsonUtil.getJSONDouble(obj,
+									"openBottleCap");
+							if (openBottleCap != null) {
+								entity.setOpenBottleCap(BigDecimal
+										.valueOf(openBottleCap));
+							}
+							Double useAWallet = JsonUtil.getJSONDouble(obj,
+									"useAWallet");
+							if (useAWallet != null) {
+								entity.setUseAWallet(BigDecimal
+										.valueOf(useAWallet));
+							}
+							Double turnOver = JsonUtil.getJSONDouble(obj,
+									"turnOver");
+							if (turnOver != null) {
+								entity.setTurnOver(BigDecimal.valueOf(turnOver));
+							}
+							Double backToStandUp = JsonUtil.getJSONDouble(obj,
+									"backToStandUp");
+							if (backToStandUp != null) {
+								entity.setBackToStandUp(BigDecimal
+										.valueOf(backToStandUp));
+							}
+							Double sittingToStandingKnee = JsonUtil
+									.getJSONDouble(obj, "sittingToStandingKnee");
+							if (sittingToStandingKnee != null) {
+								entity.setSittingToStandingKnee(BigDecimal
+										.valueOf(sittingToStandingKnee));
+							}
+							Double independentSeat = JsonUtil.getJSONDouble(
+									obj, "independentSeat");
+							if (independentSeat != null) {
+								entity.setIndependentSeat(BigDecimal
+										.valueOf(independentSeat));
+							}
+							Double horizontalDisplacement = JsonUtil
+									.getJSONDouble(obj,
+											"horizontalDisplacement");
+							if (horizontalDisplacement != null) {
+								entity.setHorizontalDisplacement(BigDecimal
+										.valueOf(horizontalDisplacement));
+							}
+							Double kneePositionMovement = JsonUtil
+									.getJSONDouble(obj, "kneePositionMovement");
+							if (kneePositionMovement != null) {
+								entity.setKneePositionMovement(BigDecimal
+										.valueOf(kneePositionMovement));
+							}
+							Double supportedPosition = JsonUtil.getJSONDouble(
+									obj, "supportedPosition");
+							if (supportedPosition != null) {
+								entity.setSupportedPosition(BigDecimal
+										.valueOf(supportedPosition));
+							}
+							Double bedToWheelchair = JsonUtil.getJSONDouble(
+									obj, "bedToWheelchair");
+							if (bedToWheelchair != null) {
+								entity.setBedToWheelchair(BigDecimal
+										.valueOf(bedToWheelchair));
+							}
+							Double wheelchairToChair = JsonUtil.getJSONDouble(
+									obj, "wheelchairToChair");
+							if (wheelchairToChair != null) {
+								entity.setWheelchairToChair(BigDecimal
+										.valueOf(wheelchairToChair));
+							}
+							Double wheelchairToToilet = JsonUtil.getJSONDouble(
+									obj, "wheelchairToToilet");
+							if (wheelchairToToilet != null) {
+								entity.setWheelchairToToilet(BigDecimal
+										.valueOf(wheelchairToToilet));
+							}
+							Double theOperationOfHandBrake = JsonUtil
+									.getJSONDouble(obj,
+											"theOperationOfHandBrake");
+							if (theOperationOfHandBrake != null) {
+								entity.setTheOperationOfHandBrake(BigDecimal
+										.valueOf(theOperationOfHandBrake));
+							}
+							Double openAWheelchair = JsonUtil.getJSONDouble(
+									obj, "openAWheelchair");
+							if (openAWheelchair != null) {
+								entity.setOpenAWheelchair(BigDecimal
+										.valueOf(openAWheelchair));
+							}
+							Double brakeAndRetreat = JsonUtil.getJSONDouble(
+									obj, "brakeAndRetreat");
+							if (brakeAndRetreat != null) {
+								entity.setBrakeAndRetreat(BigDecimal
+										.valueOf(brakeAndRetreat));
+							}
+							Double overThreshold = JsonUtil.getJSONDouble(obj,
+									"overThreshold");
+							if (overThreshold != null) {
+								entity.setOverThreshold(BigDecimal
+										.valueOf(overThreshold));
+							}
+							Double wheelchairPickup = JsonUtil.getJSONDouble(
+									obj, "wheelchairPickup");
+							if (wheelchairPickup != null) {
+								entity.setWheelchairPickup(BigDecimal
+										.valueOf(wheelchairPickup));
+							}
+							healthAssessmentReturn.setAdl(entity);
+						}
+					}
+				}
+				if (true) {
+					Object nutrition = contentreq.get("nutrition");
+					if (nutrition != null) {
+						JSONObject obj = (JSONObject) nutrition;
+						if (obj != null) {
+							NutritionEntity entity = new NutritionEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							Double countPoint = JsonUtil.getJSONDouble(obj,
+									"countPoint");
+							if (countPoint != null) {
+								entity.setCountPoint(BigDecimal
+										.valueOf(countPoint));
+							}
+							String des = (String) obj.get("des");
+							if (des != null) {
+								entity.setDes(des);
+							}
+							Integer status = (Integer) obj.get("status");
+							if (status != null) {
+								entity.setStatus(status);
+							}
+							Integer score1 = (Integer) obj.get("score1");
+							if (score1 != null) {
+								entity.setScore1(score1);
+							}
+							Integer score = (Integer) obj.get("score");
+							if (score != null) {
+								entity.setScore(score);
+							}
+							Integer score3 = (Integer) obj.get("score3");
+							if (score3 != null) {
+								entity.setScore3(score3);
+							}
+							Integer score4 = (Integer) obj.get("score4");
+							if (score4 != null) {
+								entity.setScore4(score4);
+							}
+							Integer score5 = (Integer) obj.get("score5");
+							if (score5 != null) {
+								entity.setScore5(score5);
+							}
+							Integer score6 = (Integer) obj.get("score6");
+							if (score6 != null) {
+								entity.setScore6(score6);
+							}
+							Integer score7 = (Integer) obj.get("score7");
+							if (score7 != null) {
+								entity.setScore7(score7);
+							}
+							healthAssessmentReturn.setNutrition(entity);
+						}
+					}
+				}
+				if (true) {
+					Object fall = contentreq.get("fall");
+					if (fall != null) {
+						JSONObject obj = (JSONObject) fall;
+						if (obj != null) {
+							FallEntity entity = new FallEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							Double countPoint = JsonUtil.getJSONDouble(obj,
+									"countPoint");
+							if (countPoint != null) {
+								entity.setCountPoint(BigDecimal
+										.valueOf(countPoint));
+							}
+							String des = (String) obj.get("des");
+							if (des != null) {
+								entity.setDes(des);
+							}
+							Integer status = (Integer) obj.get("status");
+							if (status != null) {
+								entity.setStatus(status);
+							}
+							Integer score1 = (Integer) obj.get("score1");
+							if (score1 != null) {
+								entity.setScore1(score1);
+							}
+							Integer score2 = (Integer) obj.get("score2");
+							if (score2 != null) {
+								entity.setScore2(score2);
+							}
+							Integer score3 = (Integer) obj.get("score3");
+							if (score3 != null) {
+								entity.setScore3(score3);
+							}
+							Integer score4 = (Integer) obj.get("score4");
+							if (score4 != null) {
+								entity.setScore4(score4);
+							}
+							Integer score5 = (Integer) obj.get("score5");
+							if (score5 != null) {
+								entity.setScore5(score5);
+							}
+							Integer score6 = (Integer) obj.get("score6");
+							if (score6 != null) {
+								entity.setScore6(score6);
+							}
+							Integer score7 = (Integer) obj.get("score7");
+							if (score7 != null) {
+								entity.setScore7(score7);
+							}
+							Integer score8 = (Integer) obj.get("score8");
+							if (score8 != null) {
+								entity.setScore8(score8);
+							}
+							Integer score9 = (Integer) obj.get("score9");
+							if (score9 != null) {
+								entity.setScore9(score9);
+							}
+							Integer score10 = (Integer) obj.get("score10");
+							if (score10 != null) {
+								entity.setScore10(score10);
+							}
+							Integer score11 = (Integer) obj.get("score11");
+							if (score11 != null) {
+								entity.setScore11(score11);
+							}
+							Integer score12 = (Integer) obj.get("score12");
+							if (score12 != null) {
+								entity.setScore12(score12);
+							}
+							Integer score13 = (Integer) obj.get("score13");
+							if (score13 != null) {
+								entity.setScore13(score13);
+							}
+							Integer score14 = (Integer) obj.get("score14");
+							if (score14 != null) {
+								entity.setScore14(score14);
+							}
+							healthAssessmentReturn.setFall(entity);
+						}
+					}
+				}
+				if (true) {
+					Object sore = contentreq.get("sore");
+					if (sore != null) {
+						JSONObject obj = (JSONObject) sore;
+						if (obj != null) {
+							SoreEntity entity = new SoreEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							String countPoint = (String) obj.get("countPoint");
+							if (countPoint != null) {
+								entity.setCountPoint(countPoint);
+							}
+							String des = (String) obj.get("des");
+							if (des != null) {
+								entity.setDes(des);
+							}
+							Integer status = (Integer) obj.get("status");
+							if (status != null) {
+								entity.setStatus(status);
+							}
+							healthAssessmentReturn.setSore(entity);
+						}
+					}
+				}
+				if (true) {
+					Object mmse = contentreq.get("mmse");
+					if (mmse != null) {
+						JSONObject obj = (JSONObject) mmse;
+						if (obj != null) {
+							MmseEntity entity = new MmseEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							Double countPoint = JsonUtil.getJSONDouble(obj,
+									"countPoint");
+							if (countPoint != null) {
+								entity.setCountPoint(BigDecimal
+										.valueOf(countPoint));
+							}
+							String des = (String) obj.get("des");
+							if (des != null) {
+								entity.setDes(des);
+							}
+							Integer status = (Integer) obj.get("status");
+							if (status != null) {
+								entity.setStatus(status);
+							}
+							Integer directionalForce1 = (Integer) obj
+									.get("directionalForce1");
+							if (directionalForce1 != null) {
+								entity.setDirectionalForce1(directionalForce1);
+							}
+							Integer directionalForce2 = (Integer) obj
+									.get("directionalForce2");
+							if (directionalForce2 != null) {
+								entity.setDirectionalForce2(directionalForce2);
+							}
+							Integer memory1 = (Integer) obj.get("memory1");
+							if (memory1 != null) {
+								entity.setMemory1(memory1);
+							}
+							Integer attentionAndComputingPower1 = (Integer) obj
+									.get("attentionAndComputingPower1");
+							if (attentionAndComputingPower1 != null) {
+								entity.setAttentionAndComputingPower1(attentionAndComputingPower1);
+							}
+							Integer memory2 = (Integer) obj.get("memory2");
+							if (memory2 != null) {
+								entity.setMemory2(memory2);
+							}
+							Integer languageSkill1 = (Integer) obj
+									.get("languageSkill1");
+							if (languageSkill1 != null) {
+								entity.setLanguageSkill1(languageSkill1);
+							}
+							Integer languageSkill2 = (Integer) obj
+									.get("languageSkill2");
+							if (languageSkill2 != null) {
+								entity.setLanguageSkill2(languageSkill2);
+							}
+							Integer languageSkill3 = (Integer) obj
+									.get("languageSkill3");
+							if (languageSkill3 != null) {
+								entity.setLanguageSkill3(languageSkill3);
+							}
+							Integer languageSkill4 = (Integer) obj
+									.get("languageSkill4");
+							if (languageSkill4 != null) {
+								entity.setLanguageSkill4(languageSkill4);
+							}
+							Integer languageSkill5 = (Integer) obj
+									.get("languageSkill5");
+							if (languageSkill5 != null) {
+								entity.setLanguageSkill5(languageSkill5);
+							}
+							Integer languageSkill6 = (Integer) obj
+									.get("languageSkill6");
+							if (languageSkill6 != null) {
+								entity.setLanguageSkill6(languageSkill6);
+							}
+							Integer languageSkill7 = (Integer) obj
+									.get("languageSkill7");
+							if (languageSkill7 != null) {
+								entity.setLanguageSkill7(languageSkill7);
+							}
+							healthAssessmentReturn.setMmse(entity);
+						}
+					}
+				}
+				if (true) {
+					Object mas = contentreq.get("mas");
+					if (mas != null) {
+						JSONObject obj = (JSONObject) mas;
+						if (obj != null) {
+							MasEntity entity = new MasEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							String countPoint = (String) obj.get("countPoint");
+							if (countPoint != null) {
+								entity.setCountPoint(countPoint);
+							}
+							String des = (String) obj.get("des");
+							if (des != null) {
+								entity.setDes(des);
+							}
+							Integer status = (Integer) obj.get("status");
+							if (status != null) {
+								entity.setStatus(status);
+							}
+							Integer score1 = (Integer) obj.get("score1");
+							if (score1 != null) {
+								entity.setScore1(score1);
+							}
+							Integer score2 = (Integer) obj.get("score2");
+							if (score2 != null) {
+								entity.setScore2(score2);
+							}
+							Integer score3 = (Integer) obj.get("score3");
+							if (score3 != null) {
+								entity.setScore3(score3);
+							}
+							Integer score4 = (Integer) obj.get("score4");
+							if (score4 != null) {
+								entity.setScore4(score4);
+							}
+							Integer score5 = (Integer) obj.get("score5");
+							if (score5 != null) {
+								entity.setScore5(score5);
+							}
+							Integer score6 = (Integer) obj.get("score6");
+							if (score6 != null) {
+								entity.setScore6(score6);
+							}
+							Integer score7 = (Integer) obj.get("score7");
+							if (score7 != null) {
+								entity.setScore7(score7);
+							}
+							Integer score8 = (Integer) obj.get("score8");
+							if (score8 != null) {
+								entity.setScore8(score8);
+							}
+							Integer score9 = (Integer) obj.get("score9");
+							if (score9 != null) {
+								entity.setScore9(score9);
+							}
+							healthAssessmentReturn.setMas(entity);
+						}
+					}
+				}
+				if (true) {
+					Object barthel = contentreq.get("barthel");
+					if (barthel != null) {
+						JSONObject obj = (JSONObject) barthel;
+						if (obj != null) {
+							BarthelEntity entity = new BarthelEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							String countPoint = (String) obj.get("countPoint");
+							if (countPoint != null) {
+								entity.setCountPoint(countPoint);
+							}
+							String des = (String) obj.get("des");
+							if (des != null) {
+								entity.setDes(des);
+							}
+							Integer status = (Integer) obj.get("status");
+							if (status != null) {
+								entity.setStatus(status);
+							}
+							String bloodPressure = (String) obj
+									.get("bloodPressure");
+							if (bloodPressure != null) {
+								entity.setBloodPressure(bloodPressure);
+							}
+							String pulse = (String) obj.get("pulse");
+							if (pulse != null) {
+								entity.setPulse(pulse);
+							}
+							Integer score1 = (Integer) obj.get("score1");
+							if (score1 != null) {
+								entity.setScore1(score1);
+							}
+							Integer score2 = (Integer) obj.get("score2");
+							if (score2 != null) {
+								entity.setScore2(score2);
+							}
+							Integer score3 = (Integer) obj.get("score3");
+							if (score3 != null) {
+								entity.setScore3(score3);
+							}
+							Integer score4 = (Integer) obj.get("score4");
+							if (score4 != null) {
+								entity.setScore4(score4);
+							}
+							Integer score5 = (Integer) obj.get("score5");
+							if (score5 != null) {
+								entity.setScore5(score5);
+							}
+							Integer score6 = (Integer) obj.get("score6");
+							if (score6 != null) {
+								entity.setScore6(score6);
+							}
+							Integer score7 = (Integer) obj.get("score7");
+							if (score7 != null) {
+								entity.setScore7(score7);
+							}
+							Integer score8 = (Integer) obj.get("score8");
+							if (score8 != null) {
+								entity.setScore8(score8);
+							}
+							Integer score9 = (Integer) obj.get("score9");
+							if (score9 != null) {
+								entity.setScore9(score9);
+							}
+							Integer score10 = (Integer) obj.get("score10");
+							if (score10 != null) {
+								entity.setScore10(score10);
+							}
+							healthAssessmentReturn.setBarthel(entity);
+						}
+					}
+				}
+				if (true) {
+					Object fca = contentreq.get("fca");
+					if (fca != null) {
+						JSONObject obj = (JSONObject) fca;
+						if (obj != null) {
+							FcaEntity entity = new FcaEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							String countPoint2 = (String) obj
+									.get("countPoint2");
+							if (countPoint2 != null) {
+								entity.setCountPoint2(countPoint2);
+							}
+							String des = (String) obj.get("des");
+							if (des != null) {
+								entity.setDes(des);
+							}
+							Integer status = (Integer) obj.get("status");
+							if (status != null) {
+								entity.setStatus(status);
+							}
+							Double eat = JsonUtil.getJSONDouble(obj, "eat");
+							if (eat != null) {
+								entity.setEat(BigDecimal.valueOf(eat));
+							}
+							Double modification = JsonUtil.getJSONDouble(obj,
+									"modification");
+							if (modification != null) {
+								entity.setModification(BigDecimal
+										.valueOf(modification));
+							}
+							Double bath = JsonUtil.getJSONDouble(obj, "bath");
+							if (bath != null) {
+								entity.setBath(BigDecimal.valueOf(bath));
+							}
+							Double wearUpperSuit = JsonUtil.getJSONDouble(obj,
+									"wearUpperSuit");
+							if (wearUpperSuit != null) {
+								entity.setWearUpperSuit(BigDecimal
+										.valueOf(wearUpperSuit));
+							}
+							Double wearDownSuit = JsonUtil.getJSONDouble(obj,
+									"wearDownSuit");
+							if (wearDownSuit != null) {
+								entity.setWearDownSuit(BigDecimal
+										.valueOf(wearDownSuit));
+							}
+							Double toilet = JsonUtil.getJSONDouble(obj,
+									"toilet");
+							if (toilet != null) {
+								entity.setToilet(BigDecimal.valueOf(toilet));
+							}
+							Integer bladderType = (Integer) obj
+									.get("bladderType");
+							if (bladderType != null) {
+								entity.setBladderType(bladderType);
+							}
+							Double bladder = JsonUtil.getJSONDouble(obj,
+									"bladder");
+							if (bladder != null) {
+								entity.setBladder(BigDecimal.valueOf(bladder));
+							}
+							Integer anusType = (Integer) obj.get("anusType");
+							if (anusType != null) {
+								entity.setAnusType(anusType);
+							}
+							Double anus = JsonUtil.getJSONDouble(obj, "anus");
+							if (anus != null) {
+								entity.setAnus(BigDecimal.valueOf(anus));
+							}
+							Double bedToChair = JsonUtil.getJSONDouble(obj,
+									"bedToChair");
+							if (bedToChair != null) {
+								entity.setBedToChair(BigDecimal
+										.valueOf(bedToChair));
+							}
+							Double toiletToWheelchair = JsonUtil.getJSONDouble(
+									obj, "toiletToWheelchair");
+							if (toiletToWheelchair != null) {
+								entity.setToiletToWheelchair(BigDecimal
+										.valueOf(toiletToWheelchair));
+							}
+							Double intoBath = JsonUtil.getJSONDouble(obj,
+									"intoBath");
+							if (intoBath != null) {
+								entity.setIntoBath(BigDecimal.valueOf(intoBath));
+							}
+							Integer walkWheelchairType = (Integer) obj
+									.get("walkWheelchairType");
+							if (walkWheelchairType != null) {
+								entity.setWalkWheelchairType(walkWheelchairType);
+							}
+							Double walkWheelchairValue = JsonUtil
+									.getJSONDouble(obj, "walkWheelchairValue");
+							if (walkWheelchairValue != null) {
+								entity.setWalkWheelchairValue(BigDecimal
+										.valueOf(walkWheelchairValue));
+							}
+							Double upAndDownStairs = JsonUtil.getJSONDouble(
+									obj, "upAndDownStairs");
+							if (upAndDownStairs != null) {
+								entity.setUpAndDownStairs(BigDecimal
+										.valueOf(upAndDownStairs));
+							}
+							Double listening1 = JsonUtil.getJSONDouble(obj,
+									"listening1");
+							if (listening1 != null) {
+								entity.setListening1(BigDecimal
+										.valueOf(listening1));
+							}
+							Double listening2 = JsonUtil.getJSONDouble(obj,
+									"listening2");
+							if (listening2 != null) {
+								entity.setListening2(BigDecimal
+										.valueOf(listening2));
+							}
+							Double listening3 = JsonUtil.getJSONDouble(obj,
+									"listening3");
+							if (listening3 != null) {
+								entity.setListening3(BigDecimal
+										.valueOf(listening3));
+							}
+							Double listening4 = JsonUtil.getJSONDouble(obj,
+									"listening4");
+							if (listening4 != null) {
+								entity.setListening4(BigDecimal
+										.valueOf(listening4));
+							}
+							Double listening5 = JsonUtil.getJSONDouble(obj,
+									"listening5");
+							if (listening5 != null) {
+								entity.setListening5(BigDecimal
+										.valueOf(listening5));
+							}
+							Double reading1 = JsonUtil.getJSONDouble(obj,
+									"reading1");
+							if (reading1 != null) {
+								entity.setReading1(BigDecimal.valueOf(reading1));
+							}
+							Double reading2 = JsonUtil.getJSONDouble(obj,
+									"reading2");
+							if (reading2 != null) {
+								entity.setReading2(BigDecimal.valueOf(reading2));
+							}
+							Double reading3 = JsonUtil.getJSONDouble(obj,
+									"reading3");
+							if (reading3 != null) {
+								entity.setReading3(BigDecimal.valueOf(reading3));
+							}
+							Double reading4 = JsonUtil.getJSONDouble(obj,
+									"reading4");
+							if (reading4 != null) {
+								entity.setReading4(BigDecimal.valueOf(reading4));
+							}
+							Double reading5 = JsonUtil.getJSONDouble(obj,
+									"reading5");
+							if (reading5 != null) {
+								entity.setReading5(BigDecimal.valueOf(reading5));
+							}
+							Double oralExpression1 = JsonUtil.getJSONDouble(
+									obj, "oralExpression1");
+							if (oralExpression1 != null) {
+								entity.setOralExpression1(BigDecimal
+										.valueOf(oralExpression1));
+							}
+							Double oralExpression2 = JsonUtil.getJSONDouble(
+									obj, "oralExpression2");
+							if (oralExpression2 != null) {
+								entity.setOralExpression2(BigDecimal
+										.valueOf(oralExpression2));
+							}
+							Double oralExpression3 = JsonUtil.getJSONDouble(
+									obj, "oralExpression3");
+							if (oralExpression3 != null) {
+								entity.setOralExpression3(BigDecimal
+										.valueOf(oralExpression3));
+							}
+							Double oralExpression4 = JsonUtil.getJSONDouble(
+									obj, "oralExpression4");
+							if (oralExpression4 != null) {
+								entity.setOralExpression4(BigDecimal
+										.valueOf(oralExpression4));
+							}
+							Double oralExpression5 = JsonUtil.getJSONDouble(
+									obj, "oralExpression5");
+							if (oralExpression5 != null) {
+								entity.setOralExpression5(BigDecimal
+										.valueOf(oralExpression5));
+							}
+							Double writingExpression1 = JsonUtil.getJSONDouble(
+									obj, "writingExpression1");
+							if (writingExpression1 != null) {
+								entity.setWritingExpression1(BigDecimal
+										.valueOf(writingExpression1));
+							}
+							Double writingExpression2 = JsonUtil.getJSONDouble(
+									obj, "writingExpression2");
+							if (writingExpression2 != null) {
+								entity.setWritingExpression2(BigDecimal
+										.valueOf(writingExpression2));
+							}
+							Double writingExpression3 = JsonUtil.getJSONDouble(
+									obj, "writingExpression3");
+							if (writingExpression3 != null) {
+								entity.setWritingExpression3(BigDecimal
+										.valueOf(writingExpression3));
+							}
+							Double writingExpression4 = JsonUtil.getJSONDouble(
+									obj, "writingExpression4");
+							if (writingExpression4 != null) {
+								entity.setWritingExpression4(BigDecimal
+										.valueOf(writingExpression4));
+							}
+							Double writingExpression5 = JsonUtil.getJSONDouble(
+									obj, "writingExpression5");
+							if (writingExpression5 != null) {
+								entity.setWritingExpression5(BigDecimal
+										.valueOf(writingExpression5));
+							}
+							Integer socialCommunicationType = (Integer) obj
+									.get("socialCommunicationType");
+							if (socialCommunicationType != null) {
+								entity.setSocialCommunicationType(socialCommunicationType);
+							}
+							Double socialCommunication1 = JsonUtil
+									.getJSONDouble(obj, "socialCommunication1");
+							if (socialCommunication1 != null) {
+								entity.setSocialCommunication1(BigDecimal
+										.valueOf(socialCommunication1));
+							}
+							Double socialCommunication2 = JsonUtil
+									.getJSONDouble(obj, "socialCommunication2");
+							if (socialCommunication2 != null) {
+								entity.setSocialCommunication2(BigDecimal
+										.valueOf(socialCommunication2));
+							}
+							Double socialCommunication3 = JsonUtil
+									.getJSONDouble(obj, "socialCommunication3");
+							if (socialCommunication3 != null) {
+								entity.setSocialCommunication3(BigDecimal
+										.valueOf(socialCommunication3));
+							}
+							Double socialCommunication4 = JsonUtil
+									.getJSONDouble(obj, "socialCommunication4");
+							if (socialCommunication4 != null) {
+								entity.setSocialCommunication4(BigDecimal
+										.valueOf(socialCommunication4));
+							}
+							Double socialCommunication5 = JsonUtil
+									.getJSONDouble(obj, "socialCommunication5");
+							if (socialCommunication5 != null) {
+								entity.setSocialCommunication5(BigDecimal
+										.valueOf(socialCommunication5));
+							}
+							Double socialCommunication6 = JsonUtil
+									.getJSONDouble(obj, "socialCommunication6");
+							if (socialCommunication6 != null) {
+								entity.setSocialCommunication6(BigDecimal
+										.valueOf(socialCommunication6));
+							}
+							Double socialCommunication7 = JsonUtil
+									.getJSONDouble(obj, "socialCommunication7");
+							if (socialCommunication7 != null) {
+								entity.setSocialCommunication7(BigDecimal
+										.valueOf(socialCommunication7));
+							}
+							Double socialCommunication8 = JsonUtil
+									.getJSONDouble(obj, "socialCommunication8");
+							if (socialCommunication8 != null) {
+								entity.setSocialCommunication8(BigDecimal
+										.valueOf(socialCommunication8));
+							}
+							Double socialCommunication9 = JsonUtil
+									.getJSONDouble(obj, "socialCommunication9");
+							if (socialCommunication9 != null) {
+								entity.setSocialCommunication9(BigDecimal
+										.valueOf(socialCommunication9));
+							}
+							Double socialCommunication10 = JsonUtil
+									.getJSONDouble(obj, "socialCommunication10");
+							if (socialCommunication10 != null) {
+								entity.setSocialCommunication10(BigDecimal
+										.valueOf(socialCommunication10));
+							}
+							Double logicalThinkingAbility1 = JsonUtil
+									.getJSONDouble(obj,
+											"logicalThinkingAbility1");
+							if (logicalThinkingAbility1 != null) {
+								entity.setLogicalThinkingAbility1(BigDecimal
+										.valueOf(logicalThinkingAbility1));
+							}
+							Double logicalThinkingAbility2 = JsonUtil
+									.getJSONDouble(obj,
+											"logicalThinkingAbility2");
+							if (logicalThinkingAbility2 != null) {
+								entity.setLogicalThinkingAbility2(BigDecimal
+										.valueOf(logicalThinkingAbility2));
+							}
+							Double reasoningAbility1 = JsonUtil.getJSONDouble(
+									obj, "reasoningAbility1");
+							if (reasoningAbility1 != null) {
+								entity.setReasoningAbility1(BigDecimal
+										.valueOf(reasoningAbility1));
+							}
+							Double reasoningAbility2 = JsonUtil.getJSONDouble(
+									obj, "reasoningAbility2");
+							if (reasoningAbility2 != null) {
+								entity.setReasoningAbility2(BigDecimal
+										.valueOf(reasoningAbility2));
+							}
+							Double classificationAbility1 = JsonUtil
+									.getJSONDouble(obj,
+											"classificationAbility1");
+							if (classificationAbility1 != null) {
+								entity.setClassificationAbility1(BigDecimal
+										.valueOf(classificationAbility1));
+							}
+							Double classificationAbility2 = JsonUtil
+									.getJSONDouble(obj,
+											"classificationAbility2");
+							if (classificationAbility2 != null) {
+								entity.setClassificationAbility2(BigDecimal
+										.valueOf(classificationAbility2));
+							}
+							Double digitalCapability1 = JsonUtil.getJSONDouble(
+									obj, "digitalCapability1");
+							if (digitalCapability1 != null) {
+								entity.setDigitalCapability1(BigDecimal
+										.valueOf(digitalCapability1));
+							}
+							Double digitalCapability2 = JsonUtil.getJSONDouble(
+									obj, "digitalCapability2");
+							if (digitalCapability2 != null) {
+								entity.setDigitalCapability2(BigDecimal
+										.valueOf(digitalCapability2));
+							}
+							Double digitalCapability3 = JsonUtil.getJSONDouble(
+									obj, "digitalCapability3");
+							if (digitalCapability3 != null) {
+								entity.setDigitalCapability3(BigDecimal
+										.valueOf(digitalCapability3));
+							}
+							Double digitalCapability4 = JsonUtil.getJSONDouble(
+									obj, "digitalCapability4");
+							if (digitalCapability4 != null) {
+								entity.setDigitalCapability4(BigDecimal
+										.valueOf(digitalCapability4));
+							}
+							Double instantaneousMemory = JsonUtil
+									.getJSONDouble(obj, "instantaneousMemory");
+							if (instantaneousMemory != null) {
+								entity.setInstantaneousMemory(BigDecimal
+										.valueOf(instantaneousMemory));
+							}
+							Double shortMemory1 = JsonUtil.getJSONDouble(obj,
+									"shortMemory1");
+							if (shortMemory1 != null) {
+								entity.setShortMemory1(BigDecimal
+										.valueOf(shortMemory1));
+							}
+							Double shortMemory2 = JsonUtil.getJSONDouble(obj,
+									"shortMemory2");
+							if (shortMemory2 != null) {
+								entity.setShortMemory2(BigDecimal
+										.valueOf(shortMemory2));
+							}
+							Double shortMemory3 = JsonUtil.getJSONDouble(obj,
+									"shortMemory3");
+							if (shortMemory3 != null) {
+								entity.setShortMemory3(BigDecimal
+										.valueOf(shortMemory3));
+							}
+							Double longMemory1 = JsonUtil.getJSONDouble(obj,
+									"longMemory1");
+							if (longMemory1 != null) {
+								entity.setLongMemory1(BigDecimal
+										.valueOf(longMemory1));
+							}
+							Double longMemory2 = JsonUtil.getJSONDouble(obj,
+									"longMemory2");
+							if (longMemory2 != null) {
+								entity.setLongMemory2(BigDecimal
+										.valueOf(longMemory2));
+							}
+							Double longMemory3 = JsonUtil.getJSONDouble(obj,
+									"longMemory3");
+							if (longMemory3 != null) {
+								entity.setLongMemory3(BigDecimal
+										.valueOf(longMemory3));
+							}
+							Double longMemory4 = JsonUtil.getJSONDouble(obj,
+									"longMemory4");
+							if (longMemory4 != null) {
+								entity.setLongMemory4(BigDecimal
+										.valueOf(longMemory4));
+							}
+							Double longMemory5 = JsonUtil.getJSONDouble(obj,
+									"longMemory5");
+							if (longMemory5 != null) {
+								entity.setLongMemory5(BigDecimal
+										.valueOf(longMemory5));
+							}
+							Double longMemory6 = JsonUtil.getJSONDouble(obj,
+									"longMemory6");
+							if (longMemory6 != null) {
+								entity.setLongMemory6(BigDecimal
+										.valueOf(longMemory6));
+							}
+							healthAssessmentReturn.setFca(entity);
+						}
+					}
+				}
+			} else if ("QUERY_HEALTH_ASSESSMENT_INFO_REQUEST".equals(command)) {
+				actionReturn = "getById";
+				if (true) {
+					if (contentreq != null) {
+						idReturn = (Integer) contentreq.get("id");
+						String employeeShow = (String) contentreq
+								.get("employeeShow");
+						if ("true".equals(employeeShow)) {
+							employeeShowReturn = true;
+						}
+						String olderShow = (String) contentreq.get("olderShow");
+						if ("true".equals(olderShow)) {
+							olderShowReturn = true;
+						}
+						String healthReportShow = (String) contentreq
+								.get("healthReportShow");
+						if ("true".equals(healthReportShow)) {
+							healthReportShowReturn = true;
+						}
+						String recoveryShow = (String) contentreq
+								.get("recoveryShow");
+						if ("true".equals(recoveryShow)) {
+							recoveryShowReturn = true;
+						}
+						String adlShow = (String) contentreq.get("adlShow");
+						if ("true".equals(adlShow)) {
+							adlShowReturn = true;
+						}
+						String nutritionShow = (String) contentreq
+								.get("nutritionShow");
+						if ("true".equals(nutritionShow)) {
+							nutritionShowReturn = true;
+						}
+						String fallShow = (String) contentreq.get("fallShow");
+						if ("true".equals(fallShow)) {
+							fallShowReturn = true;
+						}
+						String soreShow = (String) contentreq.get("soreShow");
+						if ("true".equals(soreShow)) {
+							soreShowReturn = true;
+						}
+						String mmseShow = (String) contentreq.get("mmseShow");
+						if ("true".equals(mmseShow)) {
+							mmseShowReturn = true;
+						}
+						String masShow = (String) contentreq.get("masShow");
+						if ("true".equals(masShow)) {
+							masShowReturn = true;
+						}
+						String barthelShow = (String) contentreq
+								.get("barthelShow");
+						if ("true".equals(barthelShow)) {
+							barthelShowReturn = true;
+						}
+						String fcaShow = (String) contentreq.get("fcaShow");
+						if ("true".equals(fcaShow)) {
+							fcaShowReturn = true;
+						}
+					}
+				}
+			} else if ("QUERY_HEALTH_ASSESSMENT_LIST_REQUEST".equals(command)) {
+				actionReturn = "getListByCondition";
+				if (true) {
+					if (contentreq != null) {
+						queryMapReturn = new HashMap<String, Object>();
+						Integer id_gt = (Integer) contentreq.get("id_gt");
+						Integer id_ge = (Integer) contentreq.get("id_ge");
+						Integer id_lt = (Integer) contentreq.get("id_lt");
+						Integer id_le = (Integer) contentreq.get("id_le");
+						String id_in = (String) contentreq.get("id_in");
+						Integer id = (Integer) contentreq.get("id");
+						if (id_gt != null) {
+							queryMapReturn.put("id_gt", id_gt);
+						}
+						if (id_ge != null) {
+							queryMapReturn.put("id_ge", id_ge);
+						}
+						if (id_lt != null) {
+							queryMapReturn.put("id_lt", id_lt);
+						}
+						if (id_le != null) {
+							queryMapReturn.put("id_le", id_le);
+						}
+						if (id_in != null) {
+							queryMapReturn.put("id_in", id_in);
+						}
+						if (id != null) {
+							queryMapReturn.put("id", id);
+						}
+						String assessmentTime_gt = (String) contentreq
+								.get("assessmentTime_gt");
+						String assessmentTime_ge = (String) contentreq
+								.get("assessmentTime_ge");
+						String assessmentTime_lt = (String) contentreq
+								.get("assessmentTime_lt");
+						String assessmentTime_le = (String) contentreq
+								.get("assessmentTime_le");
+						if (assessmentTime_gt != null) {
+							queryMapReturn.put("assessmentTime_gt",
+									assessmentTime_gt);
+						}
+						if (assessmentTime_ge != null) {
+							queryMapReturn.put("assessmentTime_ge",
+									assessmentTime_ge);
+						}
+						if (assessmentTime_lt != null) {
+							queryMapReturn.put("assessmentTime_lt",
+									assessmentTime_lt);
+						}
+						if (assessmentTime_le != null) {
+							queryMapReturn.put("assessmentTime_le",
+									assessmentTime_le);
+						}
+						Integer olderId_gt = (Integer) contentreq
+								.get("olderId_gt");
+						Integer olderId_ge = (Integer) contentreq
+								.get("olderId_ge");
+						Integer olderId_lt = (Integer) contentreq
+								.get("olderId_lt");
+						Integer olderId_le = (Integer) contentreq
+								.get("olderId_le");
+						String olderId_in = (String) contentreq
+								.get("olderId_in");
+						Integer olderId = (Integer) contentreq.get("olderId");
+						if (olderId_gt != null) {
+							queryMapReturn.put("olderId_gt", olderId_gt);
+						}
+						if (olderId_ge != null) {
+							queryMapReturn.put("olderId_ge", olderId_ge);
+						}
+						if (olderId_lt != null) {
+							queryMapReturn.put("olderId_lt", olderId_lt);
+						}
+						if (olderId_le != null) {
+							queryMapReturn.put("olderId_le", olderId_le);
+						}
+						if (olderId_in != null) {
+							queryMapReturn.put("olderId_in", olderId_in);
+						}
+						if (olderId != null) {
+							queryMapReturn.put("olderId", olderId);
+						}
+						Integer employeeId_gt = (Integer) contentreq
+								.get("employeeId_gt");
+						Integer employeeId_ge = (Integer) contentreq
+								.get("employeeId_ge");
+						Integer employeeId_lt = (Integer) contentreq
+								.get("employeeId_lt");
+						Integer employeeId_le = (Integer) contentreq
+								.get("employeeId_le");
+						String employeeId_in = (String) contentreq
+								.get("employeeId_in");
+						Integer employeeId = (Integer) contentreq
+								.get("employeeId");
+						if (employeeId_gt != null) {
+							queryMapReturn.put("employeeId_gt", employeeId_gt);
+						}
+						if (employeeId_ge != null) {
+							queryMapReturn.put("employeeId_ge", employeeId_ge);
+						}
+						if (employeeId_lt != null) {
+							queryMapReturn.put("employeeId_lt", employeeId_lt);
+						}
+						if (employeeId_le != null) {
+							queryMapReturn.put("employeeId_le", employeeId_le);
+						}
+						if (employeeId_in != null) {
+							queryMapReturn.put("employeeId_in", employeeId_in);
+						}
+						if (employeeId != null) {
+							queryMapReturn.put("employeeId", employeeId);
+						}
+						Integer type_gt = (Integer) contentreq.get("type_gt");
+						Integer type_ge = (Integer) contentreq.get("type_ge");
+						Integer type_lt = (Integer) contentreq.get("type_lt");
+						Integer type_le = (Integer) contentreq.get("type_le");
+						String type_in = (String) contentreq.get("type_in");
+						Integer type = (Integer) contentreq.get("type");
+						if (type_gt != null) {
+							queryMapReturn.put("type_gt", type_gt);
+						}
+						if (type_ge != null) {
+							queryMapReturn.put("type_ge", type_ge);
+						}
+						if (type_lt != null) {
+							queryMapReturn.put("type_lt", type_lt);
+						}
+						if (type_le != null) {
+							queryMapReturn.put("type_le", type_le);
+						}
+						if (type_in != null) {
+							queryMapReturn.put("type_in", type_in);
+						}
+						if (type != null) {
+							queryMapReturn.put("type", type);
+						}
+						Integer status_gt = (Integer) contentreq
+								.get("status_gt");
+						Integer status_ge = (Integer) contentreq
+								.get("status_ge");
+						Integer status_lt = (Integer) contentreq
+								.get("status_lt");
+						Integer status_le = (Integer) contentreq
+								.get("status_le");
+						String status_in = (String) contentreq.get("status_in");
+						Integer status = (Integer) contentreq.get("status");
+						if (status_gt != null) {
+							queryMapReturn.put("status_gt", status_gt);
+						}
+						if (status_ge != null) {
+							queryMapReturn.put("status_ge", status_ge);
+						}
+						if (status_lt != null) {
+							queryMapReturn.put("status_lt", status_lt);
+						}
+						if (status_le != null) {
+							queryMapReturn.put("status_le", status_le);
+						}
+						if (status_in != null) {
+							queryMapReturn.put("status_in", status_in);
+						}
+						if (status != null) {
+							queryMapReturn.put("status", status);
+						}
+						Integer healthReportId_gt = (Integer) contentreq
+								.get("healthReportId_gt");
+						Integer healthReportId_ge = (Integer) contentreq
+								.get("healthReportId_ge");
+						Integer healthReportId_lt = (Integer) contentreq
+								.get("healthReportId_lt");
+						Integer healthReportId_le = (Integer) contentreq
+								.get("healthReportId_le");
+						String healthReportId_in = (String) contentreq
+								.get("healthReportId_in");
+						Integer healthReportId = (Integer) contentreq
+								.get("healthReportId");
+						if (healthReportId_gt != null) {
+							queryMapReturn.put("healthReportId_gt",
+									healthReportId_gt);
+						}
+						if (healthReportId_ge != null) {
+							queryMapReturn.put("healthReportId_ge",
+									healthReportId_ge);
+						}
+						if (healthReportId_lt != null) {
+							queryMapReturn.put("healthReportId_lt",
+									healthReportId_lt);
+						}
+						if (healthReportId_le != null) {
+							queryMapReturn.put("healthReportId_le",
+									healthReportId_le);
+						}
+						if (healthReportId_in != null) {
+							queryMapReturn.put("healthReportId_in",
+									healthReportId_in);
+						}
+						if (healthReportId != null) {
+							queryMapReturn
+									.put("healthReportId", healthReportId);
+						}
+						Integer recoveryId_gt = (Integer) contentreq
+								.get("recoveryId_gt");
+						Integer recoveryId_ge = (Integer) contentreq
+								.get("recoveryId_ge");
+						Integer recoveryId_lt = (Integer) contentreq
+								.get("recoveryId_lt");
+						Integer recoveryId_le = (Integer) contentreq
+								.get("recoveryId_le");
+						String recoveryId_in = (String) contentreq
+								.get("recoveryId_in");
+						Integer recoveryId = (Integer) contentreq
+								.get("recoveryId");
+						if (recoveryId_gt != null) {
+							queryMapReturn.put("recoveryId_gt", recoveryId_gt);
+						}
+						if (recoveryId_ge != null) {
+							queryMapReturn.put("recoveryId_ge", recoveryId_ge);
+						}
+						if (recoveryId_lt != null) {
+							queryMapReturn.put("recoveryId_lt", recoveryId_lt);
+						}
+						if (recoveryId_le != null) {
+							queryMapReturn.put("recoveryId_le", recoveryId_le);
+						}
+						if (recoveryId_in != null) {
+							queryMapReturn.put("recoveryId_in", recoveryId_in);
+						}
+						if (recoveryId != null) {
+							queryMapReturn.put("recoveryId", recoveryId);
+						}
+						Integer adlId_gt = (Integer) contentreq.get("adlId_gt");
+						Integer adlId_ge = (Integer) contentreq.get("adlId_ge");
+						Integer adlId_lt = (Integer) contentreq.get("adlId_lt");
+						Integer adlId_le = (Integer) contentreq.get("adlId_le");
+						String adlId_in = (String) contentreq.get("adlId_in");
+						Integer adlId = (Integer) contentreq.get("adlId");
+						if (adlId_gt != null) {
+							queryMapReturn.put("adlId_gt", adlId_gt);
+						}
+						if (adlId_ge != null) {
+							queryMapReturn.put("adlId_ge", adlId_ge);
+						}
+						if (adlId_lt != null) {
+							queryMapReturn.put("adlId_lt", adlId_lt);
+						}
+						if (adlId_le != null) {
+							queryMapReturn.put("adlId_le", adlId_le);
+						}
+						if (adlId_in != null) {
+							queryMapReturn.put("adlId_in", adlId_in);
+						}
+						if (adlId != null) {
+							queryMapReturn.put("adlId", adlId);
+						}
+						Integer nutritionId_gt = (Integer) contentreq
+								.get("nutritionId_gt");
+						Integer nutritionId_ge = (Integer) contentreq
+								.get("nutritionId_ge");
+						Integer nutritionId_lt = (Integer) contentreq
+								.get("nutritionId_lt");
+						Integer nutritionId_le = (Integer) contentreq
+								.get("nutritionId_le");
+						String nutritionId_in = (String) contentreq
+								.get("nutritionId_in");
+						Integer nutritionId = (Integer) contentreq
+								.get("nutritionId");
+						if (nutritionId_gt != null) {
+							queryMapReturn
+									.put("nutritionId_gt", nutritionId_gt);
+						}
+						if (nutritionId_ge != null) {
+							queryMapReturn
+									.put("nutritionId_ge", nutritionId_ge);
+						}
+						if (nutritionId_lt != null) {
+							queryMapReturn
+									.put("nutritionId_lt", nutritionId_lt);
+						}
+						if (nutritionId_le != null) {
+							queryMapReturn
+									.put("nutritionId_le", nutritionId_le);
+						}
+						if (nutritionId_in != null) {
+							queryMapReturn
+									.put("nutritionId_in", nutritionId_in);
+						}
+						if (nutritionId != null) {
+							queryMapReturn.put("nutritionId", nutritionId);
+						}
+						Integer fallId_gt = (Integer) contentreq
+								.get("fallId_gt");
+						Integer fallId_ge = (Integer) contentreq
+								.get("fallId_ge");
+						Integer fallId_lt = (Integer) contentreq
+								.get("fallId_lt");
+						Integer fallId_le = (Integer) contentreq
+								.get("fallId_le");
+						String fallId_in = (String) contentreq.get("fallId_in");
+						Integer fallId = (Integer) contentreq.get("fallId");
+						if (fallId_gt != null) {
+							queryMapReturn.put("fallId_gt", fallId_gt);
+						}
+						if (fallId_ge != null) {
+							queryMapReturn.put("fallId_ge", fallId_ge);
+						}
+						if (fallId_lt != null) {
+							queryMapReturn.put("fallId_lt", fallId_lt);
+						}
+						if (fallId_le != null) {
+							queryMapReturn.put("fallId_le", fallId_le);
+						}
+						if (fallId_in != null) {
+							queryMapReturn.put("fallId_in", fallId_in);
+						}
+						if (fallId != null) {
+							queryMapReturn.put("fallId", fallId);
+						}
+						Integer soreId_gt = (Integer) contentreq
+								.get("soreId_gt");
+						Integer soreId_ge = (Integer) contentreq
+								.get("soreId_ge");
+						Integer soreId_lt = (Integer) contentreq
+								.get("soreId_lt");
+						Integer soreId_le = (Integer) contentreq
+								.get("soreId_le");
+						String soreId_in = (String) contentreq.get("soreId_in");
+						Integer soreId = (Integer) contentreq.get("soreId");
+						if (soreId_gt != null) {
+							queryMapReturn.put("soreId_gt", soreId_gt);
+						}
+						if (soreId_ge != null) {
+							queryMapReturn.put("soreId_ge", soreId_ge);
+						}
+						if (soreId_lt != null) {
+							queryMapReturn.put("soreId_lt", soreId_lt);
+						}
+						if (soreId_le != null) {
+							queryMapReturn.put("soreId_le", soreId_le);
+						}
+						if (soreId_in != null) {
+							queryMapReturn.put("soreId_in", soreId_in);
+						}
+						if (soreId != null) {
+							queryMapReturn.put("soreId", soreId);
+						}
+						Integer mmseId_gt = (Integer) contentreq
+								.get("mmseId_gt");
+						Integer mmseId_ge = (Integer) contentreq
+								.get("mmseId_ge");
+						Integer mmseId_lt = (Integer) contentreq
+								.get("mmseId_lt");
+						Integer mmseId_le = (Integer) contentreq
+								.get("mmseId_le");
+						String mmseId_in = (String) contentreq.get("mmseId_in");
+						Integer mmseId = (Integer) contentreq.get("mmseId");
+						if (mmseId_gt != null) {
+							queryMapReturn.put("mmseId_gt", mmseId_gt);
+						}
+						if (mmseId_ge != null) {
+							queryMapReturn.put("mmseId_ge", mmseId_ge);
+						}
+						if (mmseId_lt != null) {
+							queryMapReturn.put("mmseId_lt", mmseId_lt);
+						}
+						if (mmseId_le != null) {
+							queryMapReturn.put("mmseId_le", mmseId_le);
+						}
+						if (mmseId_in != null) {
+							queryMapReturn.put("mmseId_in", mmseId_in);
+						}
+						if (mmseId != null) {
+							queryMapReturn.put("mmseId", mmseId);
+						}
+						Integer taskStatus_gt = (Integer) contentreq
+								.get("taskStatus_gt");
+						Integer taskStatus_ge = (Integer) contentreq
+								.get("taskStatus_ge");
+						Integer taskStatus_lt = (Integer) contentreq
+								.get("taskStatus_lt");
+						Integer taskStatus_le = (Integer) contentreq
+								.get("taskStatus_le");
+						String taskStatus_in = (String) contentreq
+								.get("taskStatus_in");
+						Integer taskStatus = (Integer) contentreq
+								.get("taskStatus");
+						if (taskStatus_gt != null) {
+							queryMapReturn.put("taskStatus_gt", taskStatus_gt);
+						}
+						if (taskStatus_ge != null) {
+							queryMapReturn.put("taskStatus_ge", taskStatus_ge);
+						}
+						if (taskStatus_lt != null) {
+							queryMapReturn.put("taskStatus_lt", taskStatus_lt);
+						}
+						if (taskStatus_le != null) {
+							queryMapReturn.put("taskStatus_le", taskStatus_le);
+						}
+						if (taskStatus_in != null) {
+							queryMapReturn.put("taskStatus_in", taskStatus_in);
+						}
+						if (taskStatus != null) {
+							queryMapReturn.put("taskStatus", taskStatus);
+						}
+						Integer masId_gt = (Integer) contentreq.get("masId_gt");
+						Integer masId_ge = (Integer) contentreq.get("masId_ge");
+						Integer masId_lt = (Integer) contentreq.get("masId_lt");
+						Integer masId_le = (Integer) contentreq.get("masId_le");
+						String masId_in = (String) contentreq.get("masId_in");
+						Integer masId = (Integer) contentreq.get("masId");
+						if (masId_gt != null) {
+							queryMapReturn.put("masId_gt", masId_gt);
+						}
+						if (masId_ge != null) {
+							queryMapReturn.put("masId_ge", masId_ge);
+						}
+						if (masId_lt != null) {
+							queryMapReturn.put("masId_lt", masId_lt);
+						}
+						if (masId_le != null) {
+							queryMapReturn.put("masId_le", masId_le);
+						}
+						if (masId_in != null) {
+							queryMapReturn.put("masId_in", masId_in);
+						}
+						if (masId != null) {
+							queryMapReturn.put("masId", masId);
+						}
+						Integer barthelId_gt = (Integer) contentreq
+								.get("barthelId_gt");
+						Integer barthelId_ge = (Integer) contentreq
+								.get("barthelId_ge");
+						Integer barthelId_lt = (Integer) contentreq
+								.get("barthelId_lt");
+						Integer barthelId_le = (Integer) contentreq
+								.get("barthelId_le");
+						String barthelId_in = (String) contentreq
+								.get("barthelId_in");
+						Integer barthelId = (Integer) contentreq
+								.get("barthelId");
+						if (barthelId_gt != null) {
+							queryMapReturn.put("barthelId_gt", barthelId_gt);
+						}
+						if (barthelId_ge != null) {
+							queryMapReturn.put("barthelId_ge", barthelId_ge);
+						}
+						if (barthelId_lt != null) {
+							queryMapReturn.put("barthelId_lt", barthelId_lt);
+						}
+						if (barthelId_le != null) {
+							queryMapReturn.put("barthelId_le", barthelId_le);
+						}
+						if (barthelId_in != null) {
+							queryMapReturn.put("barthelId_in", barthelId_in);
+						}
+						if (barthelId != null) {
+							queryMapReturn.put("barthelId", barthelId);
+						}
+						Integer fcaId_gt = (Integer) contentreq.get("fcaId_gt");
+						Integer fcaId_ge = (Integer) contentreq.get("fcaId_ge");
+						Integer fcaId_lt = (Integer) contentreq.get("fcaId_lt");
+						Integer fcaId_le = (Integer) contentreq.get("fcaId_le");
+						String fcaId_in = (String) contentreq.get("fcaId_in");
+						Integer fcaId = (Integer) contentreq.get("fcaId");
+						if (fcaId_gt != null) {
+							queryMapReturn.put("fcaId_gt", fcaId_gt);
+						}
+						if (fcaId_ge != null) {
+							queryMapReturn.put("fcaId_ge", fcaId_ge);
+						}
+						if (fcaId_lt != null) {
+							queryMapReturn.put("fcaId_lt", fcaId_lt);
+						}
+						if (fcaId_le != null) {
+							queryMapReturn.put("fcaId_le", fcaId_le);
+						}
+						if (fcaId_in != null) {
+							queryMapReturn.put("fcaId_in", fcaId_in);
+						}
+						if (fcaId != null) {
+							queryMapReturn.put("fcaId", fcaId);
+						}
+
+						String employeeShow = (String) contentreq
+								.get("employeeShow");
+						if ("true".equals(employeeShow)) {
+							employeeShowReturn = true;
+						}
+						String olderShow = (String) contentreq.get("olderShow");
+						if ("true".equals(olderShow)) {
+							olderShowReturn = true;
+						}
+						String healthReportShow = (String) contentreq
+								.get("healthReportShow");
+						if ("true".equals(healthReportShow)) {
+							healthReportShowReturn = true;
+						}
+						String recoveryShow = (String) contentreq
+								.get("recoveryShow");
+						if ("true".equals(recoveryShow)) {
+							recoveryShowReturn = true;
+						}
+						String adlShow = (String) contentreq.get("adlShow");
+						if ("true".equals(adlShow)) {
+							adlShowReturn = true;
+						}
+						String nutritionShow = (String) contentreq
+								.get("nutritionShow");
+						if ("true".equals(nutritionShow)) {
+							nutritionShowReturn = true;
+						}
+						String fallShow = (String) contentreq.get("fallShow");
+						if ("true".equals(fallShow)) {
+							fallShowReturn = true;
+						}
+						String soreShow = (String) contentreq.get("soreShow");
+						if ("true".equals(soreShow)) {
+							soreShowReturn = true;
+						}
+						String mmseShow = (String) contentreq.get("mmseShow");
+						if ("true".equals(mmseShow)) {
+							mmseShowReturn = true;
+						}
+						String masShow = (String) contentreq.get("masShow");
+						if ("true".equals(masShow)) {
+							masShowReturn = true;
+						}
+						String barthelShow = (String) contentreq
+								.get("barthelShow");
+						if ("true".equals(barthelShow)) {
+							barthelShowReturn = true;
+						}
+						String fcaShow = (String) contentreq.get("fcaShow");
+						if ("true".equals(fcaShow)) {
+							fcaShowReturn = true;
+						}
+					}
+					JSONObject pagereq = (JSONObject) reqParams.get("page");
+					if (pagereq != null) {
+						String pagenotemp = (String) pagereq.get("pageno");
+						String pagesizetemp = (String) pagereq.get("pagesize");
+						if ((pagenotemp != null)
+								&& (!"".equals(pagenotemp.trim()))) {
+							pagenoReturn = Integer.valueOf(pagenotemp)
+									.intValue();
+						}
+						if ((pagesizetemp != null)
+								&& (!"".equals(pagesizetemp.trim()))) {
+							pagesizeReturn = Integer.valueOf(pagesizetemp)
+									.intValue();
+						}
+					}
+					Object orderreq = (Object) reqParams.get("order");
+					if (orderreq != null) {
+						JSONArray order = (JSONArray) orderreq;
+						orderListReturn = new ArrayList<OrderVO>();
+						for (int i = 0; i < order.size(); i++) {
+							JSONObject obj = order.getJSONObject(i);
+							OrderVO orderVO = new OrderVO();
+							orderVO.setName((String) obj.get("column"));
+							orderVO.setOrderType((String) obj.get("type"));
+							orderListReturn.add(orderVO);
+						}
+					}
+				}
+			} else if ("DEL_HEALTH_ASSESSMENT_INFO_REQUEST".equals(command)) {
+				actionReturn = "del";
+				if (true) {
+					if (contentreq != null) {
+						idReturn = (Integer) contentreq.get("id");
+						String delEmployee = (String) contentreq
+								.get("delEmployee");
+						if ("true".equals(delEmployee)) {
+							delEmployeeReturn = true;
+						}
+						String delOlder = (String) contentreq.get("delOlder");
+						if ("true".equals(delOlder)) {
+							delOlderReturn = true;
+						}
+						String delHealthReport = (String) contentreq
+								.get("delHealthReport");
+						if ("true".equals(delHealthReport)) {
+							delHealthReportReturn = true;
+						}
+						String delRecovery = (String) contentreq
+								.get("delRecovery");
+						if ("true".equals(delRecovery)) {
+							delRecoveryReturn = true;
+						}
+						String delAdl = (String) contentreq.get("delAdl");
+						if ("true".equals(delAdl)) {
+							delAdlReturn = true;
+						}
+						String delNutrition = (String) contentreq
+								.get("delNutrition");
+						if ("true".equals(delNutrition)) {
+							delNutritionReturn = true;
+						}
+						String delFall = (String) contentreq.get("delFall");
+						if ("true".equals(delFall)) {
+							delFallReturn = true;
+						}
+						String delSore = (String) contentreq.get("delSore");
+						if ("true".equals(delSore)) {
+							delSoreReturn = true;
+						}
+						String delMmse = (String) contentreq.get("delMmse");
+						if ("true".equals(delMmse)) {
+							delMmseReturn = true;
+						}
+						String delMas = (String) contentreq.get("delMas");
+						if ("true".equals(delMas)) {
+							delMasReturn = true;
+						}
+						String delBarthel = (String) contentreq
+								.get("delBarthel");
+						if ("true".equals(delBarthel)) {
+							delBarthelReturn = true;
+						}
+						String delFca = (String) contentreq.get("delFca");
+						if ("true".equals(delFca)) {
+							delFcaReturn = true;
+						}
+					}
+				}
+			} else if ("DEL_HEALTH_ASSESSMENT_LIST_REQUEST".equals(command)) {
+				actionReturn = "delList";
+				if (true) {
+					if (contentreq != null) {
+						queryMapReturn = new HashMap<String, Object>();
+						Integer id_gt = (Integer) contentreq.get("id_gt");
+						Integer id_ge = (Integer) contentreq.get("id_ge");
+						Integer id_lt = (Integer) contentreq.get("id_lt");
+						Integer id_le = (Integer) contentreq.get("id_le");
+						String id_in = (String) contentreq.get("id_in");
+						Integer id = (Integer) contentreq.get("id");
+						if (id_gt != null) {
+							queryMapReturn.put("id_gt", id_gt);
+						}
+						if (id_ge != null) {
+							queryMapReturn.put("id_ge", id_ge);
+						}
+						if (id_lt != null) {
+							queryMapReturn.put("id_lt", id_lt);
+						}
+						if (id_le != null) {
+							queryMapReturn.put("id_le", id_le);
+						}
+						if (id_in != null) {
+							queryMapReturn.put("id_in", id_in);
+						}
+						if (id != null) {
+							queryMapReturn.put("id", id);
+						}
+						String assessmentTime_gt = (String) contentreq
+								.get("assessmentTime_gt");
+						String assessmentTime_ge = (String) contentreq
+								.get("assessmentTime_ge");
+						String assessmentTime_lt = (String) contentreq
+								.get("assessmentTime_lt");
+						String assessmentTime_le = (String) contentreq
+								.get("assessmentTime_le");
+						if (assessmentTime_gt != null) {
+							queryMapReturn.put("assessmentTime_gt",
+									assessmentTime_gt);
+						}
+						if (assessmentTime_ge != null) {
+							queryMapReturn.put("assessmentTime_ge",
+									assessmentTime_ge);
+						}
+						if (assessmentTime_lt != null) {
+							queryMapReturn.put("assessmentTime_lt",
+									assessmentTime_lt);
+						}
+						if (assessmentTime_le != null) {
+							queryMapReturn.put("assessmentTime_le",
+									assessmentTime_le);
+						}
+						Integer olderId_gt = (Integer) contentreq
+								.get("olderId_gt");
+						Integer olderId_ge = (Integer) contentreq
+								.get("olderId_ge");
+						Integer olderId_lt = (Integer) contentreq
+								.get("olderId_lt");
+						Integer olderId_le = (Integer) contentreq
+								.get("olderId_le");
+						String olderId_in = (String) contentreq
+								.get("olderId_in");
+						Integer olderId = (Integer) contentreq.get("olderId");
+						if (olderId_gt != null) {
+							queryMapReturn.put("olderId_gt", olderId_gt);
+						}
+						if (olderId_ge != null) {
+							queryMapReturn.put("olderId_ge", olderId_ge);
+						}
+						if (olderId_lt != null) {
+							queryMapReturn.put("olderId_lt", olderId_lt);
+						}
+						if (olderId_le != null) {
+							queryMapReturn.put("olderId_le", olderId_le);
+						}
+						if (olderId_in != null) {
+							queryMapReturn.put("olderId_in", olderId_in);
+						}
+						if (olderId != null) {
+							queryMapReturn.put("olderId", olderId);
+						}
+						Integer employeeId_gt = (Integer) contentreq
+								.get("employeeId_gt");
+						Integer employeeId_ge = (Integer) contentreq
+								.get("employeeId_ge");
+						Integer employeeId_lt = (Integer) contentreq
+								.get("employeeId_lt");
+						Integer employeeId_le = (Integer) contentreq
+								.get("employeeId_le");
+						String employeeId_in = (String) contentreq
+								.get("employeeId_in");
+						Integer employeeId = (Integer) contentreq
+								.get("employeeId");
+						if (employeeId_gt != null) {
+							queryMapReturn.put("employeeId_gt", employeeId_gt);
+						}
+						if (employeeId_ge != null) {
+							queryMapReturn.put("employeeId_ge", employeeId_ge);
+						}
+						if (employeeId_lt != null) {
+							queryMapReturn.put("employeeId_lt", employeeId_lt);
+						}
+						if (employeeId_le != null) {
+							queryMapReturn.put("employeeId_le", employeeId_le);
+						}
+						if (employeeId_in != null) {
+							queryMapReturn.put("employeeId_in", employeeId_in);
+						}
+						if (employeeId != null) {
+							queryMapReturn.put("employeeId", employeeId);
+						}
+						Integer type_gt = (Integer) contentreq.get("type_gt");
+						Integer type_ge = (Integer) contentreq.get("type_ge");
+						Integer type_lt = (Integer) contentreq.get("type_lt");
+						Integer type_le = (Integer) contentreq.get("type_le");
+						String type_in = (String) contentreq.get("type_in");
+						Integer type = (Integer) contentreq.get("type");
+						if (type_gt != null) {
+							queryMapReturn.put("type_gt", type_gt);
+						}
+						if (type_ge != null) {
+							queryMapReturn.put("type_ge", type_ge);
+						}
+						if (type_lt != null) {
+							queryMapReturn.put("type_lt", type_lt);
+						}
+						if (type_le != null) {
+							queryMapReturn.put("type_le", type_le);
+						}
+						if (type_in != null) {
+							queryMapReturn.put("type_in", type_in);
+						}
+						if (type != null) {
+							queryMapReturn.put("type", type);
+						}
+						Integer status_gt = (Integer) contentreq
+								.get("status_gt");
+						Integer status_ge = (Integer) contentreq
+								.get("status_ge");
+						Integer status_lt = (Integer) contentreq
+								.get("status_lt");
+						Integer status_le = (Integer) contentreq
+								.get("status_le");
+						String status_in = (String) contentreq.get("status_in");
+						Integer status = (Integer) contentreq.get("status");
+						if (status_gt != null) {
+							queryMapReturn.put("status_gt", status_gt);
+						}
+						if (status_ge != null) {
+							queryMapReturn.put("status_ge", status_ge);
+						}
+						if (status_lt != null) {
+							queryMapReturn.put("status_lt", status_lt);
+						}
+						if (status_le != null) {
+							queryMapReturn.put("status_le", status_le);
+						}
+						if (status_in != null) {
+							queryMapReturn.put("status_in", status_in);
+						}
+						if (status != null) {
+							queryMapReturn.put("status", status);
+						}
+						Integer healthReportId_gt = (Integer) contentreq
+								.get("healthReportId_gt");
+						Integer healthReportId_ge = (Integer) contentreq
+								.get("healthReportId_ge");
+						Integer healthReportId_lt = (Integer) contentreq
+								.get("healthReportId_lt");
+						Integer healthReportId_le = (Integer) contentreq
+								.get("healthReportId_le");
+						String healthReportId_in = (String) contentreq
+								.get("healthReportId_in");
+						Integer healthReportId = (Integer) contentreq
+								.get("healthReportId");
+						if (healthReportId_gt != null) {
+							queryMapReturn.put("healthReportId_gt",
+									healthReportId_gt);
+						}
+						if (healthReportId_ge != null) {
+							queryMapReturn.put("healthReportId_ge",
+									healthReportId_ge);
+						}
+						if (healthReportId_lt != null) {
+							queryMapReturn.put("healthReportId_lt",
+									healthReportId_lt);
+						}
+						if (healthReportId_le != null) {
+							queryMapReturn.put("healthReportId_le",
+									healthReportId_le);
+						}
+						if (healthReportId_in != null) {
+							queryMapReturn.put("healthReportId_in",
+									healthReportId_in);
+						}
+						if (healthReportId != null) {
+							queryMapReturn
+									.put("healthReportId", healthReportId);
+						}
+						Integer recoveryId_gt = (Integer) contentreq
+								.get("recoveryId_gt");
+						Integer recoveryId_ge = (Integer) contentreq
+								.get("recoveryId_ge");
+						Integer recoveryId_lt = (Integer) contentreq
+								.get("recoveryId_lt");
+						Integer recoveryId_le = (Integer) contentreq
+								.get("recoveryId_le");
+						String recoveryId_in = (String) contentreq
+								.get("recoveryId_in");
+						Integer recoveryId = (Integer) contentreq
+								.get("recoveryId");
+						if (recoveryId_gt != null) {
+							queryMapReturn.put("recoveryId_gt", recoveryId_gt);
+						}
+						if (recoveryId_ge != null) {
+							queryMapReturn.put("recoveryId_ge", recoveryId_ge);
+						}
+						if (recoveryId_lt != null) {
+							queryMapReturn.put("recoveryId_lt", recoveryId_lt);
+						}
+						if (recoveryId_le != null) {
+							queryMapReturn.put("recoveryId_le", recoveryId_le);
+						}
+						if (recoveryId_in != null) {
+							queryMapReturn.put("recoveryId_in", recoveryId_in);
+						}
+						if (recoveryId != null) {
+							queryMapReturn.put("recoveryId", recoveryId);
+						}
+						Integer adlId_gt = (Integer) contentreq.get("adlId_gt");
+						Integer adlId_ge = (Integer) contentreq.get("adlId_ge");
+						Integer adlId_lt = (Integer) contentreq.get("adlId_lt");
+						Integer adlId_le = (Integer) contentreq.get("adlId_le");
+						String adlId_in = (String) contentreq.get("adlId_in");
+						Integer adlId = (Integer) contentreq.get("adlId");
+						if (adlId_gt != null) {
+							queryMapReturn.put("adlId_gt", adlId_gt);
+						}
+						if (adlId_ge != null) {
+							queryMapReturn.put("adlId_ge", adlId_ge);
+						}
+						if (adlId_lt != null) {
+							queryMapReturn.put("adlId_lt", adlId_lt);
+						}
+						if (adlId_le != null) {
+							queryMapReturn.put("adlId_le", adlId_le);
+						}
+						if (adlId_in != null) {
+							queryMapReturn.put("adlId_in", adlId_in);
+						}
+						if (adlId != null) {
+							queryMapReturn.put("adlId", adlId);
+						}
+						Integer nutritionId_gt = (Integer) contentreq
+								.get("nutritionId_gt");
+						Integer nutritionId_ge = (Integer) contentreq
+								.get("nutritionId_ge");
+						Integer nutritionId_lt = (Integer) contentreq
+								.get("nutritionId_lt");
+						Integer nutritionId_le = (Integer) contentreq
+								.get("nutritionId_le");
+						String nutritionId_in = (String) contentreq
+								.get("nutritionId_in");
+						Integer nutritionId = (Integer) contentreq
+								.get("nutritionId");
+						if (nutritionId_gt != null) {
+							queryMapReturn
+									.put("nutritionId_gt", nutritionId_gt);
+						}
+						if (nutritionId_ge != null) {
+							queryMapReturn
+									.put("nutritionId_ge", nutritionId_ge);
+						}
+						if (nutritionId_lt != null) {
+							queryMapReturn
+									.put("nutritionId_lt", nutritionId_lt);
+						}
+						if (nutritionId_le != null) {
+							queryMapReturn
+									.put("nutritionId_le", nutritionId_le);
+						}
+						if (nutritionId_in != null) {
+							queryMapReturn
+									.put("nutritionId_in", nutritionId_in);
+						}
+						if (nutritionId != null) {
+							queryMapReturn.put("nutritionId", nutritionId);
+						}
+						Integer fallId_gt = (Integer) contentreq
+								.get("fallId_gt");
+						Integer fallId_ge = (Integer) contentreq
+								.get("fallId_ge");
+						Integer fallId_lt = (Integer) contentreq
+								.get("fallId_lt");
+						Integer fallId_le = (Integer) contentreq
+								.get("fallId_le");
+						String fallId_in = (String) contentreq.get("fallId_in");
+						Integer fallId = (Integer) contentreq.get("fallId");
+						if (fallId_gt != null) {
+							queryMapReturn.put("fallId_gt", fallId_gt);
+						}
+						if (fallId_ge != null) {
+							queryMapReturn.put("fallId_ge", fallId_ge);
+						}
+						if (fallId_lt != null) {
+							queryMapReturn.put("fallId_lt", fallId_lt);
+						}
+						if (fallId_le != null) {
+							queryMapReturn.put("fallId_le", fallId_le);
+						}
+						if (fallId_in != null) {
+							queryMapReturn.put("fallId_in", fallId_in);
+						}
+						if (fallId != null) {
+							queryMapReturn.put("fallId", fallId);
+						}
+						Integer soreId_gt = (Integer) contentreq
+								.get("soreId_gt");
+						Integer soreId_ge = (Integer) contentreq
+								.get("soreId_ge");
+						Integer soreId_lt = (Integer) contentreq
+								.get("soreId_lt");
+						Integer soreId_le = (Integer) contentreq
+								.get("soreId_le");
+						String soreId_in = (String) contentreq.get("soreId_in");
+						Integer soreId = (Integer) contentreq.get("soreId");
+						if (soreId_gt != null) {
+							queryMapReturn.put("soreId_gt", soreId_gt);
+						}
+						if (soreId_ge != null) {
+							queryMapReturn.put("soreId_ge", soreId_ge);
+						}
+						if (soreId_lt != null) {
+							queryMapReturn.put("soreId_lt", soreId_lt);
+						}
+						if (soreId_le != null) {
+							queryMapReturn.put("soreId_le", soreId_le);
+						}
+						if (soreId_in != null) {
+							queryMapReturn.put("soreId_in", soreId_in);
+						}
+						if (soreId != null) {
+							queryMapReturn.put("soreId", soreId);
+						}
+						Integer mmseId_gt = (Integer) contentreq
+								.get("mmseId_gt");
+						Integer mmseId_ge = (Integer) contentreq
+								.get("mmseId_ge");
+						Integer mmseId_lt = (Integer) contentreq
+								.get("mmseId_lt");
+						Integer mmseId_le = (Integer) contentreq
+								.get("mmseId_le");
+						String mmseId_in = (String) contentreq.get("mmseId_in");
+						Integer mmseId = (Integer) contentreq.get("mmseId");
+						if (mmseId_gt != null) {
+							queryMapReturn.put("mmseId_gt", mmseId_gt);
+						}
+						if (mmseId_ge != null) {
+							queryMapReturn.put("mmseId_ge", mmseId_ge);
+						}
+						if (mmseId_lt != null) {
+							queryMapReturn.put("mmseId_lt", mmseId_lt);
+						}
+						if (mmseId_le != null) {
+							queryMapReturn.put("mmseId_le", mmseId_le);
+						}
+						if (mmseId_in != null) {
+							queryMapReturn.put("mmseId_in", mmseId_in);
+						}
+						if (mmseId != null) {
+							queryMapReturn.put("mmseId", mmseId);
+						}
+						Integer taskStatus_gt = (Integer) contentreq
+								.get("taskStatus_gt");
+						Integer taskStatus_ge = (Integer) contentreq
+								.get("taskStatus_ge");
+						Integer taskStatus_lt = (Integer) contentreq
+								.get("taskStatus_lt");
+						Integer taskStatus_le = (Integer) contentreq
+								.get("taskStatus_le");
+						String taskStatus_in = (String) contentreq
+								.get("taskStatus_in");
+						Integer taskStatus = (Integer) contentreq
+								.get("taskStatus");
+						if (taskStatus_gt != null) {
+							queryMapReturn.put("taskStatus_gt", taskStatus_gt);
+						}
+						if (taskStatus_ge != null) {
+							queryMapReturn.put("taskStatus_ge", taskStatus_ge);
+						}
+						if (taskStatus_lt != null) {
+							queryMapReturn.put("taskStatus_lt", taskStatus_lt);
+						}
+						if (taskStatus_le != null) {
+							queryMapReturn.put("taskStatus_le", taskStatus_le);
+						}
+						if (taskStatus_in != null) {
+							queryMapReturn.put("taskStatus_in", taskStatus_in);
+						}
+						if (taskStatus != null) {
+							queryMapReturn.put("taskStatus", taskStatus);
+						}
+						Integer masId_gt = (Integer) contentreq.get("masId_gt");
+						Integer masId_ge = (Integer) contentreq.get("masId_ge");
+						Integer masId_lt = (Integer) contentreq.get("masId_lt");
+						Integer masId_le = (Integer) contentreq.get("masId_le");
+						String masId_in = (String) contentreq.get("masId_in");
+						Integer masId = (Integer) contentreq.get("masId");
+						if (masId_gt != null) {
+							queryMapReturn.put("masId_gt", masId_gt);
+						}
+						if (masId_ge != null) {
+							queryMapReturn.put("masId_ge", masId_ge);
+						}
+						if (masId_lt != null) {
+							queryMapReturn.put("masId_lt", masId_lt);
+						}
+						if (masId_le != null) {
+							queryMapReturn.put("masId_le", masId_le);
+						}
+						if (masId_in != null) {
+							queryMapReturn.put("masId_in", masId_in);
+						}
+						if (masId != null) {
+							queryMapReturn.put("masId", masId);
+						}
+						Integer barthelId_gt = (Integer) contentreq
+								.get("barthelId_gt");
+						Integer barthelId_ge = (Integer) contentreq
+								.get("barthelId_ge");
+						Integer barthelId_lt = (Integer) contentreq
+								.get("barthelId_lt");
+						Integer barthelId_le = (Integer) contentreq
+								.get("barthelId_le");
+						String barthelId_in = (String) contentreq
+								.get("barthelId_in");
+						Integer barthelId = (Integer) contentreq
+								.get("barthelId");
+						if (barthelId_gt != null) {
+							queryMapReturn.put("barthelId_gt", barthelId_gt);
+						}
+						if (barthelId_ge != null) {
+							queryMapReturn.put("barthelId_ge", barthelId_ge);
+						}
+						if (barthelId_lt != null) {
+							queryMapReturn.put("barthelId_lt", barthelId_lt);
+						}
+						if (barthelId_le != null) {
+							queryMapReturn.put("barthelId_le", barthelId_le);
+						}
+						if (barthelId_in != null) {
+							queryMapReturn.put("barthelId_in", barthelId_in);
+						}
+						if (barthelId != null) {
+							queryMapReturn.put("barthelId", barthelId);
+						}
+						Integer fcaId_gt = (Integer) contentreq.get("fcaId_gt");
+						Integer fcaId_ge = (Integer) contentreq.get("fcaId_ge");
+						Integer fcaId_lt = (Integer) contentreq.get("fcaId_lt");
+						Integer fcaId_le = (Integer) contentreq.get("fcaId_le");
+						String fcaId_in = (String) contentreq.get("fcaId_in");
+						Integer fcaId = (Integer) contentreq.get("fcaId");
+						if (fcaId_gt != null) {
+							queryMapReturn.put("fcaId_gt", fcaId_gt);
+						}
+						if (fcaId_ge != null) {
+							queryMapReturn.put("fcaId_ge", fcaId_ge);
+						}
+						if (fcaId_lt != null) {
+							queryMapReturn.put("fcaId_lt", fcaId_lt);
+						}
+						if (fcaId_le != null) {
+							queryMapReturn.put("fcaId_le", fcaId_le);
+						}
+						if (fcaId_in != null) {
+							queryMapReturn.put("fcaId_in", fcaId_in);
+						}
+						if (fcaId != null) {
+							queryMapReturn.put("fcaId", fcaId);
+						}
+
+						String delEmployee = (String) contentreq
+								.get("delEmployee");
+						if ("true".equals(delEmployee)) {
+							delEmployeeReturn = true;
+						}
+						String delOlder = (String) contentreq.get("delOlder");
+						if ("true".equals(delOlder)) {
+							delOlderReturn = true;
+						}
+						String delHealthReport = (String) contentreq
+								.get("delHealthReport");
+						if ("true".equals(delHealthReport)) {
+							delHealthReportReturn = true;
+						}
+						String delRecovery = (String) contentreq
+								.get("delRecovery");
+						if ("true".equals(delRecovery)) {
+							delRecoveryReturn = true;
+						}
+						String delAdl = (String) contentreq.get("delAdl");
+						if ("true".equals(delAdl)) {
+							delAdlReturn = true;
+						}
+						String delNutrition = (String) contentreq
+								.get("delNutrition");
+						if ("true".equals(delNutrition)) {
+							delNutritionReturn = true;
+						}
+						String delFall = (String) contentreq.get("delFall");
+						if ("true".equals(delFall)) {
+							delFallReturn = true;
+						}
+						String delSore = (String) contentreq.get("delSore");
+						if ("true".equals(delSore)) {
+							delSoreReturn = true;
+						}
+						String delMmse = (String) contentreq.get("delMmse");
+						if ("true".equals(delMmse)) {
+							delMmseReturn = true;
+						}
+						String delMas = (String) contentreq.get("delMas");
+						if ("true".equals(delMas)) {
+							delMasReturn = true;
+						}
+						String delBarthel = (String) contentreq
+								.get("delBarthel");
+						if ("true".equals(delBarthel)) {
+							delBarthelReturn = true;
+						}
+						String delFca = (String) contentreq.get("delFca");
+						if ("true".equals(delFca)) {
+							delFcaReturn = true;
+						}
+					}
+					JSONObject pagereq = (JSONObject) reqParams.get("page");
+					if (pagereq != null) {
+						String pagenotemp = (String) pagereq.get("pageno");
+						String pagesizetemp = (String) pagereq.get("pagesize");
+						if ((pagenotemp != null)
+								&& (!"".equals(pagenotemp.trim()))) {
+							pagenoReturn = Integer.valueOf(pagenotemp)
+									.intValue();
+						}
+						if ((pagesizetemp != null)
+								&& (!"".equals(pagesizetemp.trim()))) {
+							pagesizeReturn = Integer.valueOf(pagesizetemp)
+									.intValue();
+						}
+					}
+				}
+			}
+
+			if (actionReturn != null && !"".equals(actionReturn)) {
+				parseMap.put("action", actionReturn);
+			}
+			if (healthAssessmentReturn != null) {
+				parseMap.put("healthAssessment", healthAssessmentReturn);
+			}
+			if (healthAssessmentListReturn != null
+					&& healthAssessmentListReturn.size() > 0) {
+				parseMap.put("healthAssessmentList", healthAssessmentListReturn);
+			}
+			if (idReturn != null) {
+				parseMap.put("id", idReturn);
+			}
+			if (orderListReturn != null && orderListReturn.size() > 0) {
+				parseMap.put("orderList", orderListReturn);
+			}
+			if (queryMapReturn != null) {
+				parseMap.put("queryMap", queryMapReturn);
+			}
+			if (pagenoReturn > 0) {
+				parseMap.put("pageno", pagenoReturn);
+			}
+			if (pagesizeReturn > 0) {
+				parseMap.put("pagesize", pagesizeReturn);
+			}
+
+			if (employeeShowReturn != null) {
+				parseMap.put("employeeShow", employeeShowReturn);
+			}
+			if (delEmployeeReturn != null) {
+				parseMap.put("delEmployee", delEmployeeReturn);
+			}
+			if (olderShowReturn != null) {
+				parseMap.put("olderShow", olderShowReturn);
+			}
+			if (delOlderReturn != null) {
+				parseMap.put("delOlder", delOlderReturn);
+			}
+			if (healthReportShowReturn != null) {
+				parseMap.put("healthReportShow", healthReportShowReturn);
+			}
+			if (delHealthReportReturn != null) {
+				parseMap.put("delHealthReport", delHealthReportReturn);
+			}
+			if (recoveryShowReturn != null) {
+				parseMap.put("recoveryShow", recoveryShowReturn);
+			}
+			if (delRecoveryReturn != null) {
+				parseMap.put("delRecovery", delRecoveryReturn);
+			}
+			if (adlShowReturn != null) {
+				parseMap.put("adlShow", adlShowReturn);
+			}
+			if (delAdlReturn != null) {
+				parseMap.put("delAdl", delAdlReturn);
+			}
+			if (nutritionShowReturn != null) {
+				parseMap.put("nutritionShow", nutritionShowReturn);
+			}
+			if (delNutritionReturn != null) {
+				parseMap.put("delNutrition", delNutritionReturn);
+			}
+			if (fallShowReturn != null) {
+				parseMap.put("fallShow", fallShowReturn);
+			}
+			if (delFallReturn != null) {
+				parseMap.put("delFall", delFallReturn);
+			}
+			if (soreShowReturn != null) {
+				parseMap.put("soreShow", soreShowReturn);
+			}
+			if (delSoreReturn != null) {
+				parseMap.put("delSore", delSoreReturn);
+			}
+			if (mmseShowReturn != null) {
+				parseMap.put("mmseShow", mmseShowReturn);
+			}
+			if (delMmseReturn != null) {
+				parseMap.put("delMmse", delMmseReturn);
+			}
+			if (masShowReturn != null) {
+				parseMap.put("masShow", masShowReturn);
+			}
+			if (delMasReturn != null) {
+				parseMap.put("delMas", delMasReturn);
+			}
+			if (barthelShowReturn != null) {
+				parseMap.put("barthelShow", barthelShowReturn);
+			}
+			if (delBarthelReturn != null) {
+				parseMap.put("delBarthel", delBarthelReturn);
+			}
+			if (fcaShowReturn != null) {
+				parseMap.put("fcaShow", fcaShowReturn);
+			}
+			if (delFcaReturn != null) {
+				parseMap.put("delFca", delFcaReturn);
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByXml(String command, String reqStr,
+			HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

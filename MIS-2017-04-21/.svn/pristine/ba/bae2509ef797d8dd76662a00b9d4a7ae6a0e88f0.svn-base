@@ -1,0 +1,122 @@
+package fsk.entity.assessmentLog;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.assessmentTask.AssessmentTaskEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 评估操作日志
+ * @author feng.gu
+ * @date 2016-07-19 11:09:28
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_ASSESSMENT_LOG")
+public class AssessmentLogEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String TYPE = "TYPE";
+    public final static String PERSON_NAME = "PERSON_NAME";
+    public final static String CREATE_TIME = "CREATE_TIME";
+    public final static String DES = "DES";
+    public final static String ASSESSMENT_TASK_ID = "ASSESSMENT_TASK_ID";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 操作类型
+	 */
+	@ColumnDescription(name = "TYPE")
+	private Integer type;
+    /**
+	 * 操作人
+	 */
+	@ColumnDescription(name = "PERSON_NAME")
+	private String personName;
+    /**
+	 * 操作时间
+	 */
+	@ColumnDescription(name = "CREATE_TIME")
+	private String createTime;
+    /**
+	 * 操作备注
+	 */
+	@ColumnDescription(name = "DES")
+	private String des;
+    /**
+	 * 评估任务ID
+	 */
+	@ColumnDescription(name = "ASSESSMENT_TASK_ID")
+	private Integer assessmentTaskId;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+    public String getPersonName() {
+		return personName;
+	}
+
+	public void setPersonName(String personName) {
+		this.personName = personName;
+	}
+    public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+    public String getDes() {
+		return des;
+	}
+
+	public void setDes(String des) {
+		this.des = des;
+	}
+    public Integer getAssessmentTaskId() {
+		return assessmentTaskId;
+	}
+
+	public void setAssessmentTaskId(Integer assessmentTaskId) {
+		this.assessmentTaskId = assessmentTaskId;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="AssessmentTaskEntity"	,joinColumn="ID"	)
+			
+			
+		private AssessmentTaskEntity assessmentTask;
+	        
+	public AssessmentTaskEntity getAssessmentTask() {
+		return assessmentTask;
+    }
+	
+	public void setAssessmentTask(AssessmentTaskEntity assessmentTask) {
+		this.assessmentTask = assessmentTask;
+	}
+			
+}

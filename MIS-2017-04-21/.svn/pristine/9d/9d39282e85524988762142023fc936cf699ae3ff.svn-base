@@ -1,0 +1,104 @@
+package fsk.socket.ECGStick;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.SocketTimeoutException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.log4j.Logger;
+
+import fsk.handler.ECGStickMessageHandler;
+
+public class ECGStickDoHandlerThread extends Thread {
+	private static Logger logger = Logger
+			.getLogger(ECGStickDoHandlerThread.class);
+	static final int BUFFER_SIZE = 4096;
+	private InputStream in;
+	private OutputStream out;
+	
+	private SimpleDateFormat formater1 = new SimpleDateFormat(
+			"yyyy-MM-dd HH:mm:ss");
+
+	private static SimpleDateFormat formater = new SimpleDateFormat(
+			"yyyyMMddHHmmss");
+	
+	private static ECGStickMessageHandler ecgMessageHandler = new ECGStickMessageHandler();
+
+	public ECGStickDoHandlerThread(InputStream in, OutputStream out) {
+		this.in = in;
+		this.out = out;
+	}
+
+	public void run() {
+		try {
+			String temp = "";
+			while (true) {
+				boolean isNeedBreak = false;
+				int len = 0;
+				byte[] buffer = new byte[4096];
+				try {
+					len = in.read(buffer, 0, 4096);
+				} catch (SocketTimeoutException e) {
+					logger.error("链接read超时:断开链接socket!");
+					isNeedBreak = true;
+				}
+				if (len == -1) {
+					logger.error("客户端断开链接socket!");
+					isNeedBreak = true;
+				}
+				
+				byte[] data = null;
+				if (len > 0){
+					// 获取有效的字节数，以节约内存
+					data = ArrayUtils.subarray(buffer, 0, len);
+					logger.debug("ECGStick数据信息监听: 数据长度byte: " + data.length);
+					logger.debug("ECGStick数据信息监听: 数据内容: " + data.toString());
+					String bytestr = "";
+					if (data != null){
+						bytestr = new String(data);// 将字符组转成字符串
+						if (temp.length() > 0) {
+							bytestr = temp + bytestr;
+							temp = "";
+						}
+						// 找到最后一个 \n, 将此 \n 后的数据保存
+						int index = bytestr.lastIndexOf("\n");
+						if (index < bytestr.length() - 1) {
+							temp = bytestr.substring(index + 1, bytestr.length());
+						}
+						/* 开始对数据进行处理 */
+						String[] dataarr = bytestr.substring(0, index).split("\n");
+						ecgMessageHandler.handler(dataarr);
+					}
+				}
+				
+				/*
+				 * 跳出长链接循环 并断开socket链接
+				 */
+				if (isNeedBreak || len < 0) {
+					break;
+				}
+			}
+		} catch (Exception e) {
+			logger.debug("ECGStick数据信息监听:数据处理出错！");
+			logger.error(e);
+		} finally {
+			try {
+				if (this.in != null) {
+					this.in.close();
+				}
+				if (this.out != null)
+					this.out.close();
+			} catch (IOException e) {
+				logger.error(e);
+			}
+			logger.debug("ECGStick数据信息监听:数据处理完毕！");
+		}
+	}
+	
+}

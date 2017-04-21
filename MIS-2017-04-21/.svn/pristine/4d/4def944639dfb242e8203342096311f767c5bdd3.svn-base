@@ -1,0 +1,239 @@
+package fsk.entity.dailyLifeAsk;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.serviceTask.ServiceTaskEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 日常生活问询
+ * @author feng.gu
+ * @date 2016-08-11 13:55:11
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_DAILY_LIFE_ASK")
+public class DailyLifeAskEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String SERVICE_TASK_ID = "SERVICE_TASK_ID";
+    public final static String DAILY_WATER1 = "DAILY_WATER1";
+    public final static String DAILY_WATER2 = "DAILY_WATER2";
+    public final static String DAILY_FOOD = "DAILY_FOOD";
+    public final static String URINE = "URINE";
+    public final static String URINE_NUM = "URINE_NUM";
+    public final static String SHIT_DAY = "SHIT_DAY";
+    public final static String SHIT = "SHIT";
+    public final static String SLEEP_HOUR = "SLEEP_HOUR";
+    public final static String MORNING_SPIRIT = "MORNING_SPIRIT";
+    public final static String OTHER = "OTHER";
+    public final static String CREATE_TIME = "CREATE_TIME";
+    public final static String CREATE_PERSON = "CREATE_PERSON";
+    public final static String SLEEP_QUALITY = "SLEEP_QUALITY";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 服务工单ID
+	 */
+	@ColumnDescription(name = "SERVICE_TASK_ID")
+	private Integer serviceTaskId;
+    /**
+	 * 日摄水量1
+	 */
+	@ColumnDescription(name = "DAILY_WATER1")
+	private String dailyWater1;
+    /**
+	 * 日摄水量2
+	 */
+	@ColumnDescription(name = "DAILY_WATER2")
+	private String dailyWater2;
+    /**
+	 * 日摄食量
+	 */
+	@ColumnDescription(name = "DAILY_FOOD")
+	private String dailyFood;
+    /**
+	 * 小便次数
+	 */
+	@ColumnDescription(name = "URINE")
+	private String urine;
+    /**
+	 * 小便量
+	 */
+	@ColumnDescription(name = "URINE_NUM")
+	private String urineNum;
+    /**
+	 * 大便天数
+	 */
+	@ColumnDescription(name = "SHIT_DAY")
+	private String shitDay;
+    /**
+	 * 大便次数
+	 */
+	@ColumnDescription(name = "SHIT")
+	private String shit;
+    /**
+	 * 睡眠小时
+	 */
+	@ColumnDescription(name = "SLEEP_HOUR")
+	private String sleepHour;
+    /**
+	 * 晨起精神
+	 */
+	@ColumnDescription(name = "MORNING_SPIRIT")
+	private String morningSpirit;
+    /**
+	 * 其他情况
+	 */
+	@ColumnDescription(name = "OTHER")
+	private String other;
+    /**
+	 * 记录时间
+	 */
+	@ColumnDescription(name = "CREATE_TIME")
+	private String createTime;
+    /**
+	 * 记录人
+	 */
+	@ColumnDescription(name = "CREATE_PERSON")
+	private String createPerson;
+    /**
+	 * 睡眠质量
+	 */
+	@ColumnDescription(name = "SLEEP_QUALITY")
+	private String sleepQuality;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public Integer getServiceTaskId() {
+		return serviceTaskId;
+	}
+
+	public void setServiceTaskId(Integer serviceTaskId) {
+		this.serviceTaskId = serviceTaskId;
+	}
+    public String getDailyWater1() {
+		return dailyWater1;
+	}
+
+	public void setDailyWater1(String dailyWater1) {
+		this.dailyWater1 = dailyWater1;
+	}
+    public String getDailyWater2() {
+		return dailyWater2;
+	}
+
+	public void setDailyWater2(String dailyWater2) {
+		this.dailyWater2 = dailyWater2;
+	}
+    public String getDailyFood() {
+		return dailyFood;
+	}
+
+	public void setDailyFood(String dailyFood) {
+		this.dailyFood = dailyFood;
+	}
+    public String getUrine() {
+		return urine;
+	}
+
+	public void setUrine(String urine) {
+		this.urine = urine;
+	}
+    public String getUrineNum() {
+		return urineNum;
+	}
+
+	public void setUrineNum(String urineNum) {
+		this.urineNum = urineNum;
+	}
+    public String getShitDay() {
+		return shitDay;
+	}
+
+	public void setShitDay(String shitDay) {
+		this.shitDay = shitDay;
+	}
+    public String getShit() {
+		return shit;
+	}
+
+	public void setShit(String shit) {
+		this.shit = shit;
+	}
+    public String getSleepHour() {
+		return sleepHour;
+	}
+
+	public void setSleepHour(String sleepHour) {
+		this.sleepHour = sleepHour;
+	}
+    public String getMorningSpirit() {
+		return morningSpirit;
+	}
+
+	public void setMorningSpirit(String morningSpirit) {
+		this.morningSpirit = morningSpirit;
+	}
+    public String getOther() {
+		return other;
+	}
+
+	public void setOther(String other) {
+		this.other = other;
+	}
+    public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+    public String getCreatePerson() {
+		return createPerson;
+	}
+
+	public void setCreatePerson(String createPerson) {
+		this.createPerson = createPerson;
+	}
+    public String getSleepQuality() {
+		return sleepQuality;
+	}
+
+	public void setSleepQuality(String sleepQuality) {
+		this.sleepQuality = sleepQuality;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="ServiceTaskEntity"	,joinColumn="ID"	)
+			
+			
+		private ServiceTaskEntity serviceTask;
+	        
+	public ServiceTaskEntity getServiceTask() {
+		return serviceTask;
+    }
+	
+	public void setServiceTask(ServiceTaskEntity serviceTask) {
+		this.serviceTask = serviceTask;
+	}
+			
+}

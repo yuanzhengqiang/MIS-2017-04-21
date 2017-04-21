@@ -1,0 +1,65 @@
+package fsk.controller.workbench;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+@RequestMapping("/workbench")
+@Controller
+public class WorkbenchController {
+	private static Logger logger = Logger.getLogger(WorkbenchController.class);
+
+	/**
+	 * 列表页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/workbench/WorkbenchCenter");
+		Integer userId = (Integer) request.getSession().getAttribute("userId");// 登录用户ID
+		mav.addObject("userId", userId);
+		return mav;
+	}
+
+	/**
+	 * 健康评估页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "jkpgPage")
+	public ModelAndView jkpgPage(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/workbench/Workbench_Healthpg");
+		return mav;
+	}
+
+	/**
+	 * 服务工单页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "fwgdPage")
+	public ModelAndView fwgdPage(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/workbench/Workbench_TaskService");
+		return mav;
+	}
+
+	/**
+	 * 护理计划页
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "hljhPage")
+	public ModelAndView hljhPage(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/fsk/workbench/Workbench_Nursing");
+		return mav;
+	}
+
+}

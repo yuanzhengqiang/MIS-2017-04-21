@@ -1,0 +1,221 @@
+package com.framework.system.common.handler.module;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.business.handler.BaseHandler;
+import com.framework.system.common.entity.json.AjaxJson;
+import com.framework.system.common.entity.module.ModuleEntity;
+import com.framework.system.common.entity.privilege.PrivilegeEntity;
+import com.framework.system.common.pack.module.ModulePack;
+import com.framework.system.common.parse.module.ModuleParse;
+import com.framework.system.common.service.module.ModuleService;
+import com.framework.system.common.tools.Datetools;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.transaction.TransactionManager;
+
+/**
+ * @Title: Handler
+ * @Description: 页面模块(父菜单、子菜单、页面元素)业务处理器
+ * @author feng.gu
+ * @date 2015-12-02 09:20:58
+ * @version V1.0
+ * 
+ */
+public class ModuleHandler extends BaseHandler {
+	private static Logger logger = Logger.getLogger(ModuleService.class);
+	/**
+	 * 解析器
+	 */
+	private ModuleParse moduleParse = ModuleParse.getInstance();
+	/**
+	 * 业务处理器
+	 */
+	private ModuleService moduleService = ModuleService.getInstance();
+	/**
+	 * 封装器
+	 */
+	private ModulePack modulePack = ModulePack.getInstance();
+
+	private static ModuleHandler moduleHandler;
+	
+	private static SimpleDateFormat formater = new SimpleDateFormat("yyyyMMddHHmmss");
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static ModuleHandler getInstance() {
+		if (moduleHandler == null) {
+			moduleHandler = new ModuleHandler();
+		}
+		return moduleHandler;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            1-json 2-xml
+	 * @param entityName
+	 * @param command
+	 * @param reqStr
+	 * @param request
+	 * @param response
+	 */
+	public String doHandler(int type, String command, String reqStr,
+			HttpServletRequest request, HttpServletResponse response) {
+		String resultStr = "";
+		try {
+			// 解析
+			Map<String, Object> parseMap = moduleParse.parse(type, command,
+					reqStr, request);
+			String action = (String) parseMap.get("action");
+			ModuleEntity module = (ModuleEntity) parseMap.get("module");
+			List<ModuleEntity> moduleList = (List<ModuleEntity>) parseMap
+					.get("moduleList");
+			Integer id = (Integer) parseMap.get("id");
+			Map<String, Object> queryMap = (Map<String, Object>) parseMap
+					.get("queryMap");
+			int pageno = (Integer) parseMap.get("pageno");
+			int pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
+
+			Boolean parentModuleShow = (Boolean) parseMap
+					.get("parentModuleShow");
+			Boolean delParentModule = (Boolean) parseMap.get("delParentModule");
+			Boolean delParentModuleList = (Boolean) parseMap
+					.get("delParentModuleList");
+			Boolean childModuleListShow = (Boolean) parseMap
+					.get("childModuleListShow");
+			Boolean delChildModuleList = (Boolean) parseMap
+					.get("delChildModuleList");
+			Boolean createUserShow = (Boolean) parseMap.get("createUserShow");
+			Boolean delCreateUser = (Boolean) parseMap.get("delCreateUser");
+			Boolean updateUserShow = (Boolean) parseMap.get("updateUserShow");
+			Boolean delUpdateUser = (Boolean) parseMap.get("delUpdateUser");
+
+			// 业务处理
+			Object result = null;
+			if ("save".equals(action)) {
+				Map<String, Object> checkMap = new HashMap<String, Object>();
+				checkMap.put("name", module.getName());
+				checkMap.put("type", module.getType());
+				checkMap.put("parentId", module.getParentId());
+				List<Object> modules4check = moduleService.getListByCondition(checkMap);
+				boolean haveSameNameModule = false;
+				if (modules4check != null && modules4check.size() > 0) {
+					for (Object obj : modules4check) {
+						ModuleEntity temp = (ModuleEntity) obj;
+						if(module !=null && module.getId() ==null){
+							haveSameNameModule = true;
+							break;
+						}else{
+							if(module.getId().intValue() != temp.getId().intValue()){
+								haveSameNameModule = true;
+								break;
+							}
+						}
+					}
+				}
+				if (haveSameNameModule) {
+					AjaxJson aj = new AjaxJson();
+					aj.setResult("模块名称不能与兄弟节点相同");
+					aj.setDes("failure");
+					return JSONObject.fromObject(aj).toString();
+				} else {
+					//保存时间和用户
+					Date date = new Date();
+					Integer userId = (Integer)request.getSession().getAttribute("userId");
+					if(module.getId()!=null){
+						module.setUpdateTime(formater.format(date));
+						module.setUpdateUserId(userId);
+						result = moduleService.save(module);
+					}else{
+						TransactionManager tx = DbUtils.getTranManager();
+						try {
+							tx.beginTransaction();
+							module.setCreateTime(formater.format(date));
+							module.setCreateUserId(userId);
+							DBManager dbManager = DBManager.getInstance();
+							dbManager.saveNoTransaction(module);
+							PrivilegeEntity pri = new PrivilegeEntity();
+							pri.setCreateTime(Datetools.getCurrentDate());
+							pri.setCreateUserId(1);
+							pri.setFuncitonType("1");
+							pri.setFunctionId(1);
+							pri.setModuleId(module.getId());
+							pri.setRoleId(1);
+							result = dbManager.saveNoTransaction(pri);
+							tx.commitAndClose();
+						} catch (Exception e) {
+							tx.rollbackAndClose();
+							result = false;
+						}
+					}
+					
+					
+				}
+			} else if ("saveList".equals(action)) {
+				result = moduleService.saveList(moduleList);
+			} else if ("getById".equals(action)) {
+				result = moduleService.getById(id, parentModuleShow,
+						childModuleListShow, createUserShow, updateUserShow);
+			} else if ("getListByCondition".equals(action)) {
+				result = moduleService.getListByCondition(queryMap, orderList,
+						pageno, pagesize, parentModuleShow,
+						childModuleListShow, createUserShow, updateUserShow);
+			} else if ("del".equals(action)) {
+				result = moduleService.del(id, delParentModule,
+						delChildModuleList, delCreateUser, delUpdateUser);
+			} else if ("delList".equals(action)) {
+				result = moduleService.delList(queryMap, delParentModuleList,
+						delChildModuleList, delCreateUser, delUpdateUser);
+			}
+			// 封装
+			Map<String, Object> packMap = modulePack.pack(type, action, result,
+					module);
+			String actionBack = (String) packMap.get("action");
+			String resultBack = (String) packMap.get("result");
+			String desBack = (String) packMap.get("des");
+			JSONObject pageBack = (JSONObject) packMap.get("page");
+			JSONObject contentBack = (JSONObject) packMap.get("content");
+
+			JSONObject repJson = new JSONObject();
+			if (actionBack != null && !"".equals(actionBack)) {
+				repJson.put("action", actionBack);
+			}
+			if (resultBack != null && !"".equals(resultBack)) {
+				repJson.put("result", resultBack);
+			}
+			if (desBack != null && !"".equals(desBack)) {
+				repJson.put("des", desBack);
+			}
+			if (pageBack != null) {
+				repJson.put("page", pageBack);
+			}
+			if (contentBack != null && !"".equals(contentBack)) {
+				repJson.put("content", contentBack);
+			}
+			logger.debug("返回消息：" + repJson.toString());
+			resultStr = repJson.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return resultStr;
+	}
+}

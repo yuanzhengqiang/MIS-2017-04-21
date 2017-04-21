@@ -1,0 +1,932 @@
+package fsk.parse.nursingPlanService;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.util.JsonUtil;
+
+import fsk.entity.employeeDistribution.EmployeeDistributionEntity;
+import fsk.entity.nursingPlan.NursingPlanEntity;
+import fsk.entity.nursingPlanService.NursingPlanServiceEntity;
+import fsk.entity.service.ServiceEntity;
+
+/**
+ * @Title: Parse
+ * @Description: 护理计划服务项目解析器
+ * @author feng.gu
+ * @date 2016-12-29 16:38:50
+ * @version V1.0
+ * 
+ */
+public class NursingPlanServiceParse {
+	private static Logger logger = Logger.getLogger(NursingPlanServiceParse.class);
+	private static NursingPlanServiceParse nursingPlanServiceParse;
+	private DBManager dbManager = DBManager.getInstance();
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static NursingPlanServiceParse getInstance() {
+		if (nursingPlanServiceParse == null) {
+			nursingPlanServiceParse = new NursingPlanServiceParse();
+		}
+		return nursingPlanServiceParse;
+	}
+
+	public Map<String, Object> parse(int type, String command, String reqStr, HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		if (type == 1) {
+			// json
+			parseMap = this.parseByJson(command, reqStr, request);
+		} else if (type == 2) {
+			// xml
+			parseMap = this.parseByXml(command, reqStr, request);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByJson(String command, String reqStr, HttpServletRequest request) {
+		// 定义返回参数
+		Map<String, Object> parseMap = new HashMap<String, Object>();
+		try {
+			String actionReturn = null;
+			NursingPlanServiceEntity nursingPlanServiceReturn = null;
+			List<NursingPlanServiceEntity> nursingPlanServiceListReturn = null;
+			Integer idReturn = null;
+			Map<String, Object> queryMapReturn = null;
+			int pagenoReturn = 1;
+			int pagesizeReturn = 10;
+			List<OrderVO> orderListReturn = null;
+
+			Boolean nursingPlanShowReturn = false;
+			Boolean delNursingPlanReturn = false;
+			Boolean serviceShowReturn = false;
+			Boolean delServiceReturn = false;
+			Boolean employeeDistributionListShowReturn = false;
+			Boolean delEmployeeDistributionListReturn = false;
+
+			// json
+			Map reqParams = JsonUtil.getMap4Json(reqStr);
+			JSONObject contentreq = (JSONObject) reqParams.get("content");
+			if ("ADD_NURSING_PLAN_SERVICE_INFO_REQUEST".equals(command)) {
+				actionReturn = "save";
+				nursingPlanServiceReturn = new NursingPlanServiceEntity();
+				if (true) {
+					if (contentreq != null) {
+						Integer id = (Integer) contentreq.get("id");
+						if (id != null) {
+							nursingPlanServiceReturn = (NursingPlanServiceEntity) dbManager.getById(id, NursingPlanServiceEntity.class);
+							nursingPlanServiceReturn.setId(id);
+						}
+						Integer nursingPlanId = (Integer) contentreq.get("nursingPlanId");
+						if (nursingPlanId != null) {
+							nursingPlanServiceReturn.setNursingPlanId(nursingPlanId);
+						}
+						Integer serviceId = (Integer) contentreq.get("serviceId");
+						if (serviceId != null) {
+							nursingPlanServiceReturn.setServiceId(serviceId);
+						}
+						Integer serviceNum = (Integer) contentreq.get("serviceNum");
+						if (serviceNum != null) {
+							nursingPlanServiceReturn.setServiceNum(serviceNum);
+						}
+						String des = (String) contentreq.get("des");
+						if (des != null) {
+							nursingPlanServiceReturn.setDes(des);
+						}
+						String serviceChilds = (String) contentreq.get("serviceChilds");
+						if (serviceChilds != null) {
+							nursingPlanServiceReturn.setServiceChilds(serviceChilds);
+						}
+						String expectedServiceTime = (String) contentreq.get("expectedServiceTime");
+						if (expectedServiceTime != null) {
+							nursingPlanServiceReturn.setExpectedServiceTime(expectedServiceTime);
+						}
+						Integer healthInsurance = (Integer) contentreq.get("healthInsurance");
+						if (healthInsurance != null) {
+							nursingPlanServiceReturn.setHealthInsurance(healthInsurance);
+						}
+						Integer period = (Integer) contentreq.get("period");
+						if (period != null) {
+							nursingPlanServiceReturn.setPeriod(period);
+						}
+						String lastCreatetaskTime = (String) contentreq.get("lastCreatetaskTime");
+						if (lastCreatetaskTime != null) {
+							nursingPlanServiceReturn.setLastCreatetaskTime(lastCreatetaskTime);
+						}
+					}
+				}
+				if (true) {
+					Object nursingPlan = contentreq.get("nursingPlan");
+					if (nursingPlan != null) {
+						JSONObject obj = (JSONObject) nursingPlan;
+						if (obj != null) {
+							NursingPlanEntity entity = new NursingPlanEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							Integer olderId = (Integer) obj.get("olderId");
+							if (olderId != null) {
+								entity.setOlderId(olderId);
+							}
+							String code = (String) obj.get("code");
+							if (code != null) {
+								entity.setCode(code);
+							}
+							String olderName = (String) obj.get("olderName");
+							if (olderName != null) {
+								entity.setOlderName(olderName);
+							}
+							String contactName = (String) obj.get("contactName");
+							if (contactName != null) {
+								entity.setContactName(contactName);
+							}
+							String contactTel = (String) obj.get("contactTel");
+							if (contactTel != null) {
+								entity.setContactTel(contactTel);
+							}
+							String serviceAddress = (String) obj.get("serviceAddress");
+							if (serviceAddress != null) {
+								entity.setServiceAddress(serviceAddress);
+							}
+							String startDate = (String) obj.get("startDate");
+							if (startDate != null) {
+								entity.setStartDate(startDate);
+							}
+							String endDate = (String) obj.get("endDate");
+							if (endDate != null) {
+								entity.setEndDate(endDate);
+							}
+							Integer status = (Integer) obj.get("status");
+							if (status != null) {
+								entity.setStatus(status);
+							}
+							String des = (String) obj.get("des");
+							if (des != null) {
+								entity.setDes(des);
+							}
+							Integer addEmployeeId = (Integer) obj.get("addEmployeeId");
+							if (addEmployeeId != null) {
+								entity.setAddEmployeeId(addEmployeeId);
+							}
+							String addEmployeeName = (String) obj.get("addEmployeeName");
+							if (addEmployeeName != null) {
+								entity.setAddEmployeeName(addEmployeeName);
+							}
+							String addTime = (String) obj.get("addTime");
+							if (addTime != null) {
+								entity.setAddTime(addTime);
+							}
+							String lastCreateMonth = (String) obj.get("lastCreateMonth");
+							if (lastCreateMonth != null) {
+								entity.setLastCreateMonth(lastCreateMonth);
+							}
+							String checkTime = (String) obj.get("checkTime");
+							if (checkTime != null) {
+								entity.setCheckTime(checkTime);
+							}
+							nursingPlanServiceReturn.setNursingPlan(entity);
+						}
+					}
+				}
+				if (true) {
+					Object service = contentreq.get("service");
+					if (service != null) {
+						JSONObject obj = (JSONObject) service;
+						if (obj != null) {
+							ServiceEntity entity = new ServiceEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							String name = (String) obj.get("name");
+							if (name != null) {
+								entity.setName(name);
+							}
+							String code = (String) obj.get("code");
+							if (code != null) {
+								entity.setCode(code);
+							}
+							Integer typeId = (Integer) obj.get("typeId");
+							if (typeId != null) {
+								entity.setTypeId(typeId);
+							}
+							Integer status = (Integer) obj.get("status");
+							if (status != null) {
+								entity.setStatus(status);
+							}
+							Double marketPrice = JsonUtil.getJSONDouble(obj, "marketPrice");
+							if (marketPrice != null) {
+								entity.setMarketPrice(BigDecimal.valueOf(marketPrice));
+							}
+							Double medicalPrice = JsonUtil.getJSONDouble(obj, "medicalPrice");
+							if (medicalPrice != null) {
+								entity.setMedicalPrice(BigDecimal.valueOf(medicalPrice));
+							}
+							String unit = (String) obj.get("unit");
+							if (unit != null) {
+								entity.setUnit(unit);
+							}
+							Integer goDoor = (Integer) obj.get("goDoor");
+							if (goDoor != null) {
+								entity.setGoDoor(goDoor);
+							}
+							String serviceTimes = (String) obj.get("serviceTimes");
+							if (serviceTimes != null) {
+								entity.setServiceTimes(serviceTimes);
+							}
+							String needPerosn = (String) obj.get("needPerosn");
+							if (needPerosn != null) {
+								entity.setNeedPerosn(needPerosn);
+							}
+							String des = (String) obj.get("des");
+							if (des != null) {
+								entity.setDes(des);
+							}
+							String profile = (String) obj.get("profile");
+							if (profile != null) {
+								entity.setProfile(profile);
+							}
+							String createTime = (String) obj.get("createTime");
+							if (createTime != null) {
+								entity.setCreateTime(createTime);
+							}
+							nursingPlanServiceReturn.setService(entity);
+						}
+					}
+				}
+				if (true) {
+					Object employeeDistributionList = contentreq.get("employeeDistributionList");
+					if (employeeDistributionList != null) {
+						JSONArray list = (JSONArray) employeeDistributionList;
+						if (list != null) {
+							List<EmployeeDistributionEntity> entityList = new ArrayList<EmployeeDistributionEntity>();
+							for (int i = 0; i < list.size(); i++) {
+								JSONObject obj = list.getJSONObject(i);
+								if (obj != null) {
+									EmployeeDistributionEntity entity = new EmployeeDistributionEntity();
+
+									Integer id = (Integer) obj.get("id");
+									if (id != null) {
+										entity.setId(id);
+									}
+									Integer chargeEmployeeId = (Integer) obj.get("chargeEmployeeId");
+									if (chargeEmployeeId != null) {
+										entity.setChargeEmployeeId(chargeEmployeeId);
+									}
+									String chargeEmployeeName = (String) obj.get("chargeEmployeeName");
+									if (chargeEmployeeName != null) {
+										entity.setChargeEmployeeName(chargeEmployeeName);
+									}
+									String partakeEmployeeName = (String) obj.get("partakeEmployeeName");
+									if (partakeEmployeeName != null) {
+										entity.setPartakeEmployeeName(partakeEmployeeName);
+									}
+									Integer employeeServiceNum = (Integer) obj.get("employeeServiceNum");
+									if (employeeServiceNum != null) {
+										entity.setEmployeeServiceNum(employeeServiceNum);
+									}
+									Integer nursingPlanServiceId = (Integer) obj.get("nursingPlanServiceId");
+									if (nursingPlanServiceId != null) {
+										entity.setNursingPlanServiceId(nursingPlanServiceId);
+									}
+									String executionDate = (String) obj.get("executionDate");
+									if (executionDate != null) {
+										entity.setExecutionDate(executionDate);
+									}
+									entityList.add(entity);
+								}
+							}
+							nursingPlanServiceReturn.setEmployeeDistributionList(entityList);
+						}
+
+					}
+				}
+			} else if ("QUERY_NURSING_PLAN_SERVICE_INFO_REQUEST".equals(command)) {
+				actionReturn = "getById";
+				if (true) {
+					if (contentreq != null) {
+						idReturn = (Integer) contentreq.get("id");
+						String nursingPlanShow = (String) contentreq.get("nursingPlanShow");
+						if ("true".equals(nursingPlanShow)) {
+							nursingPlanShowReturn = true;
+						}
+						String serviceShow = (String) contentreq.get("serviceShow");
+						if ("true".equals(serviceShow)) {
+							serviceShowReturn = true;
+						}
+						String employeeDistributionListShow = (String) contentreq.get("employeeDistributionListShow");
+						if ("true".equals(employeeDistributionListShow)) {
+							employeeDistributionListShowReturn = true;
+						}
+					}
+				}
+			} else if ("QUERY_NURSING_PLAN_SERVICE_LIST_REQUEST".equals(command)) {
+				actionReturn = "getListByCondition";
+				if (true) {
+					if (contentreq != null) {
+						queryMapReturn = new HashMap<String, Object>();
+						Integer id_gt = (Integer) contentreq.get("id_gt");
+						Integer id_ge = (Integer) contentreq.get("id_ge");
+						Integer id_lt = (Integer) contentreq.get("id_lt");
+						Integer id_le = (Integer) contentreq.get("id_le");
+						String id_in = (String) contentreq.get("id_in");
+						Integer id = (Integer) contentreq.get("id");
+						if (id_gt != null) {
+							queryMapReturn.put("id_gt", id_gt);
+						}
+						if (id_ge != null) {
+							queryMapReturn.put("id_ge", id_ge);
+						}
+						if (id_lt != null) {
+							queryMapReturn.put("id_lt", id_lt);
+						}
+						if (id_le != null) {
+							queryMapReturn.put("id_le", id_le);
+						}
+						if (id_in != null) {
+							queryMapReturn.put("id_in", id_in);
+						}
+						if (id != null) {
+							queryMapReturn.put("id", id);
+						}
+						Integer nursingPlanId_gt = (Integer) contentreq.get("nursingPlanId_gt");
+						Integer nursingPlanId_ge = (Integer) contentreq.get("nursingPlanId_ge");
+						Integer nursingPlanId_lt = (Integer) contentreq.get("nursingPlanId_lt");
+						Integer nursingPlanId_le = (Integer) contentreq.get("nursingPlanId_le");
+						String nursingPlanId_in = (String) contentreq.get("nursingPlanId_in");
+						Integer nursingPlanId = (Integer) contentreq.get("nursingPlanId");
+						if (nursingPlanId_gt != null) {
+							queryMapReturn.put("nursingPlanId_gt", nursingPlanId_gt);
+						}
+						if (nursingPlanId_ge != null) {
+							queryMapReturn.put("nursingPlanId_ge", nursingPlanId_ge);
+						}
+						if (nursingPlanId_lt != null) {
+							queryMapReturn.put("nursingPlanId_lt", nursingPlanId_lt);
+						}
+						if (nursingPlanId_le != null) {
+							queryMapReturn.put("nursingPlanId_le", nursingPlanId_le);
+						}
+						if (nursingPlanId_in != null) {
+							queryMapReturn.put("nursingPlanId_in", nursingPlanId_in);
+						}
+						if (nursingPlanId != null) {
+							queryMapReturn.put("nursingPlanId", nursingPlanId);
+						}
+						Integer serviceId_gt = (Integer) contentreq.get("serviceId_gt");
+						Integer serviceId_ge = (Integer) contentreq.get("serviceId_ge");
+						Integer serviceId_lt = (Integer) contentreq.get("serviceId_lt");
+						Integer serviceId_le = (Integer) contentreq.get("serviceId_le");
+						String serviceId_in = (String) contentreq.get("serviceId_in");
+						Integer serviceId = (Integer) contentreq.get("serviceId");
+						if (serviceId_gt != null) {
+							queryMapReturn.put("serviceId_gt", serviceId_gt);
+						}
+						if (serviceId_ge != null) {
+							queryMapReturn.put("serviceId_ge", serviceId_ge);
+						}
+						if (serviceId_lt != null) {
+							queryMapReturn.put("serviceId_lt", serviceId_lt);
+						}
+						if (serviceId_le != null) {
+							queryMapReturn.put("serviceId_le", serviceId_le);
+						}
+						if (serviceId_in != null) {
+							queryMapReturn.put("serviceId_in", serviceId_in);
+						}
+						if (serviceId != null) {
+							queryMapReturn.put("serviceId", serviceId);
+						}
+						Integer serviceNum_gt = (Integer) contentreq.get("serviceNum_gt");
+						Integer serviceNum_ge = (Integer) contentreq.get("serviceNum_ge");
+						Integer serviceNum_lt = (Integer) contentreq.get("serviceNum_lt");
+						Integer serviceNum_le = (Integer) contentreq.get("serviceNum_le");
+						String serviceNum_in = (String) contentreq.get("serviceNum_in");
+						Integer serviceNum = (Integer) contentreq.get("serviceNum");
+						if (serviceNum_gt != null) {
+							queryMapReturn.put("serviceNum_gt", serviceNum_gt);
+						}
+						if (serviceNum_ge != null) {
+							queryMapReturn.put("serviceNum_ge", serviceNum_ge);
+						}
+						if (serviceNum_lt != null) {
+							queryMapReturn.put("serviceNum_lt", serviceNum_lt);
+						}
+						if (serviceNum_le != null) {
+							queryMapReturn.put("serviceNum_le", serviceNum_le);
+						}
+						if (serviceNum_in != null) {
+							queryMapReturn.put("serviceNum_in", serviceNum_in);
+						}
+						if (serviceNum != null) {
+							queryMapReturn.put("serviceNum", serviceNum);
+						}
+						String des_like = (String) contentreq.get("des_like");
+						String des_isNull = (String) contentreq.get("des_isNull");
+						String des_isNotNull = (String) contentreq.get("des_isNotNull");
+						String des_in = (String) contentreq.get("des_in");
+						String des = (String) contentreq.get("des");
+						if (des_like != null) {
+							queryMapReturn.put("des_like", des_like);
+						}
+						if (des_isNull != null) {
+							queryMapReturn.put("des_isNull", des_isNull);
+						}
+						if (des_isNotNull != null) {
+							queryMapReturn.put("des_isNotNull", des_isNotNull);
+						}
+						if (des_in != null) {
+							queryMapReturn.put("des_in", des_in);
+						}
+						if (des != null) {
+							queryMapReturn.put("des", des);
+						}
+						String serviceChilds_like = (String) contentreq.get("serviceChilds_like");
+						String serviceChilds_isNull = (String) contentreq.get("serviceChilds_isNull");
+						String serviceChilds_isNotNull = (String) contentreq.get("serviceChilds_isNotNull");
+						String serviceChilds_in = (String) contentreq.get("serviceChilds_in");
+						String serviceChilds = (String) contentreq.get("serviceChilds");
+						if (serviceChilds_like != null) {
+							queryMapReturn.put("serviceChilds_like", serviceChilds_like);
+						}
+						if (serviceChilds_isNull != null) {
+							queryMapReturn.put("serviceChilds_isNull", serviceChilds_isNull);
+						}
+						if (serviceChilds_isNotNull != null) {
+							queryMapReturn.put("serviceChilds_isNotNull", serviceChilds_isNotNull);
+						}
+						if (serviceChilds_in != null) {
+							queryMapReturn.put("serviceChilds_in", serviceChilds_in);
+						}
+						if (serviceChilds != null) {
+							queryMapReturn.put("serviceChilds", serviceChilds);
+						}
+						String expectedServiceTime_gt = (String) contentreq.get("expectedServiceTime_gt");
+						String expectedServiceTime_ge = (String) contentreq.get("expectedServiceTime_ge");
+						String expectedServiceTime_lt = (String) contentreq.get("expectedServiceTime_lt");
+						String expectedServiceTime_le = (String) contentreq.get("expectedServiceTime_le");
+						if (expectedServiceTime_gt != null) {
+							queryMapReturn.put("expectedServiceTime_gt", expectedServiceTime_gt);
+						}
+						if (expectedServiceTime_ge != null) {
+							queryMapReturn.put("expectedServiceTime_ge", expectedServiceTime_ge);
+						}
+						if (expectedServiceTime_lt != null) {
+							queryMapReturn.put("expectedServiceTime_lt", expectedServiceTime_lt);
+						}
+						if (expectedServiceTime_le != null) {
+							queryMapReturn.put("expectedServiceTime_le", expectedServiceTime_le);
+						}
+						Integer healthInsurance_gt = (Integer) contentreq.get("healthInsurance_gt");
+						Integer healthInsurance_ge = (Integer) contentreq.get("healthInsurance_ge");
+						Integer healthInsurance_lt = (Integer) contentreq.get("healthInsurance_lt");
+						Integer healthInsurance_le = (Integer) contentreq.get("healthInsurance_le");
+						String healthInsurance_in = (String) contentreq.get("healthInsurance_in");
+						Integer healthInsurance = (Integer) contentreq.get("healthInsurance");
+						if (healthInsurance_gt != null) {
+							queryMapReturn.put("healthInsurance_gt", healthInsurance_gt);
+						}
+						if (healthInsurance_ge != null) {
+							queryMapReturn.put("healthInsurance_ge", healthInsurance_ge);
+						}
+						if (healthInsurance_lt != null) {
+							queryMapReturn.put("healthInsurance_lt", healthInsurance_lt);
+						}
+						if (healthInsurance_le != null) {
+							queryMapReturn.put("healthInsurance_le", healthInsurance_le);
+						}
+						if (healthInsurance_in != null) {
+							queryMapReturn.put("healthInsurance_in", healthInsurance_in);
+						}
+						if (healthInsurance != null) {
+							queryMapReturn.put("healthInsurance", healthInsurance);
+						}
+						Integer period_gt = (Integer) contentreq.get("period_gt");
+						Integer period_ge = (Integer) contentreq.get("period_ge");
+						Integer period_lt = (Integer) contentreq.get("period_lt");
+						Integer period_le = (Integer) contentreq.get("period_le");
+						String period_in = (String) contentreq.get("period_in");
+						Integer period = (Integer) contentreq.get("period");
+						if (period_gt != null) {
+							queryMapReturn.put("period_gt", period_gt);
+						}
+						if (period_ge != null) {
+							queryMapReturn.put("period_ge", period_ge);
+						}
+						if (period_lt != null) {
+							queryMapReturn.put("period_lt", period_lt);
+						}
+						if (period_le != null) {
+							queryMapReturn.put("period_le", period_le);
+						}
+						if (period_in != null) {
+							queryMapReturn.put("period_in", period_in);
+						}
+						if (period != null) {
+							queryMapReturn.put("period", period);
+						}
+						String lastCreatetaskTime_gt = (String) contentreq.get("lastCreatetaskTime_gt");
+						String lastCreatetaskTime_ge = (String) contentreq.get("lastCreatetaskTime_ge");
+						String lastCreatetaskTime_lt = (String) contentreq.get("lastCreatetaskTime_lt");
+						String lastCreatetaskTime_le = (String) contentreq.get("lastCreatetaskTime_le");
+						if (lastCreatetaskTime_gt != null) {
+							queryMapReturn.put("lastCreatetaskTime_gt", lastCreatetaskTime_gt);
+						}
+						if (lastCreatetaskTime_ge != null) {
+							queryMapReturn.put("lastCreatetaskTime_ge", lastCreatetaskTime_ge);
+						}
+						if (lastCreatetaskTime_lt != null) {
+							queryMapReturn.put("lastCreatetaskTime_lt", lastCreatetaskTime_lt);
+						}
+						if (lastCreatetaskTime_le != null) {
+							queryMapReturn.put("lastCreatetaskTime_le", lastCreatetaskTime_le);
+						}
+
+						Integer employeeDistributionId = (Integer) contentreq.get("employeeDistributionId");
+						if (employeeDistributionId != null) {
+							queryMapReturn.put("employeeDistributionId", employeeDistributionId);
+						}
+
+						String nursingPlanShow = (String) contentreq.get("nursingPlanShow");
+						if ("true".equals(nursingPlanShow)) {
+							nursingPlanShowReturn = true;
+						}
+						String serviceShow = (String) contentreq.get("serviceShow");
+						if ("true".equals(serviceShow)) {
+							serviceShowReturn = true;
+						}
+						String employeeDistributionListShow = (String) contentreq.get("employeeDistributionListShow");
+						if ("true".equals(employeeDistributionListShow)) {
+							employeeDistributionListShowReturn = true;
+						}
+					}
+					JSONObject pagereq = (JSONObject) reqParams.get("page");
+					if (pagereq != null) {
+						String pagenotemp = (String) pagereq.get("pageno");
+						String pagesizetemp = (String) pagereq.get("pagesize");
+						if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+							pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+						}
+						if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+							pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+						}
+					}
+					Object orderreq = (Object) reqParams.get("order");
+					if (orderreq != null) {
+						JSONArray order = (JSONArray) orderreq;
+						orderListReturn = new ArrayList<OrderVO>();
+						for (int i = 0; i < order.size(); i++) {
+							JSONObject obj = order.getJSONObject(i);
+							OrderVO orderVO = new OrderVO();
+							orderVO.setName((String) obj.get("column"));
+							orderVO.setOrderType((String) obj.get("type"));
+							orderListReturn.add(orderVO);
+						}
+					}
+				}
+			} else if ("DEL_NURSING_PLAN_SERVICE_INFO_REQUEST".equals(command)) {
+				actionReturn = "del";
+				if (true) {
+					if (contentreq != null) {
+						idReturn = (Integer) contentreq.get("id");
+						String delNursingPlan = (String) contentreq.get("delNursingPlan");
+						if ("true".equals(delNursingPlan)) {
+							delNursingPlanReturn = true;
+						}
+						String delService = (String) contentreq.get("delService");
+						if ("true".equals(delService)) {
+							delServiceReturn = true;
+						}
+						String delEmployeeDistributionList = (String) contentreq.get("delEmployeeDistributionList");
+						if ("true".equals(delEmployeeDistributionList)) {
+							delEmployeeDistributionListReturn = true;
+						}
+					}
+				}
+			} else if ("DEL_NURSING_PLAN_SERVICE_LIST_REQUEST".equals(command)) {
+				actionReturn = "delList";
+				if (true) {
+					if (contentreq != null) {
+						queryMapReturn = new HashMap<String, Object>();
+						Integer id_gt = (Integer) contentreq.get("id_gt");
+						Integer id_ge = (Integer) contentreq.get("id_ge");
+						Integer id_lt = (Integer) contentreq.get("id_lt");
+						Integer id_le = (Integer) contentreq.get("id_le");
+						String id_in = (String) contentreq.get("id_in");
+						Integer id = (Integer) contentreq.get("id");
+						if (id_gt != null) {
+							queryMapReturn.put("id_gt", id_gt);
+						}
+						if (id_ge != null) {
+							queryMapReturn.put("id_ge", id_ge);
+						}
+						if (id_lt != null) {
+							queryMapReturn.put("id_lt", id_lt);
+						}
+						if (id_le != null) {
+							queryMapReturn.put("id_le", id_le);
+						}
+						if (id_in != null) {
+							queryMapReturn.put("id_in", id_in);
+						}
+						if (id != null) {
+							queryMapReturn.put("id", id);
+						}
+						Integer nursingPlanId_gt = (Integer) contentreq.get("nursingPlanId_gt");
+						Integer nursingPlanId_ge = (Integer) contentreq.get("nursingPlanId_ge");
+						Integer nursingPlanId_lt = (Integer) contentreq.get("nursingPlanId_lt");
+						Integer nursingPlanId_le = (Integer) contentreq.get("nursingPlanId_le");
+						String nursingPlanId_in = (String) contentreq.get("nursingPlanId_in");
+						Integer nursingPlanId = (Integer) contentreq.get("nursingPlanId");
+						if (nursingPlanId_gt != null) {
+							queryMapReturn.put("nursingPlanId_gt", nursingPlanId_gt);
+						}
+						if (nursingPlanId_ge != null) {
+							queryMapReturn.put("nursingPlanId_ge", nursingPlanId_ge);
+						}
+						if (nursingPlanId_lt != null) {
+							queryMapReturn.put("nursingPlanId_lt", nursingPlanId_lt);
+						}
+						if (nursingPlanId_le != null) {
+							queryMapReturn.put("nursingPlanId_le", nursingPlanId_le);
+						}
+						if (nursingPlanId_in != null) {
+							queryMapReturn.put("nursingPlanId_in", nursingPlanId_in);
+						}
+						if (nursingPlanId != null) {
+							queryMapReturn.put("nursingPlanId", nursingPlanId);
+						}
+						Integer serviceId_gt = (Integer) contentreq.get("serviceId_gt");
+						Integer serviceId_ge = (Integer) contentreq.get("serviceId_ge");
+						Integer serviceId_lt = (Integer) contentreq.get("serviceId_lt");
+						Integer serviceId_le = (Integer) contentreq.get("serviceId_le");
+						String serviceId_in = (String) contentreq.get("serviceId_in");
+						Integer serviceId = (Integer) contentreq.get("serviceId");
+						if (serviceId_gt != null) {
+							queryMapReturn.put("serviceId_gt", serviceId_gt);
+						}
+						if (serviceId_ge != null) {
+							queryMapReturn.put("serviceId_ge", serviceId_ge);
+						}
+						if (serviceId_lt != null) {
+							queryMapReturn.put("serviceId_lt", serviceId_lt);
+						}
+						if (serviceId_le != null) {
+							queryMapReturn.put("serviceId_le", serviceId_le);
+						}
+						if (serviceId_in != null) {
+							queryMapReturn.put("serviceId_in", serviceId_in);
+						}
+						if (serviceId != null) {
+							queryMapReturn.put("serviceId", serviceId);
+						}
+						Integer serviceNum_gt = (Integer) contentreq.get("serviceNum_gt");
+						Integer serviceNum_ge = (Integer) contentreq.get("serviceNum_ge");
+						Integer serviceNum_lt = (Integer) contentreq.get("serviceNum_lt");
+						Integer serviceNum_le = (Integer) contentreq.get("serviceNum_le");
+						String serviceNum_in = (String) contentreq.get("serviceNum_in");
+						Integer serviceNum = (Integer) contentreq.get("serviceNum");
+						if (serviceNum_gt != null) {
+							queryMapReturn.put("serviceNum_gt", serviceNum_gt);
+						}
+						if (serviceNum_ge != null) {
+							queryMapReturn.put("serviceNum_ge", serviceNum_ge);
+						}
+						if (serviceNum_lt != null) {
+							queryMapReturn.put("serviceNum_lt", serviceNum_lt);
+						}
+						if (serviceNum_le != null) {
+							queryMapReturn.put("serviceNum_le", serviceNum_le);
+						}
+						if (serviceNum_in != null) {
+							queryMapReturn.put("serviceNum_in", serviceNum_in);
+						}
+						if (serviceNum != null) {
+							queryMapReturn.put("serviceNum", serviceNum);
+						}
+						String des_like = (String) contentreq.get("des_like");
+						String des_isNull = (String) contentreq.get("des_isNull");
+						String des_isNotNull = (String) contentreq.get("des_isNotNull");
+						String des_in = (String) contentreq.get("des_in");
+						String des = (String) contentreq.get("des");
+						if (des_like != null) {
+							queryMapReturn.put("des_like", des_like);
+						}
+						if (des_isNull != null) {
+							queryMapReturn.put("des_isNull", des_isNull);
+						}
+						if (des_isNotNull != null) {
+							queryMapReturn.put("des_isNotNull", des_isNotNull);
+						}
+						if (des_in != null) {
+							queryMapReturn.put("des_in", des_in);
+						}
+						if (des != null) {
+							queryMapReturn.put("des", des);
+						}
+						String serviceChilds_like = (String) contentreq.get("serviceChilds_like");
+						String serviceChilds_isNull = (String) contentreq.get("serviceChilds_isNull");
+						String serviceChilds_isNotNull = (String) contentreq.get("serviceChilds_isNotNull");
+						String serviceChilds_in = (String) contentreq.get("serviceChilds_in");
+						String serviceChilds = (String) contentreq.get("serviceChilds");
+						if (serviceChilds_like != null) {
+							queryMapReturn.put("serviceChilds_like", serviceChilds_like);
+						}
+						if (serviceChilds_isNull != null) {
+							queryMapReturn.put("serviceChilds_isNull", serviceChilds_isNull);
+						}
+						if (serviceChilds_isNotNull != null) {
+							queryMapReturn.put("serviceChilds_isNotNull", serviceChilds_isNotNull);
+						}
+						if (serviceChilds_in != null) {
+							queryMapReturn.put("serviceChilds_in", serviceChilds_in);
+						}
+						if (serviceChilds != null) {
+							queryMapReturn.put("serviceChilds", serviceChilds);
+						}
+						String expectedServiceTime_gt = (String) contentreq.get("expectedServiceTime_gt");
+						String expectedServiceTime_ge = (String) contentreq.get("expectedServiceTime_ge");
+						String expectedServiceTime_lt = (String) contentreq.get("expectedServiceTime_lt");
+						String expectedServiceTime_le = (String) contentreq.get("expectedServiceTime_le");
+						if (expectedServiceTime_gt != null) {
+							queryMapReturn.put("expectedServiceTime_gt", expectedServiceTime_gt);
+						}
+						if (expectedServiceTime_ge != null) {
+							queryMapReturn.put("expectedServiceTime_ge", expectedServiceTime_ge);
+						}
+						if (expectedServiceTime_lt != null) {
+							queryMapReturn.put("expectedServiceTime_lt", expectedServiceTime_lt);
+						}
+						if (expectedServiceTime_le != null) {
+							queryMapReturn.put("expectedServiceTime_le", expectedServiceTime_le);
+						}
+						Integer healthInsurance_gt = (Integer) contentreq.get("healthInsurance_gt");
+						Integer healthInsurance_ge = (Integer) contentreq.get("healthInsurance_ge");
+						Integer healthInsurance_lt = (Integer) contentreq.get("healthInsurance_lt");
+						Integer healthInsurance_le = (Integer) contentreq.get("healthInsurance_le");
+						String healthInsurance_in = (String) contentreq.get("healthInsurance_in");
+						Integer healthInsurance = (Integer) contentreq.get("healthInsurance");
+						if (healthInsurance_gt != null) {
+							queryMapReturn.put("healthInsurance_gt", healthInsurance_gt);
+						}
+						if (healthInsurance_ge != null) {
+							queryMapReturn.put("healthInsurance_ge", healthInsurance_ge);
+						}
+						if (healthInsurance_lt != null) {
+							queryMapReturn.put("healthInsurance_lt", healthInsurance_lt);
+						}
+						if (healthInsurance_le != null) {
+							queryMapReturn.put("healthInsurance_le", healthInsurance_le);
+						}
+						if (healthInsurance_in != null) {
+							queryMapReturn.put("healthInsurance_in", healthInsurance_in);
+						}
+						if (healthInsurance != null) {
+							queryMapReturn.put("healthInsurance", healthInsurance);
+						}
+						Integer period_gt = (Integer) contentreq.get("period_gt");
+						Integer period_ge = (Integer) contentreq.get("period_ge");
+						Integer period_lt = (Integer) contentreq.get("period_lt");
+						Integer period_le = (Integer) contentreq.get("period_le");
+						String period_in = (String) contentreq.get("period_in");
+						Integer period = (Integer) contentreq.get("period");
+						if (period_gt != null) {
+							queryMapReturn.put("period_gt", period_gt);
+						}
+						if (period_ge != null) {
+							queryMapReturn.put("period_ge", period_ge);
+						}
+						if (period_lt != null) {
+							queryMapReturn.put("period_lt", period_lt);
+						}
+						if (period_le != null) {
+							queryMapReturn.put("period_le", period_le);
+						}
+						if (period_in != null) {
+							queryMapReturn.put("period_in", period_in);
+						}
+						if (period != null) {
+							queryMapReturn.put("period", period);
+						}
+						String lastCreatetaskTime_gt = (String) contentreq.get("lastCreatetaskTime_gt");
+						String lastCreatetaskTime_ge = (String) contentreq.get("lastCreatetaskTime_ge");
+						String lastCreatetaskTime_lt = (String) contentreq.get("lastCreatetaskTime_lt");
+						String lastCreatetaskTime_le = (String) contentreq.get("lastCreatetaskTime_le");
+						if (lastCreatetaskTime_gt != null) {
+							queryMapReturn.put("lastCreatetaskTime_gt", lastCreatetaskTime_gt);
+						}
+						if (lastCreatetaskTime_ge != null) {
+							queryMapReturn.put("lastCreatetaskTime_ge", lastCreatetaskTime_ge);
+						}
+						if (lastCreatetaskTime_lt != null) {
+							queryMapReturn.put("lastCreatetaskTime_lt", lastCreatetaskTime_lt);
+						}
+						if (lastCreatetaskTime_le != null) {
+							queryMapReturn.put("lastCreatetaskTime_le", lastCreatetaskTime_le);
+						}
+
+						String delNursingPlan = (String) contentreq.get("delNursingPlan");
+						if ("true".equals(delNursingPlan)) {
+							delNursingPlanReturn = true;
+						}
+						String delService = (String) contentreq.get("delService");
+						if ("true".equals(delService)) {
+							delServiceReturn = true;
+						}
+						Integer employeeDistributionId = (Integer) contentreq.get("employeeDistributionId");
+						if (employeeDistributionId != null) {
+							queryMapReturn.put("employeeDistributionId", employeeDistributionId);
+						}
+						String delEmployeeDistributionList = (String) contentreq.get("delEmployeeDistributionList");
+						if ("true".equals(delEmployeeDistributionList)) {
+							delEmployeeDistributionListReturn = true;
+						}
+					}
+					JSONObject pagereq = (JSONObject) reqParams.get("page");
+					if (pagereq != null) {
+						String pagenotemp = (String) pagereq.get("pageno");
+						String pagesizetemp = (String) pagereq.get("pagesize");
+						if ((pagenotemp != null) && (!"".equals(pagenotemp.trim()))) {
+							pagenoReturn = Integer.valueOf(pagenotemp).intValue();
+						}
+						if ((pagesizetemp != null) && (!"".equals(pagesizetemp.trim()))) {
+							pagesizeReturn = Integer.valueOf(pagesizetemp).intValue();
+						}
+					}
+				}
+			}
+
+			if (actionReturn != null && !"".equals(actionReturn)) {
+				parseMap.put("action", actionReturn);
+			}
+			if (nursingPlanServiceReturn != null) {
+				parseMap.put("nursingPlanService", nursingPlanServiceReturn);
+			}
+			if (nursingPlanServiceListReturn != null && nursingPlanServiceListReturn.size() > 0) {
+				parseMap.put("nursingPlanServiceList", nursingPlanServiceListReturn);
+			}
+			if (idReturn != null) {
+				parseMap.put("id", idReturn);
+			}
+			if (orderListReturn != null && orderListReturn.size() > 0) {
+				parseMap.put("orderList", orderListReturn);
+			}
+			if (queryMapReturn != null) {
+				parseMap.put("queryMap", queryMapReturn);
+			}
+			if (pagenoReturn > 0) {
+				parseMap.put("pageno", pagenoReturn);
+			}
+			if (pagesizeReturn > 0) {
+				parseMap.put("pagesize", pagesizeReturn);
+			}
+
+			if (nursingPlanShowReturn != null) {
+				parseMap.put("nursingPlanShow", nursingPlanShowReturn);
+			}
+			if (delNursingPlanReturn != null) {
+				parseMap.put("delNursingPlan", delNursingPlanReturn);
+			}
+			if (serviceShowReturn != null) {
+				parseMap.put("serviceShow", serviceShowReturn);
+			}
+			if (delServiceReturn != null) {
+				parseMap.put("delService", delServiceReturn);
+			}
+			if (employeeDistributionListShowReturn != null) {
+				parseMap.put("employeeDistributionListShow", employeeDistributionListShowReturn);
+			}
+			if (delEmployeeDistributionListReturn != null) {
+				parseMap.put("delEmployeeDistributionList", delEmployeeDistributionListReturn);
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return parseMap;
+	}
+
+	private Map<String, Object> parseByXml(String command, String reqStr, HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

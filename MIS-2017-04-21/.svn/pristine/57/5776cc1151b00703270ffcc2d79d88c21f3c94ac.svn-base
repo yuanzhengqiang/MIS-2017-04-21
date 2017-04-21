@@ -1,0 +1,1759 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="shortcut icon" href="images/logo.png">
+
+	<title>微信工单管理</title>
+
+	<!-- Bootstrap core CSS -->
+	<link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+
+	<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+	  <script src="../../assets/js/html5shiv.js"></script>
+	  <script src="../../assets/js/respond.min.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
+  	<link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
+  	<link href="js/jquery.icheck/skins/square/blue.css" rel="stylesheet">
+
+  	<link rel="stylesheet" href="js/jquery.crop/css/jquery.Jcrop.css" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" />	
+	<link rel="stylesheet" type="text/css" href="js/jquery.datatables/bootstrap-adapter/css/datatables.css" />
+	<script type="text/javascript" src="js/sortListTool.js"></script>
+<style>
+.hideAndShow{display:none;}
+.no-bg-border{background-color:#fff;border:none}
+
+.hideul{position:absolute;top:33px;z-index:200;right:15px;left:15px;display:none}
+.hideul ul{ border:1px solid #ccc;width:100%;background:#f4f4f4;padding-left:0}
+.hideul ul li{ list-style-type:none;text-indent:20px}
+.hideul ul li:hover{ background:#ddd}
+.mytablenopadding>tr>td{padding-top:0 !important;padding-bottom:0 !important;}
+.mytablenopadding>tr>td:nth-child(2){padding-top:7px !important;padding-bottom:7px !important;text-align:right}
+.mytablenopadding>tr{background:#fff !important;}
+.mytablenopadding input,.mytablenopadding select{border:0}
+
+</style>
+<script type="text/javascript" src="js/addressJS.js"></script>
+</head>
+
+<body>	
+<div id="cl-wrapper" style="padding-top:0px">	
+		<div class="container-fluid" style="padding: 0px">
+		<!-- 头部开始 -->
+			<div class="page-head">
+				<h2>微信工单管理</h2>
+				<ol class="breadcrumb">
+					<li>服务管理</li>
+					<li class="active">微信工单管理</li>
+					<input type="hidden" id="addUserName" value="">
+					<input type="hidden" id="addUserSites" value="">
+					<input type="hidden" value="" id="sortType">
+					<input type="hidden" value="" id="sortColumn">
+				</ol>
+			</div>
+		</div>
+		<!-- 头部结束 -->
+	<div class="cl-mcont">
+    <div class="block-flat">
+						<div class="row">
+									
+										<div class="col-sm-2" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>老人姓名</label>
+										</div>
+										<div class="col-sm-4 "  style="position:relative">
+											<div class="input-group " >
+												<input class="form-control"  type="text" id="oldinput_search" onclick="getolderName()" oninput="getolderName()" onmouseout="javascript:$('#hideul-1').hide();" onmouseover="javascript:$('#hideul-1').show();">
+												<span class="input-group-btn"><button class="btn btn-primary " type="button"><span class="fa fa-search"></span></button></span>
+											</div>
+											<div class="hideul" id="hideul-1"  onmouseover="javascript:$('#hideul-1').show();" onmouseout="javascript:$('#hideul-1').hide();">
+												<ul id="hideul_nei1">
+							
+												</ul>
+											</div>
+										</div>
+										
+										<div class="col-sm-2 " style=" vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>服务项目</label>
+										</div>
+										<div class="col-sm-4 "  style="position:relative">
+											<div class="input-group " >
+												<input type="hidden" value="" id="fwxminput_Id"> 
+												<input class="form-control"  type="text" id="fwxminput_search" onclick="getFWXM()" oninput="getFWXM()" onmouseout="javascript:$('#hideul-2').hide();" onmouseover="javascript:$('#hideul-2').show();">
+												<span class="input-group-btn"><button class="btn btn-primary " type="button"><span class="fa fa-search"></span></button></span>
+											</div>
+											<div class="hideul" id="hideul-2"  onmouseover="javascript:$('#hideul-2').show();" onmouseout="javascript:$('#hideul-2').hide();">
+												<ul id="hideul_nei2">
+							
+												</ul>
+											</div>
+										</div>
+										
+										<div class="col-sm-2 hideAndShow" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>工单编号</label>
+										</div>
+										<div class="col-sm-4 hideAndShow" style="margin-bottom:10px;">
+											<input class="form-control" type="text" style="width: 100%" id="fuwugdbh_input">
+										</div>
+										
+										<div class="col-sm-2  col-md-2 hideAndShow" style="vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>服务状态</label>
+										</div>
+										<div class="col-sm-4 col-md-4 hideAndShow" style="margin-bottom:10px;">
+											<select id="fuwustate_input" class="select2" multiple>
+                      							<option value="8">已下单</option>
+                      							<option value="1">已取消</option>
+                       							<option value="4">审核完成</option>
+                       							<option value="5">服务开始</option>
+                       							<option value="6">服务结束</option>
+                       							<option value="7">回访结束</option>
+                  	  						</select>
+										</div>
+										<div class="col-sm-2  col-md-2 hideAndShow" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>下单人</label>
+										</div>
+										<div class="col-sm-4  hideAndShow"  style="position:relative">
+											<div class="input-group " >
+												<input type="hidden" value="" id="xdrinput_Id"> 
+												<input class="form-control"  type="text" id="xdrinput_search" onclick="getXDR()" oninput="getXDR()" onmouseout="javascript:$('#hideul-4').hide();" onmouseover="javascript:$('#hideul-4').show();">
+												<span class="input-group-btn"><button class="btn btn-primary " type="button"><span class="fa fa-search"></span></button></span>
+											</div>
+											<div class="hideul" id="hideul-4"  onmouseover="javascript:$('#hideul-4').show();" onmouseout="javascript:$('#hideul-4').hide();">
+												<ul id="hideul_nei4">
+							
+												</ul>
+											</div>
+										</div>
+										<div class="col-sm-2  col-md-2 hideAndShow" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>负责人</label>
+										</div>
+										<div class="col-sm-4 col-md-4 hideAndShow" style="position:relative">
+											<div class="input-group " >
+												<input type="hidden" value="" id="pgrinputId">
+												<input class="form-control"  type="text" id="pgrinput_search" onclick="getepgrName()" oninput="getepgrName()" onmouseout="javascript:$('#hideul-25').hide();" onmouseover="javascript:$('#hideul-25').show();">
+												<span class="input-group-btn"><button class="btn btn-primary " type="button"><span class="fa fa-search"></span></button></span>
+											</div>
+											<div class="hideul" id="hideul-25"  onmouseover="javascript:$('#hideul-25').show();" onmouseout="javascript:$('#hideul-25').hide();">
+												<ul id="hideul_nei25">
+							
+												</ul>
+											</div>
+										</div>
+					<div class="col-sm-2  col-md-2 hideAndShow" style="padding-top:5px">
+						 <strong>预计服务时间</strong>
+					</div>
+					<div class="col-sm-4 col-md-4 hideAndShow" style="">						
+                		<div class="input-group">
+                		<input class="datetime form-control"  size="10" type="text" id="yjfwsjstart_input" readonly="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
+                		<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+                		<span class="input-group-addon no-bg-border">~</span>
+                		<input class="datetime form-control"   size="10" type="text" id="yjfwsjend_input" readonly="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
+                		<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+                		</div>
+					</div>
+					<div class="col-sm-2  col-md-2 hideAndShow" style="padding-top:5px">
+						 <strong>结束服务时间</strong>
+					</div>
+					<div class="col-sm-4 col-md-4 hideAndShow" style="">						
+                		<div class="input-group">
+                		<input class="datetime form-control"  size="10" type="text" id="jsfwsjstart_input" readonly="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
+                		<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+                		<span class="input-group-addon no-bg-border">~</span>
+                		<input class="datetime form-control"   size="10" type="text" id="jsfwsjend_input" readonly="" data-min-view="2" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
+                		<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+                		</div>
+					</div>
+										
+									<!-- 查询框结束 -->
+									<!-- 操作按钮开始 -->
+									
+										<div class="col-sm-12" style="margin-top:20px">	
+											<c:if test="${serviceWeixinTask_query_btn_control != 'yes' or serviceWeixinTask_query_btn_show == 'yes'}">	
+												<button class="btn btn-primary" style="margin-bottom: 0px !important; height: 34px;margin-left:0;" onclick="query()">查询</button>
+											</c:if>	
+											<a style="cursor:pointer;text-decoration:underline;vertical-align:bottom;" onclick="$('.hideAndShow').toggle();">更多查询条件</a>
+											<div class="btn-group" style="margin-top:5px;float:right;margin-right:0">
+												 <%-- <c:if test="${serviceWeixinTask_add_btn_control != 'yes' or serviceWeixinTask_add_btn_show == 'yes'}">
+						  						 <button type="button" class="btn btn-primary dropdown-toggle  md-trigger" data-toggle="dropdown" data-modal="servicegongdan_add" onclick="qingkongXZ()">
+													<span><i class="fa fa-plus" style="margin-right:5px;"></i>新增</span>
+						 						 </button>
+						 						 </c:if> --%>	
+						 						 <button type="button" class="btn btn-primary dropdown-toggle  md-trigger" style="display:none;" data-toggle="dropdown" data-modal="fenpeigogndan" id="fenpeigogndanId">
+						 						 </button>
+						 						 <c:if test="${serviceWeixinTask_del_btn_control != 'yes' or serviceWeixinTask_del_btn_show == 'yes'}">
+						 						 <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown"  style="margin-left:5px;margin-right:0" onclick="doDel()">
+													<span><i class="fa fa-minus" style="margin-right:5px;"></i>删除</span>
+						 						 </button>
+												 </c:if>	
+												 <c:if test="${serviceWeixinTask_qx_btn_control != 'yes' or serviceWeixinTask_qx_btn_show == 'yes'}">
+												  <button type="button" class="btn btn-danger dropdown-toggle  md-trigger" data-toggle="dropdown" style="display:none;" data-modal="servicegongdan_quxiao" id="quxiao_open"></button>
+						 						  <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" onclick="quxiao_qingkong()" style="margin-left:5px;margin-right:0">
+													<span><i class="fa fa-minus" style="margin-right:5px;"></i>取消</span>
+						 						  </button>
+												 </c:if>	
+										 	</div>
+										</div>
+								
+									<!-- 操作按钮结束 -->
+                                    <!-- 数据表格开始 -->
+								
+										<div class="col-sm-12">							
+											<table class="table table-bordered dataTable hover" id="datatable" aria-describedby="datatable_info">
+												<thead>
+													<tr role="row">
+														<th style="width:2%;"><input id="allselectchecker" type="checkbox" class="col_selector" onclick="selectAll();"></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'serviceCode')"><strong>服务工单编号</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_olderName')"><strong>老人</strong></th>
+														<th><strong>服务项目</strong></th>
+														<th><strong>负责人</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'status')"><strong>工单状态</strong></th>
+														<th><strong>服务类别</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'serviceExpectTime')"><strong>预计服务时间</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'serviceEndTime')"><strong>结束服务时间</strong></th>
+														<th><strong>操作</strong></th>
+													</tr>
+												</thead>
+												<tbody id="datacontainer" role="alert" aria-live="polite" aria-relevant="all">	
+																															
+												</tbody>
+											</table>
+										</div>
+									</div>
+									<!-- 数据表格结束 --
+									<!-- 数据条数提示开始 -->
+									<div class="row">
+										<div class="col-sm-12">
+											<div class="pull-left">
+												<div id="datatable_info" class="dataTables_info">
+													当前显示0 条总记录中的第0-0条
+												</div>
+											</div>
+											<div class="clearfix"></div>
+										</div>
+									</div>
+									<!-- 数据条数提示结束 -->
+								    <!-- 分页条开始 -->
+									<div class="row">
+										<div class="col-sm-4">
+											<div class="dataTables_length" id="">
+												<label style="margin-top:18px;">每页 <select id="pageSizeSelector"   size="1"  onchange="query()"><option selected="selected" value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> 条</label>
+											</div>
+										</div>
+										<div class="col-sm-8">
+											<div class="pull-right">
+												<div class="dataTables_paginate paging_bs_normal">
+													<ul id="paginationArea" class="pagination">
+													<li class="prev disabled"><a href="#"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
+													<li class="active"><a href="#">1</a></li>
+													<li class="next"><a href="#">下一页&nbsp;<span class="fa fa-angle-right"></span></a></li></ul>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- 分页条结束 -->
+								</div>
+								</div>
+
+							</div> 
+	
+					</div> <!-- 主页面结束 -->
+
+    <!-- 模态框开始-->
+               
+               <!-- 分配工单 -->
+               <div class="md-modal md-effect-1" id="fenpeigogndan"  >
+				<div class="md-content" style="height:800px;overflow-y:scroll">
+                      <div class="modal-header" style="border-bottom:1px solid #ddd;margin:0 20px;">
+                        <h3>分配工单</h3>
+                        <input value="0" id="id_hide" type="hidden">
+                        <button type="button" class="close md-close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                      </div>
+                      <div class="modal-body form">
+                        <div class="form-group">
+                        	<div class="row">
+                         		<div class="col-sm-12">老人:</div> 
+                         		<div class="col-sm-4 "  style="position:relative;width:100%;" id="oldinput_search2">
+					
+								</div> 
+                        	</div>
+                        </div>
+                        <div class="form-group">
+                        	<div class="row">
+                         		<div class="col-sm-12">负责人:</div> 
+                         		<div class="col-sm-4 "  style="position:relative;width:100%;">
+									<div class="input-group " >
+										<input type="hidden" id="fuzerenId_hide" value="">
+										<input type="hidden" id="fuzerenName_hide" value="">
+										<input type="hidden" id="fuzerenRole_hide" value="">
+										<input type="hidden" id="fuzerenBH_hide" value="">
+										<input class="form-control"  type="text" id="fprinput_search" onclick="getefprName()" oninput="getefprName()" onmouseout="javascript:$('#hideul-3').hide();" onmouseover="javascript:$('#hideul-3').show();">
+										<span class="input-group-btn"><button class="btn btn-primary " type="button"><span class="fa fa-search"></span></button></span>
+									</div>
+									<div class="hideul" id="hideul-3"  onmouseover="javascript:$('#hideul-3').show();" onmouseout="javascript:$('#hideul-3').hide();">
+										<ul id="hideul_nei3">
+								
+										</ul>
+									</div>
+								</div> 
+                        	</div>
+                        </div> 
+                        <div class="form-group">
+                        	<div class="row">
+                         		<div class="col-sm-12">服务站点:</div> 
+                         		<div class="col-sm-4 "  style="position:relative;width:100%;" id="fuwuzhandian_input">
+									
+								</div> 
+                        	</div>
+                        </div>
+                		<div class="form-group">
+                			<div class="row">
+                			<div class="col-sm-12">参与人:</div>
+                			<div class="col-sm-4 " style="width:100%;">
+                  				<select class="select2" id="cyrinput_search" multiple>
+                       			
+                  				</select>
+               			    </div>
+               			    </div>
+             		    </div>
+                        <div class="form-group">
+                        	<div class="row">
+                         		<div class="col-sm-12">服务内容:</div> 
+                         		<div class="col-sm-4 "  style="position:relative;width:100%;" id="fwxminput_search4">
+									
+								</div> 
+                        	</div>
+                        </div> 
+                        <div class="form-group">
+                        	<div class="row">
+                         		<div class="col-sm-12">服务子项:</div> 
+                         		<div class="col-sm-4 " style="width:100%;" id="fuwuzixianginput_search">
+									
+								</div> 
+                        	</div>
+                        </div> 
+                        <div class="form-group">
+                        	<div class="row">
+                         		<div class="col-sm-12">预计服务时间:</div> 
+                         		<div class="col-sm-4 " style="width:100%;">
+									<div class=" input-group date datetime" style="margin-bottom: 10px;">                     
+	                      				<input class="form-control" size="16" value=""  type="text" id="yujiFWDate" >
+	                       				<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
+	                    			</div>
+								</div> 
+                        	</div>
+                        </div> 
+                        
+                                      
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn  btn-primary btn-flat" id="model_sure" onclick="saveFPGD()">确定</button>
+                        <button type="button" class="btn btn-default btn-flat md-close" data-dismiss="modal" id="closeAll" onclick="qingkongXZ()">取消</button>
+                      </div>
+				</div>  
+			  </div> 
+  				
+  				<!-- 工单取消-->
+                <div class="md-modal colored-header custom-width md-effect-9" id="servicegongdan_quxiao">
+                    <div class="md-content">
+                      <div class="modal-header">
+                        <h3>取消操作日志</h3>
+                        <button type="button" class="close md-close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <input type="hidden" id="idForQX" value="">
+                      </div>
+                      <div class="modal-body form form-horizontal">
+                     <!--  <form class="" > -->
+						<div class="form-group" id="hyIfxianshi">
+						    <label class="col-sm-4 control-label">备注</label>
+						<div class="col-sm-6 " >
+							<textarea class="form-control" id="beizhu_input_quxiao"></textarea>		
+						</div>
+                        </div>
+                        <!-- </form> -->	
+					  </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-flat" data-dismiss="modal" onclick="sureQuxiao()">确定</button>
+                        <button type="button" class="btn btn-default btn-flat md-close" data-dismiss="modal" id="quxiao_tanchuang">取消</button>
+                      </div>
+                    </div>
+                </div>
+                
+				 <div class="md-overlay"></div>
+
+
+	<script src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+	<script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+  <script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
+	<script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
+	<script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+  <script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>   
+  <script type="text/javascript" src="js/masonry.js"></script>
+  <script type="text/javascript" src="js/jquery.crop/js/jquery.Jcrop.js"></script>
+
+  <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+  <script src="js/jquery.upload/js/jquery.iframe-transport.js"></script>
+  <!-- The basic File Upload plugin -->
+  <script src="js/jquery.upload/js/jquery.fileupload.js"></script>
+	<script type="text/javascript" src="js/behaviour/general.js"></script>
+	<script type="text/javascript" src="js/jquery.icheck/icheck.min.js"></script>
+
+
+    <script type="text/javascript">
+//根据排序规则重新查询
+function queryBySort(par,column){
+	var classFlag = listSortClickEvent(par);
+	var type = judgmentChinese(column);
+	if(type != null && type != ""){
+		classFlag = type + classFlag;
+		column = column.substr(8,column.length);
+	}
+	$("#sortType").val(classFlag);
+	$("#sortColumn").val(column);
+	go2page(currentshownpage);
+}
+
+	   //只能输入数字0-9
+        function keyPress() {
+            var theEvent = window.event || arguments.callee.caller.arguments[0];
+    		var keyCode = theEvent.keyCode || theEvent.which;
+    		if ((keyCode < 48 || keyCode > 57) && keyCode != 8 && keyCode != 37 && keyCode != 39) {
+               theEvent.preventDefault();
+            }
+        }
+        
+	$(document).ready(function(){
+		query();
+		getLoginName();
+        getcyrName();
+		
+		$(".deleteThisTime").click(function(){               //清除日期框中的值
+    	      $(this).parent().prev()[0].value = "";
+    	      // $(this).parent().siblings("input").val("");
+    	});
+    	    
+    	App.init();
+    	$(".md-trigger").modalEffects();
+    	
+    	$("#fprinput_search").keydown(function() { //焦点在弹窗第一个时，按回车，焦点跳转到第二个
+			if (event.keyCode == 13) {
+				$("#cyrinput_search").focus();
+				return;
+			}
+		});
+		$("#cyrinput_search").keydown(function() { //...
+			if (event.keyCode == 13) {
+				$("#yujiFWDate").focus();
+				return;
+			}
+		});
+		$("#yujiFWDate").keydown(function() { //...
+			if (event.keyCode == 13) {
+				$("#model_sure").click();
+				return;
+			}
+		});
+		
+		
+	});
+	function addshuizhong(){
+   		var addhtml = '<tr><td ><input class="form-control datetime" size="16"  type="text"></td><td><a class="label label-danger" onclick="$(this).parent().parent().remove();" ><i class="fa fa-times"></i></a></td></tr>';
+   		$(addhtml).insertBefore("#addshuizhong"); 
+   	  var config = {dateTime:true};  //初始化新增的datepicker，不会导致格式错乱
+      $( ".ui-datepicker" ).datepicker();
+     if(config.dateTime){
+     $(".datetime").datetimepicker({autoclose: true});
+   }
+   }
+   var currentshownpage = 1;
+   function selectAll() {
+		if ($("#allselectchecker").is(':checked')) {
+			$(".col_selector").prop("checked", true);
+		} else {
+			$(".col_selector").prop("checked", false);
+		}
+	}
+	
+	//查询服务工单列表信息-只查微信的
+	function query() {
+		go2page(1);
+	}
+	function go2page(pagenumber){
+	var pagesize = $("#pageSizeSelector option:selected").val();
+	var oldinput_search = $.trim($("#oldinput_search").val());
+	var fwxminput_Id = $("#fwxminput_Id").val();
+	var fwxminput_search = $("#fwxminput_search").val();
+	var fuwustate_input = $("#fuwustate_input").val();
+	var fuwutype_input = "2";
+	var fuwugdbh_input = $("#fuwugdbh_input").val();
+	
+	var pgrinputId = $("#pgrinputId").val();
+	if($.trim($("#pgrinput_search").val()) == ""){
+		$("#pgrinputId").val("");
+		pgrinputId = "";
+	}
+	
+	var xdrinput_Id = $("#xdrinput_Id").val();
+	var xdrinput_search = $("#xdrinput_search").val();
+	if($.trim(xdrinput_search) == ""){
+		$("#xdrinput_Id").val("");
+		xdrinput_Id = "";
+	}
+	
+	var yjfwsjstart_input = $("#yjfwsjstart_input").val();
+	var yjfwsjend_input = $("#yjfwsjend_input").val();
+	var jsfwsjstart_input = $("#jsfwsjstart_input").val();
+	var jsfwsjend_input = $("#jsfwsjend_input").val();
+	if(yjfwsjstart_input !="" && yjfwsjend_input !="" && yjfwsjstart_input > yjfwsjend_input){
+		alert("预计服务开始时间不能大于结束时间");
+		return;
+	}
+	if(jsfwsjstart_input !="" && jsfwsjend_input !="" && jsfwsjstart_input > jsfwsjend_input){
+		alert("结束服务开始时间不能大于结束时间");
+		return;
+	}
+	
+	var reqmsg="{'action':'QUERY_SERVICE_TASK_LIST_REQUEST',";
+	
+	var sortType = $("#sortType").val();
+	var sortColumn = $("#sortColumn").val();
+	if(sortType != null && sortType != ""){
+		reqmsg += "'order':[{'column':'" + sortColumn + "','type':'" + sortType + "'}],";
+	}
+	
+	reqmsg += "'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{\"serviceListShow\":\"true\",\"serviceEmployeeListShow\":\"true\",";
+	
+	reqmsg += "\"source\":\"微信\",";
+	if (oldinput_search != null && oldinput_search != "") {
+		reqmsg += "\"olderName_like\":\"" + oldinput_search + "\",";
+	}
+	if (fwxminput_Id != null && fwxminput_Id != "") {
+		reqmsg += "\"serviceId\":" + fwxminput_Id + ",";
+	}
+	if((fwxminput_search != "" && fwxminput_search != null) && (fwxminput_Id == "" || fwxminput_Id == null)){
+		reqmsg += "\"serviceId\":0,";
+	}
+	if (fuwustate_input != null && fuwustate_input != "") {
+		reqmsg += "\"status_in\":\"" + fuwustate_input + "\",";
+	}
+	if (fuwutype_input != null && fuwutype_input != "") {
+		reqmsg += "\"healthInsurance\":" + fuwutype_input + ",";
+	}
+	if (fuwugdbh_input != null && fuwugdbh_input != "") {
+		reqmsg += "\"serviceCode\":\"" + fuwugdbh_input + "\",";
+	}
+	if (pgrinputId != null && pgrinputId != "") {
+		reqmsg += "\"chargeEmployeeId\":" + pgrinputId + ",";
+	}
+	if (yjfwsjstart_input != null && yjfwsjstart_input != "") {
+		reqmsg += "\"serviceExpectTime_ge\":\"" + yjfwsjstart_input.substring(0, 4) + yjfwsjstart_input.substring(5, 7) + yjfwsjstart_input.substring(8, 10) + "000001" + "\",";
+	}
+	if (yjfwsjend_input != null && yjfwsjend_input != "") {
+		reqmsg += "\"serviceExpectTime_le\":\"" + yjfwsjend_input.substring(0, 4) + yjfwsjend_input.substring(5, 7) + yjfwsjend_input.substring(8, 10) + "235959" + "\",";
+	}
+	if (jsfwsjstart_input != null && jsfwsjstart_input != "") {
+		reqmsg += "\"serviceEndTime_gt\":\"" + jsfwsjstart_input.substring(0, 4) + jsfwsjstart_input.substring(5, 7) + jsfwsjstart_input.substring(8, 10) + "000001" + "\",";
+	}
+	if (jsfwsjend_input != null && jsfwsjend_input != "") {
+		reqmsg += "\"serviceEndTime_le\":\"" + jsfwsjend_input.substring(0, 4) + jsfwsjend_input.substring(5, 7) + jsfwsjend_input.substring(8, 10) + "235959" + "\",";
+	}
+	if (xdrinput_Id != null && xdrinput_Id != "") {
+		reqmsg += "\"addPersonWechatId\":" + xdrinput_Id + ",";
+	}
+	
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:true,
+          url : "serviceTask.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  changeData(data);
+              }else if(data.des=="failure"){-
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+
+/**
+ * 格式化时间
+ * @method formateTime
+ * @param {String} time 时间信息(YYYYMMDDHHmmSS)
+ * @return 格式化的时间(YYYY-MM-DD HH:mm)
+ */
+function formateTime(time) {
+	if (time != null && time.length == 14) {
+		return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8) + " " + time.substring(8, 10) + ":" + time.substring(10, 12);
+	} else {
+		return time;
+	}
+}
+
+function changeData(data){
+	var htmlcode = "";
+	if (data.content != null) {
+		var fwxm = "";
+		var fzrName = "";
+		if (data.content.serviceTaskList != null) {
+		jQuery.each(data.content.serviceTaskList, function(i, item) {
+			htmlcode += "<tr class=\"gradeA odd\"><td><input type=\"checkbox\" value=\"" + item.id + "\" class=\"col_selector\"></td>";		
+		    htmlcode += "<td>" + item.serviceCode + "</td>";
+		    htmlcode += "<td>" + item.olderName + "</td>";
+		    fwxm = "";
+		    jQuery.each(item.serviceList, function(j, item2) {
+		    	fwxm += item2.name + ",";
+		    });
+		    if(fwxm != ""){
+		    	fwxm = fwxm.substr(0,fwxm.length-1);
+		    }
+		    htmlcode += "<td>" + fwxm + "</td>";
+		    
+		    jQuery.each(item.serviceEmployeeList, function(z, item3) {
+		    	if(item3.type == "1"){
+		    		fzrName = item3.name;
+		    	}
+		    });
+		    htmlcode += "<td>" + fzrName + "</td>";
+		    fzrName = "";
+		    
+		    htmlcode += "<td>" + fwstateChange(item.status) + "</td>";				
+		    
+		    htmlcode += "<td>" + item.addType + "</td>";
+		    
+		    htmlcode += "<td>" + formateTime(item.serviceExpectTime) + "</td>";
+		    htmlcode += "<td>" + formateTime(item.serviceEndTime) + "</td>";
+		   
+			htmlcode += "<td><div class=\"btn-group\">";
+			htmlcode += "<button class=\"btn btn-default btn-xs\" type=\"button\">操作</button>";
+			htmlcode += "<button data-toggle=\"dropdown\" class=\"btn btn-xs btn-primary dropdown-toggle\" type=\"button\">";
+			htmlcode += "<span class=\"caret\" style=\"padding:0;\"></span>";
+			htmlcode += "<span class=\"sr-only\">Toggle Dropdown</span>";
+			htmlcode += "</button>";
+			htmlcode += "<ul role=\"menu\" class=\"dropdown-menu pull-right\">";
+			var headUrl = "<%=request.getContextPath()%>";
+			<c:if test="${serviceWeixinTask_queryXQ_opt_control != 'yes' or serviceWeixinTask_queryXQ_opt_show == 'yes'}">
+			htmlcode += "<li><a href=\""+headUrl+"/serviceTask.do?mainXQ&id="+item.id+"\" target=\"_blank\">查看详情</a></li>";
+			</c:if>	
+			if(item.status == 8){
+				<c:if test="${serviceWeixinTask_fpgd_opt_control != 'yes' or serviceWeixinTask_fpgd_opt_show == 'yes'}">
+					htmlcode += "<li onclick=\"fenpeigogndan(" + item.id + ")\"><a href=\"###\">分配工单</a></li>";
+				</c:if>	
+			}
+			<c:if test="${serviceWeixinTask_del_opt_control != 'yes' or serviceWeixinTask_del_opt_show == 'yes'}">
+			htmlcode += "<li onclick=\"del2('" + item.id + "')\"><a href=\"###\">删除</a></li>";
+			</c:if>	
+			<c:if test="${serviceWeixinTask_qx_opt_control != 'yes' or serviceWeixinTask_qx_opt_show == 'yes'}">
+			htmlcode += "<li onclick=\"quxiao_qingkong2('" + item.id + "')\"><a href=\"###\">取消</a></li>";
+			</c:if>	
+			htmlcode += "</ul>";
+			htmlcode += "</div></td>";		
+			htmlcode += "</tr>";
+		});
+		}
+	}
+	$("#datacontainer").html(htmlcode);
+	if (data.page != null) {
+		genaratePaginateHtml(data.page.pageno, data.page.pageCount);
+		genarateRecordNumberHtml(data.page.pageno, data.page.pagesize, data.page.recordCount);
+	} else {
+		genaratePaginateHtml(1, 1);
+		genarateRecordNumberHtml(1, 10, 0);
+	}
+}
+
+
+	//服务状态
+	function fwstateChange(id){
+		var name="未知";
+     	switch (id)
+		{
+			case 1:
+  			name="取消";
+  			break;
+  			
+			case 2:
+  			name="待排班";
+  			break;
+  			
+  			case 3:
+  			name="待审核";
+  			break;
+  			
+  			case 4:
+  			name="审核通过";
+  			break;
+  			
+  			case 5:
+  			name="服务开始";
+  			break;
+  			
+  			case 6:
+  			name="服务结束";
+  			break;
+  			
+  			case 7:
+  			name="回访结束";
+  			break;
+  			
+  			case 8:
+  			name="已下单";
+  			break;
+  			
+  			default:
+  			break;
+		}
+		return name;
+	}
+	
+/**
+ * 生成记录数信息
+ * @method genarateRecordNumberHtml
+ * @param {Number} currentpage 当前页
+ * @param {Number} pagesize 每页记录条目数
+ * @param {Number} totalRecord 总记录数
+ */
+function genarateRecordNumberHtml(currentpage, pagesize, totalRecord) {
+	var recordInfos = "";
+	if (totalRecord > 0) {
+	    recordInfos = "当前显示" + totalRecord + "条总记录";
+		recordInfos += "中第" + ((currentpage - 1) * pagesize + 1) + "-";
+		if (currentpage * pagesize > totalRecord) {
+			recordInfos += totalRecord;
+		} else {
+			recordInfos += currentpage * pagesize;
+		}
+		recordInfos += "条 ";
+	} else {
+		recordInfos = "当前显示0 条总记录中的第0-0条";
+	}
+	
+	$("#datatable_info").html(recordInfos);
+}
+
+/**
+ * 生成分页信息
+ * @method genaratePaginateHtml
+ * @param {Number} currentpage 当前页
+ * @param {Number} totalpage 总页数
+ */
+function genaratePaginateHtml(currentpage, totalpage, pagesize) {
+	currentshownpage = currentpage;
+
+	var htmlcode = "";
+	
+	//上一页
+	if (currentpage > 1) {
+		htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page('1')\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+		htmlcode += "<li class=\"pre\"><a href=\"#\" onclick=\"go2page('" + (currentpage - 1) + "')\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+	} else {
+		htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;首页</a></li>";
+		htmlcode += "<li class=\"pre disabled\"><a href=\"#\"><span class=\"fa fa-angle-left\"></span>&nbsp;上一页</a></li>";
+	}
+	
+	//具体页码
+	if (totalpage <= 5) {
+		for (var i = 1; i <= totalpage; i++) {
+			if (currentpage == i) {
+				htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+			} else {
+				htmlcode += "<li><a href=\"#\" onclick=\"go2page('" + i + "')\">" + i + "</a></li>";
+			}
+		}
+	} else {
+		var startpage = currentpage;
+		var endpage = currentpage;
+		while (true) {
+			if (endpage - startpage >= 4) {
+				break;
+			} else {
+				if (startpage > 1) {
+					startpage = startpage - 1;
+				}
+				if (endpage < totalpage) {
+					endpage = endpage - (-1);
+				}
+			}
+		}
+		
+		for (var i = startpage; i <= endpage; i++) {
+			if (currentpage == i) {
+				htmlcode += "<li class=\"active\"><a href=\"#\">" + i + "</a></li>";
+			} else {
+				htmlcode += "<li><a href=\"#\" onclick=\"go2page('" + i + "')\">" + i + "</a></li>";
+			}
+		}
+	}
+	
+	//下一页
+	if (totalpage > currentpage) {
+		htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page('" + (parseInt(currentpage) + 1) + "')\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		htmlcode += "<li class=\"next\"><a href=\"#\" onclick=\"go2page('" + parseInt(totalpage) + "')\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+	} else {
+		htmlcode += "<li class=\"next disabled\"><a href=\"#\">下一页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+		htmlcode += "<li class=\"next disabled\"><a href=\"#\">末页&nbsp;<span class=\"fa fa-angle-right\"></span></a></li>";
+	}
+	$("#paginationArea").html(htmlcode);
+}
+
+//批量删除多个微信工单
+function doDel() {
+	var name = $("#addUserName").val();
+	if(name == "" || name == null){
+		alert("当前非员工,无法操作");
+		return;
+	}
+	var selectedItemNumber = $("tbody .col_selector:checked").length;
+	if (selectedItemNumber >= 1) {
+		var ids2del = "";
+		$("tbody .col_selector:checked").each(function() {
+			ids2del += $(this).val() + ",";
+		});
+		if (ids2del != "") {
+			ids2del = ids2del.substring(0, ids2del.length - 1);
+		}
+	  if (confirm("是否确认删除?"))  {  
+		jQuery.ajax({
+			type:"post",
+			url:"serviceTask.do?del",
+			async:true,
+			dataType:"json",
+			data:{ids:ids2del},
+			success:function(data) {
+				alert(data.des);
+				if (data.result == "success") {
+					go2page(currentshownpage);
+				}else if(data.des=="failure"){
+                 alert("删除失败");
+                }
+			},
+			error:function() {
+				alert("error");
+			}
+		});
+		}
+	} else {
+		alert("请选择要删除的数据");
+	}
+}
+
+//删除单个微信工单
+function del2(id) {
+	var name = $("#addUserName").val();
+	if(name == "" || name == null){
+		alert("当前非员工,无法操作");
+		return;
+	}
+	  if (confirm("是否确认删除?"))  {  
+		jQuery.ajax({
+			type:"post",
+			url:"serviceTask.do?del",
+			async:true,
+			dataType:"json",
+			data:{ids:id},
+			success:function(data) {
+				alert(data.des);
+				if (data.result == "success") {
+					go2page(currentshownpage);
+				}else if(data.des=="failure"){
+                 alert("删除失败");
+                }
+			},
+			error:function() {
+				alert("error");
+			}
+		});
+	}
+}
+
+//实时获取老人姓名
+function getolderName(){
+	var reqmsg="{'action':'QUERY_OLDER_LIST_REQUEST','page':{'pageno':'1','pagesize':'5'},'content':{";
+	var name = $.trim($("#oldinput_search").val());
+	if (name != null && name != "") {
+		reqmsg += "\"name_like\":\"" + name + "\"";
+	}else{
+		$("#hideul_nei1").html("");
+		$("#hideul-1").hide();
+		return;
+	}
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "older.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.olderList != null){
+            	  		jQuery.each(data.content.olderList, function(i, item) {
+            	  				if(item != null){
+		    						htmlcode += "<li onclick=\"olderNamefuzhi('" + item.name + "')\">" + item.name + "</li>";		
+            	  				}	
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#hideul_nei1").html(htmlcode);
+		    	  $("#hideul-1").show();
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//老人姓名赋值
+function olderNamefuzhi(name){
+	$("#oldinput_search").val(name);
+	$("#hideul_nei1").html("");
+	$("#hideul-1").hide();
+}
+
+//实时获取服务项目
+function getFWXM(){
+	var reqmsg="{'action':'QUERY_SERVICE_LIST_REQUEST','page':{'pageno':'1','pagesize':'5'},'content':{";
+	//reqmsg += "\"status\":1,";
+	reqmsg += "\"deleted\":0,";
+	var name = $("#fwxminput_search").val();
+	if (name != null && name != "") {
+		reqmsg += "\"name_like\":\"" + name + "\"";
+	}else{
+		$("#hideul_nei2").html("");
+		$("#hideul-2").hide();
+		return;
+	}
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "service.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.serviceList != null){
+            	  		jQuery.each(data.content.serviceList, function(i, item) {
+            	  				if(item != null){
+		    						htmlcode += "<li onclick=\"fwxmNamefuzhi('" + item.name + "','" + item.id + "')\">" + item.name + "</li>";		
+            	  				}	
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#hideul_nei2").html(htmlcode);
+		    	  $("#hideul-2").show();
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//服务项目名称赋值
+function fwxmNamefuzhi(name,id){
+	$("#fwxminput_Id").val(id);
+	$("#fwxminput_search").val(name);
+	$("#hideul_nei2").html("");
+	$("#hideul-2").hide();
+}
+
+//实时获取负责人姓名
+function getefprName(){
+	var siteIds = $("#addUserSites").val();
+	var reqmsg="{'action':'QUERY_EMPLOYEE_LIST_REQUEST','page':{'pageno':'1','pagesize':'5'},'content':{\"siteListShow\":\"true\",";
+	var name = $("#fprinput_search").val();
+	if(siteIds != "" && siteIds != null){
+		reqmsg += "\"siteIds\":\"" + siteIds + "\",";
+	}
+	if (name != null && name != "") {
+		reqmsg += "\"name_like\":\"" + name + "\"";
+	}else{
+		$("#hideul_nei3").html("");
+		$("#hideul-3").hide();
+		return;
+	}
+	reqmsg += "}}";
+	
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "employee.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.employeeList != null){
+            	  		jQuery.each(data.content.employeeList, function(i, item) {
+            	  			if(item != null){
+		    					htmlcode += "<li onclick=\"fprNamefuzhi(" + item.id + ",'" + item.name + "  " + item.indexNum + "','" + item.name + "','" + item.roleNames +"','" + item.indexNum +"')\">" + item.name + "  " + item.indexNum + "</li>";		
+            	  			}
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#hideul_nei3").html(htmlcode);
+		    	  $("#hideul-3").show();
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//负责人姓名赋值
+function fprNamefuzhi(id,nameindexNum,name,roleNames,bianhao){
+	$("#fuzerenId_hide").val(id);
+	$("#fprinput_search").val(nameindexNum);
+	$("#fuzerenName_hide").val(name);
+	$("#fuzerenRole_hide").val(roleNames);
+	$("#fuzerenBH_hide").val(bianhao);
+	$("#hideul_nei3").html("");
+	$("#hideul-3").hide();
+}
+
+//实时获取参与人姓名
+function getcyrName(){
+	var siteIds = $("#addUserSites").val();
+	var reqmsg="{'action':'QUERY_EMPLOYEE_LIST_REQUEST','page':{'pageno':'1','pagesize':'2000000'},'content':{";
+	//var name = $("#cyrinput_search").val();
+	//if (name != null && name != "") {
+	//	reqmsg += "\"name_like\":\"" + name + "\"";
+	//}else{
+	//	$("#cyrinput_search").val("");
+	//	return;
+	//}
+	if(siteIds != "" && siteIds != null){
+		reqmsg += "\"siteIds\":\"" + siteIds + "\",";
+	}
+	
+	reqmsg += "}}";
+	
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "employee.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.employeeList != null){
+            	  		jQuery.each(data.content.employeeList, function(i, item) {
+            	  				if(item != null){
+		    						htmlcode += "<option value=\"" + item.id + "\">" + item.name + "  " + item.indexNum + "</option>";		
+            	  				}	
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#cyrinput_search").html(htmlcode);
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+
+//获取服务项目价格
+function getFWXM_jiage(){
+	var reqmsg="{'action':'QUERY_SERVICE_INFO_REQUEST','content':{";
+	var fwxminput_Id4_hide = $("#fwxminput_Id4_hide").val();
+	var name = $("#fwxminput_search4").val();
+	if (name == null || name == "") {
+		return;
+	}
+	if (fwxminput_Id4_hide != null && fwxminput_Id4_hide != "") {
+		reqmsg += "\"id\":" + fwxminput_Id4_hide + ",";
+	}else{
+		return;
+	}
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "service.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+            	  	if($("#fuwusflx_search").val() == "医保"){
+            	  		$("#fuwusfjg_search").html(data.content.medicalPrice);
+            	  	}else if($("#fuwusflx_search").val() == "市场"){
+            	  		$("#fuwusfjg_search").html(data.content.marketPrice);
+            	  	}
+		    	  }
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//实时获取服务项目
+function getFWXM4(){
+	$("#fuwuzixianginput_search").html("");
+	$("#fuwuzixianginput_search").val("").trigger("change");
+	var reqmsg="{'action':'QUERY_SERVICE_LIST_REQUEST','page':{'pageno':'1','pagesize':'5'},'content':{";
+	reqmsg += "\"status\":1,";
+	reqmsg += "\"deleted\":0,";
+	var name = $("#fwxminput_search4").val();
+	if (name != null && name != "") {
+		reqmsg += "\"name_like\":\"" + name + "\"";
+	}else{
+		$("#hideul_nei24").html("");
+		$("#hideul-24").hide();
+		return;
+	}
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "service.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.serviceList != null){
+            	  		jQuery.each(data.content.serviceList, function(i, item) {
+            	  			if(item != null){
+		    					htmlcode += "<li onclick=\"fwxmNamefuzhi4('" + item.name + "','" + item.id + "'," + item.marketPrice + "," + item.medicalPrice + ")\">" + item.name + "</li>";		
+            	  			}
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#hideul_nei24").html(htmlcode);
+		    	  $("#hideul-24").show();
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//服务项目名称赋值4
+function fwxmNamefuzhi4(name,id,marketPrice,medicalPrice){	
+    if($("#fuwusflx_search").val() == "医保"){
+        $("#fuwusfjg_search").html(medicalPrice);
+    }else if($("#fuwusflx_search").val() == "市场"){
+        $("#fuwusfjg_search").html(marketPrice);
+    }
+	$("#fwxminput_Id4_hide").val(id);
+	$("#fwxminput_search4").val(name);
+	$("#fwxminput_SCPRICE4_hide").val(marketPrice);
+	$("#fwxminput_YBPRICE4_hide").val(medicalPrice);
+	$("#hideul_nei24").html("");
+	$("#hideul-24").hide();
+	
+	var reqmsg="{'action':'QUERY_SERVICE_CHILD_LIST_REQUEST','page':{'pageno':'1','pagesize':'1000'},'content':{";
+	reqmsg += "\"serviceId\":" + id + ",";
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "serviceChild.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.serviceChildList != null){
+            	  		jQuery.each(data.content.serviceChildList, function(i, item) {
+            	  			if(item != null){
+		    					htmlcode += "<option value=\"" + item.name + "\">" + item.name + "</option>";		
+            	  			}
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#fuwuzixianginput_search").html(htmlcode);
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+
+//获取老人基本信息
+function getOlderJBXX(olderId){
+	var olderData = "";
+	var reqmsg="{'action':'QUERY_OLDER_INFO_REQUEST','content':{\"olderAddressListShow\":\"true\",\"id\":"+olderId+"}}";
+		  jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "daeOlder.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  if(data.content != null){
+            	  	olderData = JSON.stringify(data.content);
+            	  }
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+    });
+    return olderData;
+}
+ 	//获取当前登陆员工姓名
+	function getLoginName(){
+    	  var userId_login = "<%=request.getAttribute("userId")%>";
+		  var reqmsg="{'action':'QUERY_EMPLOYEE_LIST_REQUEST','page':{'pageno':'1','pagesize':'1'},'content':{\"siteListShow\":\"true\",\"userId\":"+userId_login+"}}";
+
+		  jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "employee.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  if (data.content != null) {
+            	    var siteIds = "";
+            	  	if(data.content.employeeList != null && data.content.employeeList.length == 1){
+            	  		if(data.content.employeeList[0] != null && data.content.employeeList[0] != ""){
+            	  			var name = data.content.employeeList[0].name;
+            	  			$("#addUserName").val(name);
+            	  			if (data.content.employeeList[0].siteList != null && data.content.employeeList[0].siteList.length > 0) {//所属站点
+            	  				jQuery.each(data.content.employeeList[0].siteList, function(j, item2) {
+									siteIds += item2.id + ",";
+								});
+								if(siteIds != ""){
+									siteIds = siteIds.substring(0, siteIds.length-1);
+								}
+								$("#addUserSites").val(siteIds);
+            	  			}
+            	  		}
+            	  	}
+				}
+			}else if(data.des=="failure"){
+                 alert("查询失败");
+            }
+          },
+          error:function(){
+	           alert("error");
+          }
+     	  });
+	}
+	//获取参与人姓名角色
+	function getcyrNameRole(id){
+		  var reqmsg="{'action':'QUERY_EMPLOYEE_INFO_REQUEST','content':{\"id\":"+id+"}}";
+		  var nameroles = "";
+		  jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "employee.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  if (data.content != null) {
+            	  	   nameroles = data.content.name + "||" + data.content.roleNames + "||" + data.content.indexNum;
+            	  }
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     	  });
+     	  return nameroles;
+	}
+//获取当前时间return yyyymmddhhmmss
+function getNowFormatDate2() {
+    var date = new Date();
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    var strHour = date.getHours();
+    var strMinutes = date.getMinutes();
+    var strSeconds = date.getSeconds();
+    
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    if (strHour >= 0 && strHour <= 9) {
+        strHour = "0" + strHour;
+    }
+    if (strMinutes >= 0 && strMinutes <= 9) {
+        strMinutes = "0" + strMinutes;
+    }
+    if (strSeconds >= 0 && strSeconds <= 9) {
+        strSeconds = "0" + strSeconds;
+    }
+    var currentdate = date.getFullYear() + "" + month + "" + strDate + "" + strHour + "" + strMinutes + "" + strSeconds;
+    return currentdate;
+}
+
+//到2016-08-08 12:12分的时间选择器转化YYYYMMDDhhmmss
+function changeTime(time){
+	var times = "";
+	times = String(time);
+	if(times == null || times == ""){
+		return;
+	}
+	times = times.split("-")[0] + times.split("-")[1] + String(times.split("-")[2]).substr(0,2) + String(times.split("-")[2]).substr(3,2) + String(times.split("-")[2]).substr(6,2) + "00";
+	return times;
+}
+
+
+
+//点击分配工单打开弹窗
+function fenpeigogndan(id){
+	$("#id_hide").val(id);
+	qingkongXZ();
+	
+	var reqmsg="{'action':'QUERY_SERVICE_TASK_INFO_REQUEST','content':{\"serviceListShow\":\"true\",\"id\":"+id+"}}";		
+	jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "serviceTask.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+            	  if (data.content != null) {
+            	  	  $("#oldinput_search2").html(data.content.olderName + "  " + data.content.olderMemberNum);
+            	  	  $("#fuwuzhandian_input").html(data.content.siteName);
+            	  	  if(data.content.serviceList != null){
+ 						 if(data.content.serviceList[0] != null){
+ 							$("#fwxminput_search4").html(data.content.serviceList[0].name);
+ 							$("#fuwuzixianginput_search").html(data.content.serviceList[0].fuwuSonNames);
+ 						 }
+ 					  }
+            	  }
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+    });
+    	 
+	$("#fenpeigogndanId").click();
+}
+//保存分配工单
+function saveFPGD(){
+	var name = $("#addUserName").val();
+	if(name == "" || name == null){
+		alert("当前非员工,无法操作");
+		return;
+	}
+	
+	var fuzerenId_hide = $("#fuzerenId_hide").val();
+	var fuzerenName_hide = $("#fuzerenName_hide").val();
+	var fuzerenRole_hide = $("#fuzerenRole_hide").val();
+	var fuzerenBH_hide = $("#fuzerenBH_hide").val();
+	if(fuzerenId_hide == null || fuzerenId_hide == ""){
+		alert("请选择负责人");
+		return;
+	}
+	
+	var cyrinput_search = $("#cyrinput_search").val();
+	var canyurenArray = null;
+	if(cyrinput_search != null && cyrinput_search !=""){
+		canyurenArray = String(cyrinput_search).split(",");
+	}
+	
+	var yujiFWDate = $("#yujiFWDate").val();
+	if(yujiFWDate != null && yujiFWDate !=""){
+		yujiFWDate = changeTime(yujiFWDate);
+	}else{
+		alert("请选择预计服务时间");
+		return;
+	}
+	
+	var reqmsg="{'action':'ADD_SERVICE_TASK_INFO_REQUEST','content':{";
+	
+	reqmsg += "\"hasPay\":\"N\",";
+	
+    reqmsg += "\"serviceExpectTime\":\"" + yujiFWDate + "\",";
+	
+    reqmsg += "\"status\":4,";
+	
+	if (fuzerenId_hide != null && fuzerenId_hide != "") {
+		reqmsg += "\"chargeEmployeeId\":" + fuzerenId_hide +",";
+	}
+	
+	reqmsg += "\"serviceEmployeeList\":[" ;
+	if (fuzerenId_hide != null && fuzerenId_hide != "") {
+		reqmsg += "{\"employeeId\":" + fuzerenId_hide +",";
+		reqmsg += "\"name\":\"" + fuzerenName_hide +"\",";
+		reqmsg += "\"employeeCode\":\"" + fuzerenBH_hide +"\",";
+		reqmsg += "\"role\":\"" + fuzerenRole_hide +"\",";
+		reqmsg += "\"type\":1},";
+	}
+	if(canyurenArray != null && canyurenArray != ""){
+		for(var i = 0;i < canyurenArray.length;i++){
+			var nameroles = getcyrNameRole(canyurenArray[i]);
+			reqmsg += "{\"employeeId\":" + canyurenArray[i] +",";
+			if(nameroles.split("||").length == 3){
+				reqmsg += "\"name\":\"" + nameroles.split("||")[0] +"\",";
+				reqmsg += "\"role\":\"" + nameroles.split("||")[1] +"\",";
+				reqmsg += "\"employeeCode\":\"" + nameroles.split("||")[2] +"\",";
+			}
+			reqmsg += "\"type\":2},";
+		}
+	}
+	reqmsg += "],";
+	
+	reqmsg += "\"serviceLogList\":[" ;
+	reqmsg += "{\"createTime\":\"" + getNowFormatDate2() +"\",";
+	reqmsg += "\"createPerson\":\"" + name +"\",";
+	reqmsg += "\"type\":\"分配工单\",";
+	reqmsg += "\"log\":\"" + name + "分配了工单\"}";
+	reqmsg += "],";
+	
+	var id_hide = $("#id_hide").val();
+	reqmsg += "\"id\":" + id_hide +",";
+	
+	reqmsg=reqmsg.substr(0,reqmsg.length-1);
+	reqmsg += "}}";
+
+	jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "serviceTask.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	 go2page(currentshownpage);
+              	 $("#closeAll").click();
+              	 $("#id_hide").val("0");
+              	 alert("分配工单成功");
+              }else if(data.des=="failure"){
+                 alert("分配工单失败");
+              }else{
+              	alert(data.des);
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//清空重置分配工单弹窗框
+function qingkongXZ(){
+	$("#oldinput_search2").html("");
+	
+	$("#fuzerenId_hide").val("");
+	$("#fuzerenName_hide").val("");
+	$("#fuzerenRole_hide").val("");
+	$("#fuzerenBH_hide").val("");
+	
+	$("#fprinput_search").val("");
+	$("#cyrinput_search").val("").trigger("change");
+								
+	$("#yujiFWDate").val("");	
+	
+	$("#fwxminput_search4").html("");	
+	$("#fuwuzixianginput_search").html("");
+}
+
+//取消多个微信服务工单
+function quxiao_qingkong(){
+	var name = $("#addUserName").val();
+	if(name == "" || name == null){
+		alert("当前非员工,无法操作");
+		return;
+	}
+	$("#beizhu_input_quxiao").val("");
+	var selectedItemNumber = $("tbody .col_selector:checked").length;
+	if (selectedItemNumber < 1) {
+		alert("请选择要取消的数据");
+		return;
+	}else{
+		$("#idForQX").val("");
+		$("#quxiao_open").click();
+	}
+}
+
+//取消单个微信服务工单
+function quxiao_qingkong2(id){
+	var name = $("#addUserName").val();
+	if(name == "" || name == null){
+		alert("当前非员工,无法操作");
+		return;
+	}
+	$("#beizhu_input_quxiao").val("");
+	$("#quxiao_open").click();
+	$("#idForQX").val(id);
+}
+//确认取消微信服务工单
+function sureQuxiao() {
+	var beizhu_input_quxiao = $("#beizhu_input_quxiao").val();
+	if(beizhu_input_quxiao != null && beizhu_input_quxiao != ""){
+		if(beizhu_input_quxiao.length > 200){
+			alert("备注超出字数限制200字");
+			return;
+		}
+	}
+	var name = $("#addUserName").val();
+	var reqmsg="{'action':'ADD_SERVICE_TASK_INFO_REQUEST','content':{";
+	
+	var idForQX = $("#idForQX").val();
+	if(idForQX != null && idForQX != ""){//单个
+		 reqmsg += "\"id\":" + idForQX + ",";
+	}else{
+		var selectedItemNumber = $("tbody .col_selector:checked").length;
+		if (selectedItemNumber >= 1) {
+			var ids2del = "";
+			$("tbody .col_selector:checked").each(function() {
+				ids2del += $(this).val() + ",";
+			});
+			if (ids2del != "") {
+				ids2del = ids2del.substring(0, ids2del.length - 1);
+			}
+		  
+			if (ids2del != null && ids2del != "") {
+        		reqmsg += "\"ids2del\":\"" + ids2del + "\",";
+			}
+		} else {
+			alert("请选择要取消的数据");
+			return;
+		}
+	}
+	
+		reqmsg += "\"status\":1,";
+	
+		reqmsg += "\"serviceLogList\":[" ;
+		reqmsg += "{\"createTime\":\"" + getNowFormatDate2() +"\",";
+		reqmsg += "\"createPerson\":\"" + name +"\",";
+		reqmsg += "\"type\":\"取消工单\",";
+		reqmsg += "\"log\":\"" + name + "  " + beizhu_input_quxiao + "\"}";
+		reqmsg += "],";
+	
+		reqmsg += "}}";
+		
+		jQuery.ajax({
+         	 type : "post",
+         	 async:false,
+         	 url : "serviceTask.do?handler",
+        	  dataType : "json",
+        	  data: {
+        	       "reqmsg":reqmsg
+        	  },
+         	 success : function(data){
+         	     if(data.result == "100"){
+         	     	go2page(currentshownpage);
+         	     	alert("取消工单成功");
+         	     	$("#quxiao_tanchuang").click();
+         	     }else{
+         	        alert("取消工单失败");
+         	        $("#quxiao_tanchuang").click();
+         	     }
+         	 },
+         	 error:function(){
+	     	      alert("error");
+          	}
+     	});
+}
+
+//实时获取负责人姓名
+function getepgrName(){
+	var reqmsg="{'action':'QUERY_EMPLOYEE_LIST_REQUEST','page':{'pageno':'1','pagesize':'5'},'content':{";
+	var name = $("#pgrinput_search").val();
+	if (name != null && name != "") {
+		reqmsg += "\"name_like\":\"" + name + "\"";
+	}else{
+		$("#hideul_nei25").html("");
+		$("#hideul-25").hide();
+		return;
+	}
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "employee.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.employeeList != null){
+            	  		jQuery.each(data.content.employeeList, function(i, item) {
+            	  				if(item != null){
+		    						htmlcode += "<li onclick=\"pgrNamefuzhi('" + item.name + "'," + item.id + ")\">" + item.name + "</li>";		
+            	  				}	
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#hideul_nei25").html(htmlcode);
+		    	  $("#hideul-25").show();
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//负责人姓名赋值
+function pgrNamefuzhi(name,id){
+	$("#pgrinputId").val(id);
+	$("#pgrinput_search").val(name);
+	$("#hideul_nei25").html("");
+	$("#hideul-25").hide();
+}
+
+//实时获取下单人姓名
+function getXDR(){
+	var reqmsg="{'action':'QUERY_WECHAT_LIST_REQUEST','page':{'pageno':'1','pagesize':'5'},'content':{";
+	var name = $("#xdrinput_search").val();
+	if (name != null && name != "") {
+		reqmsg += "\"nickname_like\":\"" + name + "\"";
+	}else{
+		$("#hideul_nei4").html("");
+		$("#hideul-4").hide();
+		return;
+	}
+	reqmsg += "}}";
+
+    jQuery.ajax({
+          type : "post",
+          async:false,
+          url : "wechat.do?handler",
+          dataType : "json",
+          data: {
+               "reqmsg":reqmsg
+          },
+          success : function(data){
+              if(data.des=="success"){
+              	  var htmlcode = "";
+              	  if(data.content != null){
+              	  	 if(data.content.wechatList != null){
+            	  		jQuery.each(data.content.wechatList, function(i, item) {
+            	  			if(item != null){
+		    					htmlcode += "<li onclick=\"xdrNamefuzhi('" + item.nickname + "'," + item.id + ")\">" + item.nickname + "</li>";		
+            	  			}	
+		    	  		});
+		    	 	 }
+		    	  }
+		    	  $("#hideul_nei4").html(htmlcode);
+		    	  $("#hideul-4").show();
+              }else if(data.des=="failure"){
+                 alert("查询失败");
+              }
+          },
+          error:function(){
+	           alert("error");
+          }
+     });
+}
+//下单人姓名赋值
+function xdrNamefuzhi(nickname,id){
+	$("#xdrinput_Id").val(id);
+	$("#xdrinput_search").val(nickname);
+	$("#hideul_nei4").html("");
+	$("#hideul-4").hide();
+}
+    </script>
+    
+
+
+
+  <script src="js/behaviour/voice-commands.js"></script>
+  <script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+<script type="text/javascript" src="js/jquery.form.js"></script>
+</body>
+</html>

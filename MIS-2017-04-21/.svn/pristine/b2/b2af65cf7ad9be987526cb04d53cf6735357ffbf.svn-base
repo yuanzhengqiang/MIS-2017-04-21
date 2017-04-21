@@ -1,0 +1,1644 @@
+package fsk.service.site;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+import fsk.entity.employee.EmployeeEntity;
+import fsk.entity.olderSite.OlderSiteEntity;
+import fsk.entity.site.SiteEntity;
+import fsk.entity.siteEmployee.SiteEmployeeEntity;
+import fsk.entity.siteServiceArea.SiteServiceAreaEntity;
+
+/**
+ * @Title: Service
+ * @Description: 站点信息表服务类
+ * @author feng.gu
+ * @date 2017-03-06 12:24:50
+ * @version V1.0
+ * 
+ */
+public class SiteService {
+	private static Logger logger = Logger.getLogger(SiteService.class);
+	private DBManager dbManager = DBManager.getInstance();
+
+	private static SiteService siteService;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static SiteService getInstance() {
+		if (siteService == null) {
+			siteService = new SiteService();
+		}
+		return siteService;
+	}
+
+	/**
+	 * 保存记录
+	 * 
+	 * @param obj
+	 */
+	public boolean save(SiteEntity site) {
+		boolean result = false;
+		if (site != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 关联信息保存
+				EmployeeEntity masterEmployee = site.getMasterEmployee();
+				if (masterEmployee != null) {
+					dbManager.saveNoTransaction(masterEmployee);
+					site.setMasterEmployeeId(masterEmployee.getId());
+				}
+				// 关联信息保存
+				DataDicEntity province = site.getProvince();
+				if (province != null) {
+					dbManager.saveNoTransaction(province);
+					site.setProvinceId(province.getId());
+				}
+				// 关联信息保存
+				DataDicEntity city = site.getCity();
+				if (city != null) {
+					dbManager.saveNoTransaction(city);
+					site.setCityId(city.getId());
+				}
+				// 关联信息保存
+				DataDicEntity area = site.getArea();
+				if (area != null) {
+					dbManager.saveNoTransaction(area);
+					site.setAreaId(area.getId());
+				}
+				// 关联信息保存
+				DataDicEntity street = site.getStreet();
+				if (street != null) {
+					dbManager.saveNoTransaction(street);
+					site.setStreetId(street.getId());
+				}
+				dbManager.saveNoTransaction(site);
+				if (site.getEmployeeList() != null && site.getEmployeeList().size() > 0) {
+					// 先删除原先绑定关系
+					QueryCondition qc = new QueryCondition(SiteEmployeeEntity.SITE_ID, QueryCondition.eq, site.getId());
+					List<Object> list = dbManager.queryByConditionNoTransaction(SiteEmployeeEntity.class, qc);
+					if ((list != null) && (list.size() > 0)) {
+						for (Object obj : list) {
+							SiteEmployeeEntity entity = (SiteEmployeeEntity) obj;
+							dbManager.delNoTransaction(entity.getId(), SiteEmployeeEntity.class);
+						}
+					}
+					// 绑定现在的关系
+					for (EmployeeEntity employee : site.getEmployeeList()) {
+						Integer employeeId = employee.getId();
+						if (employeeId != null) {
+							SiteEmployeeEntity entity = new SiteEmployeeEntity();
+							entity.setSiteId(site.getId());
+							entity.setEmployeeId(employeeId);
+							dbManager.saveNoTransaction(entity);
+						}
+					}
+				}
+				dbManager.saveNoTransaction(site);
+				if (site.getDataDicList() != null && site.getDataDicList().size() > 0) {
+					// 先删除原先绑定关系
+					QueryCondition qc = new QueryCondition(SiteServiceAreaEntity.SITE_ID, QueryCondition.eq,
+					        site.getId());
+					List<Object> list = dbManager.queryByConditionNoTransaction(SiteServiceAreaEntity.class, qc);
+					if ((list != null) && (list.size() > 0)) {
+						for (Object obj : list) {
+							SiteServiceAreaEntity entity = (SiteServiceAreaEntity) obj;
+							dbManager.delNoTransaction(entity.getId(), SiteServiceAreaEntity.class);
+						}
+					}
+					// 绑定现在的关系
+					for (DataDicEntity dataDic : site.getDataDicList()) {
+						Integer dataDicId = dataDic.getId();
+						if (dataDicId != null) {
+							SiteServiceAreaEntity entity = new SiteServiceAreaEntity();
+							entity.setSiteId(site.getId());
+							entity.setServiceStreetId(dataDicId);
+							dbManager.saveNoTransaction(entity);
+						}
+					}
+				}
+				if (site.getOlderSiteList() != null && site.getOlderSiteList().size() > 0) {
+					// 关联信息保存
+					if (site.getId() == null) {
+						dbManager.saveNoTransaction(site);
+					}
+					for (OlderSiteEntity OlderSiteEntity : site.getOlderSiteList()) {
+						OlderSiteEntity.setSiteId(site.getId());
+						dbManager.saveNoTransaction(OlderSiteEntity);
+					}
+				}
+				result = dbManager.saveNoTransaction(site);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量保存记录
+	 * 
+	 * @param list
+	 */
+	public boolean saveList(List<SiteEntity> siteList) {
+		boolean result = false;
+		if (siteList != null && siteList.size() > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				for (SiteEntity site : siteList) {
+					if (site != null) {
+						// 关联信息保存
+						EmployeeEntity masterEmployee = site.getMasterEmployee();
+						if (masterEmployee != null) {
+							dbManager.saveNoTransaction(masterEmployee);
+							site.setMasterEmployeeId(masterEmployee.getId());
+						}
+						// 关联信息保存
+						DataDicEntity province = site.getProvince();
+						if (province != null) {
+							dbManager.saveNoTransaction(province);
+							site.setProvinceId(province.getId());
+						}
+						// 关联信息保存
+						DataDicEntity city = site.getCity();
+						if (city != null) {
+							dbManager.saveNoTransaction(city);
+							site.setCityId(city.getId());
+						}
+						// 关联信息保存
+						DataDicEntity area = site.getArea();
+						if (area != null) {
+							dbManager.saveNoTransaction(area);
+							site.setAreaId(area.getId());
+						}
+						// 关联信息保存
+						DataDicEntity street = site.getStreet();
+						if (street != null) {
+							dbManager.saveNoTransaction(street);
+							site.setStreetId(street.getId());
+						}
+						if (site.getEmployeeList() != null && site.getEmployeeList().size() > 0) {
+							// 先删除原先绑定关系
+							QueryCondition qc = new QueryCondition(SiteEmployeeEntity.SITE_ID, QueryCondition.eq,
+							        site.getId());
+							List<Object> list = dbManager.queryByConditionNoTransaction(SiteEmployeeEntity.class, qc);
+							if ((list != null) && (list.size() > 0)) {
+								for (Object obj : list) {
+									SiteEmployeeEntity entity = (SiteEmployeeEntity) obj;
+									dbManager.delNoTransaction(entity.getId(), SiteEmployeeEntity.class);
+								}
+							}
+							// 绑定现在的关系
+							for (EmployeeEntity employee : site.getEmployeeList()) {
+								Integer employeeId = employee.getId();
+								if (employeeId != null) {
+									SiteEmployeeEntity entity = new SiteEmployeeEntity();
+									entity.setSiteId(site.getId());
+									entity.setEmployeeId(employeeId);
+									dbManager.saveNoTransaction(entity);
+								}
+							}
+						}
+						if (site.getDataDicList() != null && site.getDataDicList().size() > 0) {
+							// 先删除原先绑定关系
+							QueryCondition qc = new QueryCondition(SiteServiceAreaEntity.SITE_ID, QueryCondition.eq,
+							        site.getId());
+							List<Object> list = dbManager
+							        .queryByConditionNoTransaction(SiteServiceAreaEntity.class, qc);
+							if ((list != null) && (list.size() > 0)) {
+								for (Object obj : list) {
+									SiteServiceAreaEntity entity = (SiteServiceAreaEntity) obj;
+									dbManager.delNoTransaction(entity.getId(), SiteServiceAreaEntity.class);
+								}
+							}
+							// 绑定现在的关系
+							for (DataDicEntity dataDic : site.getDataDicList()) {
+								Integer dataDicId = dataDic.getId();
+								if (dataDicId != null) {
+									SiteServiceAreaEntity entity = new SiteServiceAreaEntity();
+									entity.setSiteId(site.getId());
+									entity.setServiceStreetId(dataDicId);
+									dbManager.saveNoTransaction(entity);
+								}
+							}
+						}
+						// 关联信息保存
+						if (site.getOlderSiteList() != null && site.getOlderSiteList().size() > 0) {
+							if (site.getId() == null) {
+								dbManager.saveNoTransaction(site);
+							}
+							for (OlderSiteEntity OlderSiteEntity : site.getOlderSiteList()) {
+								OlderSiteEntity.setSiteId(site.getId());
+								dbManager.saveNoTransaction(OlderSiteEntity);
+							}
+						}
+						result = dbManager.saveNoTransaction(site);
+					}
+				}
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public SiteEntity getById(Integer id) {
+		SiteEntity obj = null;
+		if (id != null) {
+			obj = (SiteEntity) dbManager.getById(id, SiteEntity.class);
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param masterEmployeeShow
+	 *            是否查询关联信息
+	 * @param provinceShow
+	 *            是否查询关联信息
+	 * @param cityShow
+	 *            是否查询关联信息
+	 * @param areaShow
+	 *            是否查询关联信息
+	 * @param streetShow
+	 *            是否查询关联信息
+	 * @param employeeListShow
+	 *            是否查询关联信息
+	 * @param dataDicListShow
+	 *            是否查询关联信息
+	 * @param OlderSiteListShow
+	 *            是否查询关联信息
+	 * @param obj
+	 */
+	public SiteEntity getById(Integer id, Boolean masterEmployeeShow, Boolean provinceShow, Boolean cityShow,
+	        Boolean areaShow, Boolean streetShow, Boolean employeeListShow, Boolean dataDicListShow,
+	        Boolean OlderSiteListShow) {
+		SiteEntity obj = null;
+		if (id != null) {
+			obj = (SiteEntity) dbManager.getById(id, SiteEntity.class);
+			// 查询关联内容
+			if (masterEmployeeShow != null && masterEmployeeShow.booleanValue() && obj != null
+			        && obj.getMasterEmployeeId() != null && obj.getMasterEmployeeId() > 0) {
+				EmployeeEntity masterEmployee = (EmployeeEntity) dbManager.getById(obj.getMasterEmployeeId(),
+				        EmployeeEntity.class);
+				obj.setMasterEmployee(masterEmployee);
+			}
+			// 查询关联内容
+			if (provinceShow != null && provinceShow.booleanValue() && obj != null && obj.getProvinceId() != null
+			        && obj.getProvinceId() > 0) {
+				DataDicEntity province = (DataDicEntity) dbManager.getById(obj.getProvinceId(), DataDicEntity.class);
+				obj.setProvince(province);
+			}
+			// 查询关联内容
+			if (cityShow != null && cityShow.booleanValue() && obj != null && obj.getCityId() != null
+			        && obj.getCityId() > 0) {
+				DataDicEntity city = (DataDicEntity) dbManager.getById(obj.getCityId(), DataDicEntity.class);
+				obj.setCity(city);
+			}
+			// 查询关联内容
+			if (areaShow != null && areaShow.booleanValue() && obj != null && obj.getAreaId() != null
+			        && obj.getAreaId() > 0) {
+				DataDicEntity area = (DataDicEntity) dbManager.getById(obj.getAreaId(), DataDicEntity.class);
+				obj.setArea(area);
+			}
+			// 查询关联内容
+			if (streetShow != null && streetShow.booleanValue() && obj != null && obj.getStreetId() != null
+			        && obj.getStreetId() > 0) {
+				DataDicEntity street = (DataDicEntity) dbManager.getById(obj.getStreetId(), DataDicEntity.class);
+				obj.setStreet(street);
+			}
+			// 查询关联内容
+			if (employeeListShow != null && employeeListShow.booleanValue() && obj != null && obj.getId() != null
+			        && obj.getId() > 0) {
+				List<Object> rlist = dbManager.searchListByColumn(SiteEmployeeEntity.class, SiteEmployeeEntity.SITE_ID,
+				        String.valueOf(id));
+				if (rlist != null && rlist.size() > 0) {
+					for (Object robj : rlist) {
+						SiteEmployeeEntity robject = (SiteEmployeeEntity) robj;
+						Integer employeeId = robject.getEmployeeId();
+						if (employeeId != null) {
+							EmployeeEntity employee = (EmployeeEntity) dbManager.getById(employeeId,
+							        EmployeeEntity.class);
+							List<EmployeeEntity> employeeList = obj.getEmployeeList();
+							if (employeeList == null || employeeList.size() == 0) {
+								employeeList = new ArrayList<EmployeeEntity>();
+							}
+							employeeList.add(employee);
+							obj.setEmployeeList(employeeList);
+						}
+					}
+				}
+			}
+			// 查询关联内容
+			if (dataDicListShow != null && dataDicListShow.booleanValue() && obj != null && obj.getId() != null
+			        && obj.getId() > 0) {
+				List<Object> rlist = dbManager.searchListByColumn(SiteServiceAreaEntity.class,
+				        SiteServiceAreaEntity.SITE_ID, String.valueOf(id));
+				if (rlist != null && rlist.size() > 0) {
+					for (Object robj : rlist) {
+						SiteServiceAreaEntity robject = (SiteServiceAreaEntity) robj;
+						Integer dataDicId = robject.getServiceStreetId();
+						if (dataDicId != null) {
+							DataDicEntity dataDic = (DataDicEntity) dbManager.getById(dataDicId, DataDicEntity.class);
+							List<DataDicEntity> dataDicList = obj.getDataDicList();
+							if (dataDicList == null || dataDicList.size() == 0) {
+								dataDicList = new ArrayList<DataDicEntity>();
+							}
+							dataDicList.add(dataDic);
+							obj.setDataDicList(dataDicList);
+						}
+					}
+				}
+			}
+			// 查询关联内容
+			if (OlderSiteListShow != null && OlderSiteListShow.booleanValue() && obj != null && obj.getId() != null
+			        && obj.getId() > 0) {
+				List<Object> list = dbManager.searchListByColumn(OlderSiteEntity.class, OlderSiteEntity.SITE_ID,
+				        String.valueOf(id));
+				if (list != null && list.size() > 0) {
+					List<OlderSiteEntity> OlderSiteList = new ArrayList<OlderSiteEntity>();
+					for (Object o : list) {
+						OlderSiteList.add((OlderSiteEntity) o);
+					}
+					obj.setOlderSiteList(OlderSiteList);
+				}
+			}
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @return
+	 */
+	public List<SiteEntity> getListByCondition(Map<String, Object> queryMap) {
+		List<SiteEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		Object employeeId = queryMap.get("employeeId");
+		Object dataDicId = queryMap.get("dataDicId");
+		if (employeeId != null) {
+			QueryCondition qc1 = new QueryCondition(SiteEmployeeEntity.EMPLOYEE_ID, QueryCondition.eq, employeeId);
+			List<Object> rlist = dbManager.queryByCondition(SiteEmployeeEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					SiteEmployeeEntity entity = (SiteEmployeeEntity) rlist.get(i);
+					Integer temp = entity.getSiteId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.in, strIds));
+				}
+			} else {
+				return returnlist;
+			}
+		}
+		if (dataDicId != null) {
+			QueryCondition qc1 = new QueryCondition(SiteServiceAreaEntity.SERVICE_STREET_ID, QueryCondition.eq,
+			        dataDicId);
+			List<Object> rlist = dbManager.queryByCondition(SiteServiceAreaEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					SiteServiceAreaEntity entity = (SiteServiceAreaEntity) rlist.get(i);
+					Integer temp = entity.getSiteId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.in, strIds));
+				}
+			} else {
+				return returnlist;
+			}
+		}
+		list = dbManager.queryByCondition(SiteEntity.class, qc);
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<SiteEntity>();
+			for (Object obj : list) {
+				returnlist.add((SiteEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param masterEmployeeShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param provinceShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param cityShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param areaShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param streetShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param employeeListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param dataDicListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param OlderSiteListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public List<SiteEntity> getListByCondition(Map<String, Object> queryMap, List<OrderVO> orderList,
+	        Boolean masterEmployeeShow, Boolean provinceShow, Boolean cityShow, Boolean areaShow, Boolean streetShow,
+	        Boolean employeeListShow, Boolean dataDicListShow, Boolean OlderSiteListShow) {
+		List<SiteEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		Object employeeId = queryMap.get("employeeId");
+		Object dataDicId = queryMap.get("dataDicId");
+		if (employeeId != null) {
+			QueryCondition qc1 = new QueryCondition(SiteEmployeeEntity.EMPLOYEE_ID, QueryCondition.eq, employeeId);
+			List<Object> rlist = dbManager.queryByCondition(SiteEmployeeEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					SiteEmployeeEntity entity = (SiteEmployeeEntity) rlist.get(i);
+					Integer temp = entity.getSiteId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.in, strIds));
+				}
+			} else {
+				return returnlist;
+			}
+		}
+		if (dataDicId != null) {
+			QueryCondition qc1 = new QueryCondition(SiteServiceAreaEntity.SERVICE_STREET_ID, QueryCondition.eq,
+			        dataDicId);
+			List<Object> rlist = dbManager.queryByCondition(SiteServiceAreaEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					SiteServiceAreaEntity entity = (SiteServiceAreaEntity) rlist.get(i);
+					Integer temp = entity.getSiteId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.in, strIds));
+				}
+			} else {
+				return returnlist;
+			}
+		}
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt, orderType));
+					}
+				}
+
+			}
+		}
+		list = dbManager.queryByConditions(SiteEntity.class, qc, oc);
+		int a = 0;
+		if (masterEmployeeShow != null && masterEmployeeShow.booleanValue()) {
+			a++;
+		}
+		if (provinceShow != null && provinceShow.booleanValue()) {
+			a++;
+		}
+		if (cityShow != null && cityShow.booleanValue()) {
+			a++;
+		}
+		if (areaShow != null && areaShow.booleanValue()) {
+			a++;
+		}
+		if (streetShow != null && streetShow.booleanValue()) {
+			a++;
+		}
+		if (employeeListShow != null && employeeListShow.booleanValue()) {
+			a++;
+		}
+		if (dataDicListShow != null && dataDicListShow.booleanValue()) {
+			a++;
+		}
+		if (OlderSiteListShow != null && OlderSiteListShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && list != null && list.size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < list.size(); i++) {
+				SiteEntity obj = (SiteEntity) list.get(i);
+				// 查询关联内容
+				if (masterEmployeeShow != null && masterEmployeeShow.booleanValue() && obj != null
+				        && obj.getMasterEmployeeId() != null && obj.getMasterEmployeeId() > 0) {
+					EmployeeEntity masterEmployee = (EmployeeEntity) dbManager.getById(obj.getMasterEmployeeId(),
+					        EmployeeEntity.class);
+					obj.setMasterEmployee(masterEmployee);
+				}
+				// 查询关联内容
+				if (provinceShow != null && provinceShow.booleanValue() && obj != null && obj.getProvinceId() != null
+				        && obj.getProvinceId() > 0) {
+					DataDicEntity province = (DataDicEntity) dbManager
+					        .getById(obj.getProvinceId(), DataDicEntity.class);
+					obj.setProvince(province);
+				}
+				// 查询关联内容
+				if (cityShow != null && cityShow.booleanValue() && obj != null && obj.getCityId() != null
+				        && obj.getCityId() > 0) {
+					DataDicEntity city = (DataDicEntity) dbManager.getById(obj.getCityId(), DataDicEntity.class);
+					obj.setCity(city);
+				}
+				// 查询关联内容
+				if (areaShow != null && areaShow.booleanValue() && obj != null && obj.getAreaId() != null
+				        && obj.getAreaId() > 0) {
+					DataDicEntity area = (DataDicEntity) dbManager.getById(obj.getAreaId(), DataDicEntity.class);
+					obj.setArea(area);
+				}
+				// 查询关联内容
+				if (streetShow != null && streetShow.booleanValue() && obj != null && obj.getStreetId() != null
+				        && obj.getStreetId() > 0) {
+					DataDicEntity street = (DataDicEntity) dbManager.getById(obj.getStreetId(), DataDicEntity.class);
+					obj.setStreet(street);
+				}
+				// 查询关联内容
+				if (employeeListShow != null && employeeListShow.booleanValue() && obj != null && obj.getId() != null
+				        && obj.getId() > 0) {
+					List<Object> rlist = dbManager.searchListByColumn(SiteEmployeeEntity.class,
+					        SiteEmployeeEntity.SITE_ID, String.valueOf(obj.getId()));
+					if (rlist != null && rlist.size() > 0) {
+						for (Object robj : rlist) {
+							SiteEmployeeEntity robject = (SiteEmployeeEntity) robj;
+							Integer objId = robject.getEmployeeId();
+							if (objId != null) {
+								EmployeeEntity employee = (EmployeeEntity) dbManager.getById(objId,
+								        EmployeeEntity.class);
+								List<EmployeeEntity> employeeList = obj.getEmployeeList();
+								if (employeeList == null || employeeList.size() == 0) {
+									employeeList = new ArrayList<EmployeeEntity>();
+								}
+								employeeList.add(employee);
+								obj.setEmployeeList(employeeList);
+							}
+						}
+					}
+				}
+				// 查询关联内容
+				if (dataDicListShow != null && dataDicListShow.booleanValue() && obj != null && obj.getId() != null
+				        && obj.getId() > 0) {
+					List<Object> rlist = dbManager.searchListByColumn(SiteServiceAreaEntity.class,
+					        SiteServiceAreaEntity.SITE_ID, String.valueOf(obj.getId()));
+					if (rlist != null && rlist.size() > 0) {
+						for (Object robj : rlist) {
+							SiteServiceAreaEntity robject = (SiteServiceAreaEntity) robj;
+							Integer objId = robject.getServiceStreetId();
+							if (objId != null) {
+								DataDicEntity dataDic = (DataDicEntity) dbManager.getById(objId, DataDicEntity.class);
+								List<DataDicEntity> dataDicList = obj.getDataDicList();
+								if (dataDicList == null || dataDicList.size() == 0) {
+									dataDicList = new ArrayList<DataDicEntity>();
+								}
+								dataDicList.add(dataDic);
+								obj.setDataDicList(dataDicList);
+							}
+						}
+					}
+				}
+				// 查询关联内容
+				if (OlderSiteListShow != null && OlderSiteListShow.booleanValue() && obj != null && obj.getId() != null
+				        && obj.getId() > 0) {
+					List<Object> objList = dbManager.searchListByColumn(OlderSiteEntity.class, OlderSiteEntity.SITE_ID,
+					        String.valueOf(obj.getId()));
+					if (objList != null && objList.size() > 0) {
+						List<OlderSiteEntity> OlderSiteList = new ArrayList<OlderSiteEntity>();
+						for (Object o : objList) {
+							OlderSiteList.add((OlderSiteEntity) o);
+						}
+						obj.setOlderSiteList(OlderSiteList);
+					}
+				}
+				result.add(obj);
+			}
+			list = result;
+		}
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<SiteEntity>();
+			for (Object obj : list) {
+				returnlist.add((SiteEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap, int pageno, int pagesize) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		Object employeeId = queryMap.get("employeeId");
+		Object dataDicId = queryMap.get("dataDicId");
+		if (employeeId != null) {
+			QueryCondition qc1 = new QueryCondition(SiteEmployeeEntity.EMPLOYEE_ID, QueryCondition.eq, employeeId);
+			List<Object> rlist = dbManager.queryByCondition(SiteEmployeeEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					SiteEmployeeEntity entity = (SiteEmployeeEntity) rlist.get(i);
+					Integer temp = entity.getSiteId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.in, strIds));
+				}
+			} else {
+				return pagelist;
+			}
+		}
+		if (dataDicId != null) {
+			QueryCondition qc1 = new QueryCondition(SiteServiceAreaEntity.SERVICE_STREET_ID, QueryCondition.eq,
+			        dataDicId);
+			List<Object> rlist = dbManager.queryByCondition(SiteServiceAreaEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					SiteServiceAreaEntity entity = (SiteServiceAreaEntity) rlist.get(i);
+					Integer temp = entity.getSiteId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.in, strIds));
+				}
+			} else {
+				return pagelist;
+			}
+		}
+		pagelist = dbManager.queryByCondition(SiteEntity.class, qc, pageno, pagesize);
+		return pagelist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @param masterEmployeeShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param provinceShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param cityShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param areaShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param streetShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param employeeListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param dataDicListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param OlderSiteListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap, List<OrderVO> orderList, int pageno, int pagesize,
+	        Boolean masterEmployeeShow, Boolean provinceShow, Boolean cityShow, Boolean areaShow, Boolean streetShow,
+	        Boolean employeeListShow, Boolean dataDicListShow, Boolean OlderSiteListShow) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		Object employeeId = queryMap.get("employeeId");
+		Object dataDicId = queryMap.get("dataDicId");
+		if (employeeId != null) {
+			QueryCondition qc1 = new QueryCondition(SiteEmployeeEntity.EMPLOYEE_ID, QueryCondition.eq, employeeId);
+			List<Object> rlist = dbManager.queryByCondition(SiteEmployeeEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					SiteEmployeeEntity entity = (SiteEmployeeEntity) rlist.get(i);
+					Integer temp = entity.getSiteId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.in, strIds));
+				}
+			} else {
+				return pagelist;
+			}
+		}
+		if (dataDicId != null) {
+			QueryCondition qc1 = new QueryCondition(SiteServiceAreaEntity.SERVICE_STREET_ID, QueryCondition.eq,
+			        dataDicId);
+			List<Object> rlist = dbManager.queryByCondition(SiteServiceAreaEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					SiteServiceAreaEntity entity = (SiteServiceAreaEntity) rlist.get(i);
+					Integer temp = entity.getSiteId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.in, strIds));
+				}
+			} else {
+				return pagelist;
+			}
+		}
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt, orderType));
+					}
+				}
+
+			}
+		}
+		// 数据权限
+		List<QueryCondition> dataRuleQclist = null;
+		List<Map<String, Object>> dataRuleMapList = (List<Map<String, Object>>) queryMap.get("dataRuleMapList");
+		if (dataRuleMapList != null && dataRuleMapList.size() > 0) {
+			dataRuleQclist = new ArrayList<QueryCondition>();
+			for (Map<String, Object> dataRuleMap : dataRuleMapList) {
+				QueryCondition dataRuleQc = changeMapToQc(dataRuleMap);
+				dataRuleQclist.add(dataRuleQc);
+			}
+		}
+		pagelist = dbManager.queryByConditions(SiteEntity.class, qc, dataRuleQclist, oc, pageno, pagesize);
+		int a = 0;
+		if (masterEmployeeShow != null && masterEmployeeShow.booleanValue()) {
+			a++;
+		}
+		if (provinceShow != null && provinceShow.booleanValue()) {
+			a++;
+		}
+		if (cityShow != null && cityShow.booleanValue()) {
+			a++;
+		}
+		if (areaShow != null && areaShow.booleanValue()) {
+			a++;
+		}
+		if (streetShow != null && streetShow.booleanValue()) {
+			a++;
+		}
+		if (employeeListShow != null && employeeListShow.booleanValue()) {
+			a++;
+		}
+		if (dataDicListShow != null && dataDicListShow.booleanValue()) {
+			a++;
+		}
+		if (OlderSiteListShow != null && OlderSiteListShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && pagelist != null && pagelist.getResultList() != null && pagelist.getResultList().size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < pagelist.getResultList().size(); i++) {
+				SiteEntity obj = (SiteEntity) pagelist.getResultList().get(i);
+				// 查询关联内容
+				if (masterEmployeeShow != null && masterEmployeeShow.booleanValue() && obj != null
+				        && obj.getMasterEmployeeId() != null && obj.getMasterEmployeeId() > 0) {
+					EmployeeEntity masterEmployee = (EmployeeEntity) dbManager.getById(obj.getMasterEmployeeId(),
+					        EmployeeEntity.class);
+					obj.setMasterEmployee(masterEmployee);
+				}
+				// 查询关联内容
+				if (provinceShow != null && provinceShow.booleanValue() && obj != null && obj.getProvinceId() != null
+				        && obj.getProvinceId() > 0) {
+					DataDicEntity province = (DataDicEntity) dbManager
+					        .getById(obj.getProvinceId(), DataDicEntity.class);
+					obj.setProvince(province);
+				}
+				// 查询关联内容
+				if (cityShow != null && cityShow.booleanValue() && obj != null && obj.getCityId() != null
+				        && obj.getCityId() > 0) {
+					DataDicEntity city = (DataDicEntity) dbManager.getById(obj.getCityId(), DataDicEntity.class);
+					obj.setCity(city);
+				}
+				// 查询关联内容
+				if (areaShow != null && areaShow.booleanValue() && obj != null && obj.getAreaId() != null
+				        && obj.getAreaId() > 0) {
+					DataDicEntity area = (DataDicEntity) dbManager.getById(obj.getAreaId(), DataDicEntity.class);
+					obj.setArea(area);
+				}
+				// 查询关联内容
+				if (streetShow != null && streetShow.booleanValue() && obj != null && obj.getStreetId() != null
+				        && obj.getStreetId() > 0) {
+					DataDicEntity street = (DataDicEntity) dbManager.getById(obj.getStreetId(), DataDicEntity.class);
+					obj.setStreet(street);
+				}
+				// 查询关联内容
+				if (employeeListShow != null && employeeListShow.booleanValue() && obj != null && obj.getId() != null
+				        && obj.getId() > 0) {
+					List<Object> rlist = dbManager.searchListByColumn(SiteEmployeeEntity.class,
+					        SiteEmployeeEntity.SITE_ID, String.valueOf(obj.getId()));
+					if (rlist != null && rlist.size() > 0) {
+						for (Object robj : rlist) {
+							SiteEmployeeEntity robject = (SiteEmployeeEntity) robj;
+							Integer objId = robject.getEmployeeId();
+							if (objId != null) {
+								EmployeeEntity employee = (EmployeeEntity) dbManager.getById(objId,
+								        EmployeeEntity.class);
+								List<EmployeeEntity> employeeList = obj.getEmployeeList();
+								if (employeeList == null || employeeList.size() == 0) {
+									employeeList = new ArrayList<EmployeeEntity>();
+								}
+								employeeList.add(employee);
+								obj.setEmployeeList(employeeList);
+							}
+						}
+					}
+				}
+				// 查询关联内容
+				if (dataDicListShow != null && dataDicListShow.booleanValue() && obj != null && obj.getId() != null
+				        && obj.getId() > 0) {
+					List<Object> rlist = dbManager.searchListByColumn(SiteServiceAreaEntity.class,
+					        SiteServiceAreaEntity.SITE_ID, String.valueOf(obj.getId()));
+					if (rlist != null && rlist.size() > 0) {
+						for (Object robj : rlist) {
+							SiteServiceAreaEntity robject = (SiteServiceAreaEntity) robj;
+							Integer objId = robject.getServiceStreetId();
+							if (objId != null) {
+								DataDicEntity dataDic = (DataDicEntity) dbManager.getById(objId, DataDicEntity.class);
+								List<DataDicEntity> dataDicList = obj.getDataDicList();
+								if (dataDicList == null || dataDicList.size() == 0) {
+									dataDicList = new ArrayList<DataDicEntity>();
+								}
+								dataDicList.add(dataDic);
+								obj.setDataDicList(dataDicList);
+							}
+						}
+					}
+				}
+				// 查询关联内容
+				if (OlderSiteListShow != null && OlderSiteListShow.booleanValue() && obj != null && obj.getId() != null
+				        && obj.getId() > 0) {
+					List<Object> objList = dbManager.searchListByColumn(OlderSiteEntity.class, OlderSiteEntity.SITE_ID,
+					        String.valueOf(obj.getId()));
+					if (objList != null && objList.size() > 0) {
+						List<OlderSiteEntity> OlderSiteList = new ArrayList<OlderSiteEntity>();
+						for (Object o : objList) {
+							OlderSiteList.add((OlderSiteEntity) o);
+						}
+						obj.setOlderSiteList(OlderSiteList);
+					}
+				}
+				result.add(obj);
+			}
+			pagelist.setResultList(result);
+		}
+		return pagelist;
+	}
+
+	/**
+	 * 删除记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public boolean del(Integer id, Boolean delMasterEmployee, Boolean delProvince, Boolean delCity, Boolean delArea,
+	        Boolean delStreet, Boolean delSiteEmployeeList, Boolean delSiteDataDicList, Boolean delOlderSiteList) {
+		boolean result = false;
+		if (id != null && id > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delMasterEmployee != null && delMasterEmployee.booleanValue()) {
+					SiteEntity site = (SiteEntity) dbManager.getById(id, SiteEntity.class);
+					if (site != null && site.getMasterEmployeeId() != null) {
+						dbManager.delNoTransaction(site.getMasterEmployeeId(), EmployeeEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delProvince != null && delProvince.booleanValue()) {
+					SiteEntity site = (SiteEntity) dbManager.getById(id, SiteEntity.class);
+					if (site != null && site.getProvinceId() != null) {
+						dbManager.delNoTransaction(site.getProvinceId(), DataDicEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delCity != null && delCity.booleanValue()) {
+					SiteEntity site = (SiteEntity) dbManager.getById(id, SiteEntity.class);
+					if (site != null && site.getCityId() != null) {
+						dbManager.delNoTransaction(site.getCityId(), DataDicEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delArea != null && delArea.booleanValue()) {
+					SiteEntity site = (SiteEntity) dbManager.getById(id, SiteEntity.class);
+					if (site != null && site.getAreaId() != null) {
+						dbManager.delNoTransaction(site.getAreaId(), DataDicEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delStreet != null && delStreet.booleanValue()) {
+					SiteEntity site = (SiteEntity) dbManager.getById(id, SiteEntity.class);
+					if (site != null && site.getStreetId() != null) {
+						dbManager.delNoTransaction(site.getStreetId(), DataDicEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delSiteEmployeeList != null && delSiteEmployeeList.booleanValue()) {
+					QueryCondition qc = new QueryCondition(SiteEmployeeEntity.SITE_ID, QueryCondition.eq, id);
+					dbManager.delByConditionsNoTransaction(SiteEmployeeEntity.class, qc);
+				}
+				// 删除关联信息
+				if (delSiteDataDicList != null && delSiteDataDicList.booleanValue()) {
+					QueryCondition qc = new QueryCondition(SiteServiceAreaEntity.SITE_ID, QueryCondition.eq, id);
+					dbManager.delByConditionsNoTransaction(SiteServiceAreaEntity.class, qc);
+				}
+				// 删除关联信息
+				if (delOlderSiteList != null && delOlderSiteList.booleanValue()) {
+					QueryCondition qc = new QueryCondition(OlderSiteEntity.SITE_ID, QueryCondition.eq, id);
+					dbManager.delByConditionsNoTransaction(OlderSiteEntity.class, qc);
+				}
+				result = dbManager.delNoTransaction(id, SiteEntity.class);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量删除记录
+	 * 
+	 * @param ids
+	 *            主键 英文逗号间隔
+	 * @param obj
+	 */
+	public boolean del(String ids) {
+		boolean result = false;
+		if (ids != null && !"".equals(ids.trim())) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				QueryCondition qc = new QueryCondition(SiteEntity.ID, QueryCondition.in, ids);
+				result = dbManager.delByConditionsNoTransaction(SiteEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量条件删除记录
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 */
+	public boolean delList(Map<String, Object> queryMap, Boolean delMasterEmployee, Boolean delProvince,
+	        Boolean delCity, Boolean delArea, Boolean delStreet, Boolean delSiteEmployeeList,
+	        Boolean delSiteDataDicList, Boolean delOlderSiteList) {
+		boolean result = false;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		Object employeeId = queryMap.get("employeeId");
+		Object dataDicId = queryMap.get("dataDicId");
+		if (employeeId != null) {
+			QueryCondition qc1 = new QueryCondition(SiteEmployeeEntity.EMPLOYEE_ID, QueryCondition.eq, employeeId);
+			List<Object> rlist = dbManager.queryByCondition(SiteEmployeeEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					SiteEmployeeEntity entity = (SiteEmployeeEntity) rlist.get(i);
+					Integer temp = entity.getSiteId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.in, strIds));
+				}
+			} else {
+				return result;
+			}
+		}
+		if (dataDicId != null) {
+			QueryCondition qc1 = new QueryCondition(SiteServiceAreaEntity.SERVICE_STREET_ID, QueryCondition.eq,
+			        dataDicId);
+			List<Object> rlist = dbManager.queryByCondition(SiteServiceAreaEntity.class, qc1);
+			if (rlist != null && rlist.size() > 0) {
+				String strIds = "";
+				for (int i = 0; i < rlist.size(); i++) {
+					SiteServiceAreaEntity entity = (SiteServiceAreaEntity) rlist.get(i);
+					Integer temp = entity.getSiteId();
+					if (temp != null) {
+						if (i == rlist.size() - 1)
+							strIds = strIds + temp;
+						else {
+							strIds = strIds + temp + ",";
+						}
+					}
+				}
+				if (strIds != null && !"".equals(strIds)) {
+					qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.in, strIds));
+				}
+			} else {
+				return result;
+			}
+		}
+		if (qc.getQueryNextCondition() != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delMasterEmployee != null && delMasterEmployee.booleanValue()) {
+					List<Object> list = dbManager.queryByConditionNoTransaction(SiteEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							SiteEntity entity = (SiteEntity) obj;
+							strIds += entity.getMasterEmployeeId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(EmployeeEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(EmployeeEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delProvince != null && delProvince.booleanValue()) {
+					List<Object> list = dbManager.queryByConditionNoTransaction(SiteEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							SiteEntity entity = (SiteEntity) obj;
+							strIds += entity.getProvinceId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(DataDicEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(DataDicEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delCity != null && delCity.booleanValue()) {
+					List<Object> list = dbManager.queryByConditionNoTransaction(SiteEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							SiteEntity entity = (SiteEntity) obj;
+							strIds += entity.getCityId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(DataDicEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(DataDicEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delArea != null && delArea.booleanValue()) {
+					List<Object> list = dbManager.queryByConditionNoTransaction(SiteEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							SiteEntity entity = (SiteEntity) obj;
+							strIds += entity.getAreaId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(DataDicEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(DataDicEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delStreet != null && delStreet.booleanValue()) {
+					List<Object> list = dbManager.queryByConditionNoTransaction(SiteEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							SiteEntity entity = (SiteEntity) obj;
+							strIds += entity.getStreetId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(DataDicEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(DataDicEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delSiteEmployeeList != null && delSiteEmployeeList.booleanValue()) {
+					List<Object> list = dbManager.queryByConditionNoTransaction(SiteEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							SiteEntity entity = (SiteEntity) obj;
+							strIds += entity.getId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(SiteEmployeeEntity.SITE_ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(SiteEmployeeEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delSiteDataDicList != null && delSiteDataDicList.booleanValue()) {
+					List<Object> list = dbManager.queryByConditionNoTransaction(SiteEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							SiteEntity entity = (SiteEntity) obj;
+							strIds += entity.getId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(SiteServiceAreaEntity.SITE_ID, QueryCondition.in,
+						        strIds);
+						dbManager.delByConditionsNoTransaction(SiteServiceAreaEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delOlderSiteList != null && delOlderSiteList.booleanValue()) {
+					List<Object> list = dbManager.queryByConditionNoTransaction(SiteEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							SiteEntity entity = (SiteEntity) obj;
+							strIds += entity.getId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(OlderSiteEntity.SITE_ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(OlderSiteEntity.class, qc1);
+					}
+
+				}
+				result = dbManager.delByConditionsNoTransaction(SiteEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	private QueryCondition changeMapToQc(Map<String, Object> queryMap) {
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object masterEmployeeId = queryMap.get("masterEmployeeId");
+		Object masterEmployeeId_gt = queryMap.get("masterEmployeeId_gt");
+		Object masterEmployeeId_ge = queryMap.get("masterEmployeeId_ge");
+		Object masterEmployeeId_lt = queryMap.get("masterEmployeeId_lt");
+		Object masterEmployeeId_le = queryMap.get("masterEmployeeId_le");
+		Object masterEmployeeId_in = queryMap.get("masterEmployeeId_in");
+		Object name = queryMap.get("name");
+		Object name_like = queryMap.get("name_like");
+		Object name_isNull = queryMap.get("name_isNull");
+		Object name_isNotNull = queryMap.get("name_isNotNull");
+		Object name_in = queryMap.get("name_in");
+		Object mainPhoto = queryMap.get("mainPhoto");
+		Object mainPhoto_like = queryMap.get("mainPhoto_like");
+		Object mainPhoto_isNull = queryMap.get("mainPhoto_isNull");
+		Object mainPhoto_isNotNull = queryMap.get("mainPhoto_isNotNull");
+		Object mainPhoto_in = queryMap.get("mainPhoto_in");
+		Object contactPerson = queryMap.get("contactPerson");
+		Object contactPerson_like = queryMap.get("contactPerson_like");
+		Object contactPerson_isNull = queryMap.get("contactPerson_isNull");
+		Object contactPerson_isNotNull = queryMap.get("contactPerson_isNotNull");
+		Object contactPerson_in = queryMap.get("contactPerson_in");
+		Object contactTel = queryMap.get("contactTel");
+		Object contactTel_like = queryMap.get("contactTel_like");
+		Object contactTel_isNull = queryMap.get("contactTel_isNull");
+		Object contactTel_isNotNull = queryMap.get("contactTel_isNotNull");
+		Object contactTel_in = queryMap.get("contactTel_in");
+		Object provinceId = queryMap.get("provinceId");
+		Object provinceId_gt = queryMap.get("provinceId_gt");
+		Object provinceId_ge = queryMap.get("provinceId_ge");
+		Object provinceId_lt = queryMap.get("provinceId_lt");
+		Object provinceId_le = queryMap.get("provinceId_le");
+		Object provinceId_in = queryMap.get("provinceId_in");
+		Object cityId = queryMap.get("cityId");
+		Object cityId_gt = queryMap.get("cityId_gt");
+		Object cityId_ge = queryMap.get("cityId_ge");
+		Object cityId_lt = queryMap.get("cityId_lt");
+		Object cityId_le = queryMap.get("cityId_le");
+		Object cityId_in = queryMap.get("cityId_in");
+		Object areaId = queryMap.get("areaId");
+		Object areaId_gt = queryMap.get("areaId_gt");
+		Object areaId_ge = queryMap.get("areaId_ge");
+		Object areaId_lt = queryMap.get("areaId_lt");
+		Object areaId_le = queryMap.get("areaId_le");
+		Object areaId_in = queryMap.get("areaId_in");
+		Object streetId = queryMap.get("streetId");
+		Object streetId_gt = queryMap.get("streetId_gt");
+		Object streetId_ge = queryMap.get("streetId_ge");
+		Object streetId_lt = queryMap.get("streetId_lt");
+		Object streetId_le = queryMap.get("streetId_le");
+		Object streetId_in = queryMap.get("streetId_in");
+		Object address = queryMap.get("address");
+		Object address_like = queryMap.get("address_like");
+		Object address_isNull = queryMap.get("address_isNull");
+		Object address_isNotNull = queryMap.get("address_isNotNull");
+		Object address_in = queryMap.get("address_in");
+		Object type = queryMap.get("type");
+		Object type_like = queryMap.get("type_like");
+		Object type_isNull = queryMap.get("type_isNull");
+		Object type_isNotNull = queryMap.get("type_isNotNull");
+		Object type_in = queryMap.get("type_in");
+
+		Object employeeId = queryMap.get("employeeId");
+		Object dataDicId = queryMap.get("dataDicId");
+
+		QueryCondition qc = new QueryCondition(SiteEntity.ID, QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.ID, QueryCondition.in, id_in));
+		}
+		if (masterEmployeeId != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.MASTER_EMPLOYEE_ID, QueryCondition.eq, masterEmployeeId));
+		}
+		if (masterEmployeeId_gt != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.MASTER_EMPLOYEE_ID, QueryCondition.gt, masterEmployeeId_gt));
+		}
+		if (masterEmployeeId_ge != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.MASTER_EMPLOYEE_ID, QueryCondition.ge, masterEmployeeId_ge));
+		}
+		if (masterEmployeeId_lt != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.MASTER_EMPLOYEE_ID, QueryCondition.lt, masterEmployeeId_lt));
+		}
+		if (masterEmployeeId_le != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.MASTER_EMPLOYEE_ID, QueryCondition.le, masterEmployeeId_le));
+		}
+		if (masterEmployeeId_in != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.MASTER_EMPLOYEE_ID, QueryCondition.in, masterEmployeeId_in));
+		}
+		if (name != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.NAME, QueryCondition.eq, name));
+		}
+		if (name_like != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.NAME, QueryCondition.like, name_like));
+		}
+		if (name_isNull != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.NAME, QueryCondition.isNull, name_isNull));
+		}
+		if (name_isNotNull != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.NAME, QueryCondition.isNotNull, name_isNotNull));
+		}
+		if (name_in != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.NAME, QueryCondition.in, name_in));
+		}
+		if (mainPhoto != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.MAIN_PHOTO, QueryCondition.eq, mainPhoto));
+		}
+		if (mainPhoto_like != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.MAIN_PHOTO, QueryCondition.like, mainPhoto_like));
+		}
+		if (mainPhoto_isNull != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.MAIN_PHOTO, QueryCondition.isNull, mainPhoto_isNull));
+		}
+		if (mainPhoto_isNotNull != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.MAIN_PHOTO, QueryCondition.isNotNull, mainPhoto_isNotNull));
+		}
+		if (mainPhoto_in != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.MAIN_PHOTO, QueryCondition.in, mainPhoto_in));
+		}
+		if (contactPerson != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CONTACT_PERSON, QueryCondition.eq, contactPerson));
+		}
+		if (contactPerson_like != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CONTACT_PERSON, QueryCondition.like, contactPerson_like));
+		}
+		if (contactPerson_isNull != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CONTACT_PERSON, QueryCondition.isNull, contactPerson_isNull));
+		}
+		if (contactPerson_isNotNull != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CONTACT_PERSON, QueryCondition.isNotNull,
+			        contactPerson_isNotNull));
+		}
+		if (contactPerson_in != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CONTACT_PERSON, QueryCondition.in, contactPerson_in));
+		}
+		if (contactTel != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CONTACT_TEL, QueryCondition.eq, contactTel));
+		}
+		if (contactTel_like != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CONTACT_TEL, QueryCondition.like, contactTel_like));
+		}
+		if (contactTel_isNull != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CONTACT_TEL, QueryCondition.isNull, contactTel_isNull));
+		}
+		if (contactTel_isNotNull != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CONTACT_TEL, QueryCondition.isNotNull, contactTel_isNotNull));
+		}
+		if (contactTel_in != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CONTACT_TEL, QueryCondition.in, contactTel_in));
+		}
+		if (provinceId != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.PROVINCE_ID, QueryCondition.eq, provinceId));
+		}
+		if (provinceId_gt != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.PROVINCE_ID, QueryCondition.gt, provinceId_gt));
+		}
+		if (provinceId_ge != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.PROVINCE_ID, QueryCondition.ge, provinceId_ge));
+		}
+		if (provinceId_lt != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.PROVINCE_ID, QueryCondition.lt, provinceId_lt));
+		}
+		if (provinceId_le != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.PROVINCE_ID, QueryCondition.le, provinceId_le));
+		}
+		if (provinceId_in != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.PROVINCE_ID, QueryCondition.in, provinceId_in));
+		}
+		if (cityId != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CITY_ID, QueryCondition.eq, cityId));
+		}
+		if (cityId_gt != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CITY_ID, QueryCondition.gt, cityId_gt));
+		}
+		if (cityId_ge != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CITY_ID, QueryCondition.ge, cityId_ge));
+		}
+		if (cityId_lt != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CITY_ID, QueryCondition.lt, cityId_lt));
+		}
+		if (cityId_le != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CITY_ID, QueryCondition.le, cityId_le));
+		}
+		if (cityId_in != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.CITY_ID, QueryCondition.in, cityId_in));
+		}
+		if (areaId != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.AREA_ID, QueryCondition.eq, areaId));
+		}
+		if (areaId_gt != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.AREA_ID, QueryCondition.gt, areaId_gt));
+		}
+		if (areaId_ge != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.AREA_ID, QueryCondition.ge, areaId_ge));
+		}
+		if (areaId_lt != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.AREA_ID, QueryCondition.lt, areaId_lt));
+		}
+		if (areaId_le != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.AREA_ID, QueryCondition.le, areaId_le));
+		}
+		if (areaId_in != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.AREA_ID, QueryCondition.in, areaId_in));
+		}
+		if (streetId != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.STREET_ID, QueryCondition.eq, streetId));
+		}
+		if (streetId_gt != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.STREET_ID, QueryCondition.gt, streetId_gt));
+		}
+		if (streetId_ge != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.STREET_ID, QueryCondition.ge, streetId_ge));
+		}
+		if (streetId_lt != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.STREET_ID, QueryCondition.lt, streetId_lt));
+		}
+		if (streetId_le != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.STREET_ID, QueryCondition.le, streetId_le));
+		}
+		if (streetId_in != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.STREET_ID, QueryCondition.in, streetId_in));
+		}
+		if (address != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.ADDRESS, QueryCondition.eq, address));
+		}
+		if (address_like != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.ADDRESS, QueryCondition.like, address_like));
+		}
+		if (address_isNull != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.ADDRESS, QueryCondition.isNull, address_isNull));
+		}
+		if (address_isNotNull != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.ADDRESS, QueryCondition.isNotNull, address_isNotNull));
+		}
+		if (address_in != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.ADDRESS, QueryCondition.in, address_in));
+		}
+		if (type != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.TYPE, QueryCondition.eq, type));
+		}
+		if (type_like != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.TYPE, QueryCondition.like, type_like));
+		}
+		if (type_isNull != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.TYPE, QueryCondition.isNull, type_isNull));
+		}
+		if (type_isNotNull != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.TYPE, QueryCondition.isNotNull, type_isNotNull));
+		}
+		if (type_in != null) {
+			qc.andCondition(new QueryCondition(SiteEntity.TYPE, QueryCondition.in, type_in));
+		}
+		return qc;
+	}
+
+}

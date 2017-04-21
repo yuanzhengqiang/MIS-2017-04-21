@@ -1,0 +1,1327 @@
+package fsk.service.examinationData;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import com.framework.system.db.connect.DbUtils;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.OrderByCondition;
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.query.PageList;
+import com.framework.system.db.query.QueryCondition;
+import com.framework.system.db.transaction.TransactionManager;
+import com.framework.system.util.StringUtil;
+
+import fsk.entity.examinationData.ExaminationDataEntity;
+import fsk.entity.examinationDataFile.ExaminationDataFileEntity;
+import fsk.entity.examinationDataPhoto.ExaminationDataPhotoEntity;
+import fsk.entity.examinationRecord.ExaminationRecordEntity;
+
+/**
+ * @Title: Service
+ * @Description: 体检数据信息表服务类
+ * @author feng.gu
+ * @date 2016-10-11 15:23:02
+ * @version V1.0
+ * 
+ */
+public class ExaminationDataService {
+	private static Logger logger = Logger
+			.getLogger(ExaminationDataService.class);
+	private DBManager dbManager = DBManager.getInstance();
+
+	private static ExaminationDataService examinationDataService;
+
+	/**
+	 * 获取实例
+	 * 
+	 * @return
+	 */
+	public static ExaminationDataService getInstance() {
+		if (examinationDataService == null) {
+			examinationDataService = new ExaminationDataService();
+		}
+		return examinationDataService;
+	}
+
+	/**
+	 * 保存记录
+	 * 
+	 * @param obj
+	 */
+	public boolean save(ExaminationDataEntity examinationData) {
+		boolean result = false;
+		if (examinationData != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 关联信息保存
+				ExaminationRecordEntity examinationRecord = examinationData
+						.getExaminationRecord();
+				if (examinationRecord != null) {
+					dbManager.saveNoTransaction(examinationRecord);
+					examinationData.setExaminationRecordId(examinationRecord
+							.getId());
+				}
+				// 关联信息保存
+				DataDicEntity type1DataDic = examinationData.getType1DataDic();
+				if (type1DataDic != null) {
+					dbManager.saveNoTransaction(type1DataDic);
+					examinationData.setType1DataDicId(type1DataDic.getId());
+				}
+				// 关联信息保存
+				DataDicEntity type2DataDic = examinationData.getType2DataDic();
+				if (type2DataDic != null) {
+					dbManager.saveNoTransaction(type2DataDic);
+					examinationData.setType2DataDicId(type2DataDic.getId());
+				}
+				if (examinationData.getExaminationDataFileList() != null
+						&& examinationData.getExaminationDataFileList().size() > 0) {
+					// 关联信息保存
+					if (examinationData.getId() == null) {
+						dbManager.saveNoTransaction(examinationData);
+					}
+					for (ExaminationDataFileEntity examinationDataFileEntity : examinationData
+							.getExaminationDataFileList()) {
+						examinationDataFileEntity
+								.setExaminationDataId(examinationData.getId());
+						dbManager.saveNoTransaction(examinationDataFileEntity);
+					}
+				}
+				if (examinationData.getExaminationDataPhotoList() != null
+						&& examinationData.getExaminationDataPhotoList().size() > 0) {
+					// 关联信息保存
+					if (examinationData.getId() == null) {
+						dbManager.saveNoTransaction(examinationData);
+					}
+					for (ExaminationDataPhotoEntity examinationDataPhotoEntity : examinationData
+							.getExaminationDataPhotoList()) {
+						examinationDataPhotoEntity
+								.setExaminationDataId(examinationData.getId());
+						dbManager.saveNoTransaction(examinationDataPhotoEntity);
+					}
+				}
+				result = dbManager.saveNoTransaction(examinationData);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量保存记录
+	 * 
+	 * @param list
+	 */
+	public boolean saveList(List<ExaminationDataEntity> examinationDataList) {
+		boolean result = false;
+		if (examinationDataList != null && examinationDataList.size() > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				for (ExaminationDataEntity examinationData : examinationDataList) {
+					if (examinationData != null) {
+						// 关联信息保存
+						ExaminationRecordEntity examinationRecord = examinationData
+								.getExaminationRecord();
+						if (examinationRecord != null) {
+							dbManager.saveNoTransaction(examinationRecord);
+							examinationData
+									.setExaminationRecordId(examinationRecord
+											.getId());
+						}
+						// 关联信息保存
+						DataDicEntity type1DataDic = examinationData
+								.getType1DataDic();
+						if (type1DataDic != null) {
+							dbManager.saveNoTransaction(type1DataDic);
+							examinationData.setType1DataDicId(type1DataDic
+									.getId());
+						}
+						// 关联信息保存
+						DataDicEntity type2DataDic = examinationData
+								.getType2DataDic();
+						if (type2DataDic != null) {
+							dbManager.saveNoTransaction(type2DataDic);
+							examinationData.setType2DataDicId(type2DataDic
+									.getId());
+						}
+						// 关联信息保存
+						if (examinationData.getExaminationDataFileList() != null
+								&& examinationData.getExaminationDataFileList()
+										.size() > 0) {
+							if (examinationData.getId() == null) {
+								dbManager.saveNoTransaction(examinationData);
+							}
+							for (ExaminationDataFileEntity examinationDataFileEntity : examinationData
+									.getExaminationDataFileList()) {
+								examinationDataFileEntity
+										.setExaminationDataId(examinationData
+												.getId());
+								dbManager
+										.saveNoTransaction(examinationDataFileEntity);
+							}
+						}
+						// 关联信息保存
+						if (examinationData.getExaminationDataPhotoList() != null
+								&& examinationData
+										.getExaminationDataPhotoList().size() > 0) {
+							if (examinationData.getId() == null) {
+								dbManager.saveNoTransaction(examinationData);
+							}
+							for (ExaminationDataPhotoEntity examinationDataPhotoEntity : examinationData
+									.getExaminationDataPhotoList()) {
+								examinationDataPhotoEntity
+										.setExaminationDataId(examinationData
+												.getId());
+								dbManager
+										.saveNoTransaction(examinationDataPhotoEntity);
+							}
+						}
+						result = dbManager.saveNoTransaction(examinationData);
+					}
+				}
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public ExaminationDataEntity getById(Integer id) {
+		ExaminationDataEntity obj = null;
+		if (id != null) {
+			obj = (ExaminationDataEntity) dbManager.getById(id,
+					ExaminationDataEntity.class);
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据id读取记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param examinationRecordShow
+	 *            是否查询关联信息
+	 * @param type1DataDicShow
+	 *            是否查询关联信息
+	 * @param type2DataDicShow
+	 *            是否查询关联信息
+	 * @param examinationDataFileListShow
+	 *            是否查询关联信息
+	 * @param examinationDataPhotoListShow
+	 *            是否查询关联信息
+	 * @param obj
+	 */
+	public ExaminationDataEntity getById(Integer id,
+			Boolean examinationRecordShow, Boolean type1DataDicShow,
+			Boolean type2DataDicShow, Boolean examinationDataFileListShow,
+			Boolean examinationDataPhotoListShow) {
+		ExaminationDataEntity obj = null;
+		if (id != null) {
+			obj = (ExaminationDataEntity) dbManager.getById(id,
+					ExaminationDataEntity.class);
+			// 查询关联内容
+			if (examinationRecordShow != null
+					&& examinationRecordShow.booleanValue() && obj != null
+					&& obj.getExaminationRecordId() != null
+					&& obj.getExaminationRecordId() > 0) {
+				ExaminationRecordEntity examinationRecord = (ExaminationRecordEntity) dbManager
+						.getById(obj.getExaminationRecordId(),
+								ExaminationRecordEntity.class);
+				obj.setExaminationRecord(examinationRecord);
+			}
+			// 查询关联内容
+			if (type1DataDicShow != null && type1DataDicShow.booleanValue()
+					&& obj != null && obj.getType1DataDicId() != null
+					&& obj.getType1DataDicId() > 0) {
+				DataDicEntity type1DataDic = (DataDicEntity) dbManager.getById(
+						obj.getType1DataDicId(), DataDicEntity.class);
+				obj.setType1DataDic(type1DataDic);
+			}
+			// 查询关联内容
+			if (type2DataDicShow != null && type2DataDicShow.booleanValue()
+					&& obj != null && obj.getType2DataDicId() != null
+					&& obj.getType2DataDicId() > 0) {
+				DataDicEntity type2DataDic = (DataDicEntity) dbManager.getById(
+						obj.getType2DataDicId(), DataDicEntity.class);
+				obj.setType2DataDic(type2DataDic);
+			}
+			// 查询关联内容
+			if (examinationDataFileListShow != null
+					&& examinationDataFileListShow.booleanValue()
+					&& obj != null && obj.getId() != null && obj.getId() > 0) {
+				List<Object> list = dbManager.searchListByColumn(
+						ExaminationDataFileEntity.class,
+						ExaminationDataFileEntity.EXAMINATION_DATA_ID,
+						String.valueOf(id));
+				if (list != null && list.size() > 0) {
+					List<ExaminationDataFileEntity> examinationDataFileList = new ArrayList<ExaminationDataFileEntity>();
+					for (Object o : list) {
+						examinationDataFileList
+								.add((ExaminationDataFileEntity) o);
+					}
+					obj.setExaminationDataFileList(examinationDataFileList);
+				}
+			}
+			// 查询关联内容
+			if (examinationDataPhotoListShow != null
+					&& examinationDataPhotoListShow.booleanValue()
+					&& obj != null && obj.getId() != null && obj.getId() > 0) {
+				List<Object> list = dbManager.searchListByColumn(
+						ExaminationDataPhotoEntity.class,
+						ExaminationDataPhotoEntity.EXAMINATION_DATA_ID,
+						String.valueOf(id));
+				if (list != null && list.size() > 0) {
+					List<ExaminationDataPhotoEntity> examinationDataPhotoList = new ArrayList<ExaminationDataPhotoEntity>();
+					for (Object o : list) {
+						examinationDataPhotoList
+								.add((ExaminationDataPhotoEntity) o);
+					}
+					obj.setExaminationDataPhotoList(examinationDataPhotoList);
+				}
+			}
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @return
+	 */
+	public List<ExaminationDataEntity> getListByCondition(
+			Map<String, Object> queryMap) {
+		List<ExaminationDataEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		list = dbManager.queryByCondition(ExaminationDataEntity.class, qc);
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<ExaminationDataEntity>();
+			for (Object obj : list) {
+				returnlist.add((ExaminationDataEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（不分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param examinationRecordShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param type1DataDicShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param type2DataDicShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param examinationDataFileListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param examinationDataPhotoListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public List<ExaminationDataEntity> getListByCondition(
+			Map<String, Object> queryMap, List<OrderVO> orderList,
+			Boolean examinationRecordShow, Boolean type1DataDicShow,
+			Boolean type2DataDicShow, Boolean examinationDataFileListShow,
+			Boolean examinationDataPhotoListShow) {
+		List<ExaminationDataEntity> returnlist = null;
+		List<Object> list = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order
+							.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt,
+								orderType));
+					}
+				}
+
+			}
+		}
+		list = dbManager.queryByConditions(ExaminationDataEntity.class, qc, oc);
+		int a = 0;
+		if (examinationRecordShow != null
+				&& examinationRecordShow.booleanValue()) {
+			a++;
+		}
+		if (type1DataDicShow != null && type1DataDicShow.booleanValue()) {
+			a++;
+		}
+		if (type2DataDicShow != null && type2DataDicShow.booleanValue()) {
+			a++;
+		}
+		if (examinationDataFileListShow != null
+				&& examinationDataFileListShow.booleanValue()) {
+			a++;
+		}
+		if (examinationDataPhotoListShow != null
+				&& examinationDataPhotoListShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && list != null && list.size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < list.size(); i++) {
+				ExaminationDataEntity obj = (ExaminationDataEntity) list.get(i);
+				// 查询关联内容
+				if (examinationRecordShow != null
+						&& examinationRecordShow.booleanValue() && obj != null
+						&& obj.getExaminationRecordId() != null
+						&& obj.getExaminationRecordId() > 0) {
+					ExaminationRecordEntity examinationRecord = (ExaminationRecordEntity) dbManager
+							.getById(obj.getExaminationRecordId(),
+									ExaminationRecordEntity.class);
+					obj.setExaminationRecord(examinationRecord);
+				}
+				// 查询关联内容
+				if (type1DataDicShow != null && type1DataDicShow.booleanValue()
+						&& obj != null && obj.getType1DataDicId() != null
+						&& obj.getType1DataDicId() > 0) {
+					DataDicEntity type1DataDic = (DataDicEntity) dbManager
+							.getById(obj.getType1DataDicId(),
+									DataDicEntity.class);
+					obj.setType1DataDic(type1DataDic);
+				}
+				// 查询关联内容
+				if (type2DataDicShow != null && type2DataDicShow.booleanValue()
+						&& obj != null && obj.getType2DataDicId() != null
+						&& obj.getType2DataDicId() > 0) {
+					DataDicEntity type2DataDic = (DataDicEntity) dbManager
+							.getById(obj.getType2DataDicId(),
+									DataDicEntity.class);
+					obj.setType2DataDic(type2DataDic);
+				}
+				// 查询关联内容
+				if (examinationDataFileListShow != null
+						&& examinationDataFileListShow.booleanValue()
+						&& obj != null && obj.getId() != null
+						&& obj.getId() > 0) {
+					List<Object> objList = dbManager.searchListByColumn(
+							ExaminationDataFileEntity.class,
+							ExaminationDataFileEntity.EXAMINATION_DATA_ID,
+							String.valueOf(obj.getId()));
+					if (objList != null && objList.size() > 0) {
+						List<ExaminationDataFileEntity> examinationDataFileList = new ArrayList<ExaminationDataFileEntity>();
+						for (Object o : objList) {
+							examinationDataFileList
+									.add((ExaminationDataFileEntity) o);
+						}
+						obj.setExaminationDataFileList(examinationDataFileList);
+					}
+				}
+				// 查询关联内容
+				if (examinationDataPhotoListShow != null
+						&& examinationDataPhotoListShow.booleanValue()
+						&& obj != null && obj.getId() != null
+						&& obj.getId() > 0) {
+					List<Object> objList = dbManager.searchListByColumn(
+							ExaminationDataPhotoEntity.class,
+							ExaminationDataPhotoEntity.EXAMINATION_DATA_ID,
+							String.valueOf(obj.getId()));
+					if (objList != null && objList.size() > 0) {
+						List<ExaminationDataPhotoEntity> examinationDataPhotoList = new ArrayList<ExaminationDataPhotoEntity>();
+						for (Object o : objList) {
+							examinationDataPhotoList
+									.add((ExaminationDataPhotoEntity) o);
+						}
+						obj.setExaminationDataPhotoList(examinationDataPhotoList);
+					}
+				}
+				result.add(obj);
+			}
+			list = result;
+		}
+		if (list != null && list.size() > 0) {
+			returnlist = new ArrayList<ExaminationDataEntity>();
+			for (Object obj : list) {
+				returnlist.add((ExaminationDataEntity) obj);
+			}
+		}
+		return returnlist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 不带排序 不级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap,
+			int pageno, int pagesize) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		pagelist = dbManager.queryByCondition(ExaminationDataEntity.class, qc,
+				pageno, pagesize);
+		return pagelist;
+	}
+
+	/**
+	 * 根据条件查询记录集合（带分页 带排序 带级联查询）
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 * @param orderList
+	 *            排序条件集合
+	 * @param pageno
+	 *            查询页码
+	 * @param pagesize
+	 *            查询每页记录条数
+	 * @param examinationRecordShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param type1DataDicShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param type2DataDicShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param examinationDataFileListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param examinationDataPhotoListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @return
+	 */
+	public PageList getListByCondition(Map<String, Object> queryMap,
+			List<OrderVO> orderList, int pageno, int pagesize,
+			Boolean examinationRecordShow, Boolean type1DataDicShow,
+			Boolean type2DataDicShow, Boolean examinationDataFileListShow,
+			Boolean examinationDataPhotoListShow) {
+		PageList pagelist = null;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		OrderByCondition oc = null;
+		if (orderList != null && orderList.size() > 0) {
+			for (int i = 0; i < orderList.size(); i++) {
+				OrderVO order = orderList.get(i);
+				String orderColumnt = null;
+				String orderType = null;
+				if (order.getName() != null && !"".equals(order.getName())) {
+					orderColumnt = StringUtil.formatFieldToColumnt(order
+							.getName());
+					orderType = order.getOrderType();
+					if (orderType == null || "".equals(orderType.trim())) {
+						orderType = OrderByCondition.desc;
+					}
+					if (i == 0) {
+						oc = new OrderByCondition(orderColumnt, orderType);
+					} else {
+						oc.orderByCondition(new OrderByCondition(orderColumnt,
+								orderType));
+					}
+				}
+
+			}
+		}
+		// 数据权限
+		List<QueryCondition> dataRuleQclist = null;
+		List<Map<String, Object>> dataRuleMapList = (List<Map<String, Object>>) queryMap
+				.get("dataRuleMapList");
+		if (dataRuleMapList != null && dataRuleMapList.size() > 0) {
+			dataRuleQclist = new ArrayList<QueryCondition>();
+			for (Map<String, Object> dataRuleMap : dataRuleMapList) {
+				QueryCondition dataRuleQc = changeMapToQc(dataRuleMap);
+				dataRuleQclist.add(dataRuleQc);
+			}
+		}
+		pagelist = dbManager.queryByConditions(ExaminationDataEntity.class, qc,
+				dataRuleQclist, oc, pageno, pagesize);
+		int a = 0;
+		if (examinationRecordShow != null
+				&& examinationRecordShow.booleanValue()) {
+			a++;
+		}
+		if (type1DataDicShow != null && type1DataDicShow.booleanValue()) {
+			a++;
+		}
+		if (type2DataDicShow != null && type2DataDicShow.booleanValue()) {
+			a++;
+		}
+		if (examinationDataFileListShow != null
+				&& examinationDataFileListShow.booleanValue()) {
+			a++;
+		}
+		if (examinationDataPhotoListShow != null
+				&& examinationDataPhotoListShow.booleanValue()) {
+			a++;
+		}
+		if (a > 0 && pagelist != null && pagelist.getResultList() != null
+				&& pagelist.getResultList().size() > 0) {
+			List<Object> result = new ArrayList<Object>();
+			for (int i = 0; i < pagelist.getResultList().size(); i++) {
+				ExaminationDataEntity obj = (ExaminationDataEntity) pagelist
+						.getResultList().get(i);
+				// 查询关联内容
+				if (examinationRecordShow != null
+						&& examinationRecordShow.booleanValue() && obj != null
+						&& obj.getExaminationRecordId() != null
+						&& obj.getExaminationRecordId() > 0) {
+					ExaminationRecordEntity examinationRecord = (ExaminationRecordEntity) dbManager
+							.getById(obj.getExaminationRecordId(),
+									ExaminationRecordEntity.class);
+					obj.setExaminationRecord(examinationRecord);
+				}
+				// 查询关联内容
+				if (type1DataDicShow != null && type1DataDicShow.booleanValue()
+						&& obj != null && obj.getType1DataDicId() != null
+						&& obj.getType1DataDicId() > 0) {
+					DataDicEntity type1DataDic = (DataDicEntity) dbManager
+							.getById(obj.getType1DataDicId(),
+									DataDicEntity.class);
+					obj.setType1DataDic(type1DataDic);
+				}
+				// 查询关联内容
+				if (type2DataDicShow != null && type2DataDicShow.booleanValue()
+						&& obj != null && obj.getType2DataDicId() != null
+						&& obj.getType2DataDicId() > 0) {
+					DataDicEntity type2DataDic = (DataDicEntity) dbManager
+							.getById(obj.getType2DataDicId(),
+									DataDicEntity.class);
+					obj.setType2DataDic(type2DataDic);
+				}
+				// 查询关联内容
+				if (examinationDataFileListShow != null
+						&& examinationDataFileListShow.booleanValue()
+						&& obj != null && obj.getId() != null
+						&& obj.getId() > 0) {
+					List<Object> objList = dbManager.searchListByColumn(
+							ExaminationDataFileEntity.class,
+							ExaminationDataFileEntity.EXAMINATION_DATA_ID,
+							String.valueOf(obj.getId()));
+					if (objList != null && objList.size() > 0) {
+						List<ExaminationDataFileEntity> examinationDataFileList = new ArrayList<ExaminationDataFileEntity>();
+						for (Object o : objList) {
+							examinationDataFileList
+									.add((ExaminationDataFileEntity) o);
+						}
+						obj.setExaminationDataFileList(examinationDataFileList);
+					}
+				}
+				// 查询关联内容
+				if (examinationDataPhotoListShow != null
+						&& examinationDataPhotoListShow.booleanValue()
+						&& obj != null && obj.getId() != null
+						&& obj.getId() > 0) {
+					List<Object> objList = dbManager.searchListByColumn(
+							ExaminationDataPhotoEntity.class,
+							ExaminationDataPhotoEntity.EXAMINATION_DATA_ID,
+							String.valueOf(obj.getId()));
+					if (objList != null && objList.size() > 0) {
+						List<ExaminationDataPhotoEntity> examinationDataPhotoList = new ArrayList<ExaminationDataPhotoEntity>();
+						for (Object o : objList) {
+							examinationDataPhotoList
+									.add((ExaminationDataPhotoEntity) o);
+						}
+						obj.setExaminationDataPhotoList(examinationDataPhotoList);
+					}
+				}
+				result.add(obj);
+			}
+			pagelist.setResultList(result);
+		}
+		return pagelist;
+	}
+
+	/**
+	 * 删除记录
+	 * 
+	 * @param id
+	 *            主键
+	 * @param obj
+	 */
+	public boolean del(Integer id, Boolean delExaminationRecord,
+			Boolean delType1DataDic, Boolean delType2DataDic,
+			Boolean delExaminationDataFileList,
+			Boolean delExaminationDataPhotoList) {
+		boolean result = false;
+		if (id != null && id > 0) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delExaminationRecord != null
+						&& delExaminationRecord.booleanValue()) {
+					ExaminationDataEntity examinationData = (ExaminationDataEntity) dbManager
+							.getById(id, ExaminationDataEntity.class);
+					if (examinationData != null
+							&& examinationData.getExaminationRecordId() != null) {
+						dbManager.delNoTransaction(
+								examinationData.getExaminationRecordId(),
+								ExaminationRecordEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delType1DataDic != null && delType1DataDic.booleanValue()) {
+					ExaminationDataEntity examinationData = (ExaminationDataEntity) dbManager
+							.getById(id, ExaminationDataEntity.class);
+					if (examinationData != null
+							&& examinationData.getType1DataDicId() != null) {
+						dbManager.delNoTransaction(
+								examinationData.getType1DataDicId(),
+								DataDicEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delType2DataDic != null && delType2DataDic.booleanValue()) {
+					ExaminationDataEntity examinationData = (ExaminationDataEntity) dbManager
+							.getById(id, ExaminationDataEntity.class);
+					if (examinationData != null
+							&& examinationData.getType2DataDicId() != null) {
+						dbManager.delNoTransaction(
+								examinationData.getType2DataDicId(),
+								DataDicEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delExaminationDataFileList != null
+						&& delExaminationDataFileList.booleanValue()) {
+					QueryCondition qc = new QueryCondition(
+							ExaminationDataFileEntity.EXAMINATION_DATA_ID,
+							QueryCondition.eq, id);
+					dbManager.delByConditionsNoTransaction(
+							ExaminationDataFileEntity.class, qc);
+				}
+				// 删除关联信息
+				if (delExaminationDataPhotoList != null
+						&& delExaminationDataPhotoList.booleanValue()) {
+					QueryCondition qc = new QueryCondition(
+							ExaminationDataPhotoEntity.EXAMINATION_DATA_ID,
+							QueryCondition.eq, id);
+					dbManager.delByConditionsNoTransaction(
+							ExaminationDataPhotoEntity.class, qc);
+				}
+				result = dbManager.delNoTransaction(id,
+						ExaminationDataEntity.class);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量删除记录
+	 * 
+	 * @param ids
+	 *            主键 英文逗号间隔
+	 * @param obj
+	 */
+	public boolean del(String ids) {
+		boolean result = false;
+		if (ids != null && !"".equals(ids.trim())) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				QueryCondition qc = new QueryCondition(
+						ExaminationDataEntity.ID, QueryCondition.in, ids);
+				result = dbManager.delByConditionsNoTransaction(
+						ExaminationDataEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 批量条件删除记录
+	 * 
+	 * @param queryMap
+	 *            查询条件集合
+	 */
+	public boolean delList(Map<String, Object> queryMap,
+			Boolean delExaminationRecord, Boolean delType1DataDic,
+			Boolean delType2DataDic, Boolean delExaminationDataFileList,
+			Boolean delExaminationDataPhotoList) {
+		boolean result = false;
+		if (queryMap == null) {
+			queryMap = new HashMap<String, Object>();
+		}
+		QueryCondition qc = changeMapToQc(queryMap);
+		if (qc.getQueryNextCondition() != null) {
+			TransactionManager tx = DbUtils.getTranManager();
+			try {
+				tx.beginTransaction();
+				// 删除关联信息
+				if (delExaminationRecord != null
+						&& delExaminationRecord.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									ExaminationDataEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							ExaminationDataEntity entity = (ExaminationDataEntity) obj;
+							strIds += entity.getExaminationRecordId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								ExaminationRecordEntity.ID, QueryCondition.in,
+								strIds);
+						dbManager.delByConditionsNoTransaction(
+								ExaminationRecordEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delType1DataDic != null && delType1DataDic.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									ExaminationDataEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							ExaminationDataEntity entity = (ExaminationDataEntity) obj;
+							strIds += entity.getType1DataDicId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								DataDicEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								DataDicEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delType2DataDic != null && delType2DataDic.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									ExaminationDataEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							ExaminationDataEntity entity = (ExaminationDataEntity) obj;
+							strIds += entity.getType2DataDicId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								DataDicEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								DataDicEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delExaminationDataFileList != null
+						&& delExaminationDataFileList.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									ExaminationDataEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							ExaminationDataEntity entity = (ExaminationDataEntity) obj;
+							strIds += entity.getId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								ExaminationDataFileEntity.EXAMINATION_DATA_ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								ExaminationDataFileEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delExaminationDataPhotoList != null
+						&& delExaminationDataPhotoList.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									ExaminationDataEntity.class, qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							ExaminationDataEntity entity = (ExaminationDataEntity) obj;
+							strIds += entity.getId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								ExaminationDataPhotoEntity.EXAMINATION_DATA_ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								ExaminationDataPhotoEntity.class, qc1);
+					}
+
+				}
+				result = dbManager.delByConditionsNoTransaction(
+						ExaminationDataEntity.class, qc);
+				tx.commitAndClose();
+			} catch (Exception e) {
+				logger.error("数据库提交失败！");
+				logger.error(e);
+				result = false;
+				try {
+					tx.rollbackAndClose();
+				} catch (Exception ex) {
+					logger.error("数据库回滚失败！");
+					logger.error(ex);
+				}
+			}
+		}
+		return result;
+	}
+
+	private QueryCondition changeMapToQc(Map<String, Object> queryMap) {
+		Object id = queryMap.get("id");
+		Object id_gt = queryMap.get("id_gt");
+		Object id_ge = queryMap.get("id_ge");
+		Object id_lt = queryMap.get("id_lt");
+		Object id_le = queryMap.get("id_le");
+		Object id_in = queryMap.get("id_in");
+		Object type1DataDicId = queryMap.get("type1DataDicId");
+		Object type1DataDicId_gt = queryMap.get("type1DataDicId_gt");
+		Object type1DataDicId_ge = queryMap.get("type1DataDicId_ge");
+		Object type1DataDicId_lt = queryMap.get("type1DataDicId_lt");
+		Object type1DataDicId_le = queryMap.get("type1DataDicId_le");
+		Object type1DataDicId_in = queryMap.get("type1DataDicId_in");
+		Object type2DataDicId = queryMap.get("type2DataDicId");
+		Object type2DataDicId_gt = queryMap.get("type2DataDicId_gt");
+		Object type2DataDicId_ge = queryMap.get("type2DataDicId_ge");
+		Object type2DataDicId_lt = queryMap.get("type2DataDicId_lt");
+		Object type2DataDicId_le = queryMap.get("type2DataDicId_le");
+		Object type2DataDicId_in = queryMap.get("type2DataDicId_in");
+		Object examinationItem = queryMap.get("examinationItem");
+		Object examinationItem_like = queryMap.get("examinationItem_like");
+		Object examinationItem_isNull = queryMap.get("examinationItem_isNull");
+		Object examinationItem_isNotNull = queryMap
+				.get("examinationItem_isNotNull");
+		Object examinationItem_in = queryMap.get("examinationItem_in");
+		Object examinationResult = queryMap.get("examinationResult");
+		Object examinationResult_like = queryMap.get("examinationResult_like");
+		Object examinationResult_isNull = queryMap
+				.get("examinationResult_isNull");
+		Object examinationResult_isNotNull = queryMap
+				.get("examinationResult_isNotNull");
+		Object examinationResult_in = queryMap.get("examinationResult_in");
+		Object unit = queryMap.get("unit");
+		Object unit_like = queryMap.get("unit_like");
+		Object unit_isNull = queryMap.get("unit_isNull");
+		Object unit_isNotNull = queryMap.get("unit_isNotNull");
+		Object unit_in = queryMap.get("unit_in");
+		Object abnormalPrompt = queryMap.get("abnormalPrompt");
+		Object abnormalPrompt_like = queryMap.get("abnormalPrompt_like");
+		Object abnormalPrompt_isNull = queryMap.get("abnormalPrompt_isNull");
+		Object abnormalPrompt_isNotNull = queryMap
+				.get("abnormalPrompt_isNotNull");
+		Object abnormalPrompt_in = queryMap.get("abnormalPrompt_in");
+		Object referenceRange = queryMap.get("referenceRange");
+		Object referenceRange_like = queryMap.get("referenceRange_like");
+		Object referenceRange_isNull = queryMap.get("referenceRange_isNull");
+		Object referenceRange_isNotNull = queryMap
+				.get("referenceRange_isNotNull");
+		Object referenceRange_in = queryMap.get("referenceRange_in");
+		Object conclusion = queryMap.get("conclusion");
+		Object conclusion_like = queryMap.get("conclusion_like");
+		Object conclusion_isNull = queryMap.get("conclusion_isNull");
+		Object conclusion_isNotNull = queryMap.get("conclusion_isNotNull");
+		Object conclusion_in = queryMap.get("conclusion_in");
+		Object examinationTime_gt = queryMap.get("examinationTime_gt");
+		Object examinationTime_ge = queryMap.get("examinationTime_ge");
+		Object examinationTime_lt = queryMap.get("examinationTime_lt");
+		Object examinationTime_le = queryMap.get("examinationTime_le");
+		Object createTime_gt = queryMap.get("createTime_gt");
+		Object createTime_ge = queryMap.get("createTime_ge");
+		Object createTime_lt = queryMap.get("createTime_lt");
+		Object createTime_le = queryMap.get("createTime_le");
+		Object examinationRecordId = queryMap.get("examinationRecordId");
+		Object examinationRecordId_gt = queryMap.get("examinationRecordId_gt");
+		Object examinationRecordId_ge = queryMap.get("examinationRecordId_ge");
+		Object examinationRecordId_lt = queryMap.get("examinationRecordId_lt");
+		Object examinationRecordId_le = queryMap.get("examinationRecordId_le");
+		Object examinationRecordId_in = queryMap.get("examinationRecordId_in");
+
+		QueryCondition qc = new QueryCondition(ExaminationDataEntity.ID,
+				QueryCondition.gt, "0");
+		if (id != null) {
+			qc.andCondition(new QueryCondition(ExaminationDataEntity.ID,
+					QueryCondition.eq, id));
+		}
+		if (id_gt != null) {
+			qc.andCondition(new QueryCondition(ExaminationDataEntity.ID,
+					QueryCondition.gt, id_gt));
+		}
+		if (id_ge != null) {
+			qc.andCondition(new QueryCondition(ExaminationDataEntity.ID,
+					QueryCondition.ge, id_ge));
+		}
+		if (id_lt != null) {
+			qc.andCondition(new QueryCondition(ExaminationDataEntity.ID,
+					QueryCondition.lt, id_lt));
+		}
+		if (id_le != null) {
+			qc.andCondition(new QueryCondition(ExaminationDataEntity.ID,
+					QueryCondition.le, id_le));
+		}
+		if (id_in != null) {
+			qc.andCondition(new QueryCondition(ExaminationDataEntity.ID,
+					QueryCondition.in, id_in));
+		}
+		if (type1DataDicId != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.TYPE1_DATA_DIC_ID, QueryCondition.eq,
+					type1DataDicId));
+		}
+		if (type1DataDicId_gt != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.TYPE1_DATA_DIC_ID, QueryCondition.gt,
+					type1DataDicId_gt));
+		}
+		if (type1DataDicId_ge != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.TYPE1_DATA_DIC_ID, QueryCondition.ge,
+					type1DataDicId_ge));
+		}
+		if (type1DataDicId_lt != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.TYPE1_DATA_DIC_ID, QueryCondition.lt,
+					type1DataDicId_lt));
+		}
+		if (type1DataDicId_le != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.TYPE1_DATA_DIC_ID, QueryCondition.le,
+					type1DataDicId_le));
+		}
+		if (type1DataDicId_in != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.TYPE1_DATA_DIC_ID, QueryCondition.in,
+					type1DataDicId_in));
+		}
+		if (type2DataDicId != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.TYPE2_DATA_DIC_ID, QueryCondition.eq,
+					type2DataDicId));
+		}
+		if (type2DataDicId_gt != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.TYPE2_DATA_DIC_ID, QueryCondition.gt,
+					type2DataDicId_gt));
+		}
+		if (type2DataDicId_ge != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.TYPE2_DATA_DIC_ID, QueryCondition.ge,
+					type2DataDicId_ge));
+		}
+		if (type2DataDicId_lt != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.TYPE2_DATA_DIC_ID, QueryCondition.lt,
+					type2DataDicId_lt));
+		}
+		if (type2DataDicId_le != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.TYPE2_DATA_DIC_ID, QueryCondition.le,
+					type2DataDicId_le));
+		}
+		if (type2DataDicId_in != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.TYPE2_DATA_DIC_ID, QueryCondition.in,
+					type2DataDicId_in));
+		}
+		if (examinationItem != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_ITEM, QueryCondition.eq,
+					examinationItem));
+		}
+		if (examinationItem_like != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_ITEM,
+					QueryCondition.like, examinationItem_like));
+		}
+		if (examinationItem_isNull != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_ITEM,
+					QueryCondition.isNull, examinationItem_isNull));
+		}
+		if (examinationItem_isNotNull != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_ITEM,
+					QueryCondition.isNotNull, examinationItem_isNotNull));
+		}
+		if (examinationItem_in != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_ITEM, QueryCondition.in,
+					examinationItem_in));
+		}
+		if (examinationResult != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_RESULT,
+					QueryCondition.eq, examinationResult));
+		}
+		if (examinationResult_like != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_RESULT,
+					QueryCondition.like, examinationResult_like));
+		}
+		if (examinationResult_isNull != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_RESULT,
+					QueryCondition.isNull, examinationResult_isNull));
+		}
+		if (examinationResult_isNotNull != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_RESULT,
+					QueryCondition.isNotNull, examinationResult_isNotNull));
+		}
+		if (examinationResult_in != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_RESULT,
+					QueryCondition.in, examinationResult_in));
+		}
+		if (unit != null) {
+			qc.andCondition(new QueryCondition(ExaminationDataEntity.UNIT,
+					QueryCondition.eq, unit));
+		}
+		if (unit_like != null) {
+			qc.andCondition(new QueryCondition(ExaminationDataEntity.UNIT,
+					QueryCondition.like, unit_like));
+		}
+		if (unit_isNull != null) {
+			qc.andCondition(new QueryCondition(ExaminationDataEntity.UNIT,
+					QueryCondition.isNull, unit_isNull));
+		}
+		if (unit_isNotNull != null) {
+			qc.andCondition(new QueryCondition(ExaminationDataEntity.UNIT,
+					QueryCondition.isNotNull, unit_isNotNull));
+		}
+		if (unit_in != null) {
+			qc.andCondition(new QueryCondition(ExaminationDataEntity.UNIT,
+					QueryCondition.in, unit_in));
+		}
+		if (abnormalPrompt != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.ABNORMAL_PROMPT, QueryCondition.eq,
+					abnormalPrompt));
+		}
+		if (abnormalPrompt_like != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.ABNORMAL_PROMPT, QueryCondition.like,
+					abnormalPrompt_like));
+		}
+		if (abnormalPrompt_isNull != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.ABNORMAL_PROMPT,
+					QueryCondition.isNull, abnormalPrompt_isNull));
+		}
+		if (abnormalPrompt_isNotNull != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.ABNORMAL_PROMPT,
+					QueryCondition.isNotNull, abnormalPrompt_isNotNull));
+		}
+		if (abnormalPrompt_in != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.ABNORMAL_PROMPT, QueryCondition.in,
+					abnormalPrompt_in));
+		}
+		if (referenceRange != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.REFERENCE_RANGE, QueryCondition.eq,
+					referenceRange));
+		}
+		if (referenceRange_like != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.REFERENCE_RANGE, QueryCondition.like,
+					referenceRange_like));
+		}
+		if (referenceRange_isNull != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.REFERENCE_RANGE,
+					QueryCondition.isNull, referenceRange_isNull));
+		}
+		if (referenceRange_isNotNull != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.REFERENCE_RANGE,
+					QueryCondition.isNotNull, referenceRange_isNotNull));
+		}
+		if (referenceRange_in != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.REFERENCE_RANGE, QueryCondition.in,
+					referenceRange_in));
+		}
+		if (conclusion != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.CONCLUSION, QueryCondition.eq,
+					conclusion));
+		}
+		if (conclusion_like != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.CONCLUSION, QueryCondition.like,
+					conclusion_like));
+		}
+		if (conclusion_isNull != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.CONCLUSION, QueryCondition.isNull,
+					conclusion_isNull));
+		}
+		if (conclusion_isNotNull != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.CONCLUSION, QueryCondition.isNotNull,
+					conclusion_isNotNull));
+		}
+		if (conclusion_in != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.CONCLUSION, QueryCondition.in,
+					conclusion_in));
+		}
+		if (examinationTime_gt != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_TIME, QueryCondition.gt,
+					examinationTime_gt));
+		}
+		if (examinationTime_ge != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_TIME, QueryCondition.ge,
+					examinationTime_ge));
+		}
+		if (examinationTime_lt != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_TIME, QueryCondition.lt,
+					examinationTime_lt));
+		}
+		if (examinationTime_le != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_TIME, QueryCondition.le,
+					examinationTime_le));
+		}
+		if (createTime_gt != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.CREATE_TIME, QueryCondition.gt,
+					createTime_gt));
+		}
+		if (createTime_ge != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.CREATE_TIME, QueryCondition.ge,
+					createTime_ge));
+		}
+		if (createTime_lt != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.CREATE_TIME, QueryCondition.lt,
+					createTime_lt));
+		}
+		if (createTime_le != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.CREATE_TIME, QueryCondition.le,
+					createTime_le));
+		}
+		if (examinationRecordId != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_RECORD_ID,
+					QueryCondition.eq, examinationRecordId));
+		}
+		if (examinationRecordId_gt != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_RECORD_ID,
+					QueryCondition.gt, examinationRecordId_gt));
+		}
+		if (examinationRecordId_ge != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_RECORD_ID,
+					QueryCondition.ge, examinationRecordId_ge));
+		}
+		if (examinationRecordId_lt != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_RECORD_ID,
+					QueryCondition.lt, examinationRecordId_lt));
+		}
+		if (examinationRecordId_le != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_RECORD_ID,
+					QueryCondition.le, examinationRecordId_le));
+		}
+		if (examinationRecordId_in != null) {
+			qc.andCondition(new QueryCondition(
+					ExaminationDataEntity.EXAMINATION_RECORD_ID,
+					QueryCondition.in, examinationRecordId_in));
+		}
+		return qc;
+	}
+
+}

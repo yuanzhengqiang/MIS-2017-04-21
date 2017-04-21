@@ -1,0 +1,369 @@
+package fsk.entity.dev;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.older.OlderEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 设备信息表
+ * @author feng.gu
+ * @date 2016-09-22 11:12:57
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_DEV")
+public class DevEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String CODE = "CODE";
+    public final static String NAME = "NAME";
+    public final static String OLDER_ID = "OLDER_ID";
+    public final static String TYPE = "TYPE";
+    public final static String STATUS = "STATUS";
+    public final static String ADDRESS = "ADDRESS";
+    public final static String ADD_TIME = "ADD_TIME";
+    public final static String FLAT = "FLAT";
+    public final static String FLONG = "FLONG";
+    public final static String FRADIUS = "FRADIUS";
+    public final static String POS_LAT = "POS_LAT";
+    public final static String POS_LONG = "POS_LONG";
+    public final static String PHOTO = "PHOTO";
+    public final static String DEV_PHONE = "DEV_PHONE";
+    public final static String DOOR_CODE = "DOOR_CODE";
+    public final static String DOOR_ALARM_DELAY = "DOOR_ALARM_DELAY";
+    public final static String DOOR_ALARM_START = "DOOR_ALARM_START";
+    public final static String DOOR_ALARM_END = "DOOR_ALARM_END";
+    public final static String IR_CODE = "IR_CODE";
+    public final static String IR_ALARM_DELAY = "IR_ALARM_DELAY";
+    public final static String IR_ALARM_START = "IR_ALARM_START";
+    public final static String IR_ALARM_END = "IR_ALARM_END";
+    public final static String LOCATION_STATUS = "LOCATION_STATUS";
+    public final static String DEVIATION = "DEVIATION";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 设备编号
+	 */
+	@ColumnDescription(name = "CODE")
+	private String code;
+    /**
+	 * 设备名称
+	 */
+	@ColumnDescription(name = "NAME")
+	private String name;
+    /**
+	 * 老人主键
+	 */
+	@ColumnDescription(name = "OLDER_ID")
+	private Integer olderId;
+    /**
+	 * 设备类型（1-老人定位器 2-安护宝）
+	 */
+	@ColumnDescription(name = "TYPE")
+	private Integer type;
+    /**
+	 * 最新状态
+	 */
+	@ColumnDescription(name = "STATUS")
+	private String status;
+    /**
+	 * 地址
+	 */
+	@ColumnDescription(name = "ADDRESS")
+	private String address;
+    /**
+	 * 绑定时间
+	 */
+	@ColumnDescription(name = "ADD_TIME")
+	private String addTime;
+    /**
+	 * 电子围栏纬度
+	 */
+	@ColumnDescription(name = "FLAT")
+	private BigDecimal flat;
+    /**
+	 * 电子围栏经度
+	 */
+	@ColumnDescription(name = "FLONG")
+	private BigDecimal flong;
+    /**
+	 * 电子围栏半径 单位米
+	 */
+	@ColumnDescription(name = "FRADIUS")
+	private Integer fradius;
+    /**
+	 * 设备最新纬度
+	 */
+	@ColumnDescription(name = "POS_LAT")
+	private BigDecimal posLat;
+    /**
+	 * 设备最新经度
+	 */
+	@ColumnDescription(name = "POS_LONG")
+	private BigDecimal posLong;
+    /**
+	 * 图片
+	 */
+	@ColumnDescription(name = "PHOTO")
+	private String photo;
+    /**
+	 * 设备电话
+	 */
+	@ColumnDescription(name = "DEV_PHONE")
+	private String devPhone;
+    /**
+	 * 门磁设备标识
+	 */
+	@ColumnDescription(name = "DOOR_CODE")
+	private String doorCode;
+    /**
+	 * 门磁延迟报警分钟0001
+	 */
+	@ColumnDescription(name = "DOOR_ALARM_DELAY")
+	private String doorAlarmDelay;
+    /**
+	 * 门磁报警时间开始0000
+	 */
+	@ColumnDescription(name = "DOOR_ALARM_START")
+	private String doorAlarmStart;
+    /**
+	 * 门磁报警时间结束2400
+	 */
+	@ColumnDescription(name = "DOOR_ALARM_END")
+	private String doorAlarmEnd;
+    /**
+	 * 红外设备标识
+	 */
+	@ColumnDescription(name = "IR_CODE")
+	private String irCode;
+    /**
+	 * 红外延迟报警分钟0001
+	 */
+	@ColumnDescription(name = "IR_ALARM_DELAY")
+	private String irAlarmDelay;
+    /**
+	 * 红外报警时间开始0000
+	 */
+	@ColumnDescription(name = "IR_ALARM_START")
+	private String irAlarmStart;
+    /**
+	 * 红外报警时间结束2400
+	 */
+	@ColumnDescription(name = "IR_ALARM_END")
+	private String irAlarmEnd;
+    /**
+	 * 老人定位器模式0-普通1-紧急
+	 */
+	@ColumnDescription(name = "LOCATION_STATUS")
+	private Integer locationStatus;
+    /**
+	 * 经纬度定位时误差为0，基站定位时返回默认值
+	 */
+	@ColumnDescription(name = "DEVIATION")
+	private Integer deviation;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+    public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+    public Integer getOlderId() {
+		return olderId;
+	}
+
+	public void setOlderId(Integer olderId) {
+		this.olderId = olderId;
+	}
+    public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+    public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+    public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+    public String getAddTime() {
+		return addTime;
+	}
+
+	public void setAddTime(String addTime) {
+		this.addTime = addTime;
+	}
+    public BigDecimal getFlat() {
+		return flat;
+	}
+
+	public void setFlat(BigDecimal flat) {
+		this.flat = flat;
+	}
+    public BigDecimal getFlong() {
+		return flong;
+	}
+
+	public void setFlong(BigDecimal flong) {
+		this.flong = flong;
+	}
+    public Integer getFradius() {
+		return fradius;
+	}
+
+	public void setFradius(Integer fradius) {
+		this.fradius = fradius;
+	}
+    public BigDecimal getPosLat() {
+		return posLat;
+	}
+
+	public void setPosLat(BigDecimal posLat) {
+		this.posLat = posLat;
+	}
+    public BigDecimal getPosLong() {
+		return posLong;
+	}
+
+	public void setPosLong(BigDecimal posLong) {
+		this.posLong = posLong;
+	}
+    public String getPhoto() {
+		return photo;
+	}
+
+	public void setPhoto(String photo) {
+		this.photo = photo;
+	}
+    public String getDevPhone() {
+		return devPhone;
+	}
+
+	public void setDevPhone(String devPhone) {
+		this.devPhone = devPhone;
+	}
+    public String getDoorCode() {
+		return doorCode;
+	}
+
+	public void setDoorCode(String doorCode) {
+		this.doorCode = doorCode;
+	}
+    public String getDoorAlarmDelay() {
+		return doorAlarmDelay;
+	}
+
+	public void setDoorAlarmDelay(String doorAlarmDelay) {
+		this.doorAlarmDelay = doorAlarmDelay;
+	}
+    public String getDoorAlarmStart() {
+		return doorAlarmStart;
+	}
+
+	public void setDoorAlarmStart(String doorAlarmStart) {
+		this.doorAlarmStart = doorAlarmStart;
+	}
+    public String getDoorAlarmEnd() {
+		return doorAlarmEnd;
+	}
+
+	public void setDoorAlarmEnd(String doorAlarmEnd) {
+		this.doorAlarmEnd = doorAlarmEnd;
+	}
+    public String getIrCode() {
+		return irCode;
+	}
+
+	public void setIrCode(String irCode) {
+		this.irCode = irCode;
+	}
+    public String getIrAlarmDelay() {
+		return irAlarmDelay;
+	}
+
+	public void setIrAlarmDelay(String irAlarmDelay) {
+		this.irAlarmDelay = irAlarmDelay;
+	}
+    public String getIrAlarmStart() {
+		return irAlarmStart;
+	}
+
+	public void setIrAlarmStart(String irAlarmStart) {
+		this.irAlarmStart = irAlarmStart;
+	}
+    public String getIrAlarmEnd() {
+		return irAlarmEnd;
+	}
+
+	public void setIrAlarmEnd(String irAlarmEnd) {
+		this.irAlarmEnd = irAlarmEnd;
+	}
+    public Integer getLocationStatus() {
+		return locationStatus;
+	}
+
+	public void setLocationStatus(Integer locationStatus) {
+		this.locationStatus = locationStatus;
+	}
+    public Integer getDeviation() {
+		return deviation;
+	}
+
+	public void setDeviation(Integer deviation) {
+		this.deviation = deviation;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="OlderEntity"	,joinColumn="ID"	)
+			
+			
+		private OlderEntity older;
+	        
+	public OlderEntity getOlder() {
+		return older;
+    }
+	
+	public void setOlder(OlderEntity older) {
+		this.older = older;
+	}
+			
+}

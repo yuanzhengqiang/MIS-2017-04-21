@@ -1,0 +1,869 @@
+package fsk.entity.serviceTask;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import fsk.entity.older.OlderEntity;
+import fsk.entity.wechat.WechatEntity;
+import fsk.entity.site.SiteEntity;
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import com.framework.system.common.entity.dataDic.DataDicEntity;
+import fsk.entity.serviceTaskPhoto.ServiceTaskPhotoEntity;
+import fsk.entity.edemaCondition.EdemaConditionEntity;
+import fsk.entity.situationObservation.SituationObservationEntity;
+import fsk.entity.serviceLog.ServiceLogEntity;
+import fsk.entity.dailyLifeAsk.DailyLifeAskEntity;
+import fsk.entity.serviceEmployee.ServiceEmployeeEntity;
+import fsk.entity.service.ServiceEntity;
+import fsk.entity.physiologicalParametersHistory.PhysiologicalParametersHistoryEntity;
+
+
+import com.framework.system.db.dao.annotation.ColumnDescription;
+import com.framework.system.db.dao.annotation.RelationlDescription;
+import com.framework.system.db.dao.annotation.TableDescription;
+
+/**   
+ * @Title: Entity
+ * @Description: 服务工单
+ * @author feng.gu
+ * @date 2016-10-19 10:24:23
+ * @version V1.0   
+ *
+ */
+@TableDescription(name = "B_SERVICE_TASK")
+public class ServiceTaskEntity implements java.io.Serializable {
+    public final static String ID = "ID";
+    public final static String SERVICE_CODE = "SERVICE_CODE";
+    public final static String OLDER_ID = "OLDER_ID";
+    public final static String OLDER_MEMBER_NUM = "OLDER_MEMBER_NUM";
+    public final static String OLDER_NAME = "OLDER_NAME";
+    public final static String OLDER_BIRTHDATE = "OLDER_BIRTHDATE";
+    public final static String SERVICE_AREA_ID = "SERVICE_AREA_ID";
+    public final static String SERVICE_STREET_ID = "SERVICE_STREET_ID";
+    public final static String CONTACT_NAME = "CONTACT_NAME";
+    public final static String CONTACT_TEL = "CONTACT_TEL";
+    public final static String ADDRESS = "ADDRESS";
+    public final static String ADDRESS_LONG = "ADDRESS_LONG";
+    public final static String ADDRESS_LAT = "ADDRESS_LAT";
+    public final static String SERVICE_EXPECT_TIME = "SERVICE_EXPECT_TIME";
+    public final static String SERVICE_START_TIME = "SERVICE_START_TIME";
+    public final static String SERVICE_END_TIME = "SERVICE_END_TIME";
+    public final static String SERVICE_TIME_COUNT = "SERVICE_TIME_COUNT";
+    public final static String SERVICE_TIME_STATUS = "SERVICE_TIME_STATUS";
+    public final static String SITE_ID = "SITE_ID";
+    public final static String SITE_NAME = "SITE_NAME";
+    public final static String NURSING_RECORD = "NURSING_RECORD";
+    public final static String CUSTOMER_INFORMED = "CUSTOMER_INFORMED";
+    public final static String QUALITY_EVALUATION = "QUALITY_EVALUATION";
+    public final static String ATTITUDE_EVALUATION = "ATTITUDE_EVALUATION";
+    public final static String COURSE_NUMBER = "COURSE_NUMBER";
+    public final static String SERVICE_NUMBER = "SERVICE_NUMBER";
+    public final static String PRICE = "PRICE";
+    public final static String SOURCE = "SOURCE";
+    public final static String HEALTH_INSURANCE = "HEALTH_INSURANCE";
+    public final static String STATUS = "STATUS";
+    public final static String DES = "DES";
+    public final static String ADD_PERSON = "ADD_PERSON";
+    public final static String ADD_TIME = "ADD_TIME";
+    public final static String VISIT_PERSON = "VISIT_PERSON";
+    public final static String VISIT_TIME = "VISIT_TIME";
+    public final static String SATISFACTION_EVALUATION = "SATISFACTION_EVALUATION";
+    public final static String VISIT_RECORD = "VISIT_RECORD";
+    public final static String PHYSIOLOGICAL_PARAMETERS_DES = "PHYSIOLOGICAL_PARAMETERS_DES";
+    public final static String VISIT_SERVICE_TIME = "VISIT_SERVICE_TIME";
+    public final static String VISIT_SERVICE_ATTITUDE = "VISIT_SERVICE_ATTITUDE";
+    public final static String VISIT_SERVICE_QUALITY = "VISIT_SERVICE_QUALITY";
+    public final static String CHARGE_EMPLOYEE_ID = "CHARGE_EMPLOYEE_ID";
+    public final static String ADD_TYPE = "ADD_TYPE";
+    public final static String ADD_PERSON_WECHAT_ID = "ADD_PERSON_WECHAT_ID";
+    public final static String ADD_PERSON_WECHAT_NAME = "ADD_PERSON_WECHAT_NAME";
+    public final static String HAS_PAY = "HAS_PAY";
+    public final static String PAY_NUM = "PAY_NUM";
+    
+    /**
+	 * 主键
+	 */
+	@ColumnDescription(name = "ID", isPrimaryKey = true, isAutoIncrement = true)
+	private Integer id;
+    /**
+	 * 服务编号
+	 */
+	@ColumnDescription(name = "SERVICE_CODE")
+	private String serviceCode;
+    /**
+	 * 服务老人ID
+	 */
+	@ColumnDescription(name = "OLDER_ID")
+	private Integer olderId;
+    /**
+	 * 服务老人会员号
+	 */
+	@ColumnDescription(name = "OLDER_MEMBER_NUM")
+	private String olderMemberNum;
+    /**
+	 * 服务老人姓名
+	 */
+	@ColumnDescription(name = "OLDER_NAME")
+	private String olderName;
+    /**
+	 * 服务老人出生日期
+	 */
+	@ColumnDescription(name = "OLDER_BIRTHDATE")
+	private String olderBirthdate;
+    /**
+	 * 服务老人所属区县
+	 */
+	@ColumnDescription(name = "SERVICE_AREA_ID")
+	private Integer serviceAreaId;
+    /**
+	 * 服务老人所属街道
+	 */
+	@ColumnDescription(name = "SERVICE_STREET_ID")
+	private Integer serviceStreetId;
+    /**
+	 * 联系人
+	 */
+	@ColumnDescription(name = "CONTACT_NAME")
+	private String contactName;
+    /**
+	 * 联系电话
+	 */
+	@ColumnDescription(name = "CONTACT_TEL")
+	private String contactTel;
+    /**
+	 * 地址
+	 */
+	@ColumnDescription(name = "ADDRESS")
+	private String address;
+    /**
+	 * 地址经度
+	 */
+	@ColumnDescription(name = "ADDRESS_LONG")
+	private BigDecimal addressLong;
+    /**
+	 * 地址纬度
+	 */
+	@ColumnDescription(name = "ADDRESS_LAT")
+	private BigDecimal addressLat;
+    /**
+	 * 预计服务时间
+	 */
+	@ColumnDescription(name = "SERVICE_EXPECT_TIME")
+	private String serviceExpectTime;
+    /**
+	 * 开始服务时间
+	 */
+	@ColumnDescription(name = "SERVICE_START_TIME")
+	private String serviceStartTime;
+    /**
+	 * 结束服务时间
+	 */
+	@ColumnDescription(name = "SERVICE_END_TIME")
+	private String serviceEndTime;
+    /**
+	 * 服务时长(分钟)
+	 */
+	@ColumnDescription(name = "SERVICE_TIME_COUNT")
+	private Integer serviceTimeCount;
+    /**
+	 * 服务时长状态(1-按计划 2-时间不足)
+	 */
+	@ColumnDescription(name = "SERVICE_TIME_STATUS")
+	private Integer serviceTimeStatus;
+    /**
+	 * 服务站点ID
+	 */
+	@ColumnDescription(name = "SITE_ID")
+	private Integer siteId;
+    /**
+	 * 服务站点
+	 */
+	@ColumnDescription(name = "SITE_NAME")
+	private String siteName;
+    /**
+	 * 康复护理情况记录
+	 */
+	@ColumnDescription(name = "NURSING_RECORD")
+	private String nursingRecord;
+    /**
+	 * 客户告知
+	 */
+	@ColumnDescription(name = "CUSTOMER_INFORMED")
+	private String customerInformed;
+    /**
+	 * 服务质量评价(1-很好 2-好 3-中 4-一般 5-差)
+	 */
+	@ColumnDescription(name = "QUALITY_EVALUATION")
+	private Integer qualityEvaluation;
+    /**
+	 * 服务态度评价(1-很好 2-好 3-中 4-一般 5-差)
+	 */
+	@ColumnDescription(name = "ATTITUDE_EVALUATION")
+	private Integer attitudeEvaluation;
+    /**
+	 * 疗程数
+	 */
+	@ColumnDescription(name = "COURSE_NUMBER")
+	private Integer courseNumber;
+    /**
+	 * 服务数
+	 */
+	@ColumnDescription(name = "SERVICE_NUMBER")
+	private Integer serviceNumber;
+    /**
+	 * 价格
+	 */
+	@ColumnDescription(name = "PRICE")
+	private BigDecimal price;
+    /**
+	 * 下单来源
+	 */
+	@ColumnDescription(name = "SOURCE")
+	private String source;
+    /**
+	 * 是否医保(1-医保 2-市场)
+	 */
+	@ColumnDescription(name = "HEALTH_INSURANCE")
+	private Integer healthInsurance;
+    /**
+	 * 状态(1-取消 2-待排班 3-待审核 4-审核通过 5-服务开始 6-服务结束 7-回访结束)
+	 */
+	@ColumnDescription(name = "STATUS")
+	private Integer status;
+    /**
+	 * 备注
+	 */
+	@ColumnDescription(name = "DES")
+	private String des;
+    /**
+	 * 添加人
+	 */
+	@ColumnDescription(name = "ADD_PERSON")
+	private String addPerson;
+    /**
+	 * 添加时间
+	 */
+	@ColumnDescription(name = "ADD_TIME")
+	private String addTime;
+    /**
+	 * 回访人
+	 */
+	@ColumnDescription(name = "VISIT_PERSON")
+	private String visitPerson;
+    /**
+	 * 回访时间
+	 */
+	@ColumnDescription(name = "VISIT_TIME")
+	private String visitTime;
+    /**
+	 * 满意度评价
+	 */
+	@ColumnDescription(name = "SATISFACTION_EVALUATION")
+	private BigDecimal satisfactionEvaluation;
+    /**
+	 * 回访记录
+	 */
+	@ColumnDescription(name = "VISIT_RECORD")
+	private String visitRecord;
+    /**
+	 * 生理参数备注
+	 */
+	@ColumnDescription(name = "PHYSIOLOGICAL_PARAMETERS_DES")
+	private String physiologicalParametersDes;
+    /**
+	 * 回访服务时间
+	 */
+	@ColumnDescription(name = "VISIT_SERVICE_TIME")
+	private String visitServiceTime;
+    /**
+	 * 回访服务态度
+	 */
+	@ColumnDescription(name = "VISIT_SERVICE_ATTITUDE")
+	private String visitServiceAttitude;
+    /**
+	 * 回访服务质量
+	 */
+	@ColumnDescription(name = "VISIT_SERVICE_QUALITY")
+	private String visitServiceQuality;
+    /**
+	 * 负责人员工ID
+	 */
+	@ColumnDescription(name = "CHARGE_EMPLOYEE_ID")
+	private Integer chargeEmployeeId;
+    /**
+	 * 添加类型
+	 */
+	@ColumnDescription(name = "ADD_TYPE")
+	private String addType;
+    /**
+	 * 添加人微信ID
+	 */
+	@ColumnDescription(name = "ADD_PERSON_WECHAT_ID")
+	private Integer addPersonWechatId;
+    /**
+	 * 添加人微信昵称
+	 */
+	@ColumnDescription(name = "ADD_PERSON_WECHAT_NAME")
+	private String addPersonWechatName;
+    /**
+	 * 是否扣款(Y-已扣款 N-未扣款)
+	 */
+	@ColumnDescription(name = "HAS_PAY")
+	private String hasPay;
+    /**
+	 * 扣款金额
+	 */
+	@ColumnDescription(name = "PAY_NUM")
+	private BigDecimal payNum;
+        
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+    public String getServiceCode() {
+		return serviceCode;
+	}
+
+	public void setServiceCode(String serviceCode) {
+		this.serviceCode = serviceCode;
+	}
+    public Integer getOlderId() {
+		return olderId;
+	}
+
+	public void setOlderId(Integer olderId) {
+		this.olderId = olderId;
+	}
+    public String getOlderMemberNum() {
+		return olderMemberNum;
+	}
+
+	public void setOlderMemberNum(String olderMemberNum) {
+		this.olderMemberNum = olderMemberNum;
+	}
+    public String getOlderName() {
+		return olderName;
+	}
+
+	public void setOlderName(String olderName) {
+		this.olderName = olderName;
+	}
+    public String getOlderBirthdate() {
+		return olderBirthdate;
+	}
+
+	public void setOlderBirthdate(String olderBirthdate) {
+		this.olderBirthdate = olderBirthdate;
+	}
+    public Integer getServiceAreaId() {
+		return serviceAreaId;
+	}
+
+	public void setServiceAreaId(Integer serviceAreaId) {
+		this.serviceAreaId = serviceAreaId;
+	}
+    public Integer getServiceStreetId() {
+		return serviceStreetId;
+	}
+
+	public void setServiceStreetId(Integer serviceStreetId) {
+		this.serviceStreetId = serviceStreetId;
+	}
+    public String getContactName() {
+		return contactName;
+	}
+
+	public void setContactName(String contactName) {
+		this.contactName = contactName;
+	}
+    public String getContactTel() {
+		return contactTel;
+	}
+
+	public void setContactTel(String contactTel) {
+		this.contactTel = contactTel;
+	}
+    public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+    public BigDecimal getAddressLong() {
+		return addressLong;
+	}
+
+	public void setAddressLong(BigDecimal addressLong) {
+		this.addressLong = addressLong;
+	}
+    public BigDecimal getAddressLat() {
+		return addressLat;
+	}
+
+	public void setAddressLat(BigDecimal addressLat) {
+		this.addressLat = addressLat;
+	}
+    public String getServiceExpectTime() {
+		return serviceExpectTime;
+	}
+
+	public void setServiceExpectTime(String serviceExpectTime) {
+		this.serviceExpectTime = serviceExpectTime;
+	}
+    public String getServiceStartTime() {
+		return serviceStartTime;
+	}
+
+	public void setServiceStartTime(String serviceStartTime) {
+		this.serviceStartTime = serviceStartTime;
+	}
+    public String getServiceEndTime() {
+		return serviceEndTime;
+	}
+
+	public void setServiceEndTime(String serviceEndTime) {
+		this.serviceEndTime = serviceEndTime;
+	}
+    public Integer getServiceTimeCount() {
+		return serviceTimeCount;
+	}
+
+	public void setServiceTimeCount(Integer serviceTimeCount) {
+		this.serviceTimeCount = serviceTimeCount;
+	}
+    public Integer getServiceTimeStatus() {
+		return serviceTimeStatus;
+	}
+
+	public void setServiceTimeStatus(Integer serviceTimeStatus) {
+		this.serviceTimeStatus = serviceTimeStatus;
+	}
+    public Integer getSiteId() {
+		return siteId;
+	}
+
+	public void setSiteId(Integer siteId) {
+		this.siteId = siteId;
+	}
+    public String getSiteName() {
+		return siteName;
+	}
+
+	public void setSiteName(String siteName) {
+		this.siteName = siteName;
+	}
+    public String getNursingRecord() {
+		return nursingRecord;
+	}
+
+	public void setNursingRecord(String nursingRecord) {
+		this.nursingRecord = nursingRecord;
+	}
+    public String getCustomerInformed() {
+		return customerInformed;
+	}
+
+	public void setCustomerInformed(String customerInformed) {
+		this.customerInformed = customerInformed;
+	}
+    public Integer getQualityEvaluation() {
+		return qualityEvaluation;
+	}
+
+	public void setQualityEvaluation(Integer qualityEvaluation) {
+		this.qualityEvaluation = qualityEvaluation;
+	}
+    public Integer getAttitudeEvaluation() {
+		return attitudeEvaluation;
+	}
+
+	public void setAttitudeEvaluation(Integer attitudeEvaluation) {
+		this.attitudeEvaluation = attitudeEvaluation;
+	}
+    public Integer getCourseNumber() {
+		return courseNumber;
+	}
+
+	public void setCourseNumber(Integer courseNumber) {
+		this.courseNumber = courseNumber;
+	}
+    public Integer getServiceNumber() {
+		return serviceNumber;
+	}
+
+	public void setServiceNumber(Integer serviceNumber) {
+		this.serviceNumber = serviceNumber;
+	}
+    public BigDecimal getPrice() {
+		return price;
+	}
+
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
+    public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+    public Integer getHealthInsurance() {
+		return healthInsurance;
+	}
+
+	public void setHealthInsurance(Integer healthInsurance) {
+		this.healthInsurance = healthInsurance;
+	}
+    public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+    public String getDes() {
+		return des;
+	}
+
+	public void setDes(String des) {
+		this.des = des;
+	}
+    public String getAddPerson() {
+		return addPerson;
+	}
+
+	public void setAddPerson(String addPerson) {
+		this.addPerson = addPerson;
+	}
+    public String getAddTime() {
+		return addTime;
+	}
+
+	public void setAddTime(String addTime) {
+		this.addTime = addTime;
+	}
+    public String getVisitPerson() {
+		return visitPerson;
+	}
+
+	public void setVisitPerson(String visitPerson) {
+		this.visitPerson = visitPerson;
+	}
+    public String getVisitTime() {
+		return visitTime;
+	}
+
+	public void setVisitTime(String visitTime) {
+		this.visitTime = visitTime;
+	}
+    public BigDecimal getSatisfactionEvaluation() {
+		return satisfactionEvaluation;
+	}
+
+	public void setSatisfactionEvaluation(BigDecimal satisfactionEvaluation) {
+		this.satisfactionEvaluation = satisfactionEvaluation;
+	}
+    public String getVisitRecord() {
+		return visitRecord;
+	}
+
+	public void setVisitRecord(String visitRecord) {
+		this.visitRecord = visitRecord;
+	}
+    public String getPhysiologicalParametersDes() {
+		return physiologicalParametersDes;
+	}
+
+	public void setPhysiologicalParametersDes(String physiologicalParametersDes) {
+		this.physiologicalParametersDes = physiologicalParametersDes;
+	}
+    public String getVisitServiceTime() {
+		return visitServiceTime;
+	}
+
+	public void setVisitServiceTime(String visitServiceTime) {
+		this.visitServiceTime = visitServiceTime;
+	}
+    public String getVisitServiceAttitude() {
+		return visitServiceAttitude;
+	}
+
+	public void setVisitServiceAttitude(String visitServiceAttitude) {
+		this.visitServiceAttitude = visitServiceAttitude;
+	}
+    public String getVisitServiceQuality() {
+		return visitServiceQuality;
+	}
+
+	public void setVisitServiceQuality(String visitServiceQuality) {
+		this.visitServiceQuality = visitServiceQuality;
+	}
+    public Integer getChargeEmployeeId() {
+		return chargeEmployeeId;
+	}
+
+	public void setChargeEmployeeId(Integer chargeEmployeeId) {
+		this.chargeEmployeeId = chargeEmployeeId;
+	}
+    public String getAddType() {
+		return addType;
+	}
+
+	public void setAddType(String addType) {
+		this.addType = addType;
+	}
+    public Integer getAddPersonWechatId() {
+		return addPersonWechatId;
+	}
+
+	public void setAddPersonWechatId(Integer addPersonWechatId) {
+		this.addPersonWechatId = addPersonWechatId;
+	}
+    public String getAddPersonWechatName() {
+		return addPersonWechatName;
+	}
+
+	public void setAddPersonWechatName(String addPersonWechatName) {
+		this.addPersonWechatName = addPersonWechatName;
+	}
+    public String getHasPay() {
+		return hasPay;
+	}
+
+	public void setHasPay(String hasPay) {
+		this.hasPay = hasPay;
+	}
+    public BigDecimal getPayNum() {
+		return payNum;
+	}
+
+	public void setPayNum(BigDecimal payNum) {
+		this.payNum = payNum;
+	}
+        
+    /**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="OlderEntity"	,joinColumn="ID"	)
+			
+			
+		private OlderEntity older;
+	        
+	public OlderEntity getOlder() {
+		return older;
+    }
+	
+	public void setOlder(OlderEntity older) {
+		this.older = older;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="WechatEntity"	,joinColumn="ID"	)
+			
+			
+		private WechatEntity addPersonWechat;
+	        
+	public WechatEntity getAddPersonWechat() {
+		return addPersonWechat;
+    }
+	
+	public void setAddPersonWechat(WechatEntity addPersonWechat) {
+		this.addPersonWechat = addPersonWechat;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="SiteEntity"	,joinColumn="ID"	)
+			
+			
+		private SiteEntity site;
+	        
+	public SiteEntity getSite() {
+		return site;
+    }
+	
+	public void setSite(SiteEntity site) {
+		this.site = site;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="DataDicEntity"	,joinColumn="ID"	)
+			
+			
+		private DataDicEntity serviceArea;
+	        
+	public DataDicEntity getServiceArea() {
+		return serviceArea;
+    }
+	
+	public void setServiceArea(DataDicEntity serviceArea) {
+		this.serviceArea = serviceArea;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToOne",
+		joinEntity="DataDicEntity"	,joinColumn="ID"	)
+			
+			
+		private DataDicEntity serviceStreet;
+	        
+	public DataDicEntity getServiceStreet() {
+		return serviceStreet;
+    }
+	
+	public void setServiceStreet(DataDicEntity serviceStreet) {
+		this.serviceStreet = serviceStreet;
+	}
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="ServiceTaskPhotoEntity"			,joinColumn="SERVICE_TASK_ID"
+			)
+			
+		private List<ServiceTaskPhotoEntity> serviceTaskPhotoList;
+	        
+	public List<ServiceTaskPhotoEntity> getServiceTaskPhotoList() {
+		return serviceTaskPhotoList;
+	}
+	
+	public void setServiceTaskPhotoList(List<ServiceTaskPhotoEntity> serviceTaskPhotoList) {
+		this.serviceTaskPhotoList = serviceTaskPhotoList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="EdemaConditionEntity"			,joinColumn="SERVICE_TASK_ID"
+			)
+			
+		private List<EdemaConditionEntity> edemaConditionList;
+	        
+	public List<EdemaConditionEntity> getEdemaConditionList() {
+		return edemaConditionList;
+	}
+	
+	public void setEdemaConditionList(List<EdemaConditionEntity> edemaConditionList) {
+		this.edemaConditionList = edemaConditionList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="SituationObservationEntity"			,joinColumn="SERVICE_TASK_ID"
+			)
+			
+		private List<SituationObservationEntity> situationObservationList;
+	        
+	public List<SituationObservationEntity> getSituationObservationList() {
+		return situationObservationList;
+	}
+	
+	public void setSituationObservationList(List<SituationObservationEntity> situationObservationList) {
+		this.situationObservationList = situationObservationList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="ServiceLogEntity"			,joinColumn="SERVICE_TASK_ID"
+			)
+			
+		private List<ServiceLogEntity> serviceLogList;
+	        
+	public List<ServiceLogEntity> getServiceLogList() {
+		return serviceLogList;
+	}
+	
+	public void setServiceLogList(List<ServiceLogEntity> serviceLogList) {
+		this.serviceLogList = serviceLogList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="DailyLifeAskEntity"			,joinColumn="SERVICE_TASK_ID"
+			)
+			
+		private List<DailyLifeAskEntity> dailyLifeAskList;
+	        
+	public List<DailyLifeAskEntity> getDailyLifeAskList() {
+		return dailyLifeAskList;
+	}
+	
+	public void setDailyLifeAskList(List<DailyLifeAskEntity> dailyLifeAskList) {
+		this.dailyLifeAskList = dailyLifeAskList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "OneToMany",
+		joinEntity="ServiceEmployeeEntity"			,joinColumn="SERVICE_TASK_ID"
+			)
+			
+		private List<ServiceEmployeeEntity> serviceEmployeeList;
+	        
+	public List<ServiceEmployeeEntity> getServiceEmployeeList() {
+		return serviceEmployeeList;
+	}
+	
+	public void setServiceEmployeeList(List<ServiceEmployeeEntity> serviceEmployeeList) {
+		this.serviceEmployeeList = serviceEmployeeList;
+	}
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToMany",
+			joinEntity="ServiceTaskServiceEntity"
+					,joinColumn="SERVICE_TASK_ID"
+			,inverseJoinColumn="SERVICE_ID",inverseJoinEntity="ServiceEntity")
+	    private List<ServiceEntity> serviceList;
+	        
+	public List<ServiceEntity> getServiceList() {
+		return serviceList;
+    }
+	
+	public void setServiceList(List<ServiceEntity> serviceList) {
+		this.serviceList = serviceList;
+	}
+    		
+			
+		/**
+     * 关系描述
+	 */
+	    @RelationlDescription(relation = "ManyToMany",
+			joinEntity="ServiceTaskPhysiologicalParametersHistoryEntity"
+					,joinColumn="SERVICE_TASK_ID"
+			,inverseJoinColumn="PHYSIOLOGICAL_PARAMETERS_HISTORY_ID",inverseJoinEntity="PhysiologicalParametersHistoryEntity")
+	    private List<PhysiologicalParametersHistoryEntity> physiologicalParametersHistoryList;
+	        
+	public List<PhysiologicalParametersHistoryEntity> getPhysiologicalParametersHistoryList() {
+		return physiologicalParametersHistoryList;
+    }
+	
+	public void setPhysiologicalParametersHistoryList(List<PhysiologicalParametersHistoryEntity> physiologicalParametersHistoryList) {
+		this.physiologicalParametersHistoryList = physiologicalParametersHistoryList;
+	}
+    		
+			
+			
+}
