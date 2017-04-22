@@ -125,7 +125,7 @@
 						     	<li><a href="#" onclick="changeCenter()">
 			               			<i class="fa fa-users"></i>体检订单管理</a>
 			               		</li>   
-						     	<li><a href="#" onclick="changeCenter()">
+						     	<li><a href="#" onclick="changeCenter('medicalReport.do?main')">
 			               			<i class="fa fa-users"></i>体检报告管理</a>
 			               		</li>           
 				        	 </ul>

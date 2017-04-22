@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.framework.system.common.entity.json.AjaxJson;
 import com.framework.system.mis.handler.MedicalReportHandler;
@@ -34,6 +35,31 @@ public class MedicalReportController {
 	 */
 	private MedicalReportService medicalReportService = MedicalReportService
 			.getInstance();
+	
+	/**
+	 * 体检报告列表
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("medicalReport/MedicalReportList");
+		return mav;
+	}
+	
+	/**
+	 * 体检报告详情
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "medicalReportDeatil")
+	public ModelAndView deatil(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("medicalReport/medicalReportDeatil");
+		String id = request.getParameter("id");
+		mav.addObject("id", id);
+		return mav;
+	}
+	
 
 	/**
 	 * 批量删除 ids英文逗号间隔
