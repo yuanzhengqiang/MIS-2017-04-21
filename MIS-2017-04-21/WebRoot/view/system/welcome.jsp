@@ -98,20 +98,46 @@
 							</div>
 						</div>
 						<ul class="cl-vnavigation">
-					     <!--  <li class="parent"><a href=""><i class="fa fa-folder-open"></i><span>测试</span></a>   
-				       		<ul class="sub-menu">                
+					      <li class="parent"><a href=""><i class="fa fa-folder-open"></i><span>基础信息</span></a>   
+				      		<ul class="sub-menu">   
 							    <li><a href="#" onclick="changeCenter()">
-			               			<i class="fa fa-male"></i>测试</a>
+			               			<i class="fa fa-male"></i>地区管理</a>
+			               		</li>
+				            
+							    <li><a href="#" onclick="changeCenter()">
+			               			<i class="fa fa-male"></i>医院管理</a>
+			               		</li>
+				                 
+							    <li><a href="#" onclick="changeCenter('medicalItem.do?main')">
+			               			<i class="fa fa-male"></i>体检项目管理</a>
+			               		</li>
+				      		             
+							    <li><a href="#" onclick="changeCenter()">
+			               			<i class="fa fa-male"></i>工作人员管理</a>
+			               		</li>         
+							    <li><a href="#" onclick="changeCenter()">
+			               			<i class="fa fa-male"></i>微信客户管理</a>
 			               		</li>
 				      		</ul>
-				       	  </li> -->
-				       	  <li class="parent open"><a href="system.do"><i class="fa fa-user"></i><span>系统设置</span></a>   
-				       		 <ul class="sub-menu" style="display: block;">                
+				       	  </li>
+				       	  <li class="parent"><a href="system.do"><i class="fa fa-user"></i><span>订单信息</span></a>   
+				       		 <ul class="sub-menu">                
+						     	<li><a href="#" onclick="changeCenter()">
+			               			<i class="fa fa-users"></i>体检订单管理</a>
+			               		</li>   
+						     	<li><a href="#" onclick="changeCenter()">
+			               			<i class="fa fa-users"></i>体检报告管理</a>
+			               		</li>           
+				        	 </ul>
+				          </li>
+				       	  <li class="parent"><a href="system.do"><i class="fa fa-user"></i><span>系统设置</span></a>   
+				       		 <ul class="sub-menu">                
 						     	<li><a href="#" onclick="changeCenter('systemUser.do?main')">
 			               			<i class="fa fa-users"></i>账号管理</a>
 			               		</li>           
 				        	</ul>
-				        </li>
+				          </li>
+				        </ul>
 					</div>
 				</div>
 				<div class="text-right collapse-button" style="padding:7px 9px;">
