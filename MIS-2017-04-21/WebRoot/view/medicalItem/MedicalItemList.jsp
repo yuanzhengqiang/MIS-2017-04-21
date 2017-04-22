@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <link rel="shortcut icon" href="images/logo.png">
 
-    <title>账号管理</title>
+    <title>体检项目管理</title>
   
     <!-- Bootstrap core CSS -->
     <link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
@@ -38,40 +38,6 @@
       .timeTip div{margin:20px 30px}
       .hideAndShow{display:none;}
   	</style>
-  <script type="text/javascript">
-	//显示状态更新时间的js组件
-	var timeTip = {
-		$:function(ele){
-			if(typeof(ele)=="object")
-				return ele;
-			else if(typeof(ele)=="string"||typeof(ele)=="number")
-				return document.getElementById(ele.toString());
-			return null;
-		}, 
-		mousePos:function(e){
-			var x,y;
-			var e = e||window.event;
-			//alert(document.body.scrollLeft);
-			//alert(document.body.scrollTop);
-			return{x:e.clientX+document.body.scrollLeft-document.documentElement.scrollLeft,
-				y:e.clientY+document.body.scrollTop-document.documentElement.scrollTop};
-		},
-		showtip:function(obj, dateString){
-			var self = this;
-			var t = self.$("timeTip");
-			obj.onmousemove = function(e){
-				var mouse = self.mousePos(e);
-				t.style.left = mouse.x +10+ 'px';
-				t.style.top = mouse.y +10+'px';
-				t.innerHTML = "<div>本次登录时间：" + dateString +"</div>";
-				t.style.display = 'block';
-			};
-			obj.onmouseout = function(){
-				t.style.display = 'none';
-			};
-		}
-	}
-  </script>
 </head>
 <body style="opacity: 1; margin-left: 0px;">
 	<div style="width: 100%; height: 100%;">
@@ -80,10 +46,10 @@
 			<div class="page-head">
 				<h2>体检项目管理</h2>
 				<ol class="breadcrumb">
-					<li><a href="welcome.do?center">首页</a></li>
+					<li>首页</li>
 					<input type="hidden" value="" id="sortType">
 					<input type="hidden" value="" id="sortColumn">
-					<li class="active">账号管理</li>
+					<li class="active">体检项目管理</li>
 				</ol>
 			</div>
 		</div>
@@ -98,96 +64,19 @@
 								<div class="dataTables_wrapper form-inline">
 								    <!-- 查询框开始 -->
 									<div class="row">
-										
-										
-										<div class="col-sm-1" style="vertical-align: middle; height: 34px; line-height: 34px;margin-bottom:5px;">
-                      						<label>账号名</label>
+										<div class="col-xs-6 col-sm-2 text-center" style="vertical-align: middle; height: 34px; line-height: 34px;margin-bottom:5px;">
+                      						<label>项目名称</label>
                     					</div>
-                    					<div class="col-sm-11" style="margin-bottom:5px;">
-                       						<input id="loginname_input" class="tags" type="hidden" value="" />
+                    					<div class="col-xs-6 col-sm-4" style="margin-bottom:5px;">
+                       						<input id="queryItemName" class="form-control" type="text" value="" autocomplete="off">
                     					</div>
-										<div class="col-sm-1" style="vertical-align: middle; height: 34px; line-height: 34px;margin-bottom:5px;">
-                      						<label>账号类别</label>
-                    					</div>
-                    					<div class="col-sm-11" style="margin-bottom:5px;">
-                      						<select id="login_type" class="select2" multiple>
-                      							<option value="管理员">管理员</option>
-                       							<option value="员工">员工</option>
-                       							<option value="老人">老人</option>
-                  	  						</select>
-                    					</div>
-										<div class="col-sm-1  hideAndShow" style=" vertical-align: middle; height: 34px; line-height: 34px;margin-bottom:5px;">
-                      						<label>账号状态</label>
-                    					</div>
-                    					<div class="col-sm-11  hideAndShow" style="margin-bottom:5px;">
-                      						<select id="login_state" class="select2" multiple>
-                       							<option value="0">正常</option>
-                       							<option value="1">过期</option>
-                       							<option value="2">锁定</option>
-                  	  						</select>
-                    					</div>
-										<div class="col-sm-1  hideAndShow" style="vertical-align: middle; height: 34px; line-height: 34px;margin-bottom:5px; ">
-                      						<label>本次登录起止日期</label>
-                    					</div>
-										<div class="col-sm-5  hideAndShow">
-                          					<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;"><span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
-                            					<input class="form-control" size="16" value="" readonly="readonly" type="text" id="thisLoginStartDate" placeholder="开始时间">
-												<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
-                          					</div>
-                     					</div>
-										<div class="col-sm-5  hideAndShow"> 
-                          					<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;"><span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
-                            					<input class="form-control" size="16" value="" readonly="readonly" type="text" id="thisLoginEndDate" placeholder="结束时间">
-                             					<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
-                          					</div>
-                     					</div>
-                     					<div class="col-sm-1  hideAndShow" style="clear:both;vertical-align: middle; height: 34px; line-height: 34px;margin-bottom:5px; ">
-                      						<label>上次登录起止日期</label>
-                    					</div>
-										<div class="col-sm-5  hideAndShow">
-                          					<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;"><span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
-                            					<input class="form-control" size="16" value="" readonly="readonly" type="text" id="lastLoginStartDate" placeholder="开始时间">
-                             					<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
-                          					</div>
-                     					</div>
-										<div class="col-sm-5  hideAndShow">
-                          					<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;"><span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
-                            					<input class="form-control" size="16" value="" readonly="readonly" type="text" id="lastLoginEndDate" placeholder="结束时间">
-                             					<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
-                          					</div>
-                     					</div>
 									</div>
 									<!-- 查询框结束 -->
 									<!-- 操作按钮开始 -->
 									<div class="row">
 										<div class="col-sm-12">	
-											<c:if test="${user_query_btn_control != 'yes' or user_query_btn_show == 'yes'}">
-                    						    <button class="btn btn-primary " style="margin-bottom: 0px !important; height: 34px;margin-left:0" onclick="query();">查询</button>
-											</c:if>	
-											<a style="cursor:pointer;text-decoration:underline;vertical-align:bottom;"  onclick="$('.hideAndShow').toggle();">更多查询条件</a>
-<!--                                             <c:if test="${user_del_btn_control != 'yes' or user_del_btn_show == 'yes'}"> -->
-<!-- 											<button id="user_del" type="button" class="btn btn-danger btn-flat" style="float: right; margin-right: 30px;" onclick="doDel()"> -->
-<!-- 												<span><i class="fa fa-trash-o" style="margin-right:5px;"></i>删除</span> -->
-<!-- 											</button> -->
-<!-- 											</c:if> -->
-											<button id="fake_reset_button" class="md-trigger" style="display: none;" data-modal="md-scale3"/> <!-- 假按钮 -->
-<!-- 											<c:if test="${user_edit_control != 'yes' or user_edit_show == 'yes'}"> -->
-<!-- 											<button id="user_edit" type="button" class="btn btn-primary btn-flat" style="float: right;" onclick="doEdit()"> -->
-<!-- 												<span><i class="fa fa-pencil" style="margin-right:5px;"></i>编辑</span> -->
-<!-- 											</button> -->
-<!-- 											</c:if> -->
-											<button type="button" style="display: none" class="md-trigger" id="realyedit" data-modal="md-scale"></button>	
-											<%-- <c:if test="${user_add_btn_control != 'yes' or user_add_btn_show == 'yes'}">	
-											<button id="user_add" type="button" class="btn btn-primary btn-flat md-trigger" data-modal="md-scale" style="float: right;" onclick="doAdd()">
-												<span><i class="fa fa-plus" style="margin-right:5px;"></i>新增</span>
-											</button>
-											</c:if>  --%>
-											<c:if test="${user_roleadd_btn_control != 'yes' or user_roleadd_btn_show == 'yes'}">
-											<button id="user_role_add" type="button" class="btn btn-primary btn-flat" style="float: right;" onclick="doAddRoleList()">
-												<span><i class="fa fa-user" style="margin-right:5px;"></i>分配角色</span>
-												<button type="button" style="display: none" class="md-trigger" id="realyrole" data-modal="md-scale-role"></button>
-											</button>
-											</c:if>
+                    						<button class="btn btn-primary " style="margin-bottom: 0px !important; height: 34px;margin-left:0;float:left;" onclick="query();">查询</button>
+                    						<button class="btn btn-primary btn-flat" style="margin-bottom: 0px !important; height: 34px;margin-left:0;float:right;" onclick="add();">新增</button>
 										</div>
 									</div>
 									<!-- 操作按钮结束 -->
@@ -198,14 +87,14 @@
 												<thead>
 													<tr role="row">
 														<th style="width:2%;"><input id="allselectchecker" type="checkbox" class="col_selector" onclick="selectAll();"></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_loginname')"><strong>账号名</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>账号类别</strong></th>
-														<th><strong>角色</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'status')"><strong>账号状态</strong></th>
-														<th><strong>本次登录</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'lastLoginTime')"><strong>上次登录</strong></th>													
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'loginNum')"><strong>本月登录次数</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'createTime')"><strong>注册时间</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_loginname')"><strong>项目名称</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>价格</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>类别</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>检测方式</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'status')"><strong>检测目的</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>选择说明</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'lastLoginTime')"><strong>备注</strong></th>													
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'loginNum')"><strong>注意事项</strong></th>
 														<th><strong>操作<strong></th>
 													</tr>
 												</thead>
@@ -256,221 +145,87 @@
 	</div>
 	
 	<!-- Nifty Modal -->
-	<div class="md-modal md-effect-1" id="md-scale">
+	<button class="md-trigger" data-modal="editDetail" style="display:none;" id="editDes"></button>
+	<div class="md-modal md-effect-1" id="editDetail" style="height: 650px;">
     	<div class="row">
-			<div class="col-md-12">
-				<div class="block-flat">
+			<div class="col-md-12" style="padding: 10px 0px;">
+				<div class="block-flat" style="padding-right: 0px;">
 					<div class="header">
-						<h3>系统账号信息</h3>
+						<h3>体检项目信息</h3>
 					</div>
-			
-					<div class="content">
+					<div class="content" style="height: 530px;overflow-y: auto;">
 						<form class="form-horizontal group-border-dashed" action="#" style="border-radius: 0px;">
-							<input type="hidden" name="entityId" id="entityId">
+							<input type="hidden" name="entityId" id="medicalItemInfoId">
 							<div class="form-group">
-								<label class="col-sm-3 control-label color-danger">*账号名称</label>
+								<label class="col-sm-3 control-label">项目名称</label>
 								<div class="col-sm-6">
-									<input id="loginname" type="text" class="form-control" disabled="disabled">
+									<input id="itemName" type="text" class="form-control" autocomplete="off">
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-3 control-label color-danger">*账号密码</label>
+								<label class="col-sm-3 control-label">价格</label>
 								<div class="col-sm-6">
-									<input id="password" type="password" class="form-control">
+									<input id="price"class="form-control" autocomplete="off">
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-3 control-label">账号昵称</label>
+								<label class="col-sm-3 control-label">类别</label>
 								<div class="col-sm-6">
-									<input id="nickname" type="text" class="form-control">
+									<select id="category" style="width:100%;height:30px;">
+										<option value=""></option>
+                       					<option value="0">基础检查</option>
+                       					<option value="1">肿瘤</option>
+                       					<option value="2">心脑血管</option>
+                  	  				</select>
 								</div>
 							</div>
 							<div class="form-group">
-                				<label class="col-sm-3 control-label">账号类别</label>
+                				<label class="col-sm-3 control-label">检测方式</label>
                 				<div class="col-sm-6">
-                					<input id="logintype" type="text" disabled="disabled" class="form-control">
+                					<input id="testWay" type="text" class="form-control" autocomplete="off">
                 				</div>
 			  				</div>
-							<div class="form-group" style="margin-left:60px;">
-                				<label class="col-sm-2 control-label">账号状态</label>
-                				<div class="col-sm-4">
-                      				<select id="loginstate" style="width:100px;height:30px;">
-                       					<option value="0">正常</option>
-                       					<option value="1">过期</option>
-                       					<option value="2">锁定</option>
-                  	  				</select>
-                  	  			</div>
+							<div class="form-group">
+                				<label class="col-sm-3 control-label">检测目的</label>
+                				<div class="col-sm-6">
+                					<input id="testPurpose" type="text" class="form-control" autocomplete="off">
+                				</div>
                     		</div>	
-							<div class="form-group" style="display:none">
-								<label class="col-sm-3 control-label">本月登录次数</label>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">选择说明</label>
 								<div class="col-sm-6">
-									<input id="loginNum" type="text" class="form-control">
+									<textarea class="form-control" id="selectDes"></textarea>
 								</div>
 							</div>
-							<div class="form-group" style="display:none">
-								<label class="col-sm-3 control-label">本次登录时间</label>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">备注</label>
 								<div class="col-sm-6">
-									<input id="loginTime" type="text" class="form-control">
+									<textarea class="form-control" id="des"></textarea>
 								</div>
 							</div>
-							<div class="form-group" style="display:none">
-								<label class="col-sm-3 control-label">本次登录IP</label>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">注意事项</label>
 								<div class="col-sm-6">
-									<input id="loginIp" type="text" class="form-control">
+									<textarea class="form-control" id="mattersNeedAttention"></textarea>
 								</div>
-							</div>
-							<div class="form-group" style="display:none">
-								<label class="col-sm-3 control-label">上次登录时间</label>
-								<div class="col-sm-6">
-									<input id="lastLoginTime" type="text" class="form-control">
-								</div>
-							</div>
-							<div class="form-group" style="display:none">
-								<label class="col-sm-3 control-label">上次登录IP</label>
-								<div class="col-sm-6">
-									<input id="lastLoginIp" type="text" class="form-control">
-								</div>
-							</div>
-							<div class="form-group" style="display:none">
-								<label class="col-sm-3 control-label">部门ID</label>
-								<div class="col-sm-6">
-									<input id="departmentId" type="text" class="form-control">
-								</div>
-							</div>
-							<div class="form-group" style="display:none">
-								<label class="col-sm-3 control-label">个人信息ID</label>
-								<div class="col-sm-6">
-									<input id="personinfoId" type="text" class="form-control">
-								</div>
-							</div>
-							<div class="form-group" style="display:none">
-								<label class="col-sm-3 control-label">创建用户ID</label>
-								<div class="col-sm-6">
-									<input id="createUserId" type="text" class="form-control">
-								</div>
-							</div>
-							<div class="form-group" style="display:none">
-								<label class="col-sm-3 control-label">创建时间</label>
-								<div class="col-sm-6">
-									<input id="createTime" type="text" class="form-control">
-								</div>
-							</div>
-							<div class="form-group" style="display:none">
-								<label class="col-sm-3 control-label">更新用户ID</label>
-								<div class="col-sm-6">
-									<input id="updateUserId" type="text" class="form-control">
-								</div>
-							</div>
-							<div class="form-group" style="display:none">
-								<label class="col-sm-3 control-label">更新时间</label>
-								<div class="col-sm-6">
-									<input id="updateTime" type="text" class="form-control">
-								</div>
-							</div>							
-							<div class="form-group" style="text-align: center;">
-								<button type="button" class="btn btn-primary btn-rad" onclick="saveInfo();">
-									<span><i class="fa fa-check" style="margin-right:5px;"></i>保存</span>
-								</button>
-								<button id="cancel_button" type="button" class="btn btn-primary btn-rad md-close" style="margin-left: 50px;">
-									<span><i class="fa fa-times" style="margin-right:5px;"></i>取消</span>
-								</button>
 							</div>
 						</form>
 					</div>
+					<div class="footer">
+						<div class="form-group" style="text-align: center;margin:0px">
+							<button type="button" class="btn btn-primary btn-rad" onclick="saveInfo();">
+								<span><i class="fa fa-check" style="margin-right:5px;"></i>保存</span>
+							</button>
+							<button id="cancel_button" type="button" class="btn btn-primary btn-rad md-close" style="margin-left: 50px;">
+								<span><i class="fa fa-times" style="margin-right:5px;"></i>取消</span>
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 	<!-- Nifty Modal -->
-	
-	<!-- 模态框 -->
-	<div class="md-modal md-effect-1" id="md-scale3" >
-      <div class="row">
-        <div class="col-md-12">
-         <div class="block-flat">
-       		 <div class="header">
-              <h4>密码重置确认</h4>
-            </div>
-            <div class="content">
-			<p style="font-size:18px;margin:20px">是否将用户密码重设为“123456”？！</p>
-              <div class="form-group" style="text-align: center;">
-                <button type="button" class="btn btn-success btn-rad " onclick="doreset()">
-                  <span><i class="fa fa-check" style="margin-right:5px;"></i>确定</span>
-                </button>
-                <button id="cancel2Reset" type="button" class="btn btn-primary btn-rad md-close" style="margin-left: 50px;" >
-                  <span><i class="fa fa-times" style="margin-right:5px;"></i>取消</span>
-                </button>
-              </div>
-			</div>
-          </div>
-        </div>
-      </div>
-    </div>
-	
-	
-	<!-- Nifty Modal Role -->
-	<div class="md-modal md-effect-1" id="md-scale-role">
-    	<div class="row">
-			<div class="col-md-12">
-				<div class="block-flat">
-					<div class="header">
-						<h3>角色信息</h3>
-					</div>
-			
-					<div class="content">
-						<table class="table table-bordered dataTable hover" id="datatable-role" aria-describedby="datatable_info">
-												<thead>
-													<tr role="row">
-														<th style="width:2%;"><input id="allselectchecker-role" type="checkbox" class="col_selector" onclick="selectRoleAll();"></th>
-														<th><strong>角色名称</strong></th>
-									                    <th><strong>角色描述</strong></th>
-														<th><strong>创建时间</strong></th>
-													</tr>
-												</thead>
-												<tbody id="datacontainer-role" role="alert" aria-live="polite" aria-relevant="all">																														
-												</tbody>
-						</table>
-					</div>
-					<div class="form-group" style="text-align: center;">
-								<input type="hidden" name="rollId" id="rollId">
-								<button type="button" class="btn btn-primary btn-rad" onclick="saveRelationList();">
-									<span><i class="fa fa-check" style="margin-right:5px;"></i>保存</span>
-								</button>
-								<button id="cancel_button-role" type="button" class="btn btn-primary btn-rad md-close" style="margin-left: 50px;">
-									<span><i class="fa fa-times" style="margin-right:5px;"></i>取消</span>
-								</button>
-							</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- Nifty Modal -->
-
-	<!-- 二次确认是否删除 模态框 -->
-	  <div class="md-modal md-effect-1" id="isSure2Delete"  >
-      <div class="row">
-     
-        <div class="col-md-12">
-         <div class="block-flat">
-       		 <div class="header">
-              <h4>是否确认删除选中的账号</h4>
-            </div>
-            <div class="content">
-			<p id="isSure2DeleteInfo" style="font-size:18px;margin:20px">删除该账号会删除该账号的基本信息,确认删除吗?</p>
-			
-              <div class="form-group" style="text-align: center;">
-                <button type="button" class="btn btn-success btn-rad " id="Sure2Delete">
-                  <span><i class="fa fa-check" style="margin-right:5px;"></i>确定</span>
-                </button>
-                <button id="cancel2Delete" type="button" class="btn btn-primary btn-rad md-close" style="margin-left: 50px;" >
-                  <span><i class="fa fa-times" style="margin-right:5px;"></i>取消</span>
-                </button>
-              </div>
-			</div>
-          </div>
-        </div>
-      </div>
-    </div>
 	
 	<div class="md-overlay"></div> <!-- Nifty Modal的遮罩层-->
 	
@@ -513,11 +268,13 @@ function queryBySort(par,column){
 }
 
 var currentshownpage = 1;
-var path="systemUser.do";
-var lastpwd="";
+var path="";
 
 $(document).ready(function(){
     App.init();
+    var windowHeight=$(window).height();
+   	$("#editDetail").css("height", (windowHeight) + "px");
+   	$("#editDetail").find(".modal-body").css("height", (windowHeight - 50) + "px");
     $(".md-trigger").modalEffects();
 	query();
 	$(".deleteThisTime").click(function(){               //清除日期框中的值 
@@ -533,350 +290,128 @@ function selectAll() {
 	}
 }
 
-function selectRoleAll() {
-	if ($("#allselectchecker-role").is(':checked')) {
-		$("tbody#datacontainer-role .col_selector").prop("checked", true);
-	} else {
-		$("tbody#datacontainer-role .col_selector").prop("checked", false);
-	}
+//新增
+function add() {
+	$("#medicalItemInfoId").val("");
+	$("#itemName").val("");
+	$("#price").val("");
+	$("#category").val("");
+	$("#testWay").val("");
+	$("#testPurpose").val("");
+	$("#selectDes").val("");
+	$("#mattersNeedAttention").val("");
+	$("#des").val("");
+	$("#editDes").click();
 }
 
-
-function doAdd() {
-	$("#entityId").val("");
-	$("#loginname").val("");
-	$("#password").val("");
-	$("#nickname").val("");
-	
-	$("#logintype").val("");
-	$("#loginstate").val("");
-	  
-	$("#loginNum").val("");
-	$("#loginTime").val("");
-	$("#loginIp").val("");
-	$("#lastLoginTime").val("");
-	$("#lastLoginIp").val("");
-	$("#departmentId").val("");
-	$("#personinfoId").val("");
-	$("#createUserId").val("");
-	$("#createTime").val("");
-	$("#updateUserId").val("");
-	$("#updateTime").val("");
+//编辑显示详情
+function editInfo(id, itemName, price, category, testWay, testPurpose, selectDes, des, mattersNeedAttention) {
+	$("#medicalItemInfoId").val(id);
+	$("#itemName").val(itemName);
+	$("#price").val(price);
+	$("#category").val(category);
+	$("#testWay").val(testWay);
+	$("#testPurpose").val(testPurpose);
+	$("#selectDes").val(selectDes);
+	$("#mattersNeedAttention").val(mattersNeedAttention);
+	$("#des").val(des);
+	$("#editDes").click();
 }
 
-// function doEdit() {
-// 	var selectedItemNumber = $("tbody#datacontainer .col_selector:checked").length;
-// 	if (selectedItemNumber > 1) {
-// 		alert("每次只能编辑一条数据");
-// 	} else if (selectedItemNumber == 1) {
-// 		var id2edit = $("tbody#datacontainer .col_selector:checked").val();
-// 		var reqmsg="{'action':'QUERY_USER_INFO_REQUEST','content':{";
-	
-// 		if (id2edit != null && id2edit != "") {
-// 			reqmsg += "\"id\":" + id2edit + ",";
-// 		}
-// 		reqmsg += "}}";
-		
-// 	    jQuery.ajax({
-// 	          type : "post",
-// 	          async:true,
-// 	          url : path+"?handler",
-// 	          dataType : "json",
-// 	          data: {
-// 	               "reqmsg":reqmsg
-// 	          },
-// 	          success : function(data){
-// 	              if(data.des=="success"){
-// 	            	  changeInfo(data);
-// 	            	  $("#realyedit").click();
-// 	              }else if(data.des=="failure"){
-// 	                 alert("查询失败");
-// 	              }
-// 	          },
-// 	          error:function(){
-// 		           alert("error");
-// 	          }
-// 	     });
-// 	} else {
-// 		alert("请选择要编辑的数据");
-// 	}
-// }
-
-// function doDel() {
-// 	var selectedItemNumber = $("tbody#datacontainer .col_selector:checked").length;
-// 	if (selectedItemNumber >= 1) {
-// 		$("#isSure2Delete").addClass("md-show");
-// 		document.getElementById("Sure2Delete").onclick = function(){   //使用.click会重复
-// 		$("#isSure2Delete").removeClass("md-show");
-// 		var ids2del = "";
-// 		$("tbody#datacontainer .col_selector:checked").each(function() {
-// 			ids2del += $(this).val() + ",";
-// 		});
-// 		if (ids2del != "") {
-// 			ids2del = ids2del.substring(0, ids2del.length - 1);
-// 		}
-		
-// 		jQuery.ajax({
-// 			type:"post",
-// 			url:path+"?del",
-// 			async:true,
-// 			dataType:"json",
-// 			data:{ids:ids2del},
-// 			success:function(data) {
-// 				alert(data.des);
-// 				if (data.result == "success") {
-// 					go2page(currentshownpage);
-// 				}else if(data.des=="failure"){
-//                  alert("删除失败");
-//                 }
-// 			},
-// 			error:function() {
-// 				alert("error");
-// 			}
-// 		});
-// 		}
-// 		document.getElementById("cancel2Delete").onclick = function(){
-// 			$("#isSure2Delete").removeClass("md-show");
-// 	 	}
-// 	} else {
-// 		alert("请选择要删除的数据");
-// 	}
-// }
-
-function doAddRoleList() {
+//删除
+function doDel() {
 	var selectedItemNumber = $("tbody#datacontainer .col_selector:checked").length;
-	if (selectedItemNumber > 1) {
-		alert("每次只能分配一条数据");
-	} else if (selectedItemNumber == 1) {		
-		var reqmsg="{'action':'QUERY_ROLE_LIST_REQUEST','page':{'pageno':'1','pagesize':'10000'},'content':{";
-
-		reqmsg += "}}";
-		
-	    jQuery.ajax({
-	          type : "post",
-	          async:true,
-	          url : "systemRole.do?handler",
-	          dataType : "json",
-	          data: {
-	               "reqmsg":reqmsg
-	          },
-	          success : function(data){
-	              if(data.des=="success"){
-	            	  changeRoleList(data);
-	            	  $("#realyrole").click();
-	              }else if(data.des=="failure"){
-	                 alert("查询失败");
-	              }
-	          },
-	          error:function(){
-		           alert("error1");
-	          }
-	     });
-	} else {
-		alert("请选择一条要分配角色的账号记录");
-	}
-}
-
-function doAddRoleList2(id) {
-	$("#allselectchecker").prop("checked", false);
-	$("tbody#datacontainer .col_selector").prop("checked", false);
-	
-		var reqmsg="{'action':'QUERY_ROLE_LIST_REQUEST','page':{'pageno':'1','pagesize':'10000'},'content':{";
-		$("#rollId").val(id);
-		reqmsg += "}}";
-		
-	    jQuery.ajax({
-	          type : "post",
-	          async:true,
-	          url : "systemRole.do?handler",
-	          dataType : "json",
-	          data: {
-	               "reqmsg":reqmsg
-	          },
-	          success : function(data){
-	              if(data.des=="success"){
-	            	  changeRoleList2(data);
-	            	  $("#realyrole").click();
-	              }else if(data.des=="failure"){
-	                 alert("查询失败");
-	              }
-	          },
-	          error:function(){
-		           alert("error2");
-	          }
-	     });
-}
-
-function changeRoleList2(data){
-	var htmlcode = "";
-	if (data.content != null) {
-		jQuery.each(data.content.roleList, function(i, item) {
-			htmlcode += "<tr class=\"gradeA odd\"><td><input type=\"checkbox\" id=\"checkbox-role"+item.id+"\" value=\"" + item.id + "\" class=\"col_selector\"></td>";
-			htmlcode += "<td>" + item.name + "</td>";
-			htmlcode += "<td>" + item.des + "</td>";
-			htmlcode += "<td>" + formateTime(item.createTime) + "</td>";
-			htmlcode += "</tr>";
+	if (selectedItemNumber >= 1) {
+		$("#isSure2Delete").addClass("md-show");
+		document.getElementById("Sure2Delete").onclick = function(){   //使用.click会重复
+		$("#isSure2Delete").removeClass("md-show");
+		var ids2del = "";
+		$("tbody#datacontainer .col_selector:checked").each(function() {
+			ids2del += $(this).val() + ",";
 		});
+		if (ids2del != "") {
+			ids2del = ids2del.substring(0, ids2del.length - 1);
+		}
+		
+		jQuery.ajax({
+			type:"post",
+			url: "medicalItem.do?del",
+			async:true,
+			dataType:"json",
+			data:{ids:ids2del},
+			success:function(data) {
+				alert(data.des);
+				if (data.result == "success") {
+					go2page(1);
+				}else if(data.des=="failure"){
+                 alert("删除失败");
+                }
+			},
+			error:function() {
+				alert("删除失败");
+			}
+		});
+		}
+		document.getElementById("cancel2Delete").onclick = function(){
+			$("#isSure2Delete").removeClass("md-show");
+	 	}
+	} else {
+		alert("请选择要删除的数据");
 	}
-	$("#datacontainer-role").html(htmlcode);
-	
-	//查询用户已经有的角色id
-	var userId = $("#rollId").val();
-	var reqmsg="{'action':'QUERY_USER_ROLE_LIST_REQUEST','page':{'pageno':'1','pagesize':'10000'},'content':{'userId':"+userId+"}}";
-	
-    jQuery.ajax({
-          type : "post",
-          async:true,
-          url : "systemUserRole.do?handler",
-          dataType : "json",
-          data: {
-               "reqmsg":reqmsg              
-          },
-          success : function(data){
-              if(data.des=="success"){
-            	  changeIndexBox(data);
-              }else if(data.des=="failure"){
-                 alert("查询失败");
-              }
-          },
-          error:function(){
-	           alert("error3");
-          }
-     });
 }
 
-function edituser(id) {
-		var reqmsg="{'action':'QUERY_USER_INFO_REQUEST','content':{";
-	
-		if (id != null && id != "") {
-			reqmsg += "\"id\":" + id + ",";
-		}
-		reqmsg += "}}";
-		
-	    jQuery.ajax({
-	          type : "post",
-	          async:true,
-	          url : path+"?handler",
-	          dataType : "json",
-	          data: {
-	               "reqmsg":reqmsg
-	          },
-	          success : function(data){
-	              if(data.des=="success"){
-	            	  changeInfo(data);
-	            	  $("#realyedit").click();
-	              }else if(data.des=="failure"){
-	                 alert("查询失败");
-	              }
-	          },
-	          error:function(){
-		           alert("error4");
-	          }
-	     });
-}
 
 /**
  * 保存信息
  * @method saveInfo
  */
 function saveInfo() {
-	var id = $("#entityId").val();
-	var loginname = $("#loginname").val();
-	var password = $("#password").val();
-	var nickname = $("#nickname").val();
+	var id = $("#medicalItemInfoId").val();
+	var itemName = $.trim($("#itemName").val());
+	var price = $.trim($("#price").val());
+	var category = $.trim($("#category").val());
+	var testWay = $.trim($("#testWay").val());
+	var testPurpose = $.trim($("#testPurpose").val());
+	var selectDes = $.trim($("#selectDes").val());
+	var mattersNeedAttention = $.trim($("#mattersNeedAttention").val());
+	var des = $.trim($("#des").val());
 	
-	var logintype = $("#logintype").val();
-	var status = $("#loginstate").val();
-	
-	var loginNum = $("#loginNum").val();
-	var loginTime = $("#loginTime").val();
-	var loginIp = $("#loginIp").val();
-	var lastLoginTime = $("#lastLoginTime").val();
-	var lastLoginIp = $("#lastLoginIp").val();
-	var departmentId = $("#departmentId").val();
-	var personinfoId = $("#personinfoId").val();
-	var createUserId = $("#createUserId").val();
-	var createTime = $("#createTime").val();
-	var updateUserId = $("#updateUserId").val();
-	var updateTime = $("#updateTime").val();
-	
-	//校验
-	if($.trim(loginname) == ""){
-	    alert("必填项：账号名称为空");
-	    return;
-	}
-	if($.trim(password) == ""){
-	    alert("必填项：账号密码为空");
-	    return;
-	}
-	if(lastpwd!=password){
-	    password = $.md5(password);
-	}else{
-	    lastpwd ="";
-	    password = "";
-	}
-	
-	
-	var reqmsg="{'action':'ADD_USER_INFO_REQUEST','content':{";
+	var reqmsg="{'action':'ADD_MEDICAL_ITEM_INFO_REQUEST','content':{";
 	
 	if (id != null && id != "") {
 		reqmsg += "\"id\":" + id + ",";
+	} else {
+		reqmsg += "\"id\":,";
 	}
-	reqmsg += "\"loginname\":\"" + loginname + "\",";
+	reqmsg += "\"itemName\":\"" + itemName + "\",";
 	    
-	reqmsg += "\"nickname\":\"" + nickname + "\",";
+	reqmsg += "\"price\":\"" + price + "\",";
+	reqmsg += "\"category\":" + category + ",";
+	reqmsg += "\"testWay\":\"" + testWay + "\",";
+	reqmsg += "\"testPurpose\":\"" + testPurpose + "\",";
 	    
-	if (password != null && password != "") {
-        reqmsg += "\"password\":\"" + password + "\",";
+	if (selectDes != null && selectDes != "") {
+        reqmsg += "\"selectDes\":\"" + selectDes + "\",";
+	} else {
+		reqmsg += "\"selectDes\":\"\",";
 	}
-	
-	if (logintype != null && logintype != "") {
-        reqmsg += "\"type\":\"" + logintype + "\",";
+	if (mattersNeedAttention != null && mattersNeedAttention != "") {
+        reqmsg += "\"mattersNeedAttention\":\"" + mattersNeedAttention + "\",";
+	} else {
+		reqmsg += "\"selectDes\":\"\",";
 	}
-    if (status != null && status != "") {
-        reqmsg += "\"status\":" + status + ",";
-	}else{
-        reqmsg += "\"status\":0,";
+	if (des != null && des != "") {
+        reqmsg += "\"des\":\"" + des + "\",";
+	} else {
+		reqmsg += "\"des\":\"\",";
 	}
-	
-    if (loginNum != null && loginNum != "") {
-        reqmsg += "\"loginNum\":" + loginNum + ",";
-	}else{
-        reqmsg += "\"loginNum\":0,";
-	}
-    reqmsg += "\"loginTime\":\"" + loginTime + "\",";
-	reqmsg += "\"loginIp\":\"" + loginIp + "\",";
-	reqmsg += "\"lastLoginTime\":\"" + lastLoginTime + "\",";
-	reqmsg += "\"lastLoginIp\":\"" + lastLoginIp + "\",";
-    if (departmentId != null && departmentId != "") {
-        reqmsg += "\"departmentId\":" + departmentId + ",";
-	}else{
-        reqmsg += "\"departmentId\":0,";
-	}
-    if (personinfoId != null && personinfoId != "") {
-        reqmsg += "\"personinfoId\":" + personinfoId + ",";
-	}else{
-        reqmsg += "\"personinfoId\":0,";
-	}
-    if (createUserId != null && createUserId != "") {
-        reqmsg += "\"createUserId\":" + createUserId + ",";
-	}else{
-        reqmsg += "\"createUserId\":0,";
-	}
-	    reqmsg += "\"createTime\":\"" + createTime + "\",";
-    if (updateUserId != null && updateUserId != "") {
-        reqmsg += "\"updateUserId\":" + updateUserId + ",";
-	}else{
-        reqmsg += "\"updateUserId\":0,";
-	}
-	    reqmsg += "\"updateTime\":\"" + updateTime + "\",";
 	
 	reqmsg += "}}";
 
 	jQuery.ajax({
           type : "post",
           async:true,
-          url : path+"?handler",
+          url : "medicalItem.do?handler",
           dataType : "json",
           data: {
                "reqmsg":reqmsg
@@ -884,87 +419,21 @@ function saveInfo() {
           success : function(data){
               if(data.des=="success"){
               	$("#cancel_button").click();
-            	  go2page(currentshownpage);
+            	  go2page(1);
               }else if(data.des=="failure"){
                  alert("保存失败");
-              }else if(data.des=="have"){
-                 alert("账号名已存在");
               }
           },
           error:function(){
-	           alert("error5");
+	           alert("保存失败");
           }
      });
 }
 
-/**
- * 保存关联信息
- * @method saveRelationList
- */
-function saveRelationList() {
-	var userId =$("tbody#datacontainer .col_selector:checked").val();
-	if($("tbody#datacontainer .col_selector:checked").length == 0){
-		userId = $("#rollId").val();
-	}
-	var roleIdObjs = $("tbody#datacontainer-role .col_selector:checked");
-	var roleIds="";
-	if(roleIdObjs.length>0){
-	   var l = 0;
-	   while(l<roleIdObjs.length){
-	     if(l==0){
-	        roleIds = $("tbody#datacontainer-role .col_selector:checked").eq(l).val();
-	     }else{
-	        roleIds = roleIds+","+$("tbody#datacontainer-role .col_selector:checked").eq(l).val();
-	     }	     
-	     l++;
-	   }
-	}
-	jQuery.ajax({
-          type : "post",
-          async:true,
-          url : "systemUserRole.do?saveList",
-          dataType : "json",
-          data: {
-               "userId":userId,
-               "roleIds":roleIds
-          },
-          success : function(data){
-              if(data.result=="success"){
-              	$("#cancel_button-role").click();
-            	    go2page(currentshownpage);
-            	    alert("保存成功");
-              }else if(data.result=="failure"){
-                 alert("保存失败");
-              }
-          },
-          error:function(){
-	           alert("error6");
-          }
-     });
-	
-} 
-
 function go2page(pagenumber){
 	var pagesize = $("#pageSizeSelector option:selected").val();
-	var name2search = "";
-	var loginType = "";
-	var status="";
-	if ($("#loginname_input").val() != null) {
-		name2search = $("#loginname_input").val() + "";
-	}
-	if ($("#login_type").val() != null) {
-		loginType = $("#login_type").val() + "";
-	}
-	
-	if ($("#login_state").val() != null) {
-		status = $("#login_state").val() + "";
-	}
-	var thisLoginStartDate = $("#thisLoginStartDate").val();
-	var thisLoginEndDate = $("#thisLoginEndDate").val();
-	var lastLoginStartDate = $("#lastLoginStartDate").val();
-	var lastLoginEndDate = $("#lastLoginEndDate").val();
-	
-	var reqmsg="{'action':'QUERY_USER_LIST_REQUEST',";
+	var itemName = $("#queryItemName").val();
+	var reqmsg="{'action':'QUERY_MEDICAL_ITEM_LIST_REQUEST',";
 	
 	var sortType = $("#sortType").val();
 	var sortColumn = $("#sortColumn").val();
@@ -974,37 +443,15 @@ function go2page(pagenumber){
 	
 	reqmsg += "'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
 	
-	if (name2search != null && name2search != "") {
-		reqmsg += "\"loginname_in\":\"" + name2search + "\",";
-	}
-	if (loginType != null && loginType != "") {
-		reqmsg += "\"type_in\":\"" + loginType + "\",";
-	}
-	if (status != null && status != "") {
-		reqmsg += "\"status_in\":\"" + status + "\",";
-	}
-	if (thisLoginStartDate != null && thisLoginStartDate != "") {
-	    thisLoginStartDate = thisLoginStartDate.substring(0, 4) + thisLoginStartDate.substring(5, 7) + thisLoginStartDate.substring(8, 10) + "000000";
-		reqmsg += "\"loginTime_ge\":\"" + thisLoginStartDate + "\",";
-	}
-	if (thisLoginEndDate != null && thisLoginEndDate != "") {
-		thisLoginEndDate = thisLoginEndDate.substring(0, 4) + thisLoginEndDate.substring(5, 7) + thisLoginEndDate.substring(8, 10) + "240000";
-		reqmsg += "\"loginTime_le\":\"" + thisLoginEndDate + "\",";
-	}
-	if (lastLoginStartDate != null && lastLoginStartDate != "") {
-	    lastLoginStartDate = lastLoginStartDate.substring(0, 4) + lastLoginStartDate.substring(5, 7) + lastLoginStartDate.substring(8, 10) + "000000";
-		reqmsg += "\"lastLoginTime_ge\":\"" + thisLoginStartDate + "\",";
-	}
-	if (lastLoginEndDate != null && lastLoginEndDate != "") {
-		lastLoginEndDate = lastLoginEndDate.substring(0, 4) + lastLoginEndDate.substring(5, 7) + lastLoginEndDate.substring(8, 10) + "240000";
-		reqmsg += "\"lastLoginTime_le\":\"" + lastLoginEndDate + "\",";
+	if (itemName != null && itemName != "") {
+		reqmsg += "\"itemName_like\":\"" + itemName + "\",";
 	}
 	reqmsg += "}}";
 
     jQuery.ajax({
           type : "post",
           async:true,
-          url : path+"?handler",
+          url : "medicalItem.do?handler",
           dataType : "json",
           data: {
                "reqmsg":reqmsg              
@@ -1039,75 +486,20 @@ function changeStatus(status){
 	return statusName;
 }
 
-/* function getRollName(id){
-	var rolename="";
-    jQuery.ajax({
-          type : "post",
-          async:false,
-          url : path+"?rollname",
-          dataType : "json",
-          data: {
-               "id":id              
-          },
-          success : function(data){
-              rolename=data.rolename;
-          },
-          error:function(){
-	          alert("error8");
-          }
-     });
-     return rolename;
-} */
 
-var currentId2reset = "";
-//重置密码
-function resetuser(userid2reset) {
-	currentId2reset = userid2reset;
-	$("#fake_reset_button").click();
-}
-
-//确定重置
-function doreset() {
-	 	$.ajax({
-	 		type:"post",
-			url:"systemUser.do?reset",
-			async:true,
-			dataType:"json",
-			data:{userid:currentId2reset},
-			success:function(data) {
-				if (data.result == "success") {
-					$("#cancel2Reset").click();
-				}
-				alert(data.des);
-			},
-			error:function() {
-				alert("重置密码时与服务器通讯错误");
-			}
-	 	});
-}
-	 
 function changeData(data){
-	var htmlcode = "";
+	var htmlcode = ""
 	if (data.content != null) {
-		jQuery.each(data.content.userList, function(i, item) {
+		jQuery.each(data.content.medicalItemList, function(i, item) {
 			htmlcode += "<tr class=\"gradeA odd\">";
-			if (item.id != 1) {	
-			htmlcode += "<td><input type=\"checkbox\" value=\"" + item.id + "\" class=\"col_selector\"></td>";
-			}else{
-			htmlcode +="<td></td>";
-			}
-		    htmlcode += "<td>" + item.loginname + "</td>";				
-		    htmlcode += "<td>" + item.type + "</td>";	
-		    /* htmlcode += "<td>" + getRollName(item.id) + "</td>";	 */
-		    htmlcode += "<td></td>";
-		    htmlcode += "<td>" + changeStatus(item.status) + "</td>";	
-		    
-		    htmlcode += "<td onmouseover=\"timeTip.showtip(this, '" + formateTime(item.loginTime) + "')\">网站</td>";
-		    
-		    htmlcode += "<td>" + formateTime(item.lastLoginTime) + "</td>";	
-		    htmlcode += "<td>" + item.loginNum + "</td>";	
-		    htmlcode += "<td>" + formateTime(item.createTime) + "</td>";
-		    if (item.id != 1) {			
+		    htmlcode += "<td>" + item.itemName + "</td>";				
+		    htmlcode += "<td>" + item.price + "</td>";	
+		    htmlcode += "<td>" + item.category + "</td>";
+		    htmlcode += "<td>" + item.testWay + "</td>";	
+		    htmlcode += "<td>" + item.testPurpose + "</td>";
+		    htmlcode += "<td>" + item.selectDes + "</td>";
+		    htmlcode += "<td>" + item.des + "</td>";
+		    htmlcode += "<td>" + item.mattersNeedAttention + "</td>";
 			htmlcode += "<td><div class=\"btn-group\">";
 			htmlcode += "<button class=\"btn btn-default btn-xs\" type=\"button\">操作</button>";
 			htmlcode += "<button data-toggle=\"dropdown\" class=\"btn btn-xs btn-primary dropdown-toggle\" type=\"button\">";
@@ -1115,22 +507,8 @@ function changeData(data){
 			htmlcode += "<span class=\"sr-only\">Toggle Dropdown</span>";
 			htmlcode += "</button>";
 			htmlcode += "<ul role=\"menu\" class=\"dropdown-menu pull-right\">";
-			<c:if test="${user_roll_opt_control != 'yes' or user_roll_opt_show == 'yes'}">
-			htmlcode += "<li onclick=\"doAddRoleList2('" + item.id + "')\"><a href=\"###\">分配角色</a></li>";
-			</c:if>	
-			<c:if test="${user_edit_opt_control != 'yes' or user_edit_opt_show == 'yes'}">
-			htmlcode += "<li onclick=\"edituser('" + item.id + "')\"><a href=\"###\">编辑</a></li>";
-			</c:if>	
-			<c:if test="${user_resetmima_opt_control != 'yes' or user_resetmima_opt_show == 'yes'}">
-			htmlcode += "<li onclick=\"resetuser('" + item.id + "')\"><a href=\"###\">重置密码</a></li>";
-			</c:if>	
-			//<c:if test="${user_del_opt_control != 'yes' or user_del_opt_show == 'yes'}">
-			//htmlcode += "<li class=\"divider\"></li><li onclick=\"deluser('" + item.id + "')\"><a href=\"###\">删除</a></li>";
-			//</c:if>	
+			htmlcode += "<li onclick=\"editInfo("+item.id+","+ item.itemName+","+ item.price+","+ item.category+","+ item.testWay+","+ item.testPurpose+","+ item.selectDes+","+ item.des+","+ item.mattersNeedAttention+")\"><a href=\"###\">编辑</a></li>";
 			htmlcode += "</ul></div></td>";
-			}else{
-			htmlcode += "<td></td>";
-			}
 			htmlcode += "</tr>";
 		});
 	}
@@ -1144,132 +522,7 @@ function changeData(data){
 	}
 }
 
-	
-function changeInfo(data){
-	$("#entityId").val("");
-	$("#loginname").val("");
-	$("#password").val("");
-	$("#nickname").val("");
-	
-	$("#logintype").val("");
-	$("#loginstate").val("");
-	
-	$("#loginNum").val("");
-	$("#loginTime").val("");
-	$("#loginIp").val("");
-	$("#lastLoginTime").val("");
-	$("#lastLoginIp").val("");
-	$("#departmentId").val("");
-	$("#personinfoId").val("");
-	$("#createUserId").val("");
-	$("#createTime").val("");
-	$("#updateUserId").val("");
-	$("#updateTime").val("");
-    if (data.content != null) {
-        $("#entityId").val(data.content.id);
-		$("#loginname").val(data.content.loginname);
-	
-		$("#password").val(data.content.password);
-			
-		$("#nickname").val(data.content.nickname);
-
-		$("#logintype").val(data.content.type);
-		$("#loginstate").val(data.content.status);
-		
-		$("#loginNum").val(data.content.loginNum);
-		$("#loginTime").val(data.content.loginTime);
-		$("#loginIp").val(data.content.loginIp);
-		$("#lastLoginTime").val(data.content.lastLoginTime);
-		$("#lastLoginIp").val(data.content.lastLoginIp);
-		$("#departmentId").val(data.content.departmentId);
-		$("#personinfoId").val(data.content.personinfoId);
-		$("#createUserId").val(data.content.createUserId);
-		$("#createTime").val(data.content.createTime);
-		$("#updateUserId").val(data.content.updateUserId);
-		$("#updateTime").val(data.content.updateTime);
-		
-		if(data.content.password!=null){
-		  lastpwd = data.content.password;
-		}
-    }
-}
-
-function changeRoleList(data){
-	var htmlcode = "";
-	if (data.content != null) {
-		jQuery.each(data.content.roleList, function(i, item) {
-			htmlcode += "<tr class=\"gradeA odd\"><td><input type=\"checkbox\" id=\"checkbox-role"+item.id+"\" value=\"" + item.id + "\" class=\"col_selector\"></td>";
-			htmlcode += "<td>" + item.name + "</td>";
-			htmlcode += "<td>" + item.des + "</td>";
-			htmlcode += "<td>" + formateTime(item.createTime) + "</td>";
-			htmlcode += "</tr>";
-		});
-	}
-	$("#datacontainer-role").html(htmlcode);
-	
-	//查询用户已经有的角色id
-	var userId = $("tbody#datacontainer .col_selector:checked").val();
-	var reqmsg="{'action':'QUERY_USER_ROLE_LIST_REQUEST','page':{'pageno':'1','pagesize':'10000'},'content':{'userId':"+userId+"}}";
-	
-    jQuery.ajax({
-          type : "post",
-          async:true,
-          url : "systemUserRole.do?handler",
-          dataType : "json",
-          data: {
-               "reqmsg":reqmsg              
-          },
-          success : function(data){
-              if(data.des=="success"){
-            	  changeIndexBox(data);
-              }else if(data.des=="failure"){
-                 alert("查询失败");
-              }
-          },
-          error:function(){
-	           alert("error9");
-          }
-     });
-}
-
-function changeIndexBox(data){	
-	if (data.content != null) {
-		jQuery.each(data.content.userRoleList, function(i, item) {			
-	    	$("#checkbox-role"+item.roleId).prop("checked", true);			
-		});
-	}	
-}
-
-
-
-
-/**
- * 格式化时间
- * @method formateTime
- * @param {String} time 时间信息(YYYYMMDDHHmmSS)
- * @return 格式化的时间(YYYY-MM-DD HH:mm:SS)
- */
-function formateTime(time) {
-	if (time != null && time.length == 14) {
-		return time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8) + " " + time.substring(8, 10) + ":" + time.substring(10, 12) + ":" + time.substring(12, 14);
-	} else {
-		return time;
-	}
-}
-
 function query() {
-	var thisLoginStartDate = $("#thisLoginStartDate").val();
-	var thisLoginEndDate = $("#thisLoginEndDate").val();
-	var lastLoginStartDate = $("#lastLoginStartDate").val();
-	var lastLoginEndDate = $("#lastLoginEndDate").val();
-	if(thisLoginStartDate !="" && thisLoginEndDate !="" && thisLoginStartDate >= thisLoginEndDate){
-		alert("开始时间必须小于结束时间");
-		return;
-	}
-	if(lastLoginStartDate !="" && lastLoginEndDate !="" && lastLoginStartDate >= lastLoginEndDate){
-		alert("开始时间必须小于结束时间");
-		return;
-	}
 	go2page(1);
 }
 
