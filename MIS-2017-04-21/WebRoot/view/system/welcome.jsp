@@ -112,12 +112,12 @@
 									</li>
 
 									<li>
-										<a href="#" onclick="changeCenter()">
+										<a href="#" onclick="changeCenter('servicePerson.do?main')">
 											<i class="fa fa-male"></i>工作人员管理
 										</a>
 									</li>
 									<li>
-										<a href="#" onclick="changeCenter()">
+										<a href="#" onclick="changeCenter('wechatCustomer.do?main')">
 											<i class="fa fa-male"></i>微信客户管理
 										</a>
 									</li>
@@ -130,7 +130,7 @@
 								</a>
 								<ul class="sub-menu">
 									<li>
-										<a href="#" onclick="changeCenter()">
+										<a href="#" onclick="changeCenter('order.do?main')">
 											<i class="fa fa-users"></i>体检订单管理
 										</a>
 									</li>
