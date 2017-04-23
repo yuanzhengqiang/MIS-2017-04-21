@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.framework.system.common.entity.json.AjaxJson;
 import com.framework.system.mis.handler.WechatCustomerHandler;
@@ -35,6 +36,17 @@ public class WechatCustomerController {
 	private WechatCustomerService wechatCustomerService = WechatCustomerService
 			.getInstance();
 
+	/**
+	 * 微信客户管理
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("wechatCustomerManagement/wechatCustomerList");
+		return mav;
+	}
+	
 	/**
 	 * 批量删除 ids英文逗号间隔
 	 * 
