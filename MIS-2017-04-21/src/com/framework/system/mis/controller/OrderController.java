@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.framework.system.common.entity.json.AjaxJson;
 import com.framework.system.mis.handler.OrderHandler;
@@ -31,7 +32,31 @@ public class OrderController {
 	 * 服务类
 	 */
 	private OrderService orderService = OrderService.getInstance();
-
+	
+	/**
+	 * 体检订单管理
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "main")
+	public ModelAndView center(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("orderManagement/orderList");
+		return mav;
+	}
+	
+	/**
+	 * 体检订单详情
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params = "mainDetail")
+	public ModelAndView mainDetail(HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("orderManagement/orderDetail");
+		String id = request.getParameter("id");
+		mav.addObject("id", id);
+		return mav;
+	}
+	
 	/**
 	 * 批量删除 ids英文逗号间隔
 	 * 
