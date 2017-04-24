@@ -113,7 +113,7 @@
 
 									<li>
 										<a href="#" onclick="changeCenter('servicePerson.do?main')">
-											<i class="fa fa-male"></i>工作人员管理
+											<i class="fa fa-male"></i>服务人员管理
 										</a>
 									</li>
 									<li>
