@@ -88,7 +88,7 @@
 									<div class="row">
 										<div class="col-sm-12">	
                     						<button class="btn btn-primary " style="margin-bottom: 0px !important; height: 34px;margin-left:0;float:left;" onclick="query();">查询</button>
-                    						<a href="<%=request.getContextPath()%>/medicalItem.do?medicalReportDetail" class="btn btn-primary btn-flat" target="_blank" style="margin-bottom: 0px !important; height: 34px;margin-left:0;float:right;">新增</a>
+                    						<a href="<%=request.getContextPath()%>/medicalReport.do?medicalReportDetail" class="btn btn-primary btn-flat" target="_blank" style="margin-bottom: 0px !important; height: 34px;margin-left:0;float:right;">新增</a>
 										</div>
 									</div>
 									<!-- 操作按钮结束 -->
@@ -102,7 +102,6 @@
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_loginname')"><strong>报告编号</strong></th>
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>体检人姓名</strong></th>
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>体检人身份证号</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>报告状态</strong></th>
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'status')"><strong>医院</strong></th>
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>报告生成时间</strong></th>
 														<th><strong>操作<strong></th>

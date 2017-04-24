@@ -93,6 +93,7 @@
 									<div class="row">
 										<div class="col-sm-12">
 											<button class="btn btn-primary " style="margin-bottom: 0px !important; height: 34px;margin-left:0;float:left;" onclick="query();">查询</button>
+											<a href="<%=request.getContextPath()%>/order.do?mainDetail" class="btn btn-primary btn-flat" target="_blank" style="margin-bottom: 0px !important; height: 34px;margin-left:0;float:right;">新增</a>
 										</div>
 									</div>
 									<!-- 操作按钮结束 -->

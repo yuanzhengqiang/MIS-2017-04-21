@@ -64,9 +64,9 @@
             <div class="col-sm-8">
               <div >
                 <h2 id="head_fuName">体检报告详情</h2>
-               <ol class="breadcrumb" style="padding:0;background:#fff;">
-					<li>基础信息/</li>
-					<li >体检报告管理/</li>
+              	<ol class="breadcrumb" style="padding:0;background:#fff;">
+					<li>订单信息</li>
+					<li >体检报告管理</li>
 					<li class="active">体检报告详情</li>
 				</ol>
                </div>
@@ -84,22 +84,22 @@
 <div class="block-flat" >
 <div class="row" style="margin-top:0">
 <div class="col-sm-12">
-<form class="form-horizontal group-border-dashed" >
+<form class="form-horizontal group-border-dashed">
 	 <div class="form-group">
                 <div class="row">  
                 	<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 15px;padding-right: 0px;">报告编号</div>
 					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
                 		<input type="text" class="form-control"  id="xmbh_input" readonly="readonly">
 					</div> 
-					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 15px;padding-right: 0px;">体检人姓名</div>
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">体检人姓名</div>
 					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
                 		<input type="text" class="form-control"  id="xmname_input">
 					</div>
-					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 15px;padding-right: 0px;">体检人身份证号</div>
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">体检人身份证号</div>
 					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
                 		<input type="text" class="form-control"  id="xmname_input">
 					</div> 
-					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 15px;padding-right: 0px;" >体检人性别</div>
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;" >体检人性别</div>
 					<div class="col-sm-4 col-md-4 col-lg-2">
                 		<select class="form-control" id="xm_leibie_input" style="margin-bottom:5px">
                 			<option value=""></option>
@@ -111,7 +111,7 @@
 					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
                 		<input type="text" class="form-control"  id="xmname_input">
 					</div>  
-					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 15px;padding-right: 0px;">报告生成时间</div>
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">报告生成时间</div>
 					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
                 		<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
 						<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
@@ -119,23 +119,11 @@
 						<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
 					</div>
 					</div>
-					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 15px;padding-right: 0px;">报告状态</div>
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">完整体验报告</div>
 					<div class="col-sm-4 col-md-4 col-lg-2">
-                		<select class="form-control" id="xm_leibie_input" style="margin-bottom:5px">
-                			<option value=""></option>
-                			<option value="1">已生成</option>
-                			<option value="2">已寄出</option>
-                		</select>
+                		<a href="#" id="downloadFile" target="_blank" style="margin-bottom: 0px !important; height: 34px;margin-left:0;line-height:34px;">点击下载</a>
 					</div>
-					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 15px;padding-right: 0px;">报告快递商</div>
-					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
-                		<input type="text" class="form-control"  id="xmname_input">
-					</div> 
-					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 15px;padding-right: 0px;">报告快递单号</div>
-					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
-                		<input type="text" class="form-control"  id="xmname_input">
-					</div> 
-					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 15px;padding-right: 0px;">医院</div>
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">医院</div>
 					<div class="col-sm-4 col-md-4 col-lg-2">
                 		<select class="form-control" id="xm_leibie_input" style="margin-bottom:5px">
                 			<option value=""></option>
