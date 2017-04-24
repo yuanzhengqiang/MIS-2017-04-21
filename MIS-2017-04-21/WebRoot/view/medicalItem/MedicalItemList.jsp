@@ -437,6 +437,8 @@ function go2page(pagenumber){
 	var sortColumn = $("#sortColumn").val();
 	if(sortType != null && sortType != ""){
 		reqmsg += "'order':[{'column':'" + sortColumn + "','type':'" + sortType + "'}],";
+	} else {
+		reqmsg += "'order':[{'column':'id','type':'asc'}],";
 	}
 	
 	reqmsg += "'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";

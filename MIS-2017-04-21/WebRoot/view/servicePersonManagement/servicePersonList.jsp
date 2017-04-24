@@ -10,21 +10,23 @@
 <meta name="author" content="">
 <link rel="shortcut icon" href="images/logo.png">
 <title>服务人员管理</title>
-<link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
-<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+<link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
 <link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
 <link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
 <link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
 <link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
 <link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
 <link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
-<link rel="stylesheet" type="text/css" href="js/intro.js/introjs.css" />
 <link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
-<!-- Custom styles for this template -->
-<link href="css/style.css" rel="stylesheet" />
-<link rel="stylesheet" type="text/css" href="js/jquery.datatables/bootstrap-adapter/css/datatables.css" />
+<link href="js/jquery.icheck/skins/square/blue.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="js/dropzone/css/dropzone.css" />
+<link rel="stylesheet" type="text/css" href="js/bootstrap.summernote/dist/summernote.css" />
+<link rel="stylesheet" href="js/jquery.crop/css/jquery.Jcrop.css" type="text/css" />
+<link rel="stylesheet" type="text/css" href="js/jquery.magnific-popup/dist/magnific-popup.css" />
 <script type="text/javascript" src="js/sortListTool.js"></script>
+<link href="css/style.css" rel="stylesheet" />
 <style type="text/css">
 .hideAndShow {
 	display: none;
@@ -175,18 +177,18 @@
 		<input type="hidden" name="y2" id="y2" value="0" />
 	</form>  
 	<button type="button" class="btn btn-primary btn-flat" style="display:none;" id="sure_SC" onclick="uploadPic_cut()">确定</button>  
-	<form id="picuploadform_Card1" class="secondcol" action="position.do?pic1" method="post" style="display:none;" enctype="multipart/form-data">
-		<input id="pic4upload_Card1" name="pic4upload_Card" type="file" onchange="uploadPic_Card('1')" accept="image/*">
+	<form id="picuploadform1" class="secondcol" action="position.do?pic1" method="post" style="display:none;" enctype="multipart/form-data">
+		<input id="pic4upload1" name="pic4upload" type="file" onchange="uploadPic('1')" accept="image/*">
 	</form>
-	<form id="picuploadform_Card2" class="secondcol" action="position.do?pic1" method="post" style="display:none;" enctype="multipart/form-data">
-		<input id="pic4upload_Card2" name="pic4upload_Card" type="file" onchange="uploadPic_Card('2')" accept="image/*">
+	<form id="picuploadform2" class="secondcol" action="position.do?pic1" method="post" style="display:none;" enctype="multipart/form-data">
+		<input id="pic4upload2" name="pic4upload" type="file" onchange="uploadPic('2')" accept="image/*">
 	</form>
 	<input type="hidden" id="weizhiId" value="" />
-	<input type="hidden" id="hide_tupian_Card1" value="" />
-	<input type="hidden" id="hide_tupian_Card2" value="" />
+	<input type="hidden" id="hide_tupian1" value="" />
+	<input type="hidden" id="hide_tupian2" value="" />
 	
 	<button class="md-trigger" data-modal="editDetail" style="display:none;" id="edit"></button>
-	<div class="md-modal md-effect-1" id="editDetail">
+	<div class="md-modal md-effect-1" id="editDetail" style="z-index: 1001;">
 		<div class="row">
 			<div class="col-md-12" style="padding: 10px 0px;">
 				<div class="block-flat" style="padding-right: 0px;">
@@ -237,23 +239,23 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label class=" col-sm-12 col-md-4 col-lg-3" style="height:250px;line-height:250px;">微信号</label>
-							<div class=" col-sm-12 col-md-8 col-lg-9" id="Fptphoto_Card1">
-								<div class="item" style="width:100%;">
-									<div class="photo" style="width:350px;height:250px;">
+							<label class=" col-sm-12 col-md-4 col-lg-3" style="height:250px;line-height:250px;text-align: right;">头像</label>
+							<div class="gallery-cont col-sm-12 col-md-8 col-lg-9">
+								<div class="item" style="width:150px;">
+									<div class="photo" style="width: 150px;box-shadow: none;">
 										<div class="head">
 											<span class="pull-right">
-												<button type="button" class="btn btn-danger btn-sm" id="deltupian_CardId1" onclick="deltupian_Card('1')">删除图片</button>
+												<button type="button" class="btn btn-danger btn-sm" id="deltupianId1" onclick="deltupian('1')">删除图片</button>
 											</span>
 										</div>
 										<div class="img">
-											<img src="photos/IDCardFront.png" id="ptphoto_Card1" style="width:350px;height:200px;" />
-											<div class="over" style="width:350px;height:200px;margin-top:23px;" id="identyIdOver1">
+											<img src="photos/av.jpg" style="width: 150px;height: 150px;" id="ptphoto1" class="profile-avatar" />
+											<div class="over" style="width: 150px;height: 150px;top:23px;">
 												<div class="func">
-													<a onclick="$('#pic4upload_Card1').click();">
+													<a onclick="$('#pic4upload1').click();">
 														<i class="fa fa-pencil"></i>
 													</a>
-													<a class="image-zoom" id="Bigptphoto_Card1" href="###">
+													<a class="image-zoom" id="Bigptphoto1" href="###">
 														<i class="fa fa-search"></i>
 													</a>
 												</div>
@@ -264,23 +266,23 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label class=" col-sm-12 col-md-4 col-lg-3" style="height:250px;line-height:250px;">微信号</label>
-							<div class=" col-sm-12 col-md-8 col-lg-9" id="Fptphoto_Card2">
-								<div class="item" style="width:100%;">
-									<div class="photo" style="width:350px;height:250px;">
-										<div class="head">
+							<label class=" col-sm-12 col-md-4 col-lg-3" style="height:250px;line-height:250px;text-align: right;">微信二维码</label>
+							<div class="gallery-cont col-sm-12 col-md-8 col-lg-9">
+								<div class="item" style="width:150px;">
+									<div class="photo" style="width: 150px;box-shadow: none;">
+										<div class="head" style="width: 150px;">
 											<span class="pull-right">
-												<button type="button" class="btn btn-danger btn-sm" id="deltupian_CardId2" onclick="deltupian_Card('2')">删除图片</button>
+												<button type="button" class="btn btn-danger btn-sm" id="deltupianId2" onclick="deltupian('2')">删除图片</button>
 											</span>
 										</div>
 										<div class="img">
-											<img src="photos/IDCardSide.png" id="ptphoto_Card2" style="width:350px;height:200px;" />
-											<div class="over" style="width:350px;height:200px;margin-top:23px;" id="identyIdOver2">
+											<img src="###" id="ptphoto2" style="width: 150px;height: 150px;" class="profile-avatar"/>
+											<div class="over" style="width: 150px;height: 150px;top:23px;">
 												<div class="func">
-													<a onclick="$('#pic4upload_Card2').click();">
+													<a onclick="$('#pic4upload2').click();">
 														<i class="fa fa-pencil"></i>
 													</a>
-													<a class="image-zoom" id="Bigptphoto_Card2" href="###">
+													<a class="image-zoom" id="Bigptphoto2" href="###">
 														<i class="fa fa-search"></i>
 													</a>
 												</div>
@@ -298,7 +300,7 @@
 									<i class="fa fa-check" style="margin-right:5px;"></i>保存
 								</span>
 							</button>
-							<button id="cancel_button" type="button" id="cancel" class="btn btn-primary btn-rad md-close" style="margin-left: 50px;">
+							<button type="button" id="cancel" class="btn btn-primary btn-rad md-close" style="margin-left: 50px;">
 								<span>
 									<i class="fa fa-times" style="margin-right:5px;"></i>取消
 								</span>
@@ -315,30 +317,32 @@
 	<!-- Nifty Modal的遮罩层-->
 
 	<script type="text/javascript" src="js/mordo.tools/mordo.timeProcessing.js"></script>
-	<script type="text/javascript" src="js/jquery.js"></script>
-	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+	<script src="js/jquery.js"></script>
 	<script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
-	<script type="text/javascript" src="js/behaviour/general.js"></script>
-	<script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
 	<script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+	<script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
 	<script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
 	<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
-	<script src="js/skycons/skycons.js" type="text/javascript"></script>
 	<script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
-	<script src="js/intro.js/intro.js" type="text/javascript"></script>
-	<script src="js/behaviour/voice-commands.js"></script>
-	<script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
-	<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
-	<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
-	<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
 	<script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>
-	<script type="text/javascript" src="js/jquery.md5.js"></script>
-	<script type="text/javascript" src="js/jquery.datatables/jquery.datatables.min.js"></script>
-	<script type="text/javascript" src="js/jquery.datatables/bootstrap-adapter/js/datatables.js"></script>
+	<script type="text/javascript" src="js/masonry.js"></script>
+	<script type="text/javascript" src="js/jquery.crop/js/jquery.Jcrop.js"></script>
+	<script src="js/ckeditor/ckeditor.js"></script>
+	<script src="js/ckeditor/adapters/jquery.js"></script>
+	<script type="text/javascript" src="js/bootstrap.summernote/dist/summernote.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.wysihtml5/lib/js/wysihtml5-0.3.0.js"></script>
+	<script type="text/javascript" src="js/bootstrap.wysihtml5/src/bootstrap-wysihtml5.js"></script>
+	<script src="js/jquery.upload/js/jquery.iframe-transport.js"></script>
+	<script src="js/jquery.upload/js/jquery.fileupload.js"></script>
+	<script type="text/javascript" src="js/behaviour/general.js"></script>
+	<script type="text/javascript" src="js/jquery.icheck/icheck.min.js"></script>
+	<script type="text/javascript" src="js/dropzone/dropzone.js"></script>
+	<script type="text/javascript" src="js/jquery.magnific-popup/dist/jquery.magnific-popup.min.js"></script>
+
 	<script type="text/javascript">
 	$(document).ready(function() {
 	    App.init();
@@ -348,6 +352,39 @@
 	    $(".md-trigger").modalEffects();
 	    
 		query();
+		
+		//Initialize Mansory
+      	var $container = $('.gallery-cont');
+      	// initialize
+      	$container.masonry({
+        	columnWidth: 0,
+        	itemSelector: '.item'
+      	});
+      	//Resizes gallery items on sidebar collapse
+     	$("#sidebar-collapse").click(function(){
+        	$container.masonry();      
+      	});
+      	//MagnificPopup for images zoom
+      	$('.image-zoom').magnificPopup({ 
+	        type: 'image',
+	        mainClass: 'mfp-with-zoom', // this class is for CSS animation below
+	        zoom: {
+		        enabled: true, // By default it's false, so don't forget to enable it
+		
+		        duration: 300, // duration of the effect, in milliseconds
+		        easing: 'ease-in-out', // CSS transition easing function 
+		
+		        // The "opener" function should return the element from which popup will be zoomed in
+		        // and to which popup will be scaled down
+		        // By defailt it looks for an image tag:
+		        opener: function(openerElement) {
+		          // openerElement is the element on which popup was initialized, in this case its <a> tag
+		          // you don't need to add "opener" option if this code matches your needs, it's defailt one.
+		          var parent = $(openerElement).parents("div.img");
+		          return parent;
+		        }
+	        }
+      	});
 	});
 	
 	//根据排序规则重新查询
@@ -533,6 +570,8 @@
 		$("#academicPopup").val("");
 		$("#contactPopup").val("");
 		$("#wechatNumPopup").val("");
+		deltupian('1');
+		deltupian('2');
 		$("#servicePersonId").val("");
 	}
 	//编辑服务人员信息
@@ -558,6 +597,18 @@
 						$("#academicPopup").val(data.content.academic);
 						$("#contactPopup").val(data.content.contact);
 						$("#wechatNumPopup").val(data.content.wechatNum);
+						if (data.content.headPortrait != null && data.content.headPortrait != "") {
+							$("#hide_tupian1").val(data.content.headPortrait);
+							$("#ptphoto1").attr("src", data.content.headPortrait);  //将当前图片设为上传的图片
+							$("#Bigptphoto1").show();
+							$("#Bigptphoto1").attr("href", data.content.headPortrait);//设置大图
+						}
+						if (data.content.headPortrait != null && data.content.headPortrait != "") {
+							$("#hide_tupian2").val(data.content.wechatQrCode);
+							$("#ptphoto2").attr("src", data.content.wechatQrCode);  //将当前图片设为上传的图片
+							$("#Bigptphoto2").show();
+							$("#Bigptphoto2").attr("href", data.content.wechatQrCode);//设置大图
+						}
 	              	}
 	              } else {
 	                 alert("查询服务人员信息失败");
@@ -587,6 +638,8 @@
 		var academicPopup = $.trim($("#academicPopup").val());
 		var contactPopup = $.trim($("#contactPopup").val());
 		var wechatNumPopup = $.trim($("#wechatNumPopup").val());
+		var hide_tupian1 = $("#hide_tupian1").val();
+		var hide_tupian2 = $("#hide_tupian2").val();
 		
 		var reqmsg = "{'action':'ADD_SERVICE_PERSON_INFO_REQUEST','content':{";
 		if (id != null && id != "") {//编辑
@@ -601,6 +654,8 @@
 		reqmsg += "'academic':'" + academicPopup + "',";
 		reqmsg += "'contact':'" + contactPopup + "',";
 		reqmsg += "'wechatNum':'" + wechatNumPopup + "',";
+		reqmsg += "'headPortrait':'" + hide_tupian1 + "',";
+		reqmsg += "'wechatQrCode':'" + hide_tupian2 + "',";
 		reqmsg += "}}";
 
 		jQuery.ajax({
@@ -648,59 +703,11 @@
 			});
 		}
 	}
-	
-	
-	function openImagejsp(data){
-		var weizhiId = $("#weizhiId").val();
-		var url = "view/imageCut/jquery-image-cut/image.jsp?";
-		if(weizhiId != "0"){//身份证操作
-			url = url + "flag=IDCard&";
-		}
-		window.open (url + data, "newwindow", "height=550, width=1100, top=200, left=450, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no");
-	}
-	 //上传裁剪后图片
-	function uploadPic_cut() {
-		var weizhi = $("#weizhiId").val();
-		var ajax_option = {
-			async:false,
-			data:{},
-			success:function(data) {
-				if (data != null && data != "") {
-					var result = JSON.parse(data);
-					if(weizhi == "0"){//头像
-						$("#hide_olderTupian").val(result.base64);
-						$("#touxiangId").attr("src", result.url);  //将当前图片设为上传的图片
-						baocuntouxiang();
-					}else{//身份证
-						$("#hide_tupian_Card" + weizhi).val(result.base64);
-						$("#ptphoto_Card" + weizhi).attr("src", result.url);  //将当前图片设为上传的图片
-						$("#Bigptphoto_Card" + weizhi).show();
-						$("#Bigptphoto_Card" + weizhi).attr("href", result.url);//设置大图
-					}
-				} else {
-					alert("图片上传失败");
-				}
-			}
-		};
-		$("#image_submit").ajaxSubmit(ajax_option);
-	}
-	
-	////////身份证图片操作////////
-	function deltupian_Card(flag){
-		$("#hide_tupian_Card" + flag).val("");
-		if(flag == "1"){
-			$("#ptphoto_Card" + flag).attr("src","photos/IDCardFront.png");
-		}else{
-			$("#ptphoto_Card" + flag).attr("src","photos/IDCardSide.png");
-		}
-		$("#Bigptphoto_Card" + flag).attr("href","");
-		$("#Bigptphoto_Card" + flag).hide();
-		$("#pic4upload_Card" + flag).val("");
-	}
+
 	//上传图片
-	function uploadPic_Card(weizhi) {
+	function uploadPic(weizhi) {
 		$("#weizhiId").val(weizhi);
-		var currPic = $("#pic4upload_Card" + weizhi).val();
+		var currPic = $("#pic4upload" + weizhi).val();
 		if (currPic != null && currPic != "") {
 			var ajax_option = {
 				async:false,
@@ -714,11 +721,53 @@
 					}
 				}
 			};
-			$("#picuploadform_Card" + weizhi).ajaxSubmit(ajax_option);
+			$("#picuploadform" + weizhi).ajaxSubmit(ajax_option);
 		} else {
 			//alert("请选择图片");
 		}
 	}
+	function openImagejsp(data){
+		var url = "view/imageCut/jquery-image-cut/image.jsp?";
+		window.open (url + data, "newwindow", "height=550, width=1100, top=200, left=450, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no");
+	}
+	//上传裁剪后图片
+	function uploadPic_cut() {
+		var weizhi = $("#weizhiId").val();
+		var ajax_option = {
+			async:false,
+			data:{},
+			success:function(data) {
+				if (data != null && data != "") {
+					var result = JSON.parse(data);
+					$("#hide_tupian" + weizhi).val(result.base64);
+					$("#ptphoto" + weizhi).attr("src", result.url);  //将当前图片设为上传的图片
+					$("#Bigptphoto" + weizhi).show();
+					$("#Bigptphoto" + weizhi).attr("href", result.url);//设置大图
+				} else {
+					alert("图片上传失败");
+				}
+			}
+		};
+		$("#image_submit").ajaxSubmit(ajax_option);
+	}
+	function deltupian(flag) {
+		$("#hide_tupian" + flag).val("");
+		if (flag == "1") {
+			$("#ptphoto" + flag).attr("src","photos/av.jpg");
+		} else {
+			$("#ptphoto" + flag).attr("src","###");
+		}
+		$("#Bigptphoto" + flag).attr("href","");
+		$("#Bigptphoto" + flag).hide();
+		$("#pic4upload" + flag).val("");
+	}
 	</script>
+	<script src="js/behaviour/voice-commands.js"></script>
+	<script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+	<script type="text/javascript" src="js/jquery.form.js"></script>
 	</body>
 </html>

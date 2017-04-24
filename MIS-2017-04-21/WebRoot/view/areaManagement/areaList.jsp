@@ -81,7 +81,7 @@
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_area')">
 															<strong>地区</strong>
 														</th>
-														<th>
+														<th style="width:10%">
 															<strong>操作<strong>
 														</th>
 													</tr>
@@ -174,7 +174,7 @@
 									<i class="fa fa-check" style="margin-right:5px;"></i>保存
 								</span>
 							</button>
-							<button id="cancel_button" type="button" id="cancel" class="btn btn-primary btn-rad md-close" style="margin-left: 50px;">
+							<button type="button" id="cancel" class="btn btn-primary btn-rad md-close" style="margin-left: 50px;">
 								<span>
 									<i class="fa fa-times" style="margin-right:5px;"></i>取消
 								</span>
@@ -270,7 +270,7 @@
 	              if (data.des == "success") {
 	            	  changeData(data);
 	              } else {
-	                 alert("查询地区信息失败");
+	                  alert("查询地区信息失败");
 	              }
 	          },
 	          error:function() {
@@ -453,6 +453,7 @@
 	              if (data.des == "success") {
 	              	$("#cancel").click();
 	              	go2page(currentshownpage);
+	              	alert("保存地区信息成功");
 	              } else {
 	                 alert("保存地区信息失败");
 	              }
@@ -473,9 +474,9 @@
 				dataType:"json",
 				data:{ids:id},
 				success:function(data) {
-					alert(data.des);
 					if (data.result == "success") {
 						go2page(currentshownpage);
+						alert("删除地区信息成功");
 					} else {
 	                    alert("删除地区信息失败");
 	                }

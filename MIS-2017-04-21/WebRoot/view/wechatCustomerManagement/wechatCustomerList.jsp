@@ -209,7 +209,7 @@
 									<i class="fa fa-check" style="margin-right:5px;"></i>保存
 								</span>
 							</button>
-							<button id="cancel_button" type="button" id="cancel" class="btn btn-primary btn-rad md-close" style="margin-left: 50px;">
+							<button type="button" id="cancel" class="btn btn-primary btn-rad md-close" style="margin-left: 50px;">
 								<span>
 									<i class="fa fa-times" style="margin-right:5px;"></i>取消
 								</span>
@@ -499,8 +499,9 @@
 	          },
 	          success : function(data) {
 	              if (data.des == "success") {
-	              	$("#cancel").click();
-	              	go2page(currentshownpage);
+	              	 $("#cancel").click();
+	              	 go2page(currentshownpage);
+	              	 alert("保存微信客户信息成功");
 	              } else {
 	                 alert("保存微信客户信息失败");
 	              }
