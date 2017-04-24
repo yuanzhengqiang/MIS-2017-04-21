@@ -139,34 +139,108 @@
                 			<option value="2">已寄出</option>
                 		</select>
 					</div> 
-					<div class="col-sm-2 col-md-2 col-lg-1" style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">报告生成时间</div>
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">报告寄送地址</div>
+					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+                		<textarea class="form-control" id="selectDes"></textarea>
+					</div> 
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">报告寄送联系人</div>
+					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+                		<input type="text" class="form-control"  id="xmname_input">
+					</div>
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">报告寄送联系方式</div>
+					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+                		<input type="text" class="form-control"  id="xmname_input">
+					</div>
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">报告快递商</div>
+					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+                		<input type="text" class="form-control"  id="xmname_input">
+					</div>
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">报告快递单号</div>
+					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+                		<input type="text" class="form-control"  id="xmname_input">
+					</div>
+					<div class="col-sm-2 col-md-2 col-lg-1" style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">预计体检时间</div>
 					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
                 		<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
-						<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
-						<input class="form-control" size="16" value="" readonly="" type="text" id="startTime" placeholder="开始时间">
-						<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+							<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
+							<input class="form-control" size="16" value="" readonly="" type="text" id="startTime" placeholder="预计体检时间">
+							<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+						</div>
 					</div>
+					<div class="col-sm-2 col-md-2 col-lg-1" style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">体检完成时间</div>
+					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+                		<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
+							<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
+							<input class="form-control" size="16" value="" readonly="" type="text" id="startTime" placeholder="预计体检时间">
+							<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+						</div>
+					</div>
+					<div class="col-sm-2 col-md-2 col-lg-1" style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">预计报告完成时间</div>
+					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+                		<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
+							<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
+							<input class="form-control" size="16" value="" readonly="" type="text" id="startTime" placeholder="预计体检时间">
+							<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+						</div>
 					</div>
 					<div class="col-sm-2 col-md-2 col-lg-1" style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">完整体验报告</div>
 					<div class="col-sm-4 col-md-4 col-lg-2">
                 		<a href="#" id="downloadFile" target="_blank" style="margin-bottom: 0px !important; height: 34px;margin-left:0;line-height:34px;">点击下载</a>
 					</div>
-					
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;" >状态</div>
+		            <div class="col-sm-4 col-md-4 col-lg-2">
+		              	<select class="form-control" id="xm_leibie_input" style="margin-bottom:5px">
+	              			<option value=""></option>
+	              			<option value="1">下单成功</option>
+	              			<option value="2">体检完成</option>
+	              			<option value="2">体检完成</option>
+	              			<option value="2">生成报告</option>
+	              			<option value="2">取消</option>
+	              		</select>
+					</div> 
+                </div>
+              </div>
+              
+              <div class="form-group" id="xmjianjie_input">               
+                <div class="row"> 
+                <div class="col-sm-12 " ><strong>体检项目</strong></div>
+	                <div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">项目名称</div>
+					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+                		<label style="height:34px;line-height: 34px;">甲项目</label>
+					</div>
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">价格</div>
+					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+                		<label style="height:34px;line-height: 34px;">100元</label>
+					</div>
                 </div>
               </div>
               <div class="form-group" id="xmjianjie_input">               
                 <div class="row"> 
-                <div class="col-sm-12 " ><strong>体检报告内容</strong></div>
-	                <div class="col-sm-12 " >
-	                	<div class="content">
-							<div class="form-group" style="padding-top:0;">
-								<div id="xmjianjie"></div>
-							</div>
-						</div>
-	                </div>
+                <div class="col-sm-12 " ><strong>体检项目</strong></div>
+	                <div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">项目名称</div>
+					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+                		<label style="height:34px;line-height: 34px;">甲项目</label>
+					</div>
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">价格</div>
+					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+                		<label style="height:34px;line-height: 34px;">100元</label>
+					</div>
                 </div>
               </div>
-              </form>
+              <div class="form-group" id="xmjianjie_input">               
+                <div class="row"> 
+                <div class="col-sm-12 " ><strong>服务人员信息</strong></div>
+	                <div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">项目名称</div>
+					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+                		<label style="height:34px;line-height: 34px;">甲项目</label>
+					</div>
+					<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">价格</div>
+					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+                		<label style="height:34px;line-height: 34px;">100元</label>
+					</div>
+                </div>
+              </div>
+   </form>
 </div>
 </div>
 </div></div>				
