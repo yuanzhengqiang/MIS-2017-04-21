@@ -236,48 +236,54 @@
 								<input id="wechatNumPopup" type="text" class="form-control" autocomplete="off">
 							</div>
 						</div>
-						<div class="gallery-cont col-sm-6 col-md-4 col-lg-3" id="Fptphoto_Card1">
-							<div class="item" style="width:100%;">
-								<div class="photo" style="width:350px;height:250px;">
-									<div class="head">
-										<span class="pull-right">
-											<button type="button" class="btn btn-danger btn-sm" id="deltupian_CardId1" onclick="deltupian_Card('1')">删除图片</button>
-										</span>
-									</div>
-									<div class="img">
-										<img src="photos/IDCardFront.png" id="ptphoto_Card1" style="width:350px;height:200px;" />
-										<div class="over" style="width:350px;height:200px;margin-top:23px;" id="identyIdOver1">
-											<div class="func">
-												<a onclick="$('#pic4upload_Card1').click();">
-													<i class="fa fa-pencil"></i>
-												</a>
-												<a class="image-zoom" id="Bigptphoto_Card1" href="###">
-													<i class="fa fa-search"></i>
-												</a>
+						<div class="form-group">
+							<label class=" col-sm-12 col-md-4 col-lg-3" style="height:250px;line-height:250px;">微信号</label>
+							<div class=" col-sm-12 col-md-8 col-lg-9" id="Fptphoto_Card1">
+								<div class="item" style="width:100%;">
+									<div class="photo" style="width:350px;height:250px;">
+										<div class="head">
+											<span class="pull-right">
+												<button type="button" class="btn btn-danger btn-sm" id="deltupian_CardId1" onclick="deltupian_Card('1')">删除图片</button>
+											</span>
+										</div>
+										<div class="img">
+											<img src="photos/IDCardFront.png" id="ptphoto_Card1" style="width:350px;height:200px;" />
+											<div class="over" style="width:350px;height:200px;margin-top:23px;" id="identyIdOver1">
+												<div class="func">
+													<a onclick="$('#pic4upload_Card1').click();">
+														<i class="fa fa-pencil"></i>
+													</a>
+													<a class="image-zoom" id="Bigptphoto_Card1" href="###">
+														<i class="fa fa-search"></i>
+													</a>
+												</div>
 											</div>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-						<div class="gallery-cont col-sm-6 col-md-4 col-lg-3" id="Fptphoto_Card2" style="margin-left:100px">
-							<div class="item" style="width:100%;">
-								<div class="photo" style="width:350px;height:250px;">
-									<div class="head">
-										<span class="pull-right">
-											<button type="button" class="btn btn-danger btn-sm" id="deltupian_CardId2" onclick="deltupian_Card('2')">删除图片</button>
-										</span>
-									</div>
-									<div class="img">
-										<img src="photos/IDCardSide.png" id="ptphoto_Card2" style="width:350px;height:200px;" />
-										<div class="over" style="width:350px;height:200px;margin-top:23px;" id="identyIdOver2">
-											<div class="func">
-												<a onclick="$('#pic4upload_Card2').click();">
-													<i class="fa fa-pencil"></i>
-												</a>
-												<a class="image-zoom" id="Bigptphoto_Card2" href="###">
-													<i class="fa fa-search"></i>
-												</a>
+						<div class="form-group">
+							<label class=" col-sm-12 col-md-4 col-lg-3" style="height:250px;line-height:250px;">微信号</label>
+							<div class=" col-sm-12 col-md-8 col-lg-9" id="Fptphoto_Card2">
+								<div class="item" style="width:100%;">
+									<div class="photo" style="width:350px;height:250px;">
+										<div class="head">
+											<span class="pull-right">
+												<button type="button" class="btn btn-danger btn-sm" id="deltupian_CardId2" onclick="deltupian_Card('2')">删除图片</button>
+											</span>
+										</div>
+										<div class="img">
+											<img src="photos/IDCardSide.png" id="ptphoto_Card2" style="width:350px;height:200px;" />
+											<div class="over" style="width:350px;height:200px;margin-top:23px;" id="identyIdOver2">
+												<div class="func">
+													<a onclick="$('#pic4upload_Card2').click();">
+														<i class="fa fa-pencil"></i>
+													</a>
+													<a class="image-zoom" id="Bigptphoto_Card2" href="###">
+														<i class="fa fa-search"></i>
+													</a>
+												</div>
 											</div>
 										</div>
 									</div>
