@@ -52,9 +52,9 @@ public class MedicalReportController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(params = "medicalReportDeatil")
+	@RequestMapping(params = "medicalReportDetail")
 	public ModelAndView deatil(HttpServletRequest request) {
-		ModelAndView mav = new ModelAndView("medicalReport/medicalReportDeatil");
+		ModelAndView mav = new ModelAndView("medicalReport/medicalReportDetail");
 		String id = request.getParameter("id");
 		mav.addObject("id", id);
 		return mav;
