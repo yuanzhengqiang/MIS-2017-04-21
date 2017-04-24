@@ -203,7 +203,7 @@
               
               <div class="form-group" id="xmjianjie_input">               
                 <div class="row"> 
-                	<div class="col-sm-12 " ><strong>体检项目</strong></div>
+                	<div class="col-sm-12 " style="margin-bottom:5px;height: 34px;line-height: 34px;"><strong>体检项目</strong></div>
 	                <div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;height: 34px;line-height: 34px;">项目名称</div>
 					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
                 		<label style="height:34px;line-height: 34px;">甲项目</label>
@@ -216,7 +216,7 @@
               </div>
               <div class="form-group" id="xmjianjie_input">               
                 <div class="row"> 
-                	<div class="col-sm-12 " ><strong>服务人员信息</strong></div>
+                	<div class="col-sm-12 " style="margin-bottom:5px;height: 34px;line-height: 34px;"><strong>服务人员信息</strong></div>
 	                <div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;height: 34px;line-height: 34px;">服务人员姓名</div>
 					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
                 		<label style="height:34px;line-height: 34px;">无</label>
@@ -225,7 +225,7 @@
               </div>
               <div class="form-group" id="xmjianjie_input">               
                 <div class="row"> 
-                	<div class="col-sm-12 " ><strong>体检报告内容</strong></div>
+                	<div class="col-sm-12 " style="margin-bottom:5px;height: 34px;line-height: 34px;"><strong>体检报告内容</strong></div>
 	                <div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;height: 34px;line-height: 34px;">体检报告编号</div>
 					<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
                 		<label style="height:34px;line-height: 34px;">56465165163</label>
@@ -234,7 +234,7 @@
               </div>
               <div class="form-group" id="xmjianjie_input">               
                 <div class="row"> 
-                <div class="col-sm-12 " ><strong>付费列表</strong></div>
+                <div class="col-sm-12 " style="margin-bottom:5px;height: 34px;line-height: 34px;"><strong>付费列表</strong></div>
 	                <table class="table table-bordered dataTable hover" id="datatable" aria-describedby="datatable_info">
 						<thead>
 							<tr role="row">
