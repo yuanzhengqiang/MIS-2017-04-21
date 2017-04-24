@@ -254,7 +254,7 @@
 		}
 		reqmsg += "'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
 		if (regionName != null && regionName != "") {
-			reqmsg += "'area_	like':'" + regionName + "',";
+			reqmsg += "'area_like':'" + regionName + "',";
 		}
 		reqmsg += "}}";
 
