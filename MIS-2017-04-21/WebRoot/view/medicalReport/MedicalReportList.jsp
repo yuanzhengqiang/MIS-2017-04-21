@@ -46,7 +46,7 @@
 			<div class="page-head">
 				<h2>体检报告管理</h2>
 				<ol class="breadcrumb">
-					<li>首页</li>
+					<li>基础信息</li>
 					<input type="hidden" value="" id="sortType">
 					<input type="hidden" value="" id="sortColumn">
 					<li class="active">体检报告管理</li>

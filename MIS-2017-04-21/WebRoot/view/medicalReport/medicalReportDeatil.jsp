@@ -65,7 +65,7 @@
               <div >
                 <h2 id="head_fuName">体检报告详情</h2>
                <ol class="breadcrumb" style="padding:0;background:#fff;">
-					<li>首页</li>
+					<li>基础信息</li>
 					<li >体检报告管理</li>
 					<li class="active">体检报告详情</li>
 				</ol>
