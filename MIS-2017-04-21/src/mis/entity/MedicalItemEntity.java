@@ -71,7 +71,7 @@ public class MedicalItemEntity implements java.io.Serializable {
     /**
 	 * 说明
 	 */
-	@ColumnDescription(name = "INTRUCTIONS")
+	@ColumnDescription(name = "INSTRUCTIONS")
 	private String instructions;
 	
     public Integer getId() {

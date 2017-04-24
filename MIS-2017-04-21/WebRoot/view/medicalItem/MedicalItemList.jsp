@@ -86,7 +86,6 @@
 											<table class="table table-bordered dataTable hover" id="datatable" aria-describedby="datatable_info">
 												<thead>
 													<tr role="row">
-														<th style="width:2%;"><input id="allselectchecker" type="checkbox" class="col_selector" onclick="selectAll();"></th>
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_loginname')"><strong>项目名称</strong></th>
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>价格</strong></th>
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>类别</strong></th>
@@ -173,9 +172,9 @@
 								<div class="col-sm-6">
 									<select id="category" style="width:100%;height:30px;">
 										<option value=""></option>
-                       					<option value="0">基础检查</option>
-                       					<option value="1">肿瘤</option>
-                       					<option value="2">心脑血管</option>
+                       					<option value="1">基础检查</option>
+                       					<option value="2">肿瘤</option>
+                       					<option value="3">心脑血管</option>
                   	  				</select>
 								</div>
 							</div>
@@ -319,44 +318,26 @@ function editInfo(id, itemName, price, category, testWay, testPurpose, selectDes
 }
 
 //删除
-function doDel() {
-	var selectedItemNumber = $("tbody#datacontainer .col_selector:checked").length;
-	if (selectedItemNumber >= 1) {
-		$("#isSure2Delete").addClass("md-show");
-		document.getElementById("Sure2Delete").onclick = function(){   //使用.click会重复
-		$("#isSure2Delete").removeClass("md-show");
-		var ids2del = "";
-		$("tbody#datacontainer .col_selector:checked").each(function() {
-			ids2del += $(this).val() + ",";
-		});
-		if (ids2del != "") {
-			ids2del = ids2del.substring(0, ids2del.length - 1);
-		}
-		
+function del(id) {
+	if (confirm("是否确认删除?"))  {  
 		jQuery.ajax({
 			type:"post",
 			url: "medicalItem.do?del",
 			async:true,
 			dataType:"json",
-			data:{ids:ids2del},
+			data:{ids:id},
 			success:function(data) {
 				alert(data.des);
 				if (data.result == "success") {
 					go2page(1);
 				}else if(data.des=="failure"){
-                 alert("删除失败");
+                    alert("删除失败");
                 }
 			},
 			error:function() {
 				alert("删除失败");
 			}
 		});
-		}
-		document.getElementById("cancel2Delete").onclick = function(){
-			$("#isSure2Delete").removeClass("md-show");
-	 	}
-	} else {
-		alert("请选择要删除的数据");
 	}
 }
 
@@ -430,7 +411,7 @@ function saveInfo() {
 
 function go2page(pagenumber){
 	var pagesize = $("#pageSizeSelector option:selected").val();
-	var itemName = $("#queryItemName").val();
+	var itemName = $.trim($("#queryItemName").val());
 	var reqmsg="{'action':'QUERY_MEDICAL_ITEM_LIST_REQUEST',";
 	
 	var sortType = $("#sortType").val();
@@ -472,14 +453,14 @@ function go2page(pagenumber){
 function changeStatus(status){
 	var statusName = "";
 	switch(status){
-		case 0:
-			statusName = "正常";
-			break;
 		case 1:
-			statusName = "过期";
+			statusName = "基础检查";
 			break;
 		case 2:
-			statusName = "锁定";
+			statusName = "肿瘤";
+			break;
+		case 3:
+			statusName = "心脑血管";
 		default:
 			break;
 	}
@@ -491,10 +472,10 @@ function changeData(data){
 	var htmlcode = ""
 	if (data.content != null) {
 		jQuery.each(data.content.medicalItemList, function(i, item) {
-			htmlcode += "<tr class=\"gradeA odd\">";
+			htmlcode += "<tr class=\"gradeA odd\">";	
 		    htmlcode += "<td>" + item.itemName + "</td>";				
 		    htmlcode += "<td>" + item.price + "</td>";	
-		    htmlcode += "<td>" + item.category + "</td>";
+		    htmlcode += "<td>" + changeStatus(item.category) + "</td>";
 		    htmlcode += "<td>" + item.testWay + "</td>";	
 		    htmlcode += "<td>" + item.testPurpose + "</td>";
 		    htmlcode += "<td>" + item.selectDes + "</td>";
@@ -507,7 +488,8 @@ function changeData(data){
 			htmlcode += "<span class=\"sr-only\">Toggle Dropdown</span>";
 			htmlcode += "</button>";
 			htmlcode += "<ul role=\"menu\" class=\"dropdown-menu pull-right\">";
-			htmlcode += "<li onclick=\"editInfo("+item.id+","+ item.itemName+","+ item.price+","+ item.category+","+ item.testWay+","+ item.testPurpose+","+ item.selectDes+","+ item.des+","+ item.mattersNeedAttention+")\"><a href=\"###\">编辑</a></li>";
+			htmlcode += "<li onclick=\"editInfo('"+item.id+"','"+ item.itemName+"','"+ item.price+"','"+ item.category+"','"+ item.testWay+"','"+ item.testPurpose+"','"+ item.selectDes+"','"+ item.des+"','"+ item.mattersNeedAttention+"')\"><a href=\"###\">编辑</a></li>";
+			htmlcode += "<li onclick=\"del('"+item.id+"')\"><a href=\"###\">删除</a></li>";
 			htmlcode += "</ul></div></td>";
 			htmlcode += "</tr>";
 		});
@@ -558,7 +540,6 @@ function genarateRecordNumberHtml(currentpage, pagesize, totalRecord) {
  * @param {Number} totalpage 总页数
  */
 function genaratePaginateHtml(currentpage, totalpage, pagesize) {
-	currentshownpage = currentpage;
 
 	var htmlcode = "";
 	
