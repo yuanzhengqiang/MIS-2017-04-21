@@ -53,7 +53,9 @@ public class OrderController {
 	public ModelAndView mainDetail(HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("orderManagement/orderDetail");
 		String id = request.getParameter("id");
-		mav.addObject("id", id);
+		if (id != null && id != "") {
+			mav.addObject("id", id);
+		}
 		return mav;
 	}
 	
