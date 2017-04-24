@@ -192,6 +192,22 @@ function formateTime4(time) {
 }
 
 /**
+ * 格式化时间
+ * 
+ * @method formateTime5
+ * @param {String}
+ *            time 时间信息(YYYYMMDD)
+ * @return 格式化的时间(YYYY年MM月DD日)
+ */
+function formateTime5(time) {
+	var timeFormate = "";
+	if (time != null && time.length == 8) {
+		timeFormate = time.substring(0, 4) + "年" + time.substring(4, 6) + "月" + time.substring(6, 8) + "日";
+	}
+	return timeFormate;
+}
+
+/**
  * 时间转化成时间戳
  * 
  * @method yyyy-mm-dd hh:mm:ss  例:2014/07/10 10:21:12
