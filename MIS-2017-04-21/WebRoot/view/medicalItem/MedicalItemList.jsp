@@ -348,26 +348,58 @@ function del(id) {
  */
 function saveInfo() {
 	var id = $("#medicalItemInfoId").val();
-	var itemName = $.trim($("#itemName").val());
-	var price = $.trim($("#price").val());
-	var category = $.trim($("#category").val());
-	var testWay = $.trim($("#testWay").val());
-	var testPurpose = $.trim($("#testPurpose").val());
-	var selectDes = $.trim($("#selectDes").val());
-	var mattersNeedAttention = $.trim($("#mattersNeedAttention").val());
-	var des = $.trim($("#des").val());
+	var itemName = $.trim($("#itemName").val());//项目名称
+	var price = $.trim($("#price").val());//价格
+	var category = $.trim($("#category").val());//分类
+	var testWay = $.trim($("#testWay").val());//检测方式
+	var testPurpose = $.trim($("#testPurpose").val());//检测目的
+	var selectDes = $.trim($("#selectDes").val());//选择说明
+	var mattersNeedAttention = $.trim($("#mattersNeedAttention").val());//注意事项
+	var des = $.trim($("#des").val());//备注
 	
 	var reqmsg="{'action':'ADD_MEDICAL_ITEM_INFO_REQUEST','content':{";
 	
 	if (id != null && id != "") {
 		reqmsg += "\"id\":" + id + ",";
 	}
-	reqmsg += "\"itemName\":\"" + itemName + "\",";
-	    
-	reqmsg += "\"price\":\"" + price + "\",";
-	reqmsg += "\"category\":" + category + ",";
-	reqmsg += "\"testWay\":\"" + testWay + "\",";
-	reqmsg += "\"testPurpose\":\"" + testPurpose + "\",";
+	if (itemName != null && itemName != "") {
+		reqmsg += "\"itemName\":\"" + itemName + "\",";
+	} else {
+		alert("项目名称不能为空");
+		return;
+	}
+	
+	if (price != null && price != "") {
+		if ( number(price) ) {
+			price = price.toFixed(2);
+			reqmsg += "\"price\":\"" + price + "\",";
+		} else {
+			alert("价格输入有误,请重新输入");
+			return;
+		}
+	} else {
+		alert("价格不能为空");
+		return;
+	}
+	
+	if (category != null && category != "") {
+		reqmsg += "\"category\":" + category + ",";
+	} else {
+		alert("类别不能为空");
+		return;
+	}
+	
+	if (testWay != null && testWay != "") {
+		reqmsg += "\"testWay\":\"" + testWay + "\",";
+	} else {
+		reqmsg += "\"testWay\":\"\",";
+	}
+	
+	if (testPurpose != null && testPurpose != "") {
+		reqmsg += "\"testPurpose\":\"" + testPurpose + "\",";
+	} else {
+		reqmsg += "\"testPurpose\":\"\",";
+	}
 	    
 	if (selectDes != null && selectDes != "") {
         reqmsg += "\"selectDes\":\"" + selectDes + "\",";
@@ -397,7 +429,8 @@ function saveInfo() {
           },
           success : function(data){
               if(data.des=="success"){
-              	$("#cancel_button").click();
+            	  alert("保存成功");
+              	  $("#cancel_button").click();
             	  go2page(1);
               }else if(data.des=="failure"){
                  alert("保存失败");
@@ -407,6 +440,16 @@ function saveInfo() {
 	           alert("保存失败");
           }
      });
+}
+
+//判断数字字符
+function number(str){
+    var pattern = /^\d+(\.\d+)?$/;
+    if(pattern.test(str)){
+        return true;
+    }else{
+        return false;
+    }
 }
 
 function go2page(pagenumber){
@@ -597,7 +640,5 @@ function genaratePaginateHtml(currentpage, totalpage, pagesize) {
 	$("#paginationArea").html(htmlcode);
 }
 </script>
-<!-- 弹出框 -->
-	<div id="timeTip" class="timeTip" style="position:absolute;left:0;top:0;display:none;"></div> 
   </body>
 </html>
