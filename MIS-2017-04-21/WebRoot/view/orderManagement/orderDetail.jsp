@@ -76,42 +76,41 @@
 						<form class="form-horizontal group-border-dashed">
 							<div class="form-group">
 								<div class="row">
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center"
-										style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">订单编号</div>
-									<div class="col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">订单编号</div>
+									<div class="col-xs-8 col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<label style="height:34px;line-height: 34px;">123154645</label>
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">总价格</div>
-									<div class="col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">总价格</div>
+									<div class="col-xs-8 col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<label style="height:34px;line-height: 34px;">123154645元</label>
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">服务费</div>
-									<div class="col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">服务费</div>
+									<div class="col-xs-8 col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<label style="height:34px;line-height: 34px;">123154645元</label>
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">是否已付款</div>
-									<div class="col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">是否已付款</div>
+									<div class="col-xs-8 col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<label style="height:34px;line-height: 34px;">是</label>
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">下单客户</div>
-									<div class="col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">下单客户</div>
+									<div class="col-xs-8 col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<label style="height:34px;line-height: 34px;">张三</label>
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">医院</div>
-									<div class="col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">医院</div>
+									<div class="col-xs-8 col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<label style="height:34px;line-height: 34px;">甲医院</label>
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;height: 34px;line-height: 34px;">体检人姓名</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">体检人姓名</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="xmname_input">
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;height: 34px;line-height: 34px;">体检人身份证号</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">体检人身份证号</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="xmname_input">
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;height: 34px;line-height: 34px;">体检人性别</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">体检人性别</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<select class="form-control" id="xm_leibie_input"
 											style="margin-bottom:5px;height: 34px;line-height: 34px;">
@@ -120,11 +119,11 @@
 											<option value="0">女</option>
 										</select>
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;height: 34px;line-height: 34px;">联系方式</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">联系方式</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="xmname_input">
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;height: 34px;line-height: 34px;">报告状态</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">报告状态</div>
 									<div class="col-sm-4 col-md-4 col-lg-2">
 										<select class="form-control" id="xm_leibie_input"
 											style="margin-bottom:5px;height: 34px;line-height: 34px;">
@@ -135,29 +134,29 @@
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-sm-2 col-md-4 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;">报告寄送地址</div>
-									<div class="col-sm-10 col-md-8 col-lg-11" style="margin-bottom:5px;">
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;">报告寄送地址</div>
+									<div class="col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;">
 										<textarea class="form-control" id="selectDes"></textarea>
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;height: 34px;line-height: 34px;">报告寄送联系人</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">报告寄送联系人</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="xmname_input">
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;height: 34px;line-height: 34px;">报告寄送联系方式</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">报告寄送联系方式</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="xmname_input">
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;height: 34px;line-height: 34px;">报告快递商</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">报告快递商</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="xmname_input">
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;height: 34px;line-height: 34px;">报告快递单号</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">报告快递单号</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="xmname_input">
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">预计体检时间</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">预计体检时间</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<div class="input-group date datetime" data-min-view="1" data-date-format="yyyy-mm-dd hh:ii:ss" style="margin-bottom: 0px;">
 											<span class="input-group-addon btn btn-primary">
@@ -171,7 +170,7 @@
 											</span>
 										</div>
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">体检完成时间</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">体检完成时间</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<div class="input-group date datetime" data-min-view="1" data-date-format="yyyy-mm-dd hh:ii:ss" style="margin-bottom: 0px;">
 											<span class="input-group-addon btn btn-primary">
@@ -185,7 +184,7 @@
 											</span>
 										</div>
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 15px;padding-right: 0px;height: 34px;line-height: 34px;">预计报告完成时间</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">预计报告完成时间</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<div class="input-group date datetime" data-min-view="1" data-date-format="yyyy-mm-dd hh:ii:ss" style="margin-bottom: 0px;">
 											<span class="input-group-addon btn btn-primary">
@@ -199,7 +198,7 @@
 											</span>
 										</div>
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;">状态</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;">状态</div>
 									<div class="col-sm-4 col-md-4 col-lg-2">
 										<select class="form-control" id="xm_leibie_input" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 											<option value=""></option>
@@ -214,7 +213,7 @@
 							</div>
 							<div class="form-group" id="xmjianjie_input">
 								<div class="row">
-									<div class="col-sm-12 " style="margin-bottom:5px;height: 34px;line-height: 34px;">
+									<div class="col-sm-12 text-left" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<strong style="font-size: 16px;">体检项目</strong>
 									</div>
 									<div class="col-sm-2 col-md-2 col-lg-1 text-center" style="padding-left: 0px;padding-right: 0px;height: 34px;line-height: 34px;">项目名称</div>

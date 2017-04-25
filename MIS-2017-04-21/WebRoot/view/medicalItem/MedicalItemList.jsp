@@ -34,9 +34,9 @@
   	<link rel="stylesheet" type="text/css" href="js/jquery.datatables/bootstrap-adapter/css/datatables.css" />
 	<script type="text/javascript" src="js/sortListTool.js"></script>
   	<style type="text/css">
-      .timeTip{width:220px;height:80px;background:#f3f9ff;border:2px solid #dadada;z-index:10;}
-      .timeTip div{margin:20px 30px}
-      .hideAndShow{display:none;}
+      .red{
+			color: red;
+		}
   	</style>
 </head>
 <body style="opacity: 1; margin-left: 0px;">
@@ -156,19 +156,19 @@
 						<form class="form-horizontal group-border-dashed" action="#" style="border-radius: 0px;">
 							<input type="hidden" name="entityId" id="medicalItemInfoId">
 							<div class="form-group">
-								<label class="col-sm-3 control-label">项目名称</label>
+								<label class="col-sm-3 control-label">项目名称<span class="red">*</span></label>
 								<div class="col-sm-6">
 									<input id="itemName" type="text" class="form-control" autocomplete="off">
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-3 control-label">价格</label>
+								<label class="col-sm-3 control-label">价格<span class="red">*</span></label>
 								<div class="col-sm-6">
 									<input id="price"class="form-control" autocomplete="off">
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-3 control-label">类别</label>
+								<label class="col-sm-3 control-label">类别<span class="red">*</span></label>
 								<div class="col-sm-6">
 									<select id="category" style="width:100%;height:30px;">
 										<option value=""></option>
