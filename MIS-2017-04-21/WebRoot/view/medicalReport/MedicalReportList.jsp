@@ -71,13 +71,13 @@
                        						<input id="queryMedicalReportNum" class="form-control" type="text" value="" autocomplete="off" style="width:100%">
                     					</div>
                     					<div class="col-xs-6 col-sm-2 text-center" style="vertical-align: middle; height: 34px; line-height: 34px;margin-bottom:5px;">
-                      						<label>姓名</label>
+                      						<label>体检人姓名</label>
                     					</div>
                     					<div class="col-xs-6 col-sm-4" style="margin-bottom:5px;">
                        						<input id="queryMedicalPersonName" class="form-control" type="text" value="" autocomplete="off" style="width:100%">
                     					</div>
                     					<div class="col-xs-6 col-sm-2 text-center" style="vertical-align: middle; height: 34px; line-height: 34px;margin-bottom:5px;">
-                      						<label>身份证号</label>
+                      						<label>体检人身份证号</label>
                     					</div>
                     					<div class="col-xs-6 col-sm-4" style="margin-bottom:5px;">
                        						<input id="queryMedicalPersonCardNum" class="form-control" type="text" value="" autocomplete="off" style="width:100%">
@@ -289,7 +289,7 @@ function del(id) {
 	  if (confirm("是否确认删除?"))  {  
 		jQuery.ajax({
 			type:"post",
-			url:"medicalItem.do?del",
+			url:"medicalReport.do?del",
 			async:true,
 			dataType:"json",
 			data:{ids:id},
@@ -310,15 +310,17 @@ function del(id) {
 
 function go2page(pagenumber){
 	var pagesize = $("#pageSizeSelector option:selected").val();
-	var medicalReportNum = $.trim($("#medicalReportNum").val());
-	var medicalPersonName = $.trim($("#medicalPersonName").val());
-	var medicalPersonCardNum = $.trim($("#medicalPersonCardNum").val());
+	var medicalReportNum = $.trim($("#queryMedicalReportNum").val());
+	var medicalPersonName = $.trim($("#queryMedicalPersonName").val());
+	var medicalPersonCardNum = $.trim($("#queryMedicalPersonCardNum").val());
 	var reqmsg="{'action':'QUERY_MEDICAL_REPORT_LIST_REQUEST',";
 	
 	var sortType = $("#sortType").val();
 	var sortColumn = $("#sortColumn").val();
 	if(sortType != null && sortType != ""){
 		reqmsg += "'order':[{'column':'" + sortColumn + "','type':'" + sortType + "'}],";
+	} else {
+		reqmsg += "'order':[{'column':'id','type':'desc'}],";
 	}
 	
 	reqmsg += "'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
@@ -482,8 +484,15 @@ function genaratePaginateHtml(currentpage, totalpage, pagesize) {
 	}
 	$("#paginationArea").html(htmlcode);
 }
+ function formateTime(time) {
+		var timeFormate = "未知";
+		if (time != null && time.length == 14) {
+			timeFormate = time.substring(0, 4) + "-" + time.substring(4, 6) + "-"
+					+ time.substring(6, 8) + " " + time.substring(8, 10) + ":"
+					+ time.substring(10, 12) + ":" + time.substring(12, 14);
+		}
+		return timeFormate;
+	}
 </script>
-<!-- 弹出框 -->
-	<div id="timeTip" class="timeTip" style="position:absolute;left:0;top:0;display:none;"></div> 
   </body>
 </html>
