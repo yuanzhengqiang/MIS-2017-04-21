@@ -371,8 +371,9 @@ function saveInfo() {
 	
 	if (price != null && price != "") {
 		if ( number(price) ) {
-			price = price.toFixed(2);
-			reqmsg += "\"price\":\"" + price + "\",";
+			var priceNum = parseFloat(price)
+			priceNum = priceNum.toFixed(2);
+			reqmsg += "\"price\":\"" + priceNum + "\",";
 		} else {
 			alert("价格输入有误,请重新输入");
 			return;
