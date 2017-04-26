@@ -86,14 +86,14 @@
 											<table class="table table-bordered dataTable hover" id="datatable" aria-describedby="datatable_info">
 												<thead>
 													<tr role="row">
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_loginname')"><strong>项目名称</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>价格</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>类别</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>检测方式</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'status')"><strong>检测目的</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>选择说明</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'lastLoginTime')"><strong>备注</strong></th>													
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'loginNum')"><strong>注意事项</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'itemName')"><strong>项目名称</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'price')"><strong>价格</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'category')"><strong>类别</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_testWay')"><strong>检测方式</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_testPurpose')"><strong>检测目的</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_selectDes')"><strong>选择说明</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_des')"><strong>备注</strong></th>													
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_mattersNeedAttention ')"><strong>注意事项</strong></th>
 														<th><strong>操作<strong></th>
 													</tr>
 												</thead>

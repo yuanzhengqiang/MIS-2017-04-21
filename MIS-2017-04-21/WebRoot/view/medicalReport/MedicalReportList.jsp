@@ -98,12 +98,11 @@
 											<table class="table table-bordered dataTable hover" id="datatable" aria-describedby="datatable_info">
 												<thead>
 													<tr role="row">
-														<th style="width:2%;"><input id="allselectchecker" type="checkbox" class="col_selector" onclick="selectAll();"></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_loginname')"><strong>报告编号</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>体检人姓名</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>体检人身份证号</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'status')"><strong>医院</strong></th>
-														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_type')"><strong>报告生成时间</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'medicalReportNum')"><strong>报告编号</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_medicalPersonName')"><strong>体检人姓名</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'medicalPersonCardNum')"><strong>体检人身份证号</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'medicalHospital')"><strong>医院</strong></th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'medicalReportCreateTime')"><strong>报告生成时间</strong></th>
 														<th><strong>操作<strong></th>
 													</tr>
 												</thead>
@@ -285,14 +284,6 @@ $(document).ready(function(){
 	query();
 });
 
-function selectAll() {
-	if ($("#allselectchecker").is(':checked')) {
-		$("tbody#datacontainer .col_selector").prop("checked", true);
-	} else {
-		$("tbody#datacontainer .col_selector").prop("checked", false);
-	}
-}
-
 //删除
 function del(id) {
 	  if (confirm("是否确认删除?"))  {  
@@ -305,7 +296,7 @@ function del(id) {
 			success:function(data) {
 				alert(data.des);
 				if (data.result == "success") {
-					go2page(currentshownpage);
+					go2page(1);
 				}else if(data.des=="failure"){
                     alert("删除失败");
                 }
@@ -315,75 +306,6 @@ function del(id) {
 			}
 		});
 	}
-}
-
-/**
- * 保存信息
- * @method saveInfo
- */
-function saveInfo() {
-	var id = $("#medicalItemInfoId").val();
-	var itemName = $.trim($("#itemName").val());
-	var price = $.trim($("#price").val());
-	var category = $.trim($("#category").val());
-	var testWay = $.trim($("#testWay").val());
-	var testPurpose = $.trim($("#testPurpose").val());
-	var selectDes = $.trim($("#selectDes").val());
-	var mattersNeedAttention = $.trim($("#mattersNeedAttention").val());
-	var des = $.trim($("#des").val());
-	
-	var reqmsg="{'action':'ADD_MEDICAL_ITEM_INFO_REQUEST','content':{";
-	
-	if (id != null && id != "") {
-		reqmsg += "\"id\":" + id + ",";
-	} else {
-		reqmsg += "\"id\":,";
-	}
-	reqmsg += "\"itemName\":\"" + itemName + "\",";
-	    
-	reqmsg += "\"price\":\"" + price + "\",";
-	reqmsg += "\"category\":" + category + ",";
-	reqmsg += "\"testWay\":\"" + testWay + "\",";
-	reqmsg += "\"testPurpose\":\"" + testPurpose + "\",";
-	    
-	if (selectDes != null && selectDes != "") {
-        reqmsg += "\"selectDes\":\"" + selectDes + "\",";
-	} else {
-		reqmsg += "\"selectDes\":\"\",";
-	}
-	if (mattersNeedAttention != null && mattersNeedAttention != "") {
-        reqmsg += "\"mattersNeedAttention\":\"" + mattersNeedAttention + "\",";
-	} else {
-		reqmsg += "\"selectDes\":\"\",";
-	}
-	if (des != null && des != "") {
-        reqmsg += "\"des\":\"" + des + "\",";
-	} else {
-		reqmsg += "\"des\":\"\",";
-	}
-	
-	reqmsg += "}}";
-
-	jQuery.ajax({
-          type : "post",
-          async:true,
-          url : "medicalItem.do?handler",
-          dataType : "json",
-          data: {
-               "reqmsg":reqmsg
-          },
-          success : function(data){
-              if(data.des=="success"){
-              	$("#cancel_button").click();
-            	  go2page(1);
-              }else if(data.des=="failure"){
-                 alert("保存失败");
-              }
-          },
-          error:function(){
-	           alert("保存失败");
-          }
-     });
 }
 
 function go2page(pagenumber){
@@ -433,24 +355,6 @@ function go2page(pagenumber){
      });
 }
 
-function changeStatus(status){
-	var statusName = "";
-	switch(status){
-		case 0:
-			statusName = "正常";
-			break;
-		case 1:
-			statusName = "过期";
-			break;
-		case 2:
-			statusName = "锁定";
-		default:
-			break;
-	}
-	return statusName;
-}
-
-
 function changeData(data){
 	var htmlcode = "";
 	var headUrl = "<%=request.getContextPath()%>";
@@ -460,9 +364,8 @@ function changeData(data){
 		    htmlcode += "<td>" + item.medicalReportNum + "</td>";				
 		    htmlcode += "<td>" + item.medicalPersonName + "</td>";	
 		    htmlcode += "<td>" + item.medicalPersonCardNum + "</td>";
-		    htmlcode += "<td>" + item.medicalReportStatus + "</td>";	
 		    htmlcode += "<td>" + item.medicalHospital + "</td>";
-		    htmlcode += "<td>" + item.medicalReportCreateTime + "</td>";
+		    htmlcode += "<td>" + formateTime(item.medicalReportCreateTime) + "</td>";
 			htmlcode += "<td><div class=\"btn-group\">";
 			htmlcode += "<button class=\"btn btn-default btn-xs\" type=\"button\">操作</button>";
 			htmlcode += "<button data-toggle=\"dropdown\" class=\"btn btn-xs btn-primary dropdown-toggle\" type=\"button\">";
