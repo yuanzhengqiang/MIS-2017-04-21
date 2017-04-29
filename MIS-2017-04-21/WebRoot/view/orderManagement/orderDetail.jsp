@@ -145,7 +145,7 @@
 									</div>
 									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">预计体检时间</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
-										<div class="input-group date datetime" data-min-view="1" data-date-format="yyyy-mm-dd hh:ii:ss" style="margin-bottom: 0px;">
+										<div class="input-group date datetime" data-min-view="0" data-date-format="yyyy-mm-dd hh:ii:ss" style="margin-bottom: 0px;">
 											<span class="input-group-addon btn btn-primary">
 												<span class="glyphicon glyphicon-th"></span>
 											</span>
@@ -159,7 +159,7 @@
 									</div>
 									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">体检完成时间</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
-										<div class="input-group date datetime" data-min-view="1" data-date-format="yyyy-mm-dd hh:ii:ss" style="margin-bottom: 0px;">
+										<div class="input-group date datetime" data-min-view="0" data-date-format="yyyy-mm-dd hh:ii:ss" style="margin-bottom: 0px;">
 											<span class="input-group-addon btn btn-primary">
 												<span class="glyphicon glyphicon-th"></span>
 											</span>
@@ -173,7 +173,7 @@
 									</div>
 									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">预计报告完成时间</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
-										<div class="input-group date datetime" data-min-view="1" data-date-format="yyyy-mm-dd hh:ii:ss" style="margin-bottom: 0px;">
+										<div class="input-group date datetime" data-min-view="0" data-date-format="yyyy-mm-dd hh:ii:ss" style="margin-bottom: 0px;">
 											<span class="input-group-addon btn btn-primary">
 												<span class="glyphicon glyphicon-th"></span>
 											</span>
