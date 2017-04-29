@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import mis.entity.HospitalDetectingItemRelationEntity;
 import mis.handler.HospitalHandler;
 import mis.service.HospitalService;
 
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.framework.system.common.entity.json.AjaxJson;
+import com.framework.system.db.manager.DBManager;
+import com.framework.system.db.query.QueryCondition;
 import com.framework.system.util.JsonUtil;
 
 @RequestMapping("/hospital")
@@ -33,6 +36,8 @@ public class HospitalController {
 	 */
 	private HospitalService hospitalService = HospitalService.getInstance();
 
+	private DBManager dbManager = DBManager.getInstance();
+	
 	/**
 	 * 医院管理
 	 * @param request
@@ -58,6 +63,11 @@ public class HospitalController {
 		String des = "删除失败";
 		String ids = request.getParameter("ids");
 		if (ids != null && !"".equals(ids)) {
+			QueryCondition qc = new QueryCondition(
+					HospitalDetectingItemRelationEntity.HOSPITAL_ID,
+					QueryCondition.in, ids);
+			dbManager.delByConditions(
+					HospitalDetectingItemRelationEntity.class, qc);
 			boolean falg = hospitalService.del(ids);
 			if (falg) {
 				result = "success";

@@ -21,11 +21,11 @@ import com.framework.system.util.JsonUtil;
 
 /**
  * @Title: Parse
- * @Description: 订单表解析器
+ * @Description: 医院体检项目关系表解析器
  * @author feng.gu
- * @date 2017-04-21 16:39:13
+ * @date 2017-04-29 18:28:51
  * @version V1.0
- * 
+ *
  */
 public class OrderParse {
 	private static Logger logger = Logger.getLogger(OrderParse.class);
@@ -65,22 +65,17 @@ public class OrderParse {
 		try {
 			String actionReturn = null;
 			OrderEntity orderReturn = null;
-			// List<OrderEntity> orderListReturn = null;
+			List<OrderEntity> orderListReturn = null;
 			Integer idReturn = null;
 			Map<String, Object> queryMapReturn = null;
 			int pagenoReturn = 1;
 			int pagesizeReturn = 10;
-			List<OrderVO> orderListReturn = null;
+			List<OrderVO> orderListReturnVO = null;
 
-			Boolean parentOrderShowReturn = false;
-			Boolean delParentOrderReturn = false;
-			Boolean delParentOrderListReturn = false;
-			Boolean childOrderListShowReturn = false;
-			Boolean delChildOrderListReturn = false;
-			Boolean servicePersonShowReturn = false;
-			Boolean delServicePersonReturn = false;
 			Boolean medicalReportShowReturn = false;
 			Boolean delMedicalReportReturn = false;
+			Boolean servicePersonShowReturn = false;
+			Boolean delServicePersonReturn = false;
 
 			// json
 			Map reqParams = JsonUtil.getMap4Json(reqStr);
@@ -181,256 +176,48 @@ public class OrderParse {
 						if (medicalReportId != null) {
 							orderReturn.setMedicalReportId(medicalReportId);
 						}
-					}
-				}
-				if (true) {
-					Object parentOrder = contentreq.get("parentOrder");
-					if (parentOrder != null) {
-						JSONObject obj = (JSONObject) parentOrder;
-						if (obj != null) {
-							OrderEntity entity = new OrderEntity();
-
-							Integer id = (Integer) obj.get("id");
-							if (id != null) {
-								entity.setId(id);
-							}
-							String orderNum = (String) obj.get("orderNum");
-							if (orderNum != null) {
-								entity.setOrderNum(orderNum);
-							}
-							Integer totalPrice = (Integer) obj
-									.get("totalPrice");
-							if (totalPrice != null) {
-								entity.setTotalPrice(totalPrice);
-							}
-							String orderCustomer = (String) obj
-									.get("orderCustomer");
-							if (orderCustomer != null) {
-								entity.setOrderCustomer(orderCustomer);
-							}
-							String orderTime = (String) obj.get("orderTime");
-							if (orderTime != null) {
-								entity.setOrderTime(orderTime);
-							}
-							String medicalHospital = (String) obj
-									.get("medicalHospital");
-							if (medicalHospital != null) {
-								entity.setMedicalHospital(medicalHospital);
-							}
-							String medicalPersonName = (String) obj
-									.get("medicalPersonName");
-							if (medicalPersonName != null) {
-								entity.setMedicalPersonName(medicalPersonName);
-							}
-							String medicalPersonCard = (String) obj
-									.get("medicalPersonCard");
-							if (medicalPersonCard != null) {
-								entity.setMedicalPersonCard(medicalPersonCard);
-							}
-							Object medicalPersonGender = (Object) obj
-									.get("medicalPersonGender");
-							if (medicalPersonGender != null) {
-								entity.setMedicalPersonGender(medicalPersonGender);
-							}
-							String contactWay = (String) obj.get("contactWay");
-							if (contactWay != null) {
-								entity.setContactWay(contactWay);
-							}
-							String reportSendAddr = (String) obj
-									.get("reportSendAddr");
-							if (reportSendAddr != null) {
-								entity.setReportSendAddr(reportSendAddr);
-							}
-							String expectMedicalTime = (String) obj
-									.get("expectMedicalTime");
-							if (expectMedicalTime != null) {
-								entity.setExpectMedicalTime(expectMedicalTime);
-							}
-							String medicalCompleteTime = (String) obj
-									.get("medicalCompleteTime");
-							if (medicalCompleteTime != null) {
-								entity.setMedicalCompleteTime(medicalCompleteTime);
-							}
-							String expectReportCompleteTime = (String) obj
-									.get("expectReportCompleteTime");
-							if (expectReportCompleteTime != null) {
-								entity.setExpectReportCompleteTime(expectReportCompleteTime);
-							}
-							String reportCreateTime = (String) obj
-									.get("reportCreateTime");
-							if (reportCreateTime != null) {
-								entity.setReportCreateTime(reportCreateTime);
-							}
-							Integer servicePersonId = (Integer) obj
-									.get("servicePersonId");
-							if (servicePersonId != null) {
-								entity.setServicePersonId(servicePersonId);
-							}
-							Integer status = (Integer) obj.get("status");
-							if (status != null) {
-								entity.setStatus(status);
-							}
-							Integer medicalReportId = (Integer) obj
-									.get("medicalReportId");
-							if (medicalReportId != null) {
-								entity.setMedicalReportId(medicalReportId);
-							}
+						Integer isPay = (Integer) contentreq.get("isPay");
+						if (isPay != null) {
+							orderReturn.setIsPay(isPay);
 						}
-					}
-				}
-				if (true) {
-					Object childOrderList = contentreq.get("childOrderList");
-					if (childOrderList != null) {
-						JSONArray list = (JSONArray) childOrderList;
-						if (list != null) {
-							List<OrderEntity> entityList = new ArrayList<OrderEntity>();
-							for (int i = 0; i < list.size(); i++) {
-								JSONObject obj = list.getJSONObject(i);
-								if (obj != null) {
-									OrderEntity entity = new OrderEntity();
-
-									Integer id = (Integer) obj.get("id");
-									if (id != null) {
-										entity.setId(id);
-									}
-									String orderNum = (String) obj
-											.get("orderNum");
-									if (orderNum != null) {
-										entity.setOrderNum(orderNum);
-									}
-									Integer totalPrice = (Integer) obj
-											.get("totalPrice");
-									if (totalPrice != null) {
-										entity.setTotalPrice(totalPrice);
-									}
-									String orderCustomer = (String) obj
-											.get("orderCustomer");
-									if (orderCustomer != null) {
-										entity.setOrderCustomer(orderCustomer);
-									}
-									String orderTime = (String) obj
-											.get("orderTime");
-									if (orderTime != null) {
-										entity.setOrderTime(orderTime);
-									}
-									String medicalHospital = (String) obj
-											.get("medicalHospital");
-									if (medicalHospital != null) {
-										entity.setMedicalHospital(medicalHospital);
-									}
-									String medicalPersonName = (String) obj
-											.get("medicalPersonName");
-									if (medicalPersonName != null) {
-										entity.setMedicalPersonName(medicalPersonName);
-									}
-									String medicalPersonCard = (String) obj
-											.get("medicalPersonCard");
-									if (medicalPersonCard != null) {
-										entity.setMedicalPersonCard(medicalPersonCard);
-									}
-									Object medicalPersonGender = (Object) obj
-											.get("medicalPersonGender");
-									if (medicalPersonGender != null) {
-										entity.setMedicalPersonGender(medicalPersonGender);
-									}
-									String contactWay = (String) obj
-											.get("contactWay");
-									if (contactWay != null) {
-										entity.setContactWay(contactWay);
-									}
-									String reportSendAddr = (String) obj
-											.get("reportSendAddr");
-									if (reportSendAddr != null) {
-										entity.setReportSendAddr(reportSendAddr);
-									}
-									String expectMedicalTime = (String) obj
-											.get("expectMedicalTime");
-									if (expectMedicalTime != null) {
-										entity.setExpectMedicalTime(expectMedicalTime);
-									}
-									String medicalCompleteTime = (String) obj
-											.get("medicalCompleteTime");
-									if (medicalCompleteTime != null) {
-										entity.setMedicalCompleteTime(medicalCompleteTime);
-									}
-									String expectReportCompleteTime = (String) obj
-											.get("expectReportCompleteTime");
-									if (expectReportCompleteTime != null) {
-										entity.setExpectReportCompleteTime(expectReportCompleteTime);
-									}
-									String reportCreateTime = (String) obj
-											.get("reportCreateTime");
-									if (reportCreateTime != null) {
-										entity.setReportCreateTime(reportCreateTime);
-									}
-									Integer servicePersonId = (Integer) obj
-											.get("servicePersonId");
-									if (servicePersonId != null) {
-										entity.setServicePersonId(servicePersonId);
-									}
-									Integer status = (Integer) obj
-											.get("status");
-									if (status != null) {
-										entity.setStatus(status);
-									}
-									Integer medicalReportId = (Integer) obj
-											.get("medicalReportId");
-									if (medicalReportId != null) {
-										entity.setMedicalReportId(medicalReportId);
-									}
-									entityList.add(entity);
-								}
-							}
-							orderReturn.setChildOrderList(entityList);
+						Integer medicalReportStatus = (Integer) contentreq
+								.get("medicalReportStatus");
+						if (medicalReportStatus != null) {
+							orderReturn
+									.setMedicalReportStatus(medicalReportStatus);
 						}
-
-					}
-				}
-				if (true) {
-					Object servicePerson = contentreq.get("servicePerson");
-					if (servicePerson != null) {
-						JSONObject obj = (JSONObject) servicePerson;
-						if (obj != null) {
-							ServicePersonEntity entity = new ServicePersonEntity();
-							Integer id = (Integer) obj.get("id");
-							if (id != null) {
-								entity.setId(id);
-							}
-							String name = (String) obj.get("name");
-							if (name != null) {
-								entity.setName(name);
-							}
-							String gender = (String) obj.get("gender");
-							if (gender != null) {
-								entity.setGender(gender);
-							}
-							Object headPortrait = (Object) obj
-									.get("headPortrait");
-							if (headPortrait != null) {
-								entity.setHeadPortrait(headPortrait);
-							}
-							String birthday = (String) obj.get("birthday");
-							if (birthday != null) {
-								entity.setBirthday(birthday);
-							}
-							String academic = (String) obj.get("academic");
-							if (academic != null) {
-								entity.setAcademic(academic);
-							}
-							String contact = (String) obj.get("contact");
-							if (contact != null) {
-								entity.setContact(contact);
-							}
-							String wechatNum = (String) obj.get("wechatNum");
-							if (wechatNum != null) {
-								entity.setWechatNum(wechatNum);
-							}
-							String wechatQrCode = (String) obj
-									.get("wechatQrCode");
-							if (wechatQrCode != null) {
-								entity.setWechatQrCode(wechatQrCode);
-							}
-							orderReturn.setServicePerson(entity);
+						Double servicePrice = JsonUtil.getJSONDouble(
+								contentreq, "servicePrice");
+						if (servicePrice != null) {
+							orderReturn.setServicePrice(servicePrice);
+						}
+						String reportSendPerson = (String) contentreq
+								.get("reportSendPerson");
+						if (reportSendPerson != null) {
+							orderReturn.setReportSendPerson(reportSendPerson);
+						}
+						String reportSendPersonContactWay = (String) contentreq
+								.get("reportSendPersonContactWay");
+						if (reportSendPersonContactWay != null) {
+							orderReturn
+									.setReportSendPersonContactWay(reportSendPersonContactWay);
+						}
+						String medicalReportExpress = (String) contentreq
+								.get("medicalReportExpress");
+						if (medicalReportExpress != null) {
+							orderReturn
+									.setMedicalReportExpress(medicalReportExpress);
+						}
+						String medicalReportExpressOrderNum = (String) contentreq
+								.get("medicalReportExpressOrderNum");
+						if (medicalReportExpressOrderNum != null) {
+							orderReturn
+									.setMedicalReportExpressOrderNum(medicalReportExpressOrderNum);
+						}
+						String servicePersonName = (String) contentreq
+								.get("servicePersonName");
+						if (servicePersonName != null) {
+							orderReturn.setServicePersonName(servicePersonName);
 						}
 					}
 				}
@@ -448,21 +235,6 @@ public class OrderParse {
 									.get("medicalReportNum");
 							if (medicalReportNum != null) {
 								entity.setMedicalReportNum(medicalReportNum);
-							}
-							Object medicalReportStatus = (Object) obj
-									.get("medicalReportStatus");
-							if (medicalReportStatus != null) {
-								entity.setMedicalReportStatus(medicalReportStatus);
-							}
-							String medicalReportExpress = (String) obj
-									.get("medicalReportExpress");
-							if (medicalReportExpress != null) {
-								entity.setMedicalReportExpress(medicalReportExpress);
-							}
-							String medicalReportExpressOrderNum = (String) obj
-									.get("medicalReportExpressOrderNum");
-							if (medicalReportExpressOrderNum != null) {
-								entity.setMedicalReportExpressOrderNum(medicalReportExpressOrderNum);
 							}
 							String medicalReportCreateTime = (String) obj
 									.get("medicalReportCreateTime");
@@ -499,7 +271,65 @@ public class OrderParse {
 							if (medicalHospital != null) {
 								entity.setMedicalHospital(medicalHospital);
 							}
+							String medicalReportDownloadLink = (String) obj
+									.get("medicalReportDownloadLink");
+							if (medicalReportDownloadLink != null) {
+								entity.setMedicalReportDownloadLink(medicalReportDownloadLink);
+							}
+							Integer hospitalId = (Integer) obj
+									.get("hospitalId");
+							if (hospitalId != null) {
+								entity.setHospitalId(hospitalId);
+							}
 							orderReturn.setMedicalReport(entity);
+						}
+					}
+				}
+				if (true) {
+					Object servicePerson = contentreq.get("servicePerson");
+					if (servicePerson != null) {
+						JSONObject obj = (JSONObject) servicePerson;
+						if (obj != null) {
+							ServicePersonEntity entity = new ServicePersonEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							String name = (String) obj.get("name");
+							if (name != null) {
+								entity.setName(name);
+							}
+							String gender = (String) obj.get("gender");
+							if (gender != null) {
+								entity.setGender(gender);
+							}
+							String headPortrait = (String) obj
+									.get("headPortrait");
+							if (headPortrait != null) {
+								entity.setHeadPortrait(headPortrait);
+							}
+							String birthday = (String) obj.get("birthday");
+							if (birthday != null) {
+								entity.setBirthday(birthday);
+							}
+							String academic = (String) obj.get("academic");
+							if (academic != null) {
+								entity.setAcademic(academic);
+							}
+							String contact = (String) obj.get("contact");
+							if (contact != null) {
+								entity.setContact(contact);
+							}
+							String wechatNum = (String) obj.get("wechatNum");
+							if (wechatNum != null) {
+								entity.setWechatNum(wechatNum);
+							}
+							String wechatQrCode = (String) obj
+									.get("wechatQrCode");
+							if (wechatQrCode != null) {
+								entity.setWechatQrCode(wechatQrCode);
+							}
+							orderReturn.setServicePerson(entity);
 						}
 					}
 				}
@@ -508,25 +338,15 @@ public class OrderParse {
 				if (true) {
 					if (contentreq != null) {
 						idReturn = (Integer) contentreq.get("id");
-						String parentOrderShow = (String) contentreq
-								.get("parentOrderShow");
-						if ("true".equals(parentOrderShow)) {
-							parentOrderShowReturn = true;
-						}
-						String childOrderListShow = (String) contentreq
-								.get("childOrderListShow");
-						if ("true".equals(childOrderListShow)) {
-							childOrderListShowReturn = true;
+						String medicalReportShow = (String) contentreq
+								.get("medicalReportShow");
+						if ("true".equals(medicalReportShow)) {
+							medicalReportShowReturn = true;
 						}
 						String servicePersonShow = (String) contentreq
 								.get("servicePersonShow");
 						if ("true".equals(servicePersonShow)) {
 							servicePersonShowReturn = true;
-						}
-						String medicalReportShow = (String) contentreq
-								.get("medicalReportShow");
-						if ("true".equals(medicalReportShow)) {
-							medicalReportShowReturn = true;
 						}
 					}
 				}
@@ -1038,26 +858,263 @@ public class OrderParse {
 							queryMapReturn.put("medicalReportId",
 									medicalReportId);
 						}
-
-						String parentOrderShow = (String) contentreq
-								.get("parentOrderShow");
-						if ("true".equals(parentOrderShow)) {
-							parentOrderShowReturn = true;
+						Integer isPay_gt = (Integer) contentreq.get("isPay_gt");
+						Integer isPay_ge = (Integer) contentreq.get("isPay_ge");
+						Integer isPay_lt = (Integer) contentreq.get("isPay_lt");
+						Integer isPay_le = (Integer) contentreq.get("isPay_le");
+						String isPay_in = (String) contentreq.get("isPay_in");
+						Integer isPay = (Integer) contentreq.get("isPay");
+						if (isPay_gt != null) {
+							queryMapReturn.put("isPay_gt", isPay_gt);
 						}
-						String childOrderListShow = (String) contentreq
-								.get("childOrderListShow");
-						if ("true".equals(childOrderListShow)) {
-							childOrderListShowReturn = true;
+						if (isPay_ge != null) {
+							queryMapReturn.put("isPay_ge", isPay_ge);
+						}
+						if (isPay_lt != null) {
+							queryMapReturn.put("isPay_lt", isPay_lt);
+						}
+						if (isPay_le != null) {
+							queryMapReturn.put("isPay_le", isPay_le);
+						}
+						if (isPay_in != null) {
+							queryMapReturn.put("isPay_in", isPay_in);
+						}
+						if (isPay != null) {
+							queryMapReturn.put("isPay", isPay);
+						}
+						Integer medicalReportStatus_gt = (Integer) contentreq
+								.get("medicalReportStatus_gt");
+						Integer medicalReportStatus_ge = (Integer) contentreq
+								.get("medicalReportStatus_ge");
+						Integer medicalReportStatus_lt = (Integer) contentreq
+								.get("medicalReportStatus_lt");
+						Integer medicalReportStatus_le = (Integer) contentreq
+								.get("medicalReportStatus_le");
+						String medicalReportStatus_in = (String) contentreq
+								.get("medicalReportStatus_in");
+						Integer medicalReportStatus = (Integer) contentreq
+								.get("medicalReportStatus");
+						if (medicalReportStatus_gt != null) {
+							queryMapReturn.put("medicalReportStatus_gt",
+									medicalReportStatus_gt);
+						}
+						if (medicalReportStatus_ge != null) {
+							queryMapReturn.put("medicalReportStatus_ge",
+									medicalReportStatus_ge);
+						}
+						if (medicalReportStatus_lt != null) {
+							queryMapReturn.put("medicalReportStatus_lt",
+									medicalReportStatus_lt);
+						}
+						if (medicalReportStatus_le != null) {
+							queryMapReturn.put("medicalReportStatus_le",
+									medicalReportStatus_le);
+						}
+						if (medicalReportStatus_in != null) {
+							queryMapReturn.put("medicalReportStatus_in",
+									medicalReportStatus_in);
+						}
+						if (medicalReportStatus != null) {
+							queryMapReturn.put("medicalReportStatus",
+									medicalReportStatus);
+						}
+						String servicePrice_like = (String) contentreq
+								.get("servicePrice_like");
+						String servicePrice_isNull = (String) contentreq
+								.get("servicePrice_isNull");
+						String servicePrice_isNotNull = (String) contentreq
+								.get("servicePrice_isNotNull");
+						String servicePrice_in = (String) contentreq
+								.get("servicePrice_in");
+						String servicePrice = (String) contentreq
+								.get("servicePrice");
+						if (servicePrice_like != null) {
+							queryMapReturn.put("servicePrice_like",
+									servicePrice_like);
+						}
+						if (servicePrice_isNull != null) {
+							queryMapReturn.put("servicePrice_isNull",
+									servicePrice_isNull);
+						}
+						if (servicePrice_isNotNull != null) {
+							queryMapReturn.put("servicePrice_isNotNull",
+									servicePrice_isNotNull);
+						}
+						if (servicePrice_in != null) {
+							queryMapReturn.put("servicePrice_in",
+									servicePrice_in);
+						}
+						if (servicePrice != null) {
+							queryMapReturn.put("servicePrice", servicePrice);
+						}
+						String reportSendPerson_like = (String) contentreq
+								.get("reportSendPerson_like");
+						String reportSendPerson_isNull = (String) contentreq
+								.get("reportSendPerson_isNull");
+						String reportSendPerson_isNotNull = (String) contentreq
+								.get("reportSendPerson_isNotNull");
+						String reportSendPerson_in = (String) contentreq
+								.get("reportSendPerson_in");
+						String reportSendPerson = (String) contentreq
+								.get("reportSendPerson");
+						if (reportSendPerson_like != null) {
+							queryMapReturn.put("reportSendPerson_like",
+									reportSendPerson_like);
+						}
+						if (reportSendPerson_isNull != null) {
+							queryMapReturn.put("reportSendPerson_isNull",
+									reportSendPerson_isNull);
+						}
+						if (reportSendPerson_isNotNull != null) {
+							queryMapReturn.put("reportSendPerson_isNotNull",
+									reportSendPerson_isNotNull);
+						}
+						if (reportSendPerson_in != null) {
+							queryMapReturn.put("reportSendPerson_in",
+									reportSendPerson_in);
+						}
+						if (reportSendPerson != null) {
+							queryMapReturn.put("reportSendPerson",
+									reportSendPerson);
+						}
+						String reportSendPersonContactWay_like = (String) contentreq
+								.get("reportSendPersonContactWay_like");
+						String reportSendPersonContactWay_isNull = (String) contentreq
+								.get("reportSendPersonContactWay_isNull");
+						String reportSendPersonContactWay_isNotNull = (String) contentreq
+								.get("reportSendPersonContactWay_isNotNull");
+						String reportSendPersonContactWay_in = (String) contentreq
+								.get("reportSendPersonContactWay_in");
+						String reportSendPersonContactWay = (String) contentreq
+								.get("reportSendPersonContactWay");
+						if (reportSendPersonContactWay_like != null) {
+							queryMapReturn.put(
+									"reportSendPersonContactWay_like",
+									reportSendPersonContactWay_like);
+						}
+						if (reportSendPersonContactWay_isNull != null) {
+							queryMapReturn.put(
+									"reportSendPersonContactWay_isNull",
+									reportSendPersonContactWay_isNull);
+						}
+						if (reportSendPersonContactWay_isNotNull != null) {
+							queryMapReturn.put(
+									"reportSendPersonContactWay_isNotNull",
+									reportSendPersonContactWay_isNotNull);
+						}
+						if (reportSendPersonContactWay_in != null) {
+							queryMapReturn.put("reportSendPersonContactWay_in",
+									reportSendPersonContactWay_in);
+						}
+						if (reportSendPersonContactWay != null) {
+							queryMapReturn.put("reportSendPersonContactWay",
+									reportSendPersonContactWay);
+						}
+						String medicalReportExpress_like = (String) contentreq
+								.get("medicalReportExpress_like");
+						String medicalReportExpress_isNull = (String) contentreq
+								.get("medicalReportExpress_isNull");
+						String medicalReportExpress_isNotNull = (String) contentreq
+								.get("medicalReportExpress_isNotNull");
+						String medicalReportExpress_in = (String) contentreq
+								.get("medicalReportExpress_in");
+						String medicalReportExpress = (String) contentreq
+								.get("medicalReportExpress");
+						if (medicalReportExpress_like != null) {
+							queryMapReturn.put("medicalReportExpress_like",
+									medicalReportExpress_like);
+						}
+						if (medicalReportExpress_isNull != null) {
+							queryMapReturn.put("medicalReportExpress_isNull",
+									medicalReportExpress_isNull);
+						}
+						if (medicalReportExpress_isNotNull != null) {
+							queryMapReturn.put(
+									"medicalReportExpress_isNotNull",
+									medicalReportExpress_isNotNull);
+						}
+						if (medicalReportExpress_in != null) {
+							queryMapReturn.put("medicalReportExpress_in",
+									medicalReportExpress_in);
+						}
+						if (medicalReportExpress != null) {
+							queryMapReturn.put("medicalReportExpress",
+									medicalReportExpress);
+						}
+						String medicalReportExpressOrderNum_like = (String) contentreq
+								.get("medicalReportExpressOrderNum_like");
+						String medicalReportExpressOrderNum_isNull = (String) contentreq
+								.get("medicalReportExpressOrderNum_isNull");
+						String medicalReportExpressOrderNum_isNotNull = (String) contentreq
+								.get("medicalReportExpressOrderNum_isNotNull");
+						String medicalReportExpressOrderNum_in = (String) contentreq
+								.get("medicalReportExpressOrderNum_in");
+						String medicalReportExpressOrderNum = (String) contentreq
+								.get("medicalReportExpressOrderNum");
+						if (medicalReportExpressOrderNum_like != null) {
+							queryMapReturn.put(
+									"medicalReportExpressOrderNum_like",
+									medicalReportExpressOrderNum_like);
+						}
+						if (medicalReportExpressOrderNum_isNull != null) {
+							queryMapReturn.put(
+									"medicalReportExpressOrderNum_isNull",
+									medicalReportExpressOrderNum_isNull);
+						}
+						if (medicalReportExpressOrderNum_isNotNull != null) {
+							queryMapReturn.put(
+									"medicalReportExpressOrderNum_isNotNull",
+									medicalReportExpressOrderNum_isNotNull);
+						}
+						if (medicalReportExpressOrderNum_in != null) {
+							queryMapReturn.put(
+									"medicalReportExpressOrderNum_in",
+									medicalReportExpressOrderNum_in);
+						}
+						if (medicalReportExpressOrderNum != null) {
+							queryMapReturn.put("medicalReportExpressOrderNum",
+									medicalReportExpressOrderNum);
+						}
+						String servicePersonName_like = (String) contentreq
+								.get("servicePersonName_like");
+						String servicePersonName_isNull = (String) contentreq
+								.get("servicePersonName_isNull");
+						String servicePersonName_isNotNull = (String) contentreq
+								.get("servicePersonName_isNotNull");
+						String servicePersonName_in = (String) contentreq
+								.get("servicePersonName_in");
+						String servicePersonName = (String) contentreq
+								.get("servicePersonName");
+						if (servicePersonName_like != null) {
+							queryMapReturn.put("servicePersonName_like",
+									servicePersonName_like);
+						}
+						if (servicePersonName_isNull != null) {
+							queryMapReturn.put("servicePersonName_isNull",
+									servicePersonName_isNull);
+						}
+						if (servicePersonName_isNotNull != null) {
+							queryMapReturn.put("servicePersonName_isNotNull",
+									servicePersonName_isNotNull);
+						}
+						if (servicePersonName_in != null) {
+							queryMapReturn.put("servicePersonName_in",
+									servicePersonName_in);
+						}
+						if (servicePersonName != null) {
+							queryMapReturn.put("servicePersonName",
+									servicePersonName);
+						}
+
+						String medicalReportShow = (String) contentreq
+								.get("medicalReportShow");
+						if ("true".equals(medicalReportShow)) {
+							medicalReportShowReturn = true;
 						}
 						String servicePersonShow = (String) contentreq
 								.get("servicePersonShow");
 						if ("true".equals(servicePersonShow)) {
 							servicePersonShowReturn = true;
-						}
-						String medicalReportShow = (String) contentreq
-								.get("medicalReportShow");
-						if ("true".equals(medicalReportShow)) {
-							medicalReportShowReturn = true;
 						}
 					}
 					JSONObject pagereq = (JSONObject) reqParams.get("page");
@@ -1078,13 +1135,13 @@ public class OrderParse {
 					Object orderreq = (Object) reqParams.get("order");
 					if (orderreq != null) {
 						JSONArray order = (JSONArray) orderreq;
-						orderListReturn = new ArrayList<OrderVO>();
+						orderListReturnVO = new ArrayList<OrderVO>();
 						for (int i = 0; i < order.size(); i++) {
 							JSONObject obj = order.getJSONObject(i);
 							OrderVO orderVO = new OrderVO();
 							orderVO.setName((String) obj.get("column"));
 							orderVO.setOrderType((String) obj.get("type"));
-							orderListReturn.add(orderVO);
+							orderListReturnVO.add(orderVO);
 						}
 					}
 				}
@@ -1093,25 +1150,15 @@ public class OrderParse {
 				if (true) {
 					if (contentreq != null) {
 						idReturn = (Integer) contentreq.get("id");
-						String delParentOrder = (String) contentreq
-								.get("delParentOrder");
-						if ("true".equals(delParentOrder)) {
-							delParentOrderReturn = true;
-						}
-						String delChildOrderList = (String) contentreq
-								.get("delChildOrderList");
-						if ("true".equals(delChildOrderList)) {
-							delChildOrderListReturn = true;
+						String delMedicalReport = (String) contentreq
+								.get("delMedicalReport");
+						if ("true".equals(delMedicalReport)) {
+							delMedicalReportReturn = true;
 						}
 						String delServicePerson = (String) contentreq
 								.get("delServicePerson");
 						if ("true".equals(delServicePerson)) {
 							delServicePersonReturn = true;
-						}
-						String delMedicalReport = (String) contentreq
-								.get("delMedicalReport");
-						if ("true".equals(delMedicalReport)) {
-							delMedicalReportReturn = true;
 						}
 					}
 				}
@@ -1623,26 +1670,263 @@ public class OrderParse {
 							queryMapReturn.put("medicalReportId",
 									medicalReportId);
 						}
-
-						String delParentOrder = (String) contentreq
-								.get("delParentOrder");
-						if ("true".equals(delParentOrder)) {
-							delParentOrderReturn = true;
+						Integer isPay_gt = (Integer) contentreq.get("isPay_gt");
+						Integer isPay_ge = (Integer) contentreq.get("isPay_ge");
+						Integer isPay_lt = (Integer) contentreq.get("isPay_lt");
+						Integer isPay_le = (Integer) contentreq.get("isPay_le");
+						String isPay_in = (String) contentreq.get("isPay_in");
+						Integer isPay = (Integer) contentreq.get("isPay");
+						if (isPay_gt != null) {
+							queryMapReturn.put("isPay_gt", isPay_gt);
 						}
-						String delChildOrderList = (String) contentreq
-								.get("delChildOrderList");
-						if ("true".equals(delChildOrderList)) {
-							delChildOrderListReturn = true;
+						if (isPay_ge != null) {
+							queryMapReturn.put("isPay_ge", isPay_ge);
+						}
+						if (isPay_lt != null) {
+							queryMapReturn.put("isPay_lt", isPay_lt);
+						}
+						if (isPay_le != null) {
+							queryMapReturn.put("isPay_le", isPay_le);
+						}
+						if (isPay_in != null) {
+							queryMapReturn.put("isPay_in", isPay_in);
+						}
+						if (isPay != null) {
+							queryMapReturn.put("isPay", isPay);
+						}
+						Integer medicalReportStatus_gt = (Integer) contentreq
+								.get("medicalReportStatus_gt");
+						Integer medicalReportStatus_ge = (Integer) contentreq
+								.get("medicalReportStatus_ge");
+						Integer medicalReportStatus_lt = (Integer) contentreq
+								.get("medicalReportStatus_lt");
+						Integer medicalReportStatus_le = (Integer) contentreq
+								.get("medicalReportStatus_le");
+						String medicalReportStatus_in = (String) contentreq
+								.get("medicalReportStatus_in");
+						Integer medicalReportStatus = (Integer) contentreq
+								.get("medicalReportStatus");
+						if (medicalReportStatus_gt != null) {
+							queryMapReturn.put("medicalReportStatus_gt",
+									medicalReportStatus_gt);
+						}
+						if (medicalReportStatus_ge != null) {
+							queryMapReturn.put("medicalReportStatus_ge",
+									medicalReportStatus_ge);
+						}
+						if (medicalReportStatus_lt != null) {
+							queryMapReturn.put("medicalReportStatus_lt",
+									medicalReportStatus_lt);
+						}
+						if (medicalReportStatus_le != null) {
+							queryMapReturn.put("medicalReportStatus_le",
+									medicalReportStatus_le);
+						}
+						if (medicalReportStatus_in != null) {
+							queryMapReturn.put("medicalReportStatus_in",
+									medicalReportStatus_in);
+						}
+						if (medicalReportStatus != null) {
+							queryMapReturn.put("medicalReportStatus",
+									medicalReportStatus);
+						}
+						String servicePrice_like = (String) contentreq
+								.get("servicePrice_like");
+						String servicePrice_isNull = (String) contentreq
+								.get("servicePrice_isNull");
+						String servicePrice_isNotNull = (String) contentreq
+								.get("servicePrice_isNotNull");
+						String servicePrice_in = (String) contentreq
+								.get("servicePrice_in");
+						String servicePrice = (String) contentreq
+								.get("servicePrice");
+						if (servicePrice_like != null) {
+							queryMapReturn.put("servicePrice_like",
+									servicePrice_like);
+						}
+						if (servicePrice_isNull != null) {
+							queryMapReturn.put("servicePrice_isNull",
+									servicePrice_isNull);
+						}
+						if (servicePrice_isNotNull != null) {
+							queryMapReturn.put("servicePrice_isNotNull",
+									servicePrice_isNotNull);
+						}
+						if (servicePrice_in != null) {
+							queryMapReturn.put("servicePrice_in",
+									servicePrice_in);
+						}
+						if (servicePrice != null) {
+							queryMapReturn.put("servicePrice", servicePrice);
+						}
+						String reportSendPerson_like = (String) contentreq
+								.get("reportSendPerson_like");
+						String reportSendPerson_isNull = (String) contentreq
+								.get("reportSendPerson_isNull");
+						String reportSendPerson_isNotNull = (String) contentreq
+								.get("reportSendPerson_isNotNull");
+						String reportSendPerson_in = (String) contentreq
+								.get("reportSendPerson_in");
+						String reportSendPerson = (String) contentreq
+								.get("reportSendPerson");
+						if (reportSendPerson_like != null) {
+							queryMapReturn.put("reportSendPerson_like",
+									reportSendPerson_like);
+						}
+						if (reportSendPerson_isNull != null) {
+							queryMapReturn.put("reportSendPerson_isNull",
+									reportSendPerson_isNull);
+						}
+						if (reportSendPerson_isNotNull != null) {
+							queryMapReturn.put("reportSendPerson_isNotNull",
+									reportSendPerson_isNotNull);
+						}
+						if (reportSendPerson_in != null) {
+							queryMapReturn.put("reportSendPerson_in",
+									reportSendPerson_in);
+						}
+						if (reportSendPerson != null) {
+							queryMapReturn.put("reportSendPerson",
+									reportSendPerson);
+						}
+						String reportSendPersonContactWay_like = (String) contentreq
+								.get("reportSendPersonContactWay_like");
+						String reportSendPersonContactWay_isNull = (String) contentreq
+								.get("reportSendPersonContactWay_isNull");
+						String reportSendPersonContactWay_isNotNull = (String) contentreq
+								.get("reportSendPersonContactWay_isNotNull");
+						String reportSendPersonContactWay_in = (String) contentreq
+								.get("reportSendPersonContactWay_in");
+						String reportSendPersonContactWay = (String) contentreq
+								.get("reportSendPersonContactWay");
+						if (reportSendPersonContactWay_like != null) {
+							queryMapReturn.put(
+									"reportSendPersonContactWay_like",
+									reportSendPersonContactWay_like);
+						}
+						if (reportSendPersonContactWay_isNull != null) {
+							queryMapReturn.put(
+									"reportSendPersonContactWay_isNull",
+									reportSendPersonContactWay_isNull);
+						}
+						if (reportSendPersonContactWay_isNotNull != null) {
+							queryMapReturn.put(
+									"reportSendPersonContactWay_isNotNull",
+									reportSendPersonContactWay_isNotNull);
+						}
+						if (reportSendPersonContactWay_in != null) {
+							queryMapReturn.put("reportSendPersonContactWay_in",
+									reportSendPersonContactWay_in);
+						}
+						if (reportSendPersonContactWay != null) {
+							queryMapReturn.put("reportSendPersonContactWay",
+									reportSendPersonContactWay);
+						}
+						String medicalReportExpress_like = (String) contentreq
+								.get("medicalReportExpress_like");
+						String medicalReportExpress_isNull = (String) contentreq
+								.get("medicalReportExpress_isNull");
+						String medicalReportExpress_isNotNull = (String) contentreq
+								.get("medicalReportExpress_isNotNull");
+						String medicalReportExpress_in = (String) contentreq
+								.get("medicalReportExpress_in");
+						String medicalReportExpress = (String) contentreq
+								.get("medicalReportExpress");
+						if (medicalReportExpress_like != null) {
+							queryMapReturn.put("medicalReportExpress_like",
+									medicalReportExpress_like);
+						}
+						if (medicalReportExpress_isNull != null) {
+							queryMapReturn.put("medicalReportExpress_isNull",
+									medicalReportExpress_isNull);
+						}
+						if (medicalReportExpress_isNotNull != null) {
+							queryMapReturn.put(
+									"medicalReportExpress_isNotNull",
+									medicalReportExpress_isNotNull);
+						}
+						if (medicalReportExpress_in != null) {
+							queryMapReturn.put("medicalReportExpress_in",
+									medicalReportExpress_in);
+						}
+						if (medicalReportExpress != null) {
+							queryMapReturn.put("medicalReportExpress",
+									medicalReportExpress);
+						}
+						String medicalReportExpressOrderNum_like = (String) contentreq
+								.get("medicalReportExpressOrderNum_like");
+						String medicalReportExpressOrderNum_isNull = (String) contentreq
+								.get("medicalReportExpressOrderNum_isNull");
+						String medicalReportExpressOrderNum_isNotNull = (String) contentreq
+								.get("medicalReportExpressOrderNum_isNotNull");
+						String medicalReportExpressOrderNum_in = (String) contentreq
+								.get("medicalReportExpressOrderNum_in");
+						String medicalReportExpressOrderNum = (String) contentreq
+								.get("medicalReportExpressOrderNum");
+						if (medicalReportExpressOrderNum_like != null) {
+							queryMapReturn.put(
+									"medicalReportExpressOrderNum_like",
+									medicalReportExpressOrderNum_like);
+						}
+						if (medicalReportExpressOrderNum_isNull != null) {
+							queryMapReturn.put(
+									"medicalReportExpressOrderNum_isNull",
+									medicalReportExpressOrderNum_isNull);
+						}
+						if (medicalReportExpressOrderNum_isNotNull != null) {
+							queryMapReturn.put(
+									"medicalReportExpressOrderNum_isNotNull",
+									medicalReportExpressOrderNum_isNotNull);
+						}
+						if (medicalReportExpressOrderNum_in != null) {
+							queryMapReturn.put(
+									"medicalReportExpressOrderNum_in",
+									medicalReportExpressOrderNum_in);
+						}
+						if (medicalReportExpressOrderNum != null) {
+							queryMapReturn.put("medicalReportExpressOrderNum",
+									medicalReportExpressOrderNum);
+						}
+						String servicePersonName_like = (String) contentreq
+								.get("servicePersonName_like");
+						String servicePersonName_isNull = (String) contentreq
+								.get("servicePersonName_isNull");
+						String servicePersonName_isNotNull = (String) contentreq
+								.get("servicePersonName_isNotNull");
+						String servicePersonName_in = (String) contentreq
+								.get("servicePersonName_in");
+						String servicePersonName = (String) contentreq
+								.get("servicePersonName");
+						if (servicePersonName_like != null) {
+							queryMapReturn.put("servicePersonName_like",
+									servicePersonName_like);
+						}
+						if (servicePersonName_isNull != null) {
+							queryMapReturn.put("servicePersonName_isNull",
+									servicePersonName_isNull);
+						}
+						if (servicePersonName_isNotNull != null) {
+							queryMapReturn.put("servicePersonName_isNotNull",
+									servicePersonName_isNotNull);
+						}
+						if (servicePersonName_in != null) {
+							queryMapReturn.put("servicePersonName_in",
+									servicePersonName_in);
+						}
+						if (servicePersonName != null) {
+							queryMapReturn.put("servicePersonName",
+									servicePersonName);
+						}
+
+						String delMedicalReport = (String) contentreq
+								.get("delMedicalReport");
+						if ("true".equals(delMedicalReport)) {
+							delMedicalReportReturn = true;
 						}
 						String delServicePerson = (String) contentreq
 								.get("delServicePerson");
 						if ("true".equals(delServicePerson)) {
 							delServicePersonReturn = true;
-						}
-						String delMedicalReport = (String) contentreq
-								.get("delMedicalReport");
-						if ("true".equals(delMedicalReport)) {
-							delMedicalReportReturn = true;
 						}
 					}
 					JSONObject pagereq = (JSONObject) reqParams.get("page");
@@ -1688,32 +1972,17 @@ public class OrderParse {
 				parseMap.put("pagesize", pagesizeReturn);
 			}
 
-			if (parentOrderShowReturn != null) {
-				parseMap.put("parentOrderShow", parentOrderShowReturn);
+			if (medicalReportShowReturn != null) {
+				parseMap.put("medicalReportShow", medicalReportShowReturn);
 			}
-			if (delParentOrderReturn != null) {
-				parseMap.put("delParentOrder", delParentOrderReturn);
-			}
-			if (delParentOrderListReturn != null) {
-				parseMap.put("delParentOrderList", delParentOrderListReturn);
-			}
-			if (childOrderListShowReturn != null) {
-				parseMap.put("childOrderListShow", childOrderListShowReturn);
-			}
-			if (delChildOrderListReturn != null) {
-				parseMap.put("delChildOrderList", delChildOrderListReturn);
+			if (delMedicalReportReturn != null) {
+				parseMap.put("delMedicalReport", delMedicalReportReturn);
 			}
 			if (servicePersonShowReturn != null) {
 				parseMap.put("servicePersonShow", servicePersonShowReturn);
 			}
 			if (delServicePersonReturn != null) {
 				parseMap.put("delServicePerson", delServicePersonReturn);
-			}
-			if (medicalReportShowReturn != null) {
-				parseMap.put("medicalReportShow", medicalReportShowReturn);
-			}
-			if (delMedicalReportReturn != null) {
-				parseMap.put("delMedicalReport", delMedicalReportReturn);
 			}
 
 		} catch (Exception e) {

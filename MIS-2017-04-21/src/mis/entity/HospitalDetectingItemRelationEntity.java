@@ -1,5 +1,7 @@
 package mis.entity;
 
+import java.util.List;
+
 import com.framework.system.db.dao.annotation.ColumnDescription;
 import com.framework.system.db.dao.annotation.RelationlDescription;
 import com.framework.system.db.dao.annotation.TableDescription;
@@ -8,9 +10,9 @@ import com.framework.system.db.dao.annotation.TableDescription;
  * @Title: Entity
  * @Description: 医院体检项目关系表
  * @author feng.gu
- * @date 2017-04-21 17:12:18
+ * @date 2017-04-26 22:16:09
  * @version V1.0
- * 
+ *
  */
 @TableDescription(name = "s_hospital_detecting_item_relation")
 public class HospitalDetectingItemRelationEntity implements
@@ -62,6 +64,33 @@ public class HospitalDetectingItemRelationEntity implements
 	/**
 	 * 关系描述
 	 */
+	@RelationlDescription(relation = "ManyToOne", joinEntity = "HospitalDetectingItemRelationEntity", joinColumn = "PARENT_ID")
+	private HospitalDetectingItemRelationEntity parentHospitalDetectingItemRelation;
+
+	public HospitalDetectingItemRelationEntity getParentHospitalDetectingItemRelation() {
+		return parentHospitalDetectingItemRelation;
+	}
+
+	public void setParentHospitalDetectingItemRelation(
+			HospitalDetectingItemRelationEntity parentHospitalDetectingItemRelation) {
+		this.parentHospitalDetectingItemRelation = parentHospitalDetectingItemRelation;
+	}
+
+	@RelationlDescription(relation = "OneToMany", joinEntity = "HospitalDetectingItemRelationEntity", joinColumn = "PARENT_ID")
+	private List<HospitalDetectingItemRelationEntity> childHospitalDetectingItemRelationList;
+
+	public List<HospitalDetectingItemRelationEntity> getChildHospitalDetectingItemRelationList() {
+		return childHospitalDetectingItemRelationList;
+	}
+
+	public void setChildHospitalDetectingItemRelationList(
+			List<HospitalDetectingItemRelationEntity> childHospitalDetectingItemRelationList) {
+		this.childHospitalDetectingItemRelationList = childHospitalDetectingItemRelationList;
+	}
+
+	/**
+	 * 关系描述
+	 */
 	@RelationlDescription(relation = "ManyToOne", joinEntity = "HospitalEntityEntity", joinColumn = "ID")
 	private HospitalEntity hospitalEntity;
 
@@ -71,6 +100,20 @@ public class HospitalDetectingItemRelationEntity implements
 
 	public void setHospitalEntity(HospitalEntity hospitalEntity) {
 		this.hospitalEntity = hospitalEntity;
+	}
+
+	/**
+	 * 关系描述
+	 */
+	@RelationlDescription(relation = "ManyToOne", joinEntity = "MedicalItemEntity", joinColumn = "ID")
+	private MedicalItemEntity medicalItem;
+
+	public MedicalItemEntity getMedicalItem() {
+		return medicalItem;
+	}
+
+	public void setMedicalItem(MedicalItemEntity medicalItem) {
+		this.medicalItem = medicalItem;
 	}
 
 }

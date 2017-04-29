@@ -152,6 +152,11 @@
 											<i class="fa fa-users"></i>账号管理
 										</a>
 									</li>
+									<li>
+										<a href="#" onclick="changeCenter('wechatMenu.do?wechatMenuManagement')">
+											<i class="fa fa-users"></i>微信菜单管理
+										</a>
+									</li>
 								</ul>
 							</li>
 						</ul>

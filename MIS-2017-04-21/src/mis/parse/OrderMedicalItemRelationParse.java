@@ -104,13 +104,13 @@ public class OrderMedicalItemRelationParse {
 							orderMedicalItemRelationReturn
 									.setMedicalItemId(medicalItemId);
 						}
-						Integer medicalItemName = (Integer) contentreq
+						String medicalItemName = (String) contentreq
 								.get("medicalItemName");
 						if (medicalItemName != null) {
 							orderMedicalItemRelationReturn
 									.setMedicalItemName(medicalItemName);
 						}
-						Integer medicalItemPrice = (Integer) contentreq
+						Double medicalItemPrice = (Double) contentreq
 								.get("medicalItemPrice");
 						if (medicalItemPrice != null) {
 							orderMedicalItemRelationReturn

@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import mis.entity.AreaEntity;
+import mis.entity.HospitalDetectingItemRelationEntity;
 import mis.entity.HospitalEntity;
+import mis.entity.MedicalItemEntity;
 
 import org.apache.log4j.Logger;
 
@@ -152,6 +154,25 @@ public class HospitalService {
 				AreaEntity areaEntity = (AreaEntity) dbManager.getById(
 						obj.getAreaId(), AreaEntity.class);
 				obj.setAreaEntity(areaEntity);
+			}
+			// 查询与当前医院绑定的体检项目
+			Map<String, Object> _queryMap = new HashMap<String, Object>();
+			_queryMap.put("hospitalId", id);
+			List<HospitalDetectingItemRelationEntity> _list_ = HospitalDetectingItemRelationService.getInstance().getListByCondition(_queryMap);
+			String medicalItemIds = "";
+			if (_list_ != null) {
+				for (int index = 0; index < _list_.size(); index++) {
+					medicalItemIds += _list_.get(index).getDetectingItem() + ",";
+				}
+				if (!medicalItemIds.equals("") && medicalItemIds.length() > 0) {
+					medicalItemIds = medicalItemIds.substring(0, medicalItemIds.length() - 1);
+				}
+			}
+			if (medicalItemIds.length() > 0) {
+				Map<String, Object> mi_queryMap = new HashMap<String, Object>();
+				mi_queryMap.put("id_in", medicalItemIds);
+				List<MedicalItemEntity> medicalItemlist = MedicalItemService.getInstance().getListByCondition(mi_queryMap);
+				obj.setMedicalItemlist(medicalItemlist);
 			}
 		}
 		return obj;
@@ -325,15 +346,6 @@ public class HospitalService {
 		}
 		// 数据权限
 		List<QueryCondition> dataRuleQclist = null;
-		List<Map<String, Object>> dataRuleMapList = (List<Map<String, Object>>) queryMap
-				.get("dataRuleMapList");
-		if (dataRuleMapList != null && dataRuleMapList.size() > 0) {
-			dataRuleQclist = new ArrayList<QueryCondition>();
-			for (Map<String, Object> dataRuleMap : dataRuleMapList) {
-				QueryCondition dataRuleQc = changeMapToQc(dataRuleMap);
-				dataRuleQclist.add(dataRuleQc);
-			}
-		}
 		pagelist = dbManager.queryByConditions(HospitalEntity.class, qc,
 				dataRuleQclist, oc, pageno, pagesize);
 		int a = 0;

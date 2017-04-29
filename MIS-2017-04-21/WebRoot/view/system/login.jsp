@@ -11,31 +11,18 @@
 <!-- Custom styles for this template -->
 <link href="css/style.css" rel="stylesheet" />
 <style>
-body.texture {
-	background: url(images/bgnew.png) no-repeat;
-}
+
 
 .middle-login1 {
 	width: 450px;
 	z-index: 22;
-	right: 120px;
-	top: 120px;
+	left: 50%;
+	top: 50%;
 	position: absolute;
-	margin: 0
+	margin-top: -180px;
+	margin-left: -225px;
 }
 
-.fskxiaoge {
-	position: absolute;
-	bottom: 0;
-	z-index: 20;
-	animation: mymove 5s ease 1;
-	-webkit-animation: mymove 5s ease 1 -moz-animation:  mymove 5s ease 1;
-	-o-animation: mymove 5s ease 1;
-	animation-fill-mode: forwards;
-	-webkit-animation-fill-mode: forwards;
-	-moz-animation-fill-mode: forwards;
-	-o-animation-fill-mode: forwards;
-}
 
 #username:-webkit-autofill {
 	-webkit-box-shadow: 0 0 0px 1000px white inset;
@@ -63,58 +50,7 @@ body.texture {
 	margin-bottom: 20px
 }
 
-/* css3动画 */
-@
-keyframes mymove { 0% {
-	right: 100%;
-}
 
-100%
-{
-right
-:
-450px;
- 
-}
-}
-@
--moz-keyframes mymove /* Firefox */ { 0% {
-	right: 100%;
-}
-
-100%
-{
-right
-:
-450px;
- 
-}
-}
-@
--webkit-keyframes mymove /* Safari and Chrome */ { 0% {
-	right: 100%;
-}
-
-100%
-{
-right
-:
-450px;
- 
-}
-}
-@
--o-keyframes mymove /* Opera */ { 0% {
-	right: 100%;
-}
-100%
-{
-right
-:
-450px;
- 
-}
-}
 </style>
 <script type="text/javascript">
     if (self != top) {  //判断页面是否在iframe里面
@@ -156,9 +92,6 @@ right
 					<button class="btn btn-primary " type="submit" id="loginbtn">登 录</button>
 				</div>
 			</div>
-		</div>
-		<div class="fskxiaoge">
-			<img src="images/fskxiaoge.png" />
 		</div>
 	</div>
 	<script type="text/javascript" src="js/jquery.js"></script>

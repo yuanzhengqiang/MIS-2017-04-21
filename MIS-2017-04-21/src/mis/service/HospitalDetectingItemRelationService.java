@@ -7,6 +7,7 @@ import java.util.Map;
 
 import mis.entity.HospitalDetectingItemRelationEntity;
 import mis.entity.HospitalEntity;
+import mis.entity.MedicalItemEntity;
 
 import org.apache.log4j.Logger;
 
@@ -23,9 +24,9 @@ import com.framework.system.util.StringUtil;
  * @Title: Service
  * @Description: 医院体检项目关系表服务类
  * @author feng.gu
- * @date 2017-04-21 17:12:18
+ * @date 2017-04-26 22:44:16
  * @version V1.0
- * 
+ *
  */
 public class HospitalDetectingItemRelationService {
 	private static Logger logger = Logger
@@ -59,11 +60,38 @@ public class HospitalDetectingItemRelationService {
 			try {
 				tx.beginTransaction();
 				// 关联信息保存
+				HospitalDetectingItemRelationEntity parentHospitalDetectingItemRelation = hospitalDetectingItemRelation
+						.getParentHospitalDetectingItemRelation();
+				if (parentHospitalDetectingItemRelation != null) {
+					dbManager
+							.saveNoTransaction(parentHospitalDetectingItemRelation);
+				}
+				// 关联信息保存
+				if (hospitalDetectingItemRelation
+						.getChildHospitalDetectingItemRelationList() != null
+						&& hospitalDetectingItemRelation
+								.getChildHospitalDetectingItemRelationList()
+								.size() > 0) {
+					for (HospitalDetectingItemRelationEntity hospitalDetectingItemRelationEntity : hospitalDetectingItemRelation
+							.getChildHospitalDetectingItemRelationList()) {
+						dbManager
+								.saveNoTransaction(hospitalDetectingItemRelationEntity);
+					}
+				}
+				// 关联信息保存
 				HospitalEntity hospitalEntity = hospitalDetectingItemRelation
 						.getHospitalEntity();
 				if (hospitalEntity != null) {
 					dbManager.saveNoTransaction(hospitalEntity);
 					hospitalDetectingItemRelation.setHospitalId(hospitalEntity
+							.getId());
+				}
+				// 关联信息保存
+				MedicalItemEntity medicalItem = hospitalDetectingItemRelation
+						.getMedicalItem();
+				if (medicalItem != null) {
+					dbManager.saveNoTransaction(medicalItem);
+					hospitalDetectingItemRelation.setDetectingItem(medicalItem
 							.getId());
 				}
 				result = dbManager
@@ -100,12 +128,39 @@ public class HospitalDetectingItemRelationService {
 				for (HospitalDetectingItemRelationEntity hospitalDetectingItemRelation : hospitalDetectingItemRelationList) {
 					if (hospitalDetectingItemRelation != null) {
 						// 关联信息保存
+						HospitalDetectingItemRelationEntity parentHospitalDetectingItemRelation = hospitalDetectingItemRelation
+								.getParentHospitalDetectingItemRelation();
+						if (parentHospitalDetectingItemRelation != null) {
+							dbManager
+									.saveNoTransaction(parentHospitalDetectingItemRelation);
+						}
+						// 关联信息保存
+						if (hospitalDetectingItemRelation
+								.getChildHospitalDetectingItemRelationList() != null
+								&& hospitalDetectingItemRelation
+										.getChildHospitalDetectingItemRelationList()
+										.size() > 0) {
+							for (HospitalDetectingItemRelationEntity hospitalDetectingItemRelationEntity : hospitalDetectingItemRelation
+									.getChildHospitalDetectingItemRelationList()) {
+								dbManager
+										.saveNoTransaction(hospitalDetectingItemRelationEntity);
+							}
+						}
+						// 关联信息保存
 						HospitalEntity hospitalEntity = hospitalDetectingItemRelation
 								.getHospitalEntity();
 						if (hospitalEntity != null) {
 							dbManager.saveNoTransaction(hospitalEntity);
 							hospitalDetectingItemRelation
 									.setHospitalId(hospitalEntity.getId());
+						}
+						// 关联信息保存
+						MedicalItemEntity medicalItem = hospitalDetectingItemRelation
+								.getMedicalItem();
+						if (medicalItem != null) {
+							dbManager.saveNoTransaction(medicalItem);
+							hospitalDetectingItemRelation
+									.setDetectingItem(medicalItem.getId());
 						}
 						result = dbManager
 								.saveNoTransaction(hospitalDetectingItemRelation);
@@ -148,12 +203,20 @@ public class HospitalDetectingItemRelationService {
 	 * 
 	 * @param id
 	 *            主键
+	 * @param parentHospitalDetectingItemRelationShow
+	 *            是否查询关联信息
+	 * @param childHospitalDetectingItemRelationListShow
+	 *            是否查询关联信息
 	 * @param hospitalEntityShow
+	 *            是否查询关联信息
+	 * @param medicalItemShow
 	 *            是否查询关联信息
 	 * @param obj
 	 */
 	public HospitalDetectingItemRelationEntity getById(Integer id,
-			Boolean hospitalEntityShow) {
+			Boolean parentHospitalDetectingItemRelationShow,
+			Boolean childHospitalDetectingItemRelationListShow,
+			Boolean hospitalEntityShow, Boolean medicalItemShow) {
 		HospitalDetectingItemRelationEntity obj = null;
 		if (id != null) {
 			obj = (HospitalDetectingItemRelationEntity) dbManager.getById(id,
@@ -165,6 +228,15 @@ public class HospitalDetectingItemRelationService {
 				HospitalEntity hospitalEntity = (HospitalEntity) dbManager
 						.getById(obj.getHospitalId(), HospitalEntity.class);
 				obj.setHospitalEntity(hospitalEntity);
+			}
+			// 查询关联内容
+			if (medicalItemShow != null && medicalItemShow.booleanValue()
+					&& obj != null && obj.getDetectingItem() != null
+					&& obj.getDetectingItem() > 0) {
+				MedicalItemEntity medicalItem = (MedicalItemEntity) dbManager
+						.getById(obj.getDetectingItem(),
+								MedicalItemEntity.class);
+				obj.setMedicalItem(medicalItem);
 			}
 		}
 		return obj;
@@ -203,13 +275,19 @@ public class HospitalDetectingItemRelationService {
 	 *            查询条件集合
 	 * @param orderList
 	 *            排序条件集合
+	 * @param parentHospitalDetectingItemRelationShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param childHospitalDetectingItemRelationListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
 	 * @param hospitalEntityShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param medicalItemShow
 	 *            是否查询关联信息,默认false(当为true时注意效率)
 	 * @return
 	 */
 	public List<HospitalDetectingItemRelationEntity> getListByCondition(
 			Map<String, Object> queryMap, List<OrderVO> orderList,
-			Boolean hospitalEntityShow) {
+			Boolean hospitalEntityShow, Boolean medicalItemShow) {
 		List<HospitalDetectingItemRelationEntity> returnlist = null;
 		List<Object> list = null;
 		if (queryMap == null) {
@@ -245,6 +323,9 @@ public class HospitalDetectingItemRelationService {
 		if (hospitalEntityShow != null && hospitalEntityShow.booleanValue()) {
 			a++;
 		}
+		if (medicalItemShow != null && medicalItemShow.booleanValue()) {
+			a++;
+		}
 		if (a > 0 && list != null && list.size() > 0) {
 			List<Object> result = new ArrayList<Object>();
 			for (int i = 0; i < list.size(); i++) {
@@ -258,6 +339,15 @@ public class HospitalDetectingItemRelationService {
 					HospitalEntity hospitalEntity = (HospitalEntity) dbManager
 							.getById(obj.getHospitalId(), HospitalEntity.class);
 					obj.setHospitalEntity(hospitalEntity);
+				}
+				// 查询关联内容
+				if (medicalItemShow != null && medicalItemShow.booleanValue()
+						&& obj != null && obj.getDetectingItem() != null
+						&& obj.getDetectingItem() > 0) {
+					MedicalItemEntity medicalItem = (MedicalItemEntity) dbManager
+							.getById(obj.getDetectingItem(),
+									MedicalItemEntity.class);
+					obj.setMedicalItem(medicalItem);
 				}
 				result.add(obj);
 			}
@@ -307,13 +397,19 @@ public class HospitalDetectingItemRelationService {
 	 *            查询页码
 	 * @param pagesize
 	 *            查询每页记录条数
+	 * @param parentHospitalDetectingItemRelationShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param childHospitalDetectingItemRelationListShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
 	 * @param hospitalEntityShow
+	 *            是否查询关联信息,默认false(当为true时注意效率)
+	 * @param medicalItemShow
 	 *            是否查询关联信息,默认false(当为true时注意效率)
 	 * @return
 	 */
 	public PageList getListByCondition(Map<String, Object> queryMap,
 			List<OrderVO> orderList, int pageno, int pagesize,
-			Boolean hospitalEntityShow) {
+			Boolean hospitalEntityShow, Boolean medicalItemShow) {
 		PageList pagelist = null;
 		if (queryMap == null) {
 			queryMap = new HashMap<String, Object>();
@@ -360,6 +456,9 @@ public class HospitalDetectingItemRelationService {
 		if (hospitalEntityShow != null && hospitalEntityShow.booleanValue()) {
 			a++;
 		}
+		if (medicalItemShow != null && medicalItemShow.booleanValue()) {
+			a++;
+		}
 		if (a > 0 && pagelist != null && pagelist.getResultList() != null
 				&& pagelist.getResultList().size() > 0) {
 			List<Object> result = new ArrayList<Object>();
@@ -375,6 +474,15 @@ public class HospitalDetectingItemRelationService {
 							.getById(obj.getHospitalId(), HospitalEntity.class);
 					obj.setHospitalEntity(hospitalEntity);
 				}
+				// 查询关联内容
+				if (medicalItemShow != null && medicalItemShow.booleanValue()
+						&& obj != null && obj.getDetectingItem() != null
+						&& obj.getDetectingItem() > 0) {
+					MedicalItemEntity medicalItem = (MedicalItemEntity) dbManager
+							.getById(obj.getDetectingItem(),
+									MedicalItemEntity.class);
+					obj.setMedicalItem(medicalItem);
+				}
 				result.add(obj);
 			}
 			pagelist.setResultList(result);
@@ -389,25 +497,42 @@ public class HospitalDetectingItemRelationService {
 	 *            主键
 	 * @param obj
 	 */
-	public boolean del(Integer id, Boolean delHospitalEntity) {
+	public boolean del(Integer id
+//			,Boolean delParentHospitalDetectingItemRelation,
+//			Boolean delChildHospitalDetectingItemRelationList,
+//			Boolean delHospitalEntity, Boolean delMedicalItem
+			) {
 		boolean result = false;
 		if (id != null && id > 0) {
 			TransactionManager tx = DbUtils.getTranManager();
 			try {
 				tx.beginTransaction();
-				// 删除关联信息
-				if (delHospitalEntity != null
-						&& delHospitalEntity.booleanValue()) {
-					HospitalDetectingItemRelationEntity hospitalDetectingItemRelation = (HospitalDetectingItemRelationEntity) dbManager
-							.getById(id,
-									HospitalDetectingItemRelationEntity.class);
-					if (hospitalDetectingItemRelation != null
-							&& hospitalDetectingItemRelation.getHospitalId() != null) {
-						dbManager.delNoTransaction(
-								hospitalDetectingItemRelation.getHospitalId(),
-								HospitalEntity.class);
-					}
-				}
+//				// 删除关联信息
+//				if (delHospitalEntity != null
+//						&& delHospitalEntity.booleanValue()) {
+//					HospitalDetectingItemRelationEntity hospitalDetectingItemRelation = (HospitalDetectingItemRelationEntity) dbManager
+//							.getById(id,
+//									HospitalDetectingItemRelationEntity.class);
+//					if (hospitalDetectingItemRelation != null
+//							&& hospitalDetectingItemRelation.getHospitalId() != null) {
+//						dbManager.delNoTransaction(
+//								hospitalDetectingItemRelation.getHospitalId(),
+//								HospitalEntity.class);
+//					}
+//				}
+//				// 删除关联信息
+//				if (delMedicalItem != null && delMedicalItem.booleanValue()) {
+//					HospitalDetectingItemRelationEntity hospitalDetectingItemRelation = (HospitalDetectingItemRelationEntity) dbManager
+//							.getById(id,
+//									HospitalDetectingItemRelationEntity.class);
+//					if (hospitalDetectingItemRelation != null
+//							&& hospitalDetectingItemRelation.getDetectingItem() != null) {
+//						dbManager.delNoTransaction(
+//								hospitalDetectingItemRelation
+//										.getDetectingItem(),
+//								MedicalItemEntity.class);
+//					}
+//				}
 				result = dbManager.delNoTransaction(id,
 						HospitalDetectingItemRelationEntity.class);
 				tx.commitAndClose();
@@ -467,7 +592,9 @@ public class HospitalDetectingItemRelationService {
 	 *            查询条件集合
 	 */
 	public boolean delList(Map<String, Object> queryMap,
-			Boolean delHospitalEntity) {
+			Boolean delParentHospitalDetectingItemRelationList,
+			Boolean delChildHospitalDetectingItemRelationList,
+			Boolean delHospitalEntity, Boolean delMedicalItem) {
 		boolean result = false;
 		if (queryMap == null) {
 			queryMap = new HashMap<String, Object>();
@@ -477,6 +604,40 @@ public class HospitalDetectingItemRelationService {
 			TransactionManager tx = DbUtils.getTranManager();
 			try {
 				tx.beginTransaction();
+				// 删除关联信息
+				if (delParentHospitalDetectingItemRelationList != null
+						&& delParentHospitalDetectingItemRelationList
+								.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HospitalDetectingItemRelationEntity.class,
+									qc);
+					String strIds = "";
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								HospitalDetectingItemRelationEntity.ID,
+								QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								HospitalDetectingItemRelationEntity.class, qc1);
+					}
+				}
+				// 删除关联信息
+				if (delChildHospitalDetectingItemRelationList != null
+						&& delChildHospitalDetectingItemRelationList
+								.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HospitalDetectingItemRelationEntity.class,
+									qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HospitalDetectingItemRelationEntity entity = (HospitalDetectingItemRelationEntity) obj;
+							strIds += entity.getId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+				}
 				// 删除关联信息
 				if (delHospitalEntity != null
 						&& delHospitalEntity.booleanValue()) {
@@ -497,6 +658,28 @@ public class HospitalDetectingItemRelationService {
 								HospitalEntity.ID, QueryCondition.in, strIds);
 						dbManager.delByConditionsNoTransaction(
 								HospitalEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delMedicalItem != null && delMedicalItem.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(
+									HospitalDetectingItemRelationEntity.class,
+									qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							HospitalDetectingItemRelationEntity entity = (HospitalDetectingItemRelationEntity) obj;
+							strIds += entity.getDetectingItem() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								MedicalItemEntity.ID, QueryCondition.in, strIds);
+						dbManager.delByConditionsNoTransaction(
+								MedicalItemEntity.class, qc1);
 					}
 
 				}

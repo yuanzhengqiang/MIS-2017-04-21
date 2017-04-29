@@ -38,7 +38,7 @@ function getCurrentTime() {
  * @method lastweekTime
  * @return yymmddhhmmss
  */
-function lastweekTime(){
+function lastweekTime() {
 	var now = new Date();
 	var date = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
 	var month = date.getMonth() + 1;
@@ -46,23 +46,24 @@ function lastweekTime(){
 	var strHour = date.getHours();
 	var strMinutes = date.getMinutes();
 	var strSeconds = date.getSeconds();
-	
+
 	if (month >= 1 && month <= 9) {
-	    month = "0" + month;
+		month = "0" + month;
 	}
 	if (strDate >= 0 && strDate <= 9) {
-	    strDate = "0" + strDate;
+		strDate = "0" + strDate;
 	}
 	if (strHour >= 0 && strHour <= 9) {
-	    strHour = "0" + strHour;
+		strHour = "0" + strHour;
 	}
 	if (strMinutes >= 0 && strMinutes <= 9) {
-	    strMinutes = "0" + strMinutes;
+		strMinutes = "0" + strMinutes;
 	}
 	if (strSeconds >= 0 && strSeconds <= 9) {
-	    strSeconds = "0" + strSeconds;
+		strSeconds = "0" + strSeconds;
 	}
-	var currentdate = date.getFullYear() + "" + month + "" + strDate + "" + strHour + "" + strMinutes + "" + strSeconds;
+	var currentdate = date.getFullYear() + "" + month + "" + strDate + ""
+			+ strHour + "" + strMinutes + "" + strSeconds;
 	return currentdate;
 }
 
@@ -72,7 +73,7 @@ function lastweekTime(){
  * @method lastmonthTime
  * @return yymmddhhmmss
  */
-function lastmonthTime(){
+function lastmonthTime() {
 	var now = new Date();
 	var date = new Date(now.getTime() - 30 * 24 * 3600 * 1000);
 	var month = date.getMonth() + 1;
@@ -80,23 +81,24 @@ function lastmonthTime(){
 	var strHour = date.getHours();
 	var strMinutes = date.getMinutes();
 	var strSeconds = date.getSeconds();
-	
+
 	if (month >= 1 && month <= 9) {
-	    month = "0" + month;
+		month = "0" + month;
 	}
 	if (strDate >= 0 && strDate <= 9) {
-	    strDate = "0" + strDate;
+		strDate = "0" + strDate;
 	}
 	if (strHour >= 0 && strHour <= 9) {
-	    strHour = "0" + strHour;
+		strHour = "0" + strHour;
 	}
 	if (strMinutes >= 0 && strMinutes <= 9) {
-	    strMinutes = "0" + strMinutes;
+		strMinutes = "0" + strMinutes;
 	}
 	if (strSeconds >= 0 && strSeconds <= 9) {
-	    strSeconds = "0" + strSeconds;
+		strSeconds = "0" + strSeconds;
 	}
-	var currentdate = date.getFullYear() + "" + month + "" + strDate + "" + strHour + "" + strMinutes + "" + strSeconds;
+	var currentdate = date.getFullYear() + "" + month + "" + strDate + ""
+			+ strHour + "" + strMinutes + "" + strSeconds;
 	return currentdate;
 }
 
@@ -130,7 +132,7 @@ function calculationAgeByBirthday(strBirthday) {
  * @return 格式化的时间(YYYY-MM-DD HH:mm:SS)
  */
 function formateTime(time) {
-	var timeFormate = "未知";
+	var timeFormate = "";
 	if (time != null && time.length == 14) {
 		timeFormate = time.substring(0, 4) + "-" + time.substring(4, 6) + "-"
 				+ time.substring(6, 8) + " " + time.substring(8, 10) + ":"
@@ -148,9 +150,10 @@ function formateTime(time) {
  * @return 格式化的时间(YYYY-MM-DD)
  */
 function formateTime2(time) {
-	var timeFormate = "未知";
+	var timeFormate = "";
 	if (time != null && time.length == 14) {
-		timeFormate = time.substring(0, 4) + "-" + time.substring(4, 6) + "-" + time.substring(6, 8);
+		timeFormate = time.substring(0, 4) + "-" + time.substring(4, 6) + "-"
+				+ time.substring(6, 8);
 	}
 	return timeFormate;
 }
@@ -164,7 +167,7 @@ function formateTime2(time) {
  * @return 格式化的时间(YYYY-MM-DD HH:mm)
  */
 function formateTime3(time) {
-	var timeFormate = "未知";
+	var timeFormate = "";
 	if (time != null && time.length == 14) {
 		timeFormate = time.substring(0, 4) + "-" + time.substring(4, 6) + "-"
 				+ time.substring(6, 8) + " " + time.substring(8, 10) + ":"
@@ -182,7 +185,7 @@ function formateTime3(time) {
  * @return 格式化的时间(YYYY/MM/DD HH:mm:SS)
  */
 function formateTime4(time) {
-	var timeFormate = "未知";
+	var timeFormate = "";
 	if (time != null && time.length == 14) {
 		timeFormate = time.substring(0, 4) + "/" + time.substring(4, 6) + "/"
 				+ time.substring(6, 8) + " " + time.substring(8, 10) + ":"
@@ -202,7 +205,26 @@ function formateTime4(time) {
 function formateTime5(time) {
 	var timeFormate = "";
 	if (time != null && time.length == 8) {
-		timeFormate = time.substring(0, 4) + "年" + time.substring(4, 6) + "月" + time.substring(6, 8) + "日";
+		timeFormate = time.substring(0, 4) + "年" + time.substring(4, 6) + "月"
+				+ time.substring(6, 8) + "日";
+	}
+	return timeFormate;
+}
+
+/**
+ * 格式化时间
+ * 
+ * @method formateTime6
+ * @param {String}
+ *            time 时间信息(YYYY-MM-DD HH:mm:SS)
+ * @return 格式化的时间(YYYYMMDDHHmmSS)
+ */
+function formateTime6(time) {
+	var timeFormate = "";
+	if (time != null && time.length == 19) {
+		timeFormate = time.substring(0, 4) + time.substring(5, 7)
+				+ time.substring(8, 10) + time.substring(11, 13)
+				+ time.substring(14, 16) + time.substring(17, 19);
 	}
 	return timeFormate;
 }
@@ -210,12 +232,12 @@ function formateTime5(time) {
 /**
  * 时间转化成时间戳
  * 
- * @method yyyy-mm-dd hh:mm:ss  例:2014/07/10 10:21:12
+ * @method yyyy-mm-dd hh:mm:ss 例:2014/07/10 10:21:12
  * @param {String}
  *            time 时间信息(YYYYMMDDHHmmSS)
  * @return 格式化的时间(例:1404958872000)
  */
-function changeTimeToTimeStamp(time){
- 	var timestamp = Date.parse(new Date(time));
+function changeTimeToTimeStamp(time) {
+	var timestamp = Date.parse(new Date(time));
 	return timestamp + 28800000;
-} 
+}

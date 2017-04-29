@@ -373,7 +373,7 @@ function saveInfo() {
 		if ( number(price) ) {
 			var priceNum = parseFloat(price)
 			priceNum = priceNum.toFixed(2);
-			reqmsg += "\"price\":" + priceNum + ",";
+			reqmsg += "\"price\":\"" + priceNum + "\",";
 		} else {
 			alert("价格输入有误,请重新输入");
 			return;

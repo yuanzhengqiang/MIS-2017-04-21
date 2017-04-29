@@ -39,12 +39,12 @@ public class OrderMedicalItemRelationEntity implements java.io.Serializable {
 	 * 体检项目名称
 	 */
 	@ColumnDescription(name = "MEDICAL_ITEM_NAME")
-	private Integer medicalItemName;
+	private String medicalItemName;
 	/**
 	 * 体检项目价格
 	 */
 	@ColumnDescription(name = "MEDICAL_ITEM_PRICE")
-	private Integer medicalItemPrice;
+	private Double medicalItemPrice;
 
 	public Integer getId() {
 		return id;
@@ -70,19 +70,19 @@ public class OrderMedicalItemRelationEntity implements java.io.Serializable {
 		this.medicalItemId = medicalItemId;
 	}
 
-	public Integer getMedicalItemName() {
+	public String getMedicalItemName() {
 		return medicalItemName;
 	}
 
-	public void setMedicalItemName(Integer medicalItemName) {
+	public void setMedicalItemName(String medicalItemName) {
 		this.medicalItemName = medicalItemName;
 	}
 
-	public Integer getMedicalItemPrice() {
+	public Double getMedicalItemPrice() {
 		return medicalItemPrice;
 	}
 
-	public void setMedicalItemPrice(Integer medicalItemPrice) {
+	public void setMedicalItemPrice(Double medicalItemPrice) {
 		this.medicalItemPrice = medicalItemPrice;
 	}
 

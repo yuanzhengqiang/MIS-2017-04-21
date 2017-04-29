@@ -91,7 +91,9 @@ public class WechatCustomerHandler extends BaseHandler {
 			// 业务处理
 			Object result = null;
 			if ("save".equals(action)) {
-				result = wechatCustomerService.save(wechatCustomer);
+				WechatCustomerEntity temp = wechatCustomerService.getById(wechatCustomer.getId());
+				temp.setNoteName(wechatCustomer.getNoteName());
+				result = wechatCustomerService.save(temp);
 			} else if ("saveList".equals(action)) {
 				result = wechatCustomerService.saveList(wechatCustomerList);
 			} else if ("getById".equals(action)) {

@@ -19,11 +19,11 @@ import com.framework.system.db.query.OrderVO;
 
 /**
  * @Title: Handler
- * @Description: 订单表业务处理器
+ * @Description: 医院体检项目关系表业务处理器
  * @author feng.gu
- * @date 2017-04-21 16:39:13
+ * @date 2017-04-29 18:28:51
  * @version V1.0
- * 
+ *
  */
 public class OrderHandler extends BaseHandler {
 	private static Logger logger = Logger.getLogger(OrderService.class);
@@ -81,35 +81,92 @@ public class OrderHandler extends BaseHandler {
 					.get("queryMap");
 			Integer pageno = (Integer) parseMap.get("pageno");
 			Integer pagesize = (Integer) parseMap.get("pagesize");
+			List<OrderVO> orderListVO = (List<OrderVO>) parseMap.get("orderList");
 
-			List<OrderVO> ordervo = (List<OrderVO>) parseMap.get("orderList");
-			
-			Boolean delChildOrderList = (Boolean) parseMap
-					.get("delChildOrderList");
-			Boolean servicePersonShow = (Boolean) parseMap
-					.get("servicePersonShow");
-			Boolean delServicePerson = (Boolean) parseMap
-					.get("delServicePerson");
 			Boolean medicalReportShow = (Boolean) parseMap
 					.get("medicalReportShow");
 			Boolean delMedicalReport = (Boolean) parseMap
 					.get("delMedicalReport");
+			Boolean servicePersonShow = (Boolean) parseMap
+					.get("servicePersonShow");
+			Boolean delServicePerson = (Boolean) parseMap
+					.get("delServicePerson");
 
 			// 业务处理
 			Object result = null;
 			if ("save".equals(action)) {
+				OrderEntity _temp_ = OrderService.getInstance().getById(order.getId());
+				if (order.getContactWay() != null)
+					_temp_.setContactWay(order.getContactWay());
+				if (order.getExpectMedicalTime() != null)
+					_temp_.setExpectMedicalTime(order.getExpectMedicalTime());
+				if (order.getExpectReportCompleteTime() != null)
+					_temp_.setExpectReportCompleteTime(order.getExpectReportCompleteTime());
+//				if (order.getId() != null && order.getId() == _temp_.getId())
+//					_temp_.setId(order.getId());
+				if (order.getIsPay() != null)
+					_temp_.setIsPay(order.getIsPay());
+				if (order.getMedicalCompleteTime() != null)
+					_temp_.setMedicalCompleteTime(order.getMedicalCompleteTime());
+				if (order.getMedicalHospital() != null)
+					_temp_.setMedicalHospital(order.getMedicalHospital());
+				if (order.getMedicalPersonCard() != null)
+					_temp_.setMedicalPersonCard(order.getMedicalPersonCard());
+				if (order.getMedicalPersonGender() != null)
+					_temp_.setMedicalPersonGender(order.getMedicalPersonGender());
+				if (order.getMedicalPersonName() != null)
+					_temp_.setMedicalPersonName(order.getMedicalPersonName());
+				if (order.getMedicalReport() != null)
+					_temp_.setMedicalReport(order.getMedicalReport());
+				if (order.getMedicalReportExpress() != null)
+					_temp_.setMedicalReportExpress(order.getMedicalReportExpress());
+				if (order.getMedicalReportExpressOrderNum() != null)
+					_temp_.setMedicalReportExpressOrderNum(order.getMedicalReportExpressOrderNum());
+				if (order.getMedicalReportId() != null)
+					_temp_.setMedicalReportId(order.getMedicalReportId());
+				if (order.getMedicalReportStatus() != null)
+					_temp_.setMedicalReportStatus(order.getMedicalReportStatus());
+				if (order.getOrderCustomer() != null)
+					_temp_.setOrderCustomer(order.getOrderCustomer());
+				if (order.getOrderNum() != null)
+					_temp_.setOrderNum(order.getOrderNum());
+				if (order.getOrderTime() != null)
+					_temp_.setOrderTime(order.getOrderTime());
+				if (order.getReportCreateTime() != null)
+					_temp_.setReportCreateTime(order.getReportCreateTime());
+				if (order.getReportSendAddr() != null)
+					_temp_.setReportSendAddr(order.getReportSendAddr());
+				if (order.getReportSendPerson() != null)
+					_temp_.setReportSendPerson(order.getReportSendPerson());
+				if (order.getReportSendPersonContactWay() != null)
+					_temp_.setReportSendPersonContactWay(order.getReportSendPersonContactWay());
+				if (order.getServicePerson() != null)
+					_temp_.setServicePerson(order.getServicePerson());
+				if (order.getServicePersonId() != null)
+					_temp_.setServicePersonId(order.getServicePersonId());
+				if (order.getServicePersonName() != null)
+					_temp_.setServicePersonName(order.getServicePersonName());
+				if (order.getServicePrice() != null)
+					_temp_.setServicePrice(order.getServicePrice());
+				if (order.getStatus() != null)
+					_temp_.setStatus(order.getStatus());
+				if (order.getTotalPrice() != null)
+					_temp_.setTotalPrice(order.getTotalPrice());
 				result = orderService.save(order);
 			} else if ("saveList".equals(action)) {
 				result = orderService.saveList(orderList);
 			} else if ("getById".equals(action)) {
-				result = orderService.getById(id, servicePersonShow, medicalReportShow);
+				result = orderService.getById(id, medicalReportShow,
+						servicePersonShow);
 			} else if ("getListByCondition".equals(action)) {
-				result = orderService.getListByCondition(queryMap, ordervo,
-						pageno, pagesize, servicePersonShow, medicalReportShow);
+				result = orderService.getListByCondition(queryMap, orderListVO,
+						pageno, pagesize, medicalReportShow, servicePersonShow);
 			} else if ("del".equals(action)) {
-				result = orderService.del(id, delServicePerson, delMedicalReport);
+				result = orderService.del(id, delMedicalReport,
+						delServicePerson);
 			} else if ("delList".equals(action)) {
-				result = orderService.delList(queryMap, delServicePerson, delMedicalReport);
+				result = orderService.delList(queryMap, delMedicalReport,
+						delServicePerson);
 			}
 			// 封装
 			Map<String, Object> packMap = orderPack.pack(type, action, result,

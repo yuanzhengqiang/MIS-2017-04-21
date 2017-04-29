@@ -80,12 +80,28 @@
 										<div class="col-xs-6 col-sm-4" style="margin-bottom:5px;">
 											<select id="status" class="form-control" style="width:100%">
 												<option value="">全部</option>
-												<option value="1">预约成功</option>
+												<option value="1">下单成功</option>
 												<option value="2">体检完成</option>
-												<option value="3">生成报告(未支付余额)</option>
-												<option value="4">生成报告(已支付余额)</option>
-												<option value="5">取消</option>
+												<option value="3">生成报告</option>
+												<option value="4">取消</option>
 											</select>
+										</div>
+										<div class="col-sm-2 col-md-2 col-lg-2" style=" vertical-align: middle; height: 34px; line-height: 34px;">
+											<label>下单时间</label>
+										</div>
+										<div class="col-sm-5 col-md-5 col-lg-2" style="margin-bottom:10px;">
+											<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
+												<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
+												<input class="form-control" size="16" value="" readonly="" type="text" id="startTime" placeholder="开始时间">
+												<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+											</div>
+										</div>
+										<div class="col-sm-5 col-md-5 col-lg-2" style="margin-bottom:10px;">
+											<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
+												<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
+												<input class="form-control" size="16" value="" readonly="" type="text" id="endTime" placeholder="结束时间">
+												<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+											</div>
 										</div>
 									</div>
 									<!-- 查询框结束 -->
@@ -93,7 +109,7 @@
 									<div class="row">
 										<div class="col-sm-12">
 											<button class="btn btn-primary " style="margin-bottom: 0px !important; height: 34px;margin-left:0;float:left;" onclick="query();">查询</button>
-											<a href="<%=request.getContextPath()%>/order.do?mainDetail" class="btn btn-primary btn-flat" target="_blank" style="margin-bottom: 0px !important; height: 34px;margin-left:0;float:right;">新增</a>
+											<a href="<%=request.getContextPath()%>/order.do?mainAdd" class="btn btn-primary btn-flat" target="_blank" style="margin-bottom: 0px !important; height: 34px;margin-left:0;float:right;">新增</a>
 										</div>
 									</div>
 									<!-- 操作按钮结束 -->
@@ -114,6 +130,12 @@
 														</th>
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'status')">
 															<strong>订单状态</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'totalPrice')">
+															<strong>总价格</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'isPay')">
+															<strong>是否已付款</strong>
 														</th>
 														<th>
 															<strong>操作<strong>
@@ -220,6 +242,10 @@
 	   	$("#editDetail").find(".modal-body").css("height", (windowHeight - 50) + "px");
 	    $(".md-trigger").modalEffects();
 	    
+	    $(".deleteThisTime").click(function(){               //清除日期框中的值
+    	    $(this).parent().prev()[0].value = "";
+    	});
+    	    
 		query();
 	});
 	
@@ -247,6 +273,8 @@
 		var medicalPersonName = $.trim($("#medicalPersonName").val());
 		var medicalPersonCard = $.trim($("#medicalPersonCard").val());
 		var status = $("#status").val();
+		var startTime = $("#startTime").val();
+		var endTime = $("#endTime").val();
 		var reqmsg = "{'action':'QUERY_ORDER_LIST_REQUEST',";
 		
 		var sortType = $("#sortType").val();
@@ -266,6 +294,20 @@
 		}
 		if (status != null && status != "") {
 			reqmsg += "'status':" + status + ",";
+		}
+		if (startTime != null && startTime != "") {
+			startTime = startTime.substring(0, 4) + startTime.substring(5, 7) + startTime.substring(8, 10) + "000000";
+			reqmsg += "'startDate_ge':'" + startTime + "',";
+		}
+		if (endTime != null && endTime != "") {
+			endTime = endTime.substring(0, 4) + endTime.substring(5, 7) + endTime.substring(8, 10) + "235959"
+			reqmsg += "'startDate_ge':'" + endTime + "',";
+		}
+		if (startTime != null && startTime != "" && endTime != null && endTime != "") {
+			if (startTime > endTime) {
+				alert("开始时间不能大于结束时间");
+				return;
+			}
 		}
 		reqmsg += "}}";
 
@@ -300,6 +342,8 @@
 					htmlcode += "<td>" + item.medicalPersonName + "</td>";
 					htmlcode += "<td>" + item.medicalPersonCard + "</td>";
 					htmlcode += "<td>" + matchingState(item.status) + "</td>";
+					htmlcode += "<td>" + item.totalPrice + "</td>";
+					htmlcode += "<td>" + matchingIsPay(item.isPay) + "</td>";
 					
 					htmlcode += "<td><div class=\"btn-group\">";
 					htmlcode += "<button class=\"btn btn-default btn-xs\" type=\"button\">操作</button>";
@@ -439,7 +483,7 @@
 		switch (state) 
 		{
 			case 1:
-			name = "预约成功";
+			name = "下单成功";
   			break;
   			
   			case 2:
@@ -447,17 +491,31 @@
   			break;
   			
 			case 3:
-			name = "生成报告(未支付余额)";
+			name = "生成报告";
   			break;
   			
   			case 4:
-			name = "生成报告(已支付余额)";
-  			break;
-  			
-  			case 5:
 			name = "取消";
   			break;
-		
+  			
+			default:
+  			break;
+		}
+		return name;
+	}
+	//匹配是否已付款状态
+	function matchingIsPay(isPay) {
+		var name = "";
+		switch (isPay) 
+		{
+			case 1:
+			name = "已付款";
+  			break;
+  			
+  			case 0:
+			name = "未付款";
+  			break;
+  			
 			default:
   			break;
 		}

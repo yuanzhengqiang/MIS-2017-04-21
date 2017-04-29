@@ -1,13 +1,6 @@
 package mis.entity;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-
-
-
 import com.framework.system.db.dao.annotation.ColumnDescription;
-import com.framework.system.db.dao.annotation.RelationlDescription;
 import com.framework.system.db.dao.annotation.TableDescription;
 
 /**   
@@ -49,7 +42,7 @@ public class ServicePersonEntity implements java.io.Serializable {
 	 * 头像
 	 */
 	@ColumnDescription(name = "HEAD_PORTRAIT")
-	private Object headPortrait;
+	private String headPortrait;
     /**
 	 * 生日
 	 */
@@ -97,11 +90,11 @@ public class ServicePersonEntity implements java.io.Serializable {
 	public void setGender(String gender) {
 		this.gender = gender;
 	}
-    public Object getHeadPortrait() {
+    public String getHeadPortrait() {
 		return headPortrait;
 	}
 
-	public void setHeadPortrait(Object headPortrait) {
+	public void setHeadPortrait(String headPortrait) {
 		this.headPortrait = headPortrait;
 	}
     public String getBirthday() {

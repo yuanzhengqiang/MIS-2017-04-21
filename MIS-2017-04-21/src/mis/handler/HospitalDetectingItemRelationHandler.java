@@ -21,9 +21,9 @@ import com.framework.system.db.query.OrderVO;
  * @Title: Handler
  * @Description: 医院体检项目关系表业务处理器
  * @author feng.gu
- * @date 2017-04-21 17:12:18
+ * @date 2017-04-26 22:16:09
  * @version V1.0
- * 
+ *
  */
 public class HospitalDetectingItemRelationHandler extends BaseHandler {
 	private static Logger logger = Logger
@@ -44,7 +44,8 @@ public class HospitalDetectingItemRelationHandler extends BaseHandler {
 	private HospitalDetectingItemRelationPack hospitalDetectingItemRelationPack = HospitalDetectingItemRelationPack
 			.getInstance();
 
-	private static HospitalDetectingItemRelationHandler hospitalDetectingItemRelationHandler;
+	private static HospitalDetectingItemRelationHandler HospitalDetectingItemRelationHandler;
+
 
 	/**
 	 * 获取实例
@@ -52,10 +53,10 @@ public class HospitalDetectingItemRelationHandler extends BaseHandler {
 	 * @return
 	 */
 	public static HospitalDetectingItemRelationHandler getInstance() {
-		if (hospitalDetectingItemRelationHandler == null) {
-			hospitalDetectingItemRelationHandler = new HospitalDetectingItemRelationHandler();
+		if (HospitalDetectingItemRelationHandler == null) {
+			HospitalDetectingItemRelationHandler = new HospitalDetectingItemRelationHandler();
 		}
-		return hospitalDetectingItemRelationHandler;
+		return HospitalDetectingItemRelationHandler;
 	}
 
 	/**
@@ -77,10 +78,10 @@ public class HospitalDetectingItemRelationHandler extends BaseHandler {
 			Map<String, Object> parseMap = hospitalDetectingItemRelationParse
 					.parse(type, command, reqStr, request);
 			String action = (String) parseMap.get("action");
-			HospitalDetectingItemRelationEntity hospitalDetectingItemRelation = (HospitalDetectingItemRelationEntity) parseMap
-					.get("hospitalDetectingItemRelation");
-			List<HospitalDetectingItemRelationEntity> hospitalDetectingItemRelationList = (List<HospitalDetectingItemRelationEntity>) parseMap
-					.get("hospitalDetectingItemRelationList");
+			HospitalDetectingItemRelationEntity HospitalDetectingItemRelation = (HospitalDetectingItemRelationEntity) parseMap
+					.get("HospitalDetectingItemRelation");
+			List<HospitalDetectingItemRelationEntity> HospitalDetectingItemRelationList = (List<HospitalDetectingItemRelationEntity>) parseMap
+					.get("HospitalDetectingItemRelationList");
 			Integer id = (Integer) parseMap.get("id");
 			Map<String, Object> queryMap = (Map<String, Object>) parseMap
 					.get("queryMap");
@@ -88,40 +89,55 @@ public class HospitalDetectingItemRelationHandler extends BaseHandler {
 			Integer pagesize = (Integer) parseMap.get("pagesize");
 			List<OrderVO> orderList = (List<OrderVO>) parseMap.get("orderList");
 
+			Boolean parentHospitalDetectingItemRelationShow = (Boolean) parseMap
+					.get("parentHospitalDetectingItemRelationShow");
+			Boolean delParentHospitalDetectingItemRelation = (Boolean) parseMap
+					.get("delParentHospitalDetectingItemRelation");
+			Boolean delParentHospitalDetectingItemRelationList = (Boolean) parseMap
+					.get("delParentHospitalDetectingItemRelationList");
+			Boolean childHospitalDetectingItemRelationListShow = (Boolean) parseMap
+					.get("childHospitalDetectingItemRelationListShow");
+			Boolean delChildHospitalDetectingItemRelationList = (Boolean) parseMap
+					.get("delChildHospitalDetectingItemRelationList");
 			Boolean hospitalEntityShow = (Boolean) parseMap
 					.get("hospitalEntityShow");
 			Boolean delHospitalEntity = (Boolean) parseMap
 					.get("delHospitalEntity");
+			Boolean medicalItemShow = (Boolean) parseMap.get("medicalItemShow");
+			Boolean delMedicalItem = (Boolean) parseMap.get("delMedicalItem");
 
 			// 业务处理
 			Object result = null;
 			if ("save".equals(action)) {
 				result = hospitalDetectingItemRelationService
-						.save(hospitalDetectingItemRelation);
+						.save(HospitalDetectingItemRelation);
 			} else if ("saveList".equals(action)) {
 				result = hospitalDetectingItemRelationService
-						.saveList(hospitalDetectingItemRelationList);
+						.saveList(HospitalDetectingItemRelationList);
 			} else if ("getById".equals(action)) {
 				result = hospitalDetectingItemRelationService.getById(id,
-						hospitalEntityShow);
+						parentHospitalDetectingItemRelationShow,
+						childHospitalDetectingItemRelationListShow,
+						hospitalEntityShow, medicalItemShow);
 			} else if ("getListByCondition".equals(action)) {
-				// // 根据数据权限 增加查询条件
-				// queryMap = systemService.addDataRuleByRoles(
-				// "HospitalDetectingItemRelationEntity", queryMap,
-				// request);
-				// result = hospitalDetectingItemRelationService
-				// .getListByCondition(queryMap, orderList, pageno,
-				// pagesize, hospitalEntityShow);
+				result = hospitalDetectingItemRelationService
+						.getListByCondition(queryMap, orderList, pageno,
+								pagesize, hospitalEntityShow, medicalItemShow);
 			} else if ("del".equals(action)) {
-				result = hospitalDetectingItemRelationService.del(id,
-						delHospitalEntity);
+				result = hospitalDetectingItemRelationService.del(id
+//						,delParentHospitalDetectingItemRelation,
+//						delChildHospitalDetectingItemRelationList,
+//						delHospitalEntity, delMedicalItem
+						);
 			} else if ("delList".equals(action)) {
 				result = hospitalDetectingItemRelationService.delList(queryMap,
-						delHospitalEntity);
+						delParentHospitalDetectingItemRelationList,
+						delChildHospitalDetectingItemRelationList,
+						delHospitalEntity, delMedicalItem);
 			}
 			// 封装
 			Map<String, Object> packMap = hospitalDetectingItemRelationPack
-					.pack(type, action, result, hospitalDetectingItemRelation);
+					.pack(type, action, result, HospitalDetectingItemRelation);
 			String actionBack = (String) packMap.get("action");
 			String resultBack = (String) packMap.get("result");
 			String desBack = (String) packMap.get("des");

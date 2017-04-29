@@ -9,13 +9,12 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
-
 import com.framework.system.db.query.PageList;
  /**   
  * @Title: Pack
- * @Description: 体检记录表封装器
+ * @Description: 医院体检项目关系表封装器
  * @author feng.gu
- * @date 2017-04-21 16:18:36
+ * @date 2017-04-28 13:31:49
  * @version V1.0   
  *
  */
@@ -71,7 +70,10 @@ public class MedicalReportPack {
 					contentBack = new JSONObject();
 					contentBack.put("id", medicalReport.getId());
 					
-									}
+																									if(medicalReport.getHospital()!=null){
+						contentBack.put("hospitalId", medicalReport.getHospital().getId());
+					}
+																								}
 			} else if ("getById".equals(action)) {
 				actionBack="QUERY_MEDICAL_REPORT_INFO_RESPONSE";		
 				resultBack="100";
@@ -79,7 +81,10 @@ public class MedicalReportPack {
 				MedicalReportEntity medicalReport = (MedicalReportEntity)request;
 				if(medicalReport!=null){
 					contentBack = JSONObject.fromObject(medicalReport);
-									}
+																									if(medicalReport.getHospital()!=null){
+						contentBack.put("hospital", JSONObject.fromObject(medicalReport.getHospital()));
+					}
+																								}
 			} else if ("getListByCondition".equals(action)) {
 				actionBack="QUERY_MEDICAL_REPORT_LIST_RESPONSE";
 				resultBack="100";

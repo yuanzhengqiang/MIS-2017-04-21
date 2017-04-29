@@ -9,13 +9,12 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
-
 import com.framework.system.db.query.PageList;
  /**   
  * @Title: Pack
- * @Description: 订单表封装器
+ * @Description: 医院体检项目关系表封装器
  * @author feng.gu
- * @date 2017-04-21 16:39:13
+ * @date 2017-04-29 18:28:51
  * @version V1.0   
  *
  */
@@ -71,14 +70,11 @@ public class OrderPack {
 					contentBack = new JSONObject();
 					contentBack.put("id", order.getId());
 					
-																														if(order.getParentOrder()!=null){
-						contentBack.put("parentOrderId", order.getParentOrder().getId());
-					}
-																																			if(order.getServicePerson()!=null){
-						contentBack.put("servicePersonId", order.getServicePerson().getId());
-					}
-																																								if(order.getMedicalReport()!=null){
+																									if(order.getMedicalReport()!=null){
 						contentBack.put("medicalReportId", order.getMedicalReport().getId());
+					}
+																																								if(order.getServicePerson()!=null){
+						contentBack.put("servicePersonId", order.getServicePerson().getId());
 					}
 																								}
 			} else if ("getById".equals(action)) {
@@ -88,17 +84,11 @@ public class OrderPack {
 				OrderEntity order = (OrderEntity)request;
 				if(order!=null){
 					contentBack = JSONObject.fromObject(order);
-																														if(order.getParentOrder()!=null){
-						contentBack.put("parentOrder", JSONObject.fromObject(order.getParentOrder()));
-					}
-					if(order.getChildOrderList()!=null){
-						contentBack.put("childOrderList", JSONArray.fromObject(order.getChildOrderList()));
-					}
-																																			if(order.getServicePerson()!=null){
-						contentBack.put("servicePerson", JSONObject.fromObject(order.getServicePerson()));
-					}
-																																								if(order.getMedicalReport()!=null){
+																									if(order.getMedicalReport()!=null){
 						contentBack.put("medicalReport", JSONObject.fromObject(order.getMedicalReport()));
+					}
+																																								if(order.getServicePerson()!=null){
+						contentBack.put("servicePerson", JSONObject.fromObject(order.getServicePerson()));
 					}
 																								}
 			} else if ("getListByCondition".equals(action)) {

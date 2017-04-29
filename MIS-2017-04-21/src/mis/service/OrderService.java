@@ -22,11 +22,11 @@ import com.framework.system.util.StringUtil;
 
 /**
  * @Title: Service
- * @Description: 订单表服务类
+ * @Description: 医院体检项目关系表服务类
  * @author feng.gu
- * @date 2017-04-21 16:39:13
+ * @date 2017-04-29 18:28:51
  * @version V1.0
- * 
+ *
  */
 public class OrderService {
 	private static Logger logger = Logger.getLogger(OrderService.class);
@@ -58,23 +58,16 @@ public class OrderService {
 			try {
 				tx.beginTransaction();
 				// 关联信息保存
-				if (order.getChildOrderList() != null
-						&& order.getChildOrderList().size() > 0) {
-					for (OrderEntity orderEntity : order.getChildOrderList()) {
-						dbManager.saveNoTransaction(orderEntity);
-					}
+				MedicalReportEntity medicalReport = order.getMedicalReport();
+				if (medicalReport != null) {
+					dbManager.saveNoTransaction(medicalReport);
+					order.setMedicalReportId(medicalReport.getId());
 				}
 				// 关联信息保存
 				ServicePersonEntity servicePerson = order.getServicePerson();
 				if (servicePerson != null) {
 					dbManager.saveNoTransaction(servicePerson);
 					order.setServicePersonId(servicePerson.getId());
-				}
-				// 关联信息保存
-				MedicalReportEntity medicalReport = order.getMedicalReport();
-				if (medicalReport != null) {
-					dbManager.saveNoTransaction(medicalReport);
-					order.setMedicalReportId(medicalReport.getId());
 				}
 				result = dbManager.saveNoTransaction(order);
 				tx.commitAndClose();
@@ -107,12 +100,11 @@ public class OrderService {
 				for (OrderEntity order : orderList) {
 					if (order != null) {
 						// 关联信息保存
-						if (order.getChildOrderList() != null
-								&& order.getChildOrderList().size() > 0) {
-							for (OrderEntity orderEntity : order
-									.getChildOrderList()) {
-								dbManager.saveNoTransaction(orderEntity);
-							}
+						MedicalReportEntity medicalReport = order
+								.getMedicalReport();
+						if (medicalReport != null) {
+							dbManager.saveNoTransaction(medicalReport);
+							order.setMedicalReportId(medicalReport.getId());
 						}
 						// 关联信息保存
 						ServicePersonEntity servicePerson = order
@@ -120,13 +112,6 @@ public class OrderService {
 						if (servicePerson != null) {
 							dbManager.saveNoTransaction(servicePerson);
 							order.setServicePersonId(servicePerson.getId());
-						}
-						// 关联信息保存
-						MedicalReportEntity medicalReport = order
-								.getMedicalReport();
-						if (medicalReport != null) {
-							dbManager.saveNoTransaction(medicalReport);
-							order.setMedicalReportId(medicalReport.getId());
 						}
 						result = dbManager.saveNoTransaction(order);
 					}
@@ -167,30 +152,17 @@ public class OrderService {
 	 * 
 	 * @param id
 	 *            主键
-	 * @param parentOrderShow
-	 *            是否查询关联信息
-	 * @param childOrderListShow
+	 * @param medicalReportShow
 	 *            是否查询关联信息
 	 * @param servicePersonShow
 	 *            是否查询关联信息
-	 * @param medicalReportShow
-	 *            是否查询关联信息
 	 * @param obj
 	 */
-	public OrderEntity getById(Integer id, Boolean servicePersonShow,
-			Boolean medicalReportShow) {
+	public OrderEntity getById(Integer id, Boolean medicalReportShow,
+			Boolean servicePersonShow) {
 		OrderEntity obj = null;
 		if (id != null) {
 			obj = (OrderEntity) dbManager.getById(id, OrderEntity.class);
-			// 查询关联内容
-			if (servicePersonShow != null && servicePersonShow.booleanValue()
-					&& obj != null && obj.getServicePersonId() != null
-					&& obj.getServicePersonId() > 0) {
-				ServicePersonEntity servicePerson = (ServicePersonEntity) dbManager
-						.getById(obj.getServicePersonId(),
-								ServicePersonEntity.class);
-				obj.setServicePerson(servicePerson);
-			}
 			// 查询关联内容
 			if (medicalReportShow != null && medicalReportShow.booleanValue()
 					&& obj != null && obj.getMedicalReportId() != null
@@ -199,6 +171,15 @@ public class OrderService {
 						.getById(obj.getMedicalReportId(),
 								MedicalReportEntity.class);
 				obj.setMedicalReport(medicalReport);
+			}
+			// 查询关联内容
+			if (servicePersonShow != null && servicePersonShow.booleanValue()
+					&& obj != null && obj.getServicePersonId() != null
+					&& obj.getServicePersonId() > 0) {
+				ServicePersonEntity servicePerson = (ServicePersonEntity) dbManager
+						.getById(obj.getServicePersonId(),
+								ServicePersonEntity.class);
+				obj.setServicePerson(servicePerson);
 			}
 		}
 		return obj;
@@ -235,19 +216,15 @@ public class OrderService {
 	 *            查询条件集合
 	 * @param orderList
 	 *            排序条件集合
-	 * @param parentOrderShow
-	 *            是否查询关联信息,默认false(当为true时注意效率)
-	 * @param childOrderListShow
+	 * @param medicalReportShow
 	 *            是否查询关联信息,默认false(当为true时注意效率)
 	 * @param servicePersonShow
-	 *            是否查询关联信息,默认false(当为true时注意效率)
-	 * @param medicalReportShow
 	 *            是否查询关联信息,默认false(当为true时注意效率)
 	 * @return
 	 */
 	public List<OrderEntity> getListByCondition(Map<String, Object> queryMap,
-			List<OrderVO> orderList, Boolean servicePersonShow,
-			Boolean medicalReportShow) {
+			List<OrderVO> orderList, Boolean medicalReportShow,
+			Boolean servicePersonShow) {
 		List<OrderEntity> returnlist = null;
 		List<Object> list = null;
 		if (queryMap == null) {
@@ -279,26 +256,16 @@ public class OrderService {
 		}
 		list = dbManager.queryByConditions(OrderEntity.class, qc, oc);
 		int a = 0;
-		if (servicePersonShow != null && servicePersonShow.booleanValue()) {
+		if (medicalReportShow != null && medicalReportShow.booleanValue()) {
 			a++;
 		}
-		if (medicalReportShow != null && medicalReportShow.booleanValue()) {
+		if (servicePersonShow != null && servicePersonShow.booleanValue()) {
 			a++;
 		}
 		if (a > 0 && list != null && list.size() > 0) {
 			List<Object> result = new ArrayList<Object>();
 			for (int i = 0; i < list.size(); i++) {
 				OrderEntity obj = (OrderEntity) list.get(i);
-				// 查询关联内容
-				if (servicePersonShow != null
-						&& servicePersonShow.booleanValue() && obj != null
-						&& obj.getServicePersonId() != null
-						&& obj.getServicePersonId() > 0) {
-					ServicePersonEntity servicePerson = (ServicePersonEntity) dbManager
-							.getById(obj.getServicePersonId(),
-									ServicePersonEntity.class);
-					obj.setServicePerson(servicePerson);
-				}
 				// 查询关联内容
 				if (medicalReportShow != null
 						&& medicalReportShow.booleanValue() && obj != null
@@ -308,6 +275,16 @@ public class OrderService {
 							.getById(obj.getMedicalReportId(),
 									MedicalReportEntity.class);
 					obj.setMedicalReport(medicalReport);
+				}
+				// 查询关联内容
+				if (servicePersonShow != null
+						&& servicePersonShow.booleanValue() && obj != null
+						&& obj.getServicePersonId() != null
+						&& obj.getServicePersonId() > 0) {
+					ServicePersonEntity servicePerson = (ServicePersonEntity) dbManager
+							.getById(obj.getServicePersonId(),
+									ServicePersonEntity.class);
+					obj.setServicePerson(servicePerson);
 				}
 				result.add(obj);
 			}
@@ -356,18 +333,15 @@ public class OrderService {
 	 *            查询页码
 	 * @param pagesize
 	 *            查询每页记录条数
-	 * @param parentOrderShow
-	 *            是否查询关联信息,默认false(当为true时注意效率)
-	 * @param childOrderListShow
+	 * @param medicalReportShow
 	 *            是否查询关联信息,默认false(当为true时注意效率)
 	 * @param servicePersonShow
 	 *            是否查询关联信息,默认false(当为true时注意效率)
-	 * @param medicalReportShow
-	 *            是否查询关联信息,默认false(当为true时注意效率)
 	 * @return
 	 */
-	public PageList getListByCondition(Map<String, Object> queryMap, List<OrderVO> orderList, int pageno, int pagesize,
-			Boolean servicePersonShow, Boolean medicalReportShow) {
+	public PageList getListByCondition(Map<String, Object> queryMap,
+			List<OrderVO> orderList, int pageno, int pagesize,
+			Boolean medicalReportShow, Boolean servicePersonShow) {
 		PageList pagelist = null;
 		if (queryMap == null) {
 			queryMap = new HashMap<String, Object>();
@@ -410,10 +384,10 @@ public class OrderService {
 		pagelist = dbManager.queryByConditions(OrderEntity.class, qc,
 				dataRuleQclist, oc, pageno, pagesize);
 		int a = 0;
-		if (servicePersonShow != null && servicePersonShow.booleanValue()) {
+		if (medicalReportShow != null && medicalReportShow.booleanValue()) {
 			a++;
 		}
-		if (medicalReportShow != null && medicalReportShow.booleanValue()) {
+		if (servicePersonShow != null && servicePersonShow.booleanValue()) {
 			a++;
 		}
 		if (a > 0 && pagelist != null && pagelist.getResultList() != null
@@ -421,16 +395,6 @@ public class OrderService {
 			List<Object> result = new ArrayList<Object>();
 			for (int i = 0; i < pagelist.getResultList().size(); i++) {
 				OrderEntity obj = (OrderEntity) pagelist.getResultList().get(i);
-				// 查询关联内容
-				if (servicePersonShow != null
-						&& servicePersonShow.booleanValue() && obj != null
-						&& obj.getServicePersonId() != null
-						&& obj.getServicePersonId() > 0) {
-					ServicePersonEntity servicePerson = (ServicePersonEntity) dbManager
-							.getById(obj.getServicePersonId(),
-									ServicePersonEntity.class);
-					obj.setServicePerson(servicePerson);
-				}
 				// 查询关联内容
 				if (medicalReportShow != null
 						&& medicalReportShow.booleanValue() && obj != null
@@ -440,6 +404,16 @@ public class OrderService {
 							.getById(obj.getMedicalReportId(),
 									MedicalReportEntity.class);
 					obj.setMedicalReport(medicalReport);
+				}
+				// 查询关联内容
+				if (servicePersonShow != null
+						&& servicePersonShow.booleanValue() && obj != null
+						&& obj.getServicePersonId() != null
+						&& obj.getServicePersonId() > 0) {
+					ServicePersonEntity servicePerson = (ServicePersonEntity) dbManager
+							.getById(obj.getServicePersonId(),
+									ServicePersonEntity.class);
+					obj.setServicePerson(servicePerson);
 				}
 				result.add(obj);
 			}
@@ -455,22 +429,13 @@ public class OrderService {
 	 *            主键
 	 * @param obj
 	 */
-	public boolean del(Integer id, Boolean delServicePerson,
-			Boolean delMedicalReport) {
+	public boolean del(Integer id, Boolean delMedicalReport,
+			Boolean delServicePerson) {
 		boolean result = false;
 		if (id != null && id > 0) {
 			TransactionManager tx = DbUtils.getTranManager();
 			try {
 				tx.beginTransaction();
-				// 删除关联信息
-				if (delServicePerson != null && delServicePerson.booleanValue()) {
-					OrderEntity order = (OrderEntity) dbManager.getById(id,
-							OrderEntity.class);
-					if (order != null && order.getServicePersonId() != null) {
-						dbManager.delNoTransaction(order.getServicePersonId(),
-								ServicePersonEntity.class);
-					}
-				}
 				// 删除关联信息
 				if (delMedicalReport != null && delMedicalReport.booleanValue()) {
 					OrderEntity order = (OrderEntity) dbManager.getById(id,
@@ -478,6 +443,15 @@ public class OrderService {
 					if (order != null && order.getMedicalReportId() != null) {
 						dbManager.delNoTransaction(order.getMedicalReportId(),
 								MedicalReportEntity.class);
+					}
+				}
+				// 删除关联信息
+				if (delServicePerson != null && delServicePerson.booleanValue()) {
+					OrderEntity order = (OrderEntity) dbManager.getById(id,
+							OrderEntity.class);
+					if (order != null && order.getServicePersonId() != null) {
+						dbManager.delNoTransaction(order.getServicePersonId(),
+								ServicePersonEntity.class);
 					}
 				}
 				result = dbManager.delNoTransaction(id, OrderEntity.class);
@@ -537,7 +511,7 @@ public class OrderService {
 	 *            查询条件集合
 	 */
 	public boolean delList(Map<String, Object> queryMap,
-			Boolean delServicePerson, Boolean delMedicalReport) {
+			Boolean delMedicalReport, Boolean delServicePerson) {
 		boolean result = false;
 		if (queryMap == null) {
 			queryMap = new HashMap<String, Object>();
@@ -547,28 +521,6 @@ public class OrderService {
 			TransactionManager tx = DbUtils.getTranManager();
 			try {
 				tx.beginTransaction();
-				// 删除关联信息
-				if (delServicePerson != null && delServicePerson.booleanValue()) {
-					List<Object> list = dbManager
-							.queryByConditionNoTransaction(OrderEntity.class,
-									qc);
-					String strIds = "";
-					if (list != null && list.size() > 0) {
-						for (Object obj : list) {
-							OrderEntity entity = (OrderEntity) obj;
-							strIds += entity.getServicePersonId() + ",";
-						}
-						strIds = strIds.substring(0, strIds.length() - 1);
-					}
-					if (strIds != null && !"".equals(strIds)) {
-						QueryCondition qc1 = new QueryCondition(
-								ServicePersonEntity.ID, QueryCondition.in,
-								strIds);
-						dbManager.delByConditionsNoTransaction(
-								ServicePersonEntity.class, qc1);
-					}
-
-				}
 				// 删除关联信息
 				if (delMedicalReport != null && delMedicalReport.booleanValue()) {
 					List<Object> list = dbManager
@@ -588,6 +540,28 @@ public class OrderService {
 								strIds);
 						dbManager.delByConditionsNoTransaction(
 								MedicalReportEntity.class, qc1);
+					}
+
+				}
+				// 删除关联信息
+				if (delServicePerson != null && delServicePerson.booleanValue()) {
+					List<Object> list = dbManager
+							.queryByConditionNoTransaction(OrderEntity.class,
+									qc);
+					String strIds = "";
+					if (list != null && list.size() > 0) {
+						for (Object obj : list) {
+							OrderEntity entity = (OrderEntity) obj;
+							strIds += entity.getServicePersonId() + ",";
+						}
+						strIds = strIds.substring(0, strIds.length() - 1);
+					}
+					if (strIds != null && !"".equals(strIds)) {
+						QueryCondition qc1 = new QueryCondition(
+								ServicePersonEntity.ID, QueryCondition.in,
+								strIds);
+						dbManager.delByConditionsNoTransaction(
+								ServicePersonEntity.class, qc1);
 					}
 
 				}
@@ -714,6 +688,66 @@ public class OrderService {
 		Object medicalReportId_lt = queryMap.get("medicalReportId_lt");
 		Object medicalReportId_le = queryMap.get("medicalReportId_le");
 		Object medicalReportId_in = queryMap.get("medicalReportId_in");
+		Object isPay = queryMap.get("isPay");
+		Object isPay_gt = queryMap.get("isPay_gt");
+		Object isPay_ge = queryMap.get("isPay_ge");
+		Object isPay_lt = queryMap.get("isPay_lt");
+		Object isPay_le = queryMap.get("isPay_le");
+		Object isPay_in = queryMap.get("isPay_in");
+		Object medicalReportStatus = queryMap.get("medicalReportStatus");
+		Object medicalReportStatus_gt = queryMap.get("medicalReportStatus_gt");
+		Object medicalReportStatus_ge = queryMap.get("medicalReportStatus_ge");
+		Object medicalReportStatus_lt = queryMap.get("medicalReportStatus_lt");
+		Object medicalReportStatus_le = queryMap.get("medicalReportStatus_le");
+		Object medicalReportStatus_in = queryMap.get("medicalReportStatus_in");
+		Object servicePrice = queryMap.get("servicePrice");
+		Object servicePrice_like = queryMap.get("servicePrice_like");
+		Object servicePrice_isNull = queryMap.get("servicePrice_isNull");
+		Object servicePrice_isNotNull = queryMap.get("servicePrice_isNotNull");
+		Object servicePrice_in = queryMap.get("servicePrice_in");
+		Object reportSendPerson = queryMap.get("reportSendPerson");
+		Object reportSendPerson_like = queryMap.get("reportSendPerson_like");
+		Object reportSendPerson_isNull = queryMap
+				.get("reportSendPerson_isNull");
+		Object reportSendPerson_isNotNull = queryMap
+				.get("reportSendPerson_isNotNull");
+		Object reportSendPerson_in = queryMap.get("reportSendPerson_in");
+		Object reportSendPersonContactWay = queryMap
+				.get("reportSendPersonContactWay");
+		Object reportSendPersonContactWay_like = queryMap
+				.get("reportSendPersonContactWay_like");
+		Object reportSendPersonContactWay_isNull = queryMap
+				.get("reportSendPersonContactWay_isNull");
+		Object reportSendPersonContactWay_isNotNull = queryMap
+				.get("reportSendPersonContactWay_isNotNull");
+		Object reportSendPersonContactWay_in = queryMap
+				.get("reportSendPersonContactWay_in");
+		Object medicalReportExpress = queryMap.get("medicalReportExpress");
+		Object medicalReportExpress_like = queryMap
+				.get("medicalReportExpress_like");
+		Object medicalReportExpress_isNull = queryMap
+				.get("medicalReportExpress_isNull");
+		Object medicalReportExpress_isNotNull = queryMap
+				.get("medicalReportExpress_isNotNull");
+		Object medicalReportExpress_in = queryMap
+				.get("medicalReportExpress_in");
+		Object medicalReportExpressOrderNum = queryMap
+				.get("medicalReportExpressOrderNum");
+		Object medicalReportExpressOrderNum_like = queryMap
+				.get("medicalReportExpressOrderNum_like");
+		Object medicalReportExpressOrderNum_isNull = queryMap
+				.get("medicalReportExpressOrderNum_isNull");
+		Object medicalReportExpressOrderNum_isNotNull = queryMap
+				.get("medicalReportExpressOrderNum_isNotNull");
+		Object medicalReportExpressOrderNum_in = queryMap
+				.get("medicalReportExpressOrderNum_in");
+		Object servicePersonName = queryMap.get("servicePersonName");
+		Object servicePersonName_like = queryMap.get("servicePersonName_like");
+		Object servicePersonName_isNull = queryMap
+				.get("servicePersonName_isNull");
+		Object servicePersonName_isNotNull = queryMap
+				.get("servicePersonName_isNotNull");
+		Object servicePersonName_in = queryMap.get("servicePersonName_in");
 
 		QueryCondition qc = new QueryCondition(OrderEntity.ID,
 				QueryCondition.gt, "0");
@@ -1089,6 +1123,197 @@ public class OrderService {
 		if (medicalReportId_in != null) {
 			qc.andCondition(new QueryCondition(OrderEntity.MEDICAL_REPORT_ID,
 					QueryCondition.in, medicalReportId_in));
+		}
+		if (isPay != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.IS_PAY,
+					QueryCondition.eq, isPay));
+		}
+		if (isPay_gt != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.IS_PAY,
+					QueryCondition.gt, isPay_gt));
+		}
+		if (isPay_ge != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.IS_PAY,
+					QueryCondition.ge, isPay_ge));
+		}
+		if (isPay_lt != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.IS_PAY,
+					QueryCondition.lt, isPay_lt));
+		}
+		if (isPay_le != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.IS_PAY,
+					QueryCondition.le, isPay_le));
+		}
+		if (isPay_in != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.IS_PAY,
+					QueryCondition.in, isPay_in));
+		}
+		if (medicalReportStatus != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_STATUS, QueryCondition.eq,
+					medicalReportStatus));
+		}
+		if (medicalReportStatus_gt != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_STATUS, QueryCondition.gt,
+					medicalReportStatus_gt));
+		}
+		if (medicalReportStatus_ge != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_STATUS, QueryCondition.ge,
+					medicalReportStatus_ge));
+		}
+		if (medicalReportStatus_lt != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_STATUS, QueryCondition.lt,
+					medicalReportStatus_lt));
+		}
+		if (medicalReportStatus_le != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_STATUS, QueryCondition.le,
+					medicalReportStatus_le));
+		}
+		if (medicalReportStatus_in != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_STATUS, QueryCondition.in,
+					medicalReportStatus_in));
+		}
+		if (servicePrice != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.SERVICE_PRICE,
+					QueryCondition.eq, servicePrice));
+		}
+		if (servicePrice_like != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.SERVICE_PRICE,
+					QueryCondition.like, servicePrice_like));
+		}
+		if (servicePrice_isNull != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.SERVICE_PRICE,
+					QueryCondition.isNull, servicePrice_isNull));
+		}
+		if (servicePrice_isNotNull != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.SERVICE_PRICE,
+					QueryCondition.isNotNull, servicePrice_isNotNull));
+		}
+		if (servicePrice_in != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.SERVICE_PRICE,
+					QueryCondition.in, servicePrice_in));
+		}
+		if (reportSendPerson != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.REPORT_SEND_PERSON,
+					QueryCondition.eq, reportSendPerson));
+		}
+		if (reportSendPerson_like != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.REPORT_SEND_PERSON,
+					QueryCondition.like, reportSendPerson_like));
+		}
+		if (reportSendPerson_isNull != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.REPORT_SEND_PERSON,
+					QueryCondition.isNull, reportSendPerson_isNull));
+		}
+		if (reportSendPerson_isNotNull != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.REPORT_SEND_PERSON,
+					QueryCondition.isNotNull, reportSendPerson_isNotNull));
+		}
+		if (reportSendPerson_in != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.REPORT_SEND_PERSON,
+					QueryCondition.in, reportSendPerson_in));
+		}
+		if (reportSendPersonContactWay != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.REPORT_SEND_PERSON_CONTACT_WAY,
+					QueryCondition.eq, reportSendPersonContactWay));
+		}
+		if (reportSendPersonContactWay_like != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.REPORT_SEND_PERSON_CONTACT_WAY,
+					QueryCondition.like, reportSendPersonContactWay_like));
+		}
+		if (reportSendPersonContactWay_isNull != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.REPORT_SEND_PERSON_CONTACT_WAY,
+					QueryCondition.isNull, reportSendPersonContactWay_isNull));
+		}
+		if (reportSendPersonContactWay_isNotNull != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.REPORT_SEND_PERSON_CONTACT_WAY,
+					QueryCondition.isNotNull,
+					reportSendPersonContactWay_isNotNull));
+		}
+		if (reportSendPersonContactWay_in != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.REPORT_SEND_PERSON_CONTACT_WAY,
+					QueryCondition.in, reportSendPersonContactWay_in));
+		}
+		if (medicalReportExpress != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_EXPRESS, QueryCondition.eq,
+					medicalReportExpress));
+		}
+		if (medicalReportExpress_like != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_EXPRESS, QueryCondition.like,
+					medicalReportExpress_like));
+		}
+		if (medicalReportExpress_isNull != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_EXPRESS, QueryCondition.isNull,
+					medicalReportExpress_isNull));
+		}
+		if (medicalReportExpress_isNotNull != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_EXPRESS,
+					QueryCondition.isNotNull, medicalReportExpress_isNotNull));
+		}
+		if (medicalReportExpress_in != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_EXPRESS, QueryCondition.in,
+					medicalReportExpress_in));
+		}
+		if (medicalReportExpressOrderNum != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_EXPRESS_ORDER_NUM,
+					QueryCondition.eq, medicalReportExpressOrderNum));
+		}
+		if (medicalReportExpressOrderNum_like != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_EXPRESS_ORDER_NUM,
+					QueryCondition.like, medicalReportExpressOrderNum_like));
+		}
+		if (medicalReportExpressOrderNum_isNull != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_EXPRESS_ORDER_NUM,
+					QueryCondition.isNull, medicalReportExpressOrderNum_isNull));
+		}
+		if (medicalReportExpressOrderNum_isNotNull != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_EXPRESS_ORDER_NUM,
+					QueryCondition.isNotNull,
+					medicalReportExpressOrderNum_isNotNull));
+		}
+		if (medicalReportExpressOrderNum_in != null) {
+			qc.andCondition(new QueryCondition(
+					OrderEntity.MEDICAL_REPORT_EXPRESS_ORDER_NUM,
+					QueryCondition.in, medicalReportExpressOrderNum_in));
+		}
+		if (servicePersonName != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.SERVICE_PERSON_NAME,
+					QueryCondition.eq, servicePersonName));
+		}
+		if (servicePersonName_like != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.SERVICE_PERSON_NAME,
+					QueryCondition.like, servicePersonName_like));
+		}
+		if (servicePersonName_isNull != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.SERVICE_PERSON_NAME,
+					QueryCondition.isNull, servicePersonName_isNull));
+		}
+		if (servicePersonName_isNotNull != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.SERVICE_PERSON_NAME,
+					QueryCondition.isNotNull, servicePersonName_isNotNull));
+		}
+		if (servicePersonName_in != null) {
+			qc.andCondition(new QueryCondition(OrderEntity.SERVICE_PERSON_NAME,
+					QueryCondition.in, servicePersonName_in));
 		}
 		return qc;
 	}

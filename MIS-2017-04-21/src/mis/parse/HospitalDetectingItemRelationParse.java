@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import mis.entity.HospitalDetectingItemRelationEntity;
 import mis.entity.HospitalEntity;
+import mis.entity.MedicalItemEntity;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -22,14 +23,14 @@ import com.framework.system.util.JsonUtil;
  * @Title: Parse
  * @Description: 医院体检项目关系表解析器
  * @author feng.gu
- * @date 2017-04-21 17:12:18
+ * @date 2017-04-26 22:16:09
  * @version V1.0
- * 
+ *
  */
 public class HospitalDetectingItemRelationParse {
 	private static Logger logger = Logger
 			.getLogger(HospitalDetectingItemRelationParse.class);
-	private static HospitalDetectingItemRelationParse hospitalDetectingItemRelationParse;
+	private static HospitalDetectingItemRelationParse HospitalDetectingItemRelationParse;
 	private DBManager dbManager = DBManager.getInstance();
 
 	/**
@@ -38,10 +39,10 @@ public class HospitalDetectingItemRelationParse {
 	 * @return
 	 */
 	public static HospitalDetectingItemRelationParse getInstance() {
-		if (hospitalDetectingItemRelationParse == null) {
-			hospitalDetectingItemRelationParse = new HospitalDetectingItemRelationParse();
+		if (HospitalDetectingItemRelationParse == null) {
+			HospitalDetectingItemRelationParse = new HospitalDetectingItemRelationParse();
 		}
-		return hospitalDetectingItemRelationParse;
+		return HospitalDetectingItemRelationParse;
 	}
 
 	public Map<String, Object> parse(int type, String command, String reqStr,
@@ -64,46 +65,113 @@ public class HospitalDetectingItemRelationParse {
 		Map<String, Object> parseMap = new HashMap<String, Object>();
 		try {
 			String actionReturn = null;
-			HospitalDetectingItemRelationEntity hospitalDetectingItemRelationReturn = null;
-			List<HospitalDetectingItemRelationEntity> hospitalDetectingItemRelationListReturn = null;
+			HospitalDetectingItemRelationEntity HospitalDetectingItemRelationReturn = null;
+			List<HospitalDetectingItemRelationEntity> HospitalDetectingItemRelationListReturn = null;
 			Integer idReturn = null;
 			Map<String, Object> queryMapReturn = null;
 			int pagenoReturn = 1;
 			int pagesizeReturn = 10;
 			List<OrderVO> orderListReturn = null;
 
+			Boolean parentHospitalDetectingItemRelationShowReturn = false;
+			Boolean delParentHospitalDetectingItemRelationReturn = false;
+			Boolean delParentHospitalDetectingItemRelationListReturn = false;
+			Boolean childHospitalDetectingItemRelationListShowReturn = false;
+			Boolean delChildHospitalDetectingItemRelationListReturn = false;
 			Boolean hospitalEntityShowReturn = false;
 			Boolean delHospitalEntityReturn = false;
+			Boolean medicalItemShowReturn = false;
+			Boolean delMedicalItemReturn = false;
 
 			// json
 			Map reqParams = JsonUtil.getMap4Json(reqStr);
 			JSONObject contentreq = (JSONObject) reqParams.get("content");
-			if ("ADD_HOSPITAL_DETECTING_ITEM_RELATION_INFO_REQUEST"
+			if ("ADD__HOSPITAL_DETECTING_ITEM_RELATION_INFO_REQUEST"
 					.equals(command)) {
 				actionReturn = "save";
-				hospitalDetectingItemRelationReturn = new HospitalDetectingItemRelationEntity();
+				HospitalDetectingItemRelationReturn = new HospitalDetectingItemRelationEntity();
 				if (true) {
 					if (contentreq != null) {
 						Integer id = (Integer) contentreq.get("id");
 						if (id != null) {
-							hospitalDetectingItemRelationReturn = (HospitalDetectingItemRelationEntity) dbManager
+							HospitalDetectingItemRelationReturn = (HospitalDetectingItemRelationEntity) dbManager
 									.getById(
 											id,
 											HospitalDetectingItemRelationEntity.class);
-							hospitalDetectingItemRelationReturn.setId(id);
+							HospitalDetectingItemRelationReturn.setId(id);
 						}
 						Integer hospitalId = (Integer) contentreq
 								.get("hospitalId");
 						if (hospitalId != null) {
-							hospitalDetectingItemRelationReturn
+							HospitalDetectingItemRelationReturn
 									.setHospitalId(hospitalId);
 						}
 						Integer detectingItem = (Integer) contentreq
 								.get("detectingItem");
 						if (detectingItem != null) {
-							hospitalDetectingItemRelationReturn
+							HospitalDetectingItemRelationReturn
 									.setDetectingItem(detectingItem);
 						}
+					}
+				}
+				if (true) {
+					Object parentHospitalDetectingItemRelation = contentreq
+							.get("parentHospitalDetectingItemRelation");
+					if (parentHospitalDetectingItemRelation != null) {
+						JSONObject obj = (JSONObject) parentHospitalDetectingItemRelation;
+						if (obj != null) {
+							HospitalDetectingItemRelationEntity entity = new HospitalDetectingItemRelationEntity();
+
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							Integer hospitalId = (Integer) obj
+									.get("hospitalId");
+							if (hospitalId != null) {
+								entity.setHospitalId(hospitalId);
+							}
+							Integer detectingItem = (Integer) obj
+									.get("detectingItem");
+							if (detectingItem != null) {
+								entity.setDetectingItem(detectingItem);
+							}
+						}
+					}
+				}
+				if (true) {
+					Object childHospitalDetectingItemRelationList = contentreq
+							.get("childHospitalDetectingItemRelationList");
+					if (childHospitalDetectingItemRelationList != null) {
+						JSONArray list = (JSONArray) childHospitalDetectingItemRelationList;
+						if (list != null) {
+							List<HospitalDetectingItemRelationEntity> entityList = new ArrayList<HospitalDetectingItemRelationEntity>();
+							for (int i = 0; i < list.size(); i++) {
+								JSONObject obj = list.getJSONObject(i);
+								if (obj != null) {
+									HospitalDetectingItemRelationEntity entity = new HospitalDetectingItemRelationEntity();
+
+									Integer id = (Integer) obj.get("id");
+									if (id != null) {
+										entity.setId(id);
+									}
+									Integer hospitalId = (Integer) obj
+											.get("hospitalId");
+									if (hospitalId != null) {
+										entity.setHospitalId(hospitalId);
+									}
+									Integer detectingItem = (Integer) obj
+											.get("detectingItem");
+									if (detectingItem != null) {
+										entity.setDetectingItem(detectingItem);
+									}
+									entityList.add(entity);
+								}
+							}
+							HospitalDetectingItemRelationReturn
+									.setChildHospitalDetectingItemRelationList(entityList);
+						}
+
 					}
 				}
 				if (true) {
@@ -133,25 +201,96 @@ public class HospitalDetectingItemRelationParse {
 							if (addr != null) {
 								entity.setAddr(addr);
 							}
-							hospitalDetectingItemRelationReturn
+							HospitalDetectingItemRelationReturn
 									.setHospitalEntity(entity);
 						}
 					}
 				}
-			} else if ("QUERY_HOSPITAL_DETECTING_ITEM_RELATION_INFO_REQUEST"
+				if (true) {
+					Object medicalItem = contentreq.get("medicalItem");
+					if (medicalItem != null) {
+						JSONObject obj = (JSONObject) medicalItem;
+						if (obj != null) {
+							MedicalItemEntity entity = new MedicalItemEntity();
+							Integer id = (Integer) obj.get("id");
+							if (id != null) {
+								entity.setId(id);
+							}
+							String itemName = (String) obj.get("itemName");
+							if (itemName != null) {
+								entity.setItemName(itemName);
+							}
+							Integer category = (Integer) obj.get("category");
+							if (category != null) {
+								entity.setCategory(category);
+							}
+							String testWay = (String) obj.get("testWay");
+							if (testWay != null) {
+								entity.setTestWay(testWay);
+							}
+							String testPurpose = (String) obj
+									.get("testPurpose");
+							if (testPurpose != null) {
+								entity.setTestPurpose(testPurpose);
+							}
+							String selectDes = (String) obj.get("selectDes");
+							if (selectDes != null) {
+								entity.setSelectDes(selectDes);
+							}
+							Double price = JsonUtil.getJSONDouble(obj, "price");
+							if (price != null) {
+								entity.setPrice(price);
+							}
+							String des = (String) obj.get("des");
+							if (des != null) {
+								entity.setDes(des);
+							}
+							String mattersNeedAttention = (String) obj
+									.get("mattersNeedAttention");
+							if (mattersNeedAttention != null) {
+								entity.setMattersNeedAttention(mattersNeedAttention);
+							}
+							String instructions = (String) obj
+									.get("instructions");
+							if (instructions != null) {
+								entity.setInstructions(instructions);
+							}
+							HospitalDetectingItemRelationReturn
+									.setMedicalItem(entity);
+						}
+					}
+				}
+			} else if ("QUERY__HOSPITAL_DETECTING_ITEM_RELATION_INFO_REQUEST"
 					.equals(command)) {
 				actionReturn = "getById";
 				if (true) {
 					if (contentreq != null) {
 						idReturn = (Integer) contentreq.get("id");
+						String parentHospitalDetectingItemRelationShow = (String) contentreq
+								.get("parentHospitalDetectingItemRelationShow");
+						if ("true"
+								.equals(parentHospitalDetectingItemRelationShow)) {
+							parentHospitalDetectingItemRelationShowReturn = true;
+						}
+						String childHospitalDetectingItemRelationListShow = (String) contentreq
+								.get("childHospitalDetectingItemRelationListShow");
+						if ("true"
+								.equals(childHospitalDetectingItemRelationListShow)) {
+							childHospitalDetectingItemRelationListShowReturn = true;
+						}
 						String hospitalEntityShow = (String) contentreq
 								.get("hospitalEntityShow");
 						if ("true".equals(hospitalEntityShow)) {
 							hospitalEntityShowReturn = true;
 						}
+						String medicalItemShow = (String) contentreq
+								.get("medicalItemShow");
+						if ("true".equals(medicalItemShow)) {
+							medicalItemShowReturn = true;
+						}
 					}
 				}
-			} else if ("QUERY_HOSPITAL_DETECTING_ITEM_RELATION_LIST_REQUEST"
+			} else if ("QUERY__HOSPITAL_DETECTING_ITEM_RELATION_LIST_REQUEST"
 					.equals(command)) {
 				actionReturn = "getListByCondition";
 				if (true) {
@@ -247,10 +386,27 @@ public class HospitalDetectingItemRelationParse {
 							queryMapReturn.put("detectingItem", detectingItem);
 						}
 
+						String parentHospitalDetectingItemRelationShow = (String) contentreq
+								.get("parentHospitalDetectingItemRelationShow");
+						if ("true"
+								.equals(parentHospitalDetectingItemRelationShow)) {
+							parentHospitalDetectingItemRelationShowReturn = true;
+						}
+						String childHospitalDetectingItemRelationListShow = (String) contentreq
+								.get("childHospitalDetectingItemRelationListShow");
+						if ("true"
+								.equals(childHospitalDetectingItemRelationListShow)) {
+							childHospitalDetectingItemRelationListShowReturn = true;
+						}
 						String hospitalEntityShow = (String) contentreq
 								.get("hospitalEntityShow");
 						if ("true".equals(hospitalEntityShow)) {
 							hospitalEntityShowReturn = true;
+						}
+						String medicalItemShow = (String) contentreq
+								.get("medicalItemShow");
+						if ("true".equals(medicalItemShow)) {
+							medicalItemShowReturn = true;
 						}
 					}
 					JSONObject pagereq = (JSONObject) reqParams.get("page");
@@ -281,20 +437,37 @@ public class HospitalDetectingItemRelationParse {
 						}
 					}
 				}
-			} else if ("DEL_HOSPITAL_DETECTING_ITEM_RELATION_INFO_REQUEST"
+			} else if ("DEL__HOSPITAL_DETECTING_ITEM_RELATION_INFO_REQUEST"
 					.equals(command)) {
 				actionReturn = "del";
 				if (true) {
 					if (contentreq != null) {
 						idReturn = (Integer) contentreq.get("id");
+						String delParentHospitalDetectingItemRelation = (String) contentreq
+								.get("delParentHospitalDetectingItemRelation");
+						if ("true"
+								.equals(delParentHospitalDetectingItemRelation)) {
+							delParentHospitalDetectingItemRelationReturn = true;
+						}
+						String delChildHospitalDetectingItemRelationList = (String) contentreq
+								.get("delChildHospitalDetectingItemRelationList");
+						if ("true"
+								.equals(delChildHospitalDetectingItemRelationList)) {
+							delChildHospitalDetectingItemRelationListReturn = true;
+						}
 						String delHospitalEntity = (String) contentreq
 								.get("delHospitalEntity");
 						if ("true".equals(delHospitalEntity)) {
 							delHospitalEntityReturn = true;
 						}
+						String delMedicalItem = (String) contentreq
+								.get("delMedicalItem");
+						if ("true".equals(delMedicalItem)) {
+							delMedicalItemReturn = true;
+						}
 					}
 				}
-			} else if ("DEL_HOSPITAL_DETECTING_ITEM_RELATION_LIST_REQUEST"
+			} else if ("DEL__HOSPITAL_DETECTING_ITEM_RELATION_LIST_REQUEST"
 					.equals(command)) {
 				actionReturn = "delList";
 				if (true) {
@@ -390,10 +563,27 @@ public class HospitalDetectingItemRelationParse {
 							queryMapReturn.put("detectingItem", detectingItem);
 						}
 
+						String delParentHospitalDetectingItemRelation = (String) contentreq
+								.get("delParentHospitalDetectingItemRelation");
+						if ("true"
+								.equals(delParentHospitalDetectingItemRelation)) {
+							delParentHospitalDetectingItemRelationReturn = true;
+						}
+						String delChildHospitalDetectingItemRelationList = (String) contentreq
+								.get("delChildHospitalDetectingItemRelationList");
+						if ("true"
+								.equals(delChildHospitalDetectingItemRelationList)) {
+							delChildHospitalDetectingItemRelationListReturn = true;
+						}
 						String delHospitalEntity = (String) contentreq
 								.get("delHospitalEntity");
 						if ("true".equals(delHospitalEntity)) {
 							delHospitalEntityReturn = true;
+						}
+						String delMedicalItem = (String) contentreq
+								.get("delMedicalItem");
+						if ("true".equals(delMedicalItem)) {
+							delMedicalItemReturn = true;
 						}
 					}
 					JSONObject pagereq = (JSONObject) reqParams.get("page");
@@ -417,14 +607,14 @@ public class HospitalDetectingItemRelationParse {
 			if (actionReturn != null && !"".equals(actionReturn)) {
 				parseMap.put("action", actionReturn);
 			}
-			if (hospitalDetectingItemRelationReturn != null) {
-				parseMap.put("hospitalDetectingItemRelation",
-						hospitalDetectingItemRelationReturn);
+			if (HospitalDetectingItemRelationReturn != null) {
+				parseMap.put("HospitalDetectingItemRelation",
+						HospitalDetectingItemRelationReturn);
 			}
-			if (hospitalDetectingItemRelationListReturn != null
-					&& hospitalDetectingItemRelationListReturn.size() > 0) {
-				parseMap.put("hospitalDetectingItemRelationList",
-						hospitalDetectingItemRelationListReturn);
+			if (HospitalDetectingItemRelationListReturn != null
+					&& HospitalDetectingItemRelationListReturn.size() > 0) {
+				parseMap.put("HospitalDetectingItemRelationList",
+						HospitalDetectingItemRelationListReturn);
 			}
 			if (idReturn != null) {
 				parseMap.put("id", idReturn);
@@ -442,11 +632,37 @@ public class HospitalDetectingItemRelationParse {
 				parseMap.put("pagesize", pagesizeReturn);
 			}
 
+			if (parentHospitalDetectingItemRelationShowReturn != null) {
+				parseMap.put("parentHospitalDetectingItemRelationShow",
+						parentHospitalDetectingItemRelationShowReturn);
+			}
+			if (delParentHospitalDetectingItemRelationReturn != null) {
+				parseMap.put("delParentHospitalDetectingItemRelation",
+						delParentHospitalDetectingItemRelationReturn);
+			}
+			if (delParentHospitalDetectingItemRelationListReturn != null) {
+				parseMap.put("delParentHospitalDetectingItemRelationList",
+						delParentHospitalDetectingItemRelationListReturn);
+			}
+			if (childHospitalDetectingItemRelationListShowReturn != null) {
+				parseMap.put("childHospitalDetectingItemRelationListShow",
+						childHospitalDetectingItemRelationListShowReturn);
+			}
+			if (delChildHospitalDetectingItemRelationListReturn != null) {
+				parseMap.put("delChildHospitalDetectingItemRelationList",
+						delChildHospitalDetectingItemRelationListReturn);
+			}
 			if (hospitalEntityShowReturn != null) {
 				parseMap.put("hospitalEntityShow", hospitalEntityShowReturn);
 			}
 			if (delHospitalEntityReturn != null) {
 				parseMap.put("delHospitalEntity", delHospitalEntityReturn);
+			}
+			if (medicalItemShowReturn != null) {
+				parseMap.put("medicalItemShow", medicalItemShowReturn);
+			}
+			if (delMedicalItemReturn != null) {
+				parseMap.put("delMedicalItem", delMedicalItemReturn);
 			}
 
 		} catch (Exception e) {

@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import mis.entity.AreaEntity;
+import mis.entity.HospitalDetectingItemRelationEntity;
 import mis.entity.HospitalEntity;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -77,6 +78,7 @@ public class HospitalParse {
 			// json
 			Map reqParams = JsonUtil.getMap4Json(reqStr);
 			JSONObject contentreq = (JSONObject) reqParams.get("content");
+			ArrayList<HospitalDetectingItemRelationEntity> mil = new ArrayList<HospitalDetectingItemRelationEntity>();
 			if ("ADD_HOSPITAL_INFO_REQUEST".equals(command)) {
 				actionReturn = "save";
 				hospitalReturn = new HospitalEntity();
@@ -113,7 +115,8 @@ public class HospitalParse {
 						JSONObject obj = (JSONObject) areaEntity;
 						if (obj != null) {
 							AreaEntity entity = new AreaEntity();
-							Integer id = (Integer) obj.get("id");
+							String str_id = (String)parseMap.get("id");
+							Integer id = (str_id != null ? Integer.valueOf(str_id.toString()) : null);
 							if (id != null) {
 								entity.setId(id);
 							}
@@ -128,6 +131,21 @@ public class HospitalParse {
 							hospitalReturn.setAreaEntity(entity);
 						}
 					}
+				}
+				if (true) {
+					/** 这里用来得到要保存到数据库的体检项目的list */
+					Object medicalItemList = reqParams.get("medicalItemList");
+					if (medicalItemList != null) {
+						String id_str = medicalItemList.toString();
+						String[] id_arr = id_str.split(",");
+						for (int index = 0; index < id_arr.length; index++) {
+							HospitalDetectingItemRelationEntity _temp_ = new HospitalDetectingItemRelationEntity();
+							_temp_.setHospitalId((contentreq.get("id") != null ? Integer.valueOf(contentreq.get("id").toString()) : 0));
+							_temp_.setDetectingItem((Integer.valueOf(id_arr[index])));
+							mil.add(_temp_);
+						}
+					}
+					parseMap.put("hospitalMedicalItemList", mil);
 				}
 			} else if ("QUERY_HOSPITAL_INFO_REQUEST".equals(command)) {
 				actionReturn = "getById";

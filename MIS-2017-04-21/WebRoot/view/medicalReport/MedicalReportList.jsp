@@ -323,7 +323,7 @@ function go2page(pagenumber){
 		reqmsg += "'order':[{'column':'id','type':'desc'}],";
 	}
 	
-	reqmsg += "'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{";
+	reqmsg += "'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{'hospitalShow':'true',";
 	
 	if (medicalReportNum != null && medicalReportNum != "") {
 		reqmsg += "\"medicalReportNum_like\":\"" + medicalReportNum + "\",";
@@ -366,7 +366,11 @@ function changeData(data){
 		    htmlcode += "<td>" + item.medicalReportNum + "</td>";				
 		    htmlcode += "<td>" + item.medicalPersonName + "</td>";	
 		    htmlcode += "<td>" + item.medicalPersonCardNum + "</td>";
-		    htmlcode += "<td>" + item.medicalHospital + "</td>";
+		    if (item.hospital != null) {
+		    	htmlcode += "<td>" + item.hospital.hospitalName + "</td>";
+		    } else {
+		    	htmlcode += "<td></td>";
+		    }
 		    htmlcode += "<td>" + formateTime(item.medicalReportCreateTime) + "</td>";
 			htmlcode += "<td><div class=\"btn-group\">";
 			htmlcode += "<button class=\"btn btn-default btn-xs\" type=\"button\">操作</button>";
@@ -375,7 +379,7 @@ function changeData(data){
 			htmlcode += "<span class=\"sr-only\">Toggle Dropdown</span>";
 			htmlcode += "</button>";
 			htmlcode += "<ul role=\"menu\" class=\"dropdown-menu pull-right\">";
-			htmlcode += "<li><a href=\""+headUrl+"/medicalReport.do?medicalReportDeatil&id="+item.id+"\" target=\"_blank\">查看</a></li>";
+			htmlcode += "<li><a href=\""+headUrl+"/medicalReport.do?medicalReportDetail&id="+item.id+"\" target=\"_blank\">查看</a></li>";
 			htmlcode += "<li onclick=\"del("+item.id+")\"><a href=\"###\">删除</a></li>";
 			htmlcode += "</ul></div></td>";
 			htmlcode += "</tr>";

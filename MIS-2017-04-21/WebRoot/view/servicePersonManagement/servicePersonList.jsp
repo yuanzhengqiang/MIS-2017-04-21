@@ -631,7 +631,7 @@
 	
 	//保存服务人员信息
 	function save() {
-		var id = $("#wechatCustomerId").val();
+		var id = $("#servicePersonId").val();
 		var namePopup = $.trim($("#namePopup").val());
 		var genderPopup = $.trim($("#genderPopup").val());
 		var birthdayPopup = $.trim($("#birthdayPopup").val());
@@ -668,6 +668,7 @@
 	          },
 	          success : function(data) {
 	              if (data.des == "success") {
+	              	alert("保存服务人员成功");
 	              	$("#cancel").click();
 	              	go2page(currentshownpage);
 	              } else {

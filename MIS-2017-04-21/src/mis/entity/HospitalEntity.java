@@ -1,5 +1,8 @@
 package mis.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.framework.system.db.dao.annotation.ColumnDescription;
 import com.framework.system.db.dao.annotation.RelationlDescription;
 import com.framework.system.db.dao.annotation.TableDescription;
@@ -20,6 +23,9 @@ public class HospitalEntity implements java.io.Serializable {
 	public final static String AREA_ID = "AREA_ID";
 	public final static String ADDR = "ADDR";
 
+	
+	List<MedicalItemEntity> medicalItemlist = new ArrayList<MedicalItemEntity>();
+	
 	/**
 	 * 主键
 	 */
@@ -86,6 +92,16 @@ public class HospitalEntity implements java.io.Serializable {
 		this.addr = addr;
 	}
 
+	
+	// 这里用来保存医院对应的体检项目
+	public List<MedicalItemEntity> getMedicalItemlist() {
+		return this.medicalItemlist;
+	}
+
+	public void setMedicalItemlist(List<MedicalItemEntity> medicalItemlist) {
+		this.medicalItemlist = medicalItemlist;
+	}
+	
 	/**
 	 * 关系描述
 	 */

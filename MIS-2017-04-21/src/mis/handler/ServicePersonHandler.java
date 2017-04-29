@@ -10,6 +10,7 @@ import mis.entity.ServicePersonEntity;
 import mis.pack.ServicePersonPack;
 import mis.parse.ServicePersonParse;
 import mis.service.ServicePersonService;
+import mis.utils.PicUtils;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
@@ -57,6 +58,9 @@ public class ServicePersonHandler extends BaseHandler {
 		return servicePersonHandler;
 	}
 
+
+	
+	
 	/**
 	 * 
 	 * @param type
@@ -67,6 +71,7 @@ public class ServicePersonHandler extends BaseHandler {
 	 * @param request
 	 * @param response
 	 */
+	@SuppressWarnings("unchecked")
 	public String doHandler(int type, String command, String reqStr,
 			HttpServletRequest request, HttpServletResponse response) {
 		logger.debug("请求消息：" + reqStr);
@@ -90,6 +95,26 @@ public class ServicePersonHandler extends BaseHandler {
 			// 业务处理
 			Object result = null;
 			if ("save".equals(action)) {
+				String headportrait_data = servicePerson.getHeadPortrait();
+				String qr_code_data = servicePerson.getWechatQrCode();
+				String pic_headportrait_path = "";
+				String pic_wechatqrcode_path = "";
+				if (!headportrait_data.matches("(http|https)://.*?")) {
+					servicePerson.setHeadPortrait(pic_headportrait_path);
+					servicePerson.setWechatQrCode(pic_wechatqrcode_path);
+					result = servicePersonService.save(servicePerson);
+					String pic_name = "HeadPortrait_" + servicePerson.getId() + ".jpg";
+					pic_headportrait_path = PicUtils.savePhoto(headportrait_data, "headportrait", pic_name);
+					servicePerson.setHeadPortrait(pic_headportrait_path);
+				}
+				if (!qr_code_data.matches("(http|https)://.*?")) {
+					servicePerson.setHeadPortrait(pic_headportrait_path);
+					servicePerson.setWechatQrCode(pic_wechatqrcode_path);
+					result = servicePersonService.save(servicePerson);
+					String pic_name = "WechatQrCode_" + servicePerson.getId() + ".jpg";
+					pic_wechatqrcode_path = PicUtils.savePhoto(qr_code_data, "wechatqrcode", pic_name);
+					servicePerson.setWechatQrCode(pic_wechatqrcode_path);
+				}
 				result = servicePersonService.save(servicePerson);
 			} else if ("saveList".equals(action)) {
 				result = servicePersonService.saveList(servicePersonList);
