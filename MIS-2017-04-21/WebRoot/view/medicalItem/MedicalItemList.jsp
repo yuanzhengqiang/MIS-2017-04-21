@@ -64,11 +64,11 @@
 								<div class="dataTables_wrapper form-inline">
 								    <!-- 查询框开始 -->
 									<div class="row">
-										<div class="col-xs-6 col-sm-2 text-center" style="vertical-align: middle; height: 34px; line-height: 34px;margin-bottom:5px;">
+										<div class="col-xs-6 col-sm-2 text-left" style="vertical-align: middle; height: 34px; line-height: 34px;margin-bottom:5px;">
                       						<label>项目名称</label>
                     					</div>
                     					<div class="col-xs-6 col-sm-4" style="margin-bottom:5px;">
-                       						<input id="queryItemName" class="form-control" type="text" value="" autocomplete="off">
+                       						<input id="queryItemName" class="form-control" type="text" value="" autocomplete="off" style="width:100%">
                     					</div>
 									</div>
 									<!-- 查询框结束 -->
