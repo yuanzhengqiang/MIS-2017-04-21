@@ -14,11 +14,11 @@ public class CreateEntity {
 		// -----S_DEPARTMENT-----
 		if (true) {
 			ReadTable r = new ReadTable();
-			String tableName = "s_wechat_customer";
+			String tableName = "s_order";
 			String databaseName = "physical_examination_sys";
 			String bussiPackage = "test";
-			String tableInfo = "微信客户表";
-			String entityName = "wechatCustomer";
+			String tableInfo = "医院体检项目关系表";
+			String entityName = "order";
 			CodeGenerate c = new CodeGenerate();
 
 			// 1.字段信息
@@ -35,24 +35,32 @@ public class CreateEntity {
 			// RelationInfo relation = RelationInfo.addParentToOne();
 			// relationList.add(relation);
 			// }
-			// if (true) {
-			// String joinTableName = "s_order";
-			// String joinEntityName = "orderEntity";
-			// String joinColumn = "orderEntity";
-			// RelationInfo relation = RelationInfo.addManyToOne(
-			// joinTableName, joinEntityName, joinColumn,
-			// databaseName, r);
-			// relationList.add(relation);
-			// }
-			// if (true) {
-			// String joinTableName = "s_medical_item";
-			// String joinEntityName = "medicalItem";
-			// String joinColumn = "medicalItem";
-			// RelationInfo relation = RelationInfo.addManyToOne(
-			// joinTableName, joinEntityName, joinColumn,
-			// databaseName, r);
-			// relationList.add(relation);
-			// }
+			if (true) {
+				String joinTableName = "s_medical_report";
+				String joinEntityName = "medicalReport";
+				String joinColumn = "medicalReport";
+				RelationInfo relation = RelationInfo.addManyToOne(
+						joinTableName, joinEntityName, joinColumn,
+						databaseName, r);
+				relationList.add(relation);
+			}
+			if (true) {
+				String joinTableName = "s_service_person";	// 服务人员
+				String joinEntityName = "servicePerson";
+				String joinColumn = "servicePerson";
+				RelationInfo relation = RelationInfo.addManyToOne(
+						joinTableName, joinEntityName, joinColumn,
+						databaseName, r);
+				relationList.add(relation);
+			}
+//			if (true) {
+//				String joinTableName = "s_medical_item";
+//				String joinEntityName = "medicalItem";
+//				String joinColumn = "medicalItem";
+//				RelationInfo relation = RelationInfo.addOneToMany(
+//						joinTableName, joinEntityName, databaseName, r);
+//				relationList.add(relation);
+//			}
 
 			// 4，生成代码
 			c.generatorCodeMessage(columntList, entityInfo, relationList);
@@ -60,11 +68,11 @@ public class CreateEntity {
 		// //----S_PERSON_INFO----
 		// if(true){
 		// ReadTable r = new ReadTable();
-		// String tableName = "S_PERSON_INFO";
-		// String databaseName="WHF-2016-04-18";
-		// String bussiPackage="catfly";
-		// String tableInfo="用户个人信息";
-		// String entityName="personInfo";
+		// String tableName = "s_medical_item";
+		// String databaseName="physical_examination_sys";
+		// String bussiPackage="test";
+		// String tableInfo="体检项目";
+		// String entityName="medicalItem";
 		// CodeGenerate c= new CodeGenerate();
 		//
 		// //1.字段信息
@@ -77,23 +85,6 @@ public class CreateEntity {
 		//
 		// //3.映射关系
 		// List<RelationInfo> relationList = new ArrayList<RelationInfo>();
-		// if(true){
-		// String joinTableName="S_USER";
-		// String joinEntityName = "user";
-		// String joinColumn = "createUser";
-		// RelationInfo relation =
-		// RelationInfo.addManyToOne(joinTableName,joinEntityName,joinColumn,databaseName,r);
-		// relationList.add(relation);
-		// }
-		// if(true){
-		// String joinTableName="S_USER";
-		// String joinEntityName = "user";
-		// String joinColumn = "updateUser";
-		// RelationInfo relation =
-		// RelationInfo.addManyToOne(joinTableName,joinEntityName,joinColumn,databaseName,r);
-		// relationList.add(relation);
-		// }
-		//
 		// //4，生成代码
 		// c.generatorCodeMessage(columntList, entityInfo,relationList);
 		// }

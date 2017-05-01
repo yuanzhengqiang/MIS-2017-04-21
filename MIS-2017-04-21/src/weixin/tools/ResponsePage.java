@@ -2,6 +2,7 @@ package weixin.tools;
 
 import javax.servlet.http.HttpServletRequest;
 
+
 public class ResponsePage {
 	/**
 	 *请求返回信息页面

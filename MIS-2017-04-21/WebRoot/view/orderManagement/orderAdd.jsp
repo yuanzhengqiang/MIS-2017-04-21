@@ -62,21 +62,22 @@
 							<div class="form-group">
 								<div class="row">
 									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">订单编号</div>
-									<div class="col-xs-8 col-sm-10 col-md-10 col-lg-11" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<label style="height:34px;line-height: 34px;">无</label>
 									</div>
+									<div style="clear:both;"></div>
 									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">总价格</div>
-									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="totalPrice">
 									</div>
 									<div style="clear:both;"></div>
 									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">服务费</div>
-									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="servicePrice">
 									</div>
 									<div style="clear:both;"></div>
 									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">是否已付款</div>
-									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<select class="form-control" id="isPay" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 											<option value="0">未付款</option>
 											<option value="1">已付款</option>
@@ -84,13 +85,13 @@
 									</div>
 									<div style="clear:both;"></div>
 									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">下单客户</div>
-									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="orderCustomer">
 									</div>
 									<div style="clear:both;"></div>
 									<div class="col-sm-2 col-md-2 col-lg-1" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">下单时间</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
-										<div class="input-group date datetime" data-min-view="1" data-date-format="yyyy-mm-dd hh:ii:ss" style="margin-bottom: 0px;">
+										<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
 											<span class="input-group-addon btn btn-primary">
 												<span class="glyphicon glyphicon-th"></span>
 											</span>
@@ -104,7 +105,7 @@
 									</div>
 									<div style="clear:both;"></div>
 									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">体检医院</div>
-									<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<select class="form-control" id="medicalHospital" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 											
 										</select>
@@ -130,6 +131,45 @@
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="contactWay">
 									</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">体检时间</div>
+									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+										<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
+											<span class="input-group-addon btn btn-primary">
+												<span class="glyphicon glyphicon-th"></span>
+											</span>
+											<input class="form-control" size="16" value="" readonly="" type="text" id="medicalCompleteTime" placeholder="体检时间">
+											<span class="input-group-btn">
+												<button class="btn btn-danger deleteThisTime" type="button">
+													<span class="fa fa-times"></span>
+												</button>
+											</span>
+										</div>
+									</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">报告完成时间</div>
+									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+										<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
+											<span class="input-group-addon btn btn-primary">
+												<span class="glyphicon glyphicon-th"></span>
+											</span>
+											<input class="form-control" size="16" value="" readonly="" type="text" id="expectReportCompleteTime" placeholder="报告完成时间">
+											<span class="input-group-btn">
+												<button class="btn btn-danger deleteThisTime" type="button">
+													<span class="fa fa-times"></span>
+												</button>
+											</span>
+										</div>
+									</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;">订单状态</div>
+									<div class="col-sm-4 col-md-4 col-lg-2">
+										<select class="form-control" id="status" style="margin-bottom:5px;height: 34px;line-height: 34px;">
+											<option value="0"></option>
+											<option value="1">下单成功</option>
+											<option value="2">体检完成</option>
+											<option value="3">生成报告</option>
+											<option value="4">取消</option>
+										</select>
+									</div>
+									<div style="clear:both;"></div>
 									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">报告状态</div>
 									<div class="col-sm-4 col-md-4 col-lg-2">
 										<select class="form-control" id="medicalReportStatus" style="margin-bottom:5px;height: 34px;line-height: 34px;">
@@ -162,9 +202,9 @@
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="medicalReportExpressOrderNum">
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">预计体检时间</div>
+									<!-- <div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">预计体检时间</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
-										<div class="input-group date datetime" data-min-view="1" data-date-format="yyyy-mm-dd hh:ii:ss" style="margin-bottom: 0px;">
+										<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
 											<span class="input-group-addon btn btn-primary">
 												<span class="glyphicon glyphicon-th"></span>
 											</span>
@@ -175,45 +215,7 @@
 												</button>
 											</span>
 										</div>
-									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">体检完成时间</div>
-									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
-										<div class="input-group date datetime" data-min-view="1" data-date-format="yyyy-mm-dd hh:ii:ss" style="margin-bottom: 0px;">
-											<span class="input-group-addon btn btn-primary">
-												<span class="glyphicon glyphicon-th"></span>
-											</span>
-											<input class="form-control" size="16" value="" readonly="" type="text" id="medicalCompleteTime" placeholder="预计体检时间">
-											<span class="input-group-btn">
-												<button class="btn btn-danger deleteThisTime" type="button">
-													<span class="fa fa-times"></span>
-												</button>
-											</span>
-										</div>
-									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">预计报告完成时间</div>
-									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
-										<div class="input-group date datetime" data-min-view="1" data-date-format="yyyy-mm-dd hh:ii:ss" style="margin-bottom: 0px;">
-											<span class="input-group-addon btn btn-primary">
-												<span class="glyphicon glyphicon-th"></span>
-											</span>
-											<input class="form-control" size="16" value="" readonly="" type="text" id="expectReportCompleteTime" placeholder="预计报告完成时间">
-											<span class="input-group-btn">
-												<button class="btn btn-danger deleteThisTime" type="button">
-													<span class="fa fa-times"></span>
-												</button>
-											</span>
-										</div>
-									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;">状态</div>
-									<div class="col-sm-4 col-md-4 col-lg-2">
-										<select class="form-control" id="status" style="margin-bottom:5px;height: 34px;line-height: 34px;">
-											<option value="0"></option>
-											<option value="1">下单成功</option>
-											<option value="2">体检完成</option>
-											<option value="3">生成报告</option>
-											<option value="4">取消</option>
-										</select>
-									</div>
+									</div> -->
 								</div>
 							</div>
 							<div class="form-group">
@@ -459,7 +461,7 @@
     	var orderCustomer = $.trim($("#orderCustomer").val());	
     	var orderTime = $("#orderTime").val();
     	if (orderTime != null && orderTime != "") {
-			orderTime = formateTime6(orderTime);
+			orderTime = formateTime7(orderTime) + "000000";
 		} else {
 			orderTime = "";
 		}
@@ -496,21 +498,21 @@
 		var reportSendPersonContactWay = $.trim($("#reportSendPersonContactWay").val());
 		var medicalReportExpress = $.trim($("#medicalReportExpress").val());
 		var medicalReportExpressOrderNum = $.trim($("#medicalReportExpressOrderNum").val());
-		var expectMedicalTime = $("#expectMedicalTime").val();
-		if (expectMedicalTime != null && expectMedicalTime != "") {
-			expectMedicalTime = formateTime6(expectMedicalTime);
-		} else {
-			expectMedicalTime = "";
-		}
+		//var expectMedicalTime = $("#expectMedicalTime").val();
+		//if (expectMedicalTime != null && expectMedicalTime != "") {
+		//	expectMedicalTime = formateTime7(expectMedicalTime) + "000000";
+		//} else {
+		//	expectMedicalTime = "";
+		//}
 		var medicalCompleteTime = $("#medicalCompleteTime").val();
 		if (medicalCompleteTime != null && medicalCompleteTime != "") {
-			medicalCompleteTime = formateTime6(medicalCompleteTime);
+			medicalCompleteTime = formateTime7(medicalCompleteTime) + "000000";
 		} else {
 			medicalCompleteTime = "";
 		}
 		var expectReportCompleteTime = $("#expectReportCompleteTime").val();
 		if (expectReportCompleteTime != null && expectReportCompleteTime != "") {
-			expectReportCompleteTime = formateTime6(expectReportCompleteTime);
+			expectReportCompleteTime = formateTime7(expectReportCompleteTime) + "000000";
 		} else {
 			expectReportCompleteTime = "";
 		}
@@ -540,7 +542,7 @@
 		reqmsg += "'reportSendPersonContactWay':'" + reportSendPersonContactWay + "',";
 		reqmsg += "'medicalReportExpress':'" + medicalReportExpress + "',";
 		reqmsg += "'medicalReportExpressOrderNum':'" + medicalReportExpressOrderNum + "',";
-		reqmsg += "'expectMedicalTime':'" + expectMedicalTime + "',";
+		//reqmsg += "'expectMedicalTime':'" + expectMedicalTime + "',";
 		reqmsg += "'medicalCompleteTime':'" + medicalCompleteTime + "',";
 		reqmsg += "'expectReportCompleteTime':'" + expectReportCompleteTime + "',";
 		reqmsg += "'status':" + status + ",";
@@ -550,7 +552,7 @@
 		}
 		
 		reqmsg += "}}";
-	console.log(reqmsg);
+
 		jQuery.ajax({
        		type : "post",
        		async:true,
