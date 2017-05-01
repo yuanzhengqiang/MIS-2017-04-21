@@ -106,73 +106,80 @@
 			<div class="block-flat">
 				<div class="row" style="margin-top:0">
 					<div class="col-sm-12">
-						<form class="form-horizontal group-border-dashed">
-							<div class="form-group">
-								<div class="row">
-									<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 15px;padding-right: 0px;">报告编号</div>
-									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
-										<input type="text" class="form-control" id="reportNumber" readonly="readonly">
+						<div class="form-group form-horizontal group-border-dashed">
+							<div class="row">
+								<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 15px;padding-right: 0px;">报告编号</div>
+								<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+									<input type="text" class="form-control" id="reportNumber" readonly="readonly">
+								</div>
+								<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;"><span style="color:red">*</span>体检人姓名</div>
+								<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+									<input type="text" class="form-control" id="personName">
+								</div>
+								<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">体检人身份证号</div>
+								<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+									<input type="text" class="form-control" id="personID">
+								</div>
+								<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">体检人性别</div>
+								<div class="col-sm-4 col-md-4 col-lg-2">
+									<select class="form-control" id="personGender" style="margin-bottom:5px">
+										<option value="1">男</option>
+										<option value="0">女</option>
+									</select>
+								</div>
+								<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 15px;padding-right: 0px;">体检人年龄</div>
+								<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+									<input type="text" onpaste="return false;" onkeypress="keyPress()" class="form-control" id="personAge">
+								</div>
+								<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">报告生成时间</div>
+								<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
+									<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
+										<span class="input-group-addon btn btn-primary">
+											<span class="glyphicon glyphicon-th"></span>
+										</span>
+										<input class="form-control" size="16" value="" readonly="" type="text" id="reportGenerateStartTime" placeholder="报告生成时间">
+										<span class="input-group-btn">
+											<button class="btn btn-danger deleteThisTime" type="button">
+												<span class="fa fa-times"></span>
+											</button>
+										</span>
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">体检人姓名</div>
-									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
-										<input type="text" class="form-control" id="personName">
-									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">体检人身份证号</div>
-									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
-										<input type="text" class="form-control" id="personID">
-									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">体检人性别</div>
-									<div class="col-sm-4 col-md-4 col-lg-2">
-										<select class="form-control" id="personGender" style="margin-bottom:5px">
-											<option value="1">男</option>
-											<option value="0">女</option>
-										</select>
-									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 15px;padding-right: 0px;">体检人年龄</div>
-									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
-										<input type="text" onpaste="return false;" onkeypress="keyPress()" class="form-control" id="personAge">
-									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">报告生成时间</div>
-									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px">
-										<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
-											<span class="input-group-addon btn btn-primary">
-												<span class="glyphicon glyphicon-th"></span>
-											</span>
-											<input class="form-control" size="16" value="" readonly="" type="text" id="reportGenerateStartTime" placeholder="报告生成时间">
-											<span class="input-group-btn">
-												<button class="btn btn-danger deleteThisTime" type="button">
-													<span class="fa fa-times"></span>
-												</button>
-											</span>
-										</div>
-									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">完整体验报告</div>
-									<div class="col-sm-4 col-md-4 col-lg-2">
-										<a href="#" id="downloadFile" target="_blank" style="margin-bottom: 0px !important; height: 34px;margin-left:0;line-height:34px;">点击下载</a>
-									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">医院</div>
-									<div class="col-sm-4 col-md-4 col-lg-2">
-										<select class="form-control" id="hospital" style="margin-bottom:5px">
+								</div>
+								<input type="text" style="display:none;" id="hideMedicalReportId" value="">
+								<input type="text" style="display:none;" id="hideFilePath" value="">
+								<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">完整体验报告</div>
+								<div class="col-sm-4 col-md-4 col-lg-2">
+									<input type="hidden" id="medicalReportDownloadLink">
+									<form action="document.do?download" id="downloadFile" method="post" style="display:none;">
+								    	<input type="text" style="display:none;" name="medicalReportId" id="medicalReportId" value="">
+								    	<input type="text" style="display:none;" name="filePath" id="filePath" value="">
+								    	<input type="submit" value="Submit"  style="display:none;"/>
+								    </form>
+									<a href="###" id="downloadFileA" onclick="$('#downloadFile').submit();" style="margin-bottom: 0px !important; height: 34px;margin-left:0;line-height:34px;">点击下载</a>
+									<a href="###" id="uploadFileA" style="margin-bottom: 0px !important; height: 34px;margin-left:0;line-height:34px;" class="md-trigger addFile" data-modal="edit-file">点击上传</a>
+								</div>
+								<div class="col-sm-2 col-md-2 col-lg-1 control-label0" style="padding-left: 0px;padding-right: 0px;">医院</div>
+								<div class="col-sm-4 col-md-4 col-lg-2">
+									<select class="form-control" id="hospital" style="margin-bottom:5px">
 
-										</select>
-									</div>
+									</select>
 								</div>
 							</div>
-							<div class="form-group">
-								<div class="row">
-									<div class="col-sm-12 ">
-										<strong>体检报告内容</strong>
-									</div>
-									<div class="col-sm-12 ">
-										<div class="content">
-											<div class="form-group" style="padding-top:0;">
-												<div id="reportContent"></div>
-											</div>
+						</div>
+						<div class="form-group">
+							<div class="row">
+								<div class="col-sm-12 ">
+									<strong>体检报告内容</strong>
+								</div>
+								<div class="col-sm-12 ">
+									<div class="content">
+										<div class="form-group" style="padding-top:0;">
+											<div id="reportContent"></div>
 										</div>
 									</div>
 								</div>
 							</div>
-						</form>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -180,6 +187,29 @@
 	</div>
 	<!-- 主页面结束 -->	
 
+	<!-- 文件上传开始 -->
+	<div class="md-modal colored-header custom-width md-effect-9" id="edit-file">
+		<div class="md-content" style="box-shadow:2px 2px 4px 3px rgba(0, 0, 0, 0.5);">
+			<div class="modal-header" style="padding:5px 20px">
+				<h4>文件上传</h4>
+			</div>
+			<div class="modal-body form">
+				<div class="form-group">
+					<label>请选择要导入的文件</label>
+					<input id="hideFile" class="form-control" onclick="$('input[id=xls4upload]').click();" value="" type="text" placeholder="点击此处上传文件..." readonly="readonly">
+					<form style="display:none;" id="file_submit" action="document.do?upload" method="post"  enctype="multipart/form-data">
+						<input id="xls4upload" name="xls4upload" type="file" class="btn btn-rad" onchange="getFileName(this.value)" style="width:80%;display:none;margin-left:10%;text-align:left;">
+					</form>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary btn-flat" onclick="uploadFile()">确定</button>
+				<button type="button" class="btn btn-default btn-flat md-close" data-dismiss="modal" id="cancelFile">取消</button>
+			</div>
+		</div>
+	</div>
+	<!-- 文件上传结束-->
+	
 	<div class="md-overlay"></div>
 
 	<script type="text/javascript" src="js/mordo.tools/mordo.timeProcessing.js"></script>
@@ -229,12 +259,18 @@
         var id = "<%=request.getAttribute("id")%>";
         if (id != null && id != "") {//编辑页
         	queryReport(id);
+        } else {
+        	$("#uploadFileA").attr("data-modal","");
+        	$("#uploadFileA").attr("onclick","alert('请先新增体检报告内容');");
+        	$("#downloadFileA").hide();//隐藏下载
         }
         
         var itemId = "<%=request.getAttribute("itemId")%>";
-		if (itemId != null && itemId != "") {//属于订单报告
+		if (itemId != null && itemId != "") {//属于订单详情的报告
 			$("#itemId").val(itemId);
-			$("#saveId").attr("onclick","saveReport2()");
+			if (id == null || id == "") {//属于订单详情新增报告
+				$("#saveId").attr("onclick","saveReport2()");
+			}
 		}
     });
     
@@ -274,6 +310,10 @@
     //保存体检报告信息，有reportId新增，无reportId编辑
     function saveReport1() {
 		var personName = $.trim($("#personName").val());
+		if (personName == null || personName == "") {
+			alert("姓名必填");
+			return;
+		}
 		var personID = $.trim($("#personID").val());
 		var reg1 = /(^\d{15}$)|(^\d{17}([0-9]|X)$)/; 
 		if(!reg1.test(personID)){  
@@ -293,6 +333,7 @@
     	}
 		var reportGenerateStartTime = $.trim($("#reportGenerateStartTime").val());
 		var reportContent = $("#reportContent").code();
+		var medicalReportDownloadLink = $("#medicalReportDownloadLink").val();
 		var hospitalId = $("#hospital").val();
 		var hospitalName = $("#hospital").find("option:selected").text();
 		if (hospitalId == null || hospitalId == "") {
@@ -314,11 +355,8 @@
 			reqmsg += "'medicalPersonAge':0";
 		}
     	if (reportGenerateStartTime != null && reportGenerateStartTime != "") {
-    		if (reportGenerateStartTime.length == 10){
-    			reqmsg += "'medicalReportCreateTime':'" + reportGenerateStartTime.substring(0, 4) + reportGenerateStartTime.substring(5, 7) + reportGenerateStartTime.substring(8, 10) + "000000" + "',";
-    		} else {
-    			reqmsg += "'medicalReportCreateTime':'',";
-    		}
+    		reportGenerateStartTime = formateTime7(reportGenerateStartTime) + "000000";
+    		reqmsg += "'medicalReportCreateTime':'" + reportGenerateStartTime + "',";
     	} else {
     		reqmsg += "'medicalReportCreateTime':'',";
     	}
@@ -332,6 +370,7 @@
 		} else {
 			reqmsg += "'medicalReportContent':'',";
 		}
+		reqmsg += "'medicalReportDownloadLink':'" + medicalReportDownloadLink + "',";
 		reqmsg += "'medicalHospital':'" + hospitalName + "',";
 		reqmsg += "'hospitalId':" + hospitalId + ",";
 		reqmsg += "}}";
@@ -346,6 +385,7 @@
        		},
       		success : function(data) {
        			if (data.des == "success") {
+       				alert("保存体检报告成功");
         		   	var id = data.content.id;
         		   	var path = "<%=request.getContextPath()%>";
        		   		var url = path + "/medicalReport.do?medicalReportDetail&id=" + id;
@@ -364,6 +404,10 @@
     function saveReport2() {
     	var itemId = $("#itemId").val();
 		var personName = $.trim($("#personName").val());
+		if (personName == null || personName == "") {
+			alert("姓名必填");
+			return;
+		}
 		var personID = $.trim($("#personID").val());
 		var reg1 = /(^\d{15}$)|(^\d{17}([0-9]|X)$)/; 
 		if(!reg1.test(personID)){  
@@ -407,11 +451,8 @@
 			reqmsg += "'medicalPersonAge':0";
 		}
     	if (reportGenerateStartTime != null && reportGenerateStartTime != "") {
-    		if (reportGenerateStartTime.length == 10){
-    			reqmsg += "'medicalReportCreateTime':'" + reportGenerateStartTime.substring(0, 4) + reportGenerateStartTime.substring(5, 7) + reportGenerateStartTime.substring(8, 10) + "000000" + "',";
-    		} else {
-    			reqmsg += "'medicalReportCreateTime':'',";
-    		}
+    		reportGenerateStartTime = formateTime7(reportGenerateStartTime) + "000000";
+    		reqmsg += "'medicalReportCreateTime':'" + reportGenerateStartTime + "',";
     	} else {
     		reqmsg += "'medicalReportCreateTime':'',";
     	}
@@ -425,6 +466,7 @@
 		} else {
 			reqmsg += "'medicalReportContent':'',";
 		}
+		reqmsg += "'medicalReportDownloadLink':'" + medicalReportDownloadLink + "',";
 		reqmsg += "'medicalHospital':'" + hospitalName + "',";
 		reqmsg += "'hospitalId':" + hospitalId + ",";
 		reqmsg += "}";	
@@ -440,6 +482,7 @@
        		},
       		success : function(data) {
        			if (data.des == "success") {
+       				alert("保存体检报告成功");
         		   	var id = data.content.medicalReportId;
         		   	var path = "<%=request.getContextPath()%>";
        		   		var url = path + "/medicalReport.do?medicalReportDetail&id=" + id;
@@ -482,8 +525,22 @@
               			var medicalReportCreateTime = data.content.medicalReportCreateTime;
               			if (medicalReportCreateTime != null && medicalReportCreateTime != "") {
               				medicalReportCreateTime = formateTime2(medicalReportCreateTime);
+              			} else {
+              				medicalReportCreateTime= "";
               			}
               			$("#reportGenerateStartTime").val(medicalReportCreateTime);
+              			
+              			if (data.content.medicalReportDownloadLink != null && data.content.medicalReportDownloadLink != "") {
+              				$("#medicalReportDownloadLink").val(data.content.medicalReportDownloadLink);
+              				$("#filePath").val(data.content.medicalReportDownloadLink);
+              				$("#hideFile").val(data.content.medicalReportDownloadLink);
+              				$("#medicalReportId").val(data.content.id);
+              				$("#hideMedicalReportId").val(data.content.id);
+              				$("#hideFilePath").val(data.content.medicalReportDownloadLink);
+              			} else {
+              				$("#downloadFileA").hide();//隐藏下载
+              			}
+              			
               			$("#hospital").val(data.content.hospitalId);
               			$("#reportContent").code(data.content.medicalReportContent);
 					}
@@ -497,6 +554,57 @@
 		});
 	}
 	
+	//文件上传
+	function uploadFile() {
+		var id = "<%=request.getAttribute("id")%>";
+		var ajax_option = {
+			async:false,
+			data:{
+				"medicalReportId":id
+			},
+			success:function(data) {
+				if (data != null && data != "") {
+					var result = JSON.parse(data);
+					if (result.result == "success") {
+						$("#medicalReportDownloadLink").val(result.link);
+						$("#filePath").val(result.link);
+						$("#downloadFileA").show();
+						$("#cancelFile").click();
+						alert("文件上传成功");
+					} else {
+						alert("文件上传失败");
+					}
+				} else {
+					alert("文件上传失败");
+				}
+			}
+		};
+		$("#file_submit").ajaxSubmit(ajax_option);
+	}
+	
+	//文件下载
+	function downloadFile() {
+		var id = $("#medicalReportId").val();
+		var filePath = $("#filePath").val();
+		jQuery.ajax({
+			type : "post",
+          	async:false,
+          	url : "document.do?download",
+          	dataType : "json",
+			data:{
+				"medicalReportId":id,
+				"filePath":filePath
+			},
+			success:function(data) {
+				alert("111")
+			}
+		});
+	}
+	
+	//自动获取文件名
+	function getFileName(value) {
+		document.getElementById('hideFile').value = value;
+	}
 	</script>
 
 	<script src="js/behaviour/voice-commands.js"></script>

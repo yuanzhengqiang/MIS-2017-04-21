@@ -94,7 +94,7 @@
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_selectDes')"><strong>选择说明</strong></th>
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_des')"><strong>备注</strong></th>													
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_mattersNeedAttention ')"><strong>注意事项</strong></th>
-														<th><strong>操作<strong></th>
+														<th style="min-width: 100px;"><strong>操作<strong></th>
 													</tr>
 												</thead>
 												<tbody id="datacontainer" role="alert" aria-live="polite" aria-relevant="all">																														
@@ -164,7 +164,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">价格<span class="red">*</span></label>
 								<div class="col-sm-6">
-									<input id="price"class="form-control" autocomplete="off">
+									<input id="price"class="form-control" autocomplete="off" placeholder="最小保留小数点后两位">
 								</div>
 							</div>
 							<div class="form-group">
@@ -327,11 +327,11 @@ function del(id) {
 			dataType:"json",
 			data:{ids:id},
 			success:function(data) {
-				alert(data.des);
 				if (data.result == "success") {
+					alert(data.des);
 					go2page(1);
-				}else if(data.des=="failure"){
-                    alert("删除失败");
+				}else if(data.result=="failure"){
+                    alert(data.des);
                 }
 			},
 			error:function() {
@@ -373,7 +373,7 @@ function saveInfo() {
 		if ( number(price) ) {
 			var priceNum = parseFloat(price)
 			priceNum = priceNum.toFixed(2);
-			reqmsg += "\"price\":\"" + priceNum + "\",";
+			reqmsg += "\"price\":" + priceNum + ",";
 		} else {
 			alert("价格输入有误,请重新输入");
 			return;
@@ -410,7 +410,7 @@ function saveInfo() {
 	if (mattersNeedAttention != null && mattersNeedAttention != "") {
         reqmsg += "\"mattersNeedAttention\":\"" + mattersNeedAttention + "\",";
 	} else {
-		reqmsg += "\"selectDes\":\"\",";
+		reqmsg += "\"mattersNeedAttention\":\"\",";
 	}
 	if (des != null && des != "") {
         reqmsg += "\"des\":\"" + des + "\",";
@@ -430,8 +430,8 @@ function saveInfo() {
           },
           success : function(data){
               if(data.des=="success"){
+              	$("#cancel_button").click();
             	  alert("保存成功");
-              	  $("#cancel_button").click();
             	  go2page(1);
               }else if(data.des=="failure"){
                  alert("保存失败");
@@ -519,12 +519,12 @@ function changeData(data){
 			htmlcode += "<tr class=\"gradeA odd\">";	
 		    htmlcode += "<td>" + item.itemName + "</td>";				
 		    htmlcode += "<td>" + item.price + "</td>";	
-		    htmlcode += "<td>" + changeStatus(item.category) + "</td>";
+		    htmlcode += "<td>" + item.category + "</td>";
 		    htmlcode += "<td>" + item.testWay + "</td>";	
-		    htmlcode += "<td>" + item.testPurpose + "</td>";
-		    htmlcode += "<td>" + item.selectDes + "</td>";
-		    htmlcode += "<td>" + item.des + "</td>";
-		    htmlcode += "<td>" + item.mattersNeedAttention + "</td>";
+		    htmlcode += "<td>" + strBreviary(item.testPurpose) + "</td>";
+		    htmlcode += "<td>" + strBreviary(item.selectDes) + "</td>";
+		    htmlcode += "<td>" + strBreviary(item.des) + "</td>";
+		    htmlcode += "<td>" + strBreviary(item.mattersNeedAttention) + "</td>";
 			htmlcode += "<td><div class=\"btn-group\">";
 			htmlcode += "<button class=\"btn btn-default btn-xs\" type=\"button\">操作</button>";
 			htmlcode += "<button data-toggle=\"dropdown\" class=\"btn btn-xs btn-primary dropdown-toggle\" type=\"button\">";
@@ -551,6 +551,18 @@ function changeData(data){
 function query() {
 	go2page(1);
 }
+
+//文字缩略显示
+function strBreviary(str) {
+	var strNew;
+	if (str != "" && str.length > 30) {
+		strNew = str.substr(0, 30) + "...";
+	} else {
+		strNew = str;
+	}
+	return strNew
+}
+
 
 /**
  * 生成记录数信息
