@@ -137,13 +137,19 @@ public class HospitalParse {
 					Object medicalItemList = reqParams.get("medicalItemList");
 					if (medicalItemList != null) {
 						String id_str = medicalItemList.toString();
-						String[] id_arr = id_str.split(",");
-						for (int index = 0; index < id_arr.length; index++) {
-							HospitalDetectingItemRelationEntity _temp_ = new HospitalDetectingItemRelationEntity();
-							_temp_.setHospitalId((contentreq.get("id") != null ? Integer.valueOf(contentreq.get("id").toString()) : 0));
-							_temp_.setDetectingItem((Integer.valueOf(id_arr[index])));
-							mil.add(_temp_);
+						if (id_str.length() > 0) {
+							String[] id_arr = id_str.split(",");
+							for (int index = 0; index < id_arr.length; index++) {
+								HospitalDetectingItemRelationEntity _temp_ = new HospitalDetectingItemRelationEntity();
+								_temp_.setHospitalId((contentreq.get("id") != null ? Integer.valueOf(contentreq.get("id").toString()) : 0));
+								_temp_.setDetectingItem((Integer.valueOf(id_arr[index])));
+								mil.add(_temp_);
+							}
+						} else {
+							parseMap.put("hospitalMedicalItemList", null);
 						}
+					} else {
+						parseMap.put("hospitalMedicalItemList", null);
 					}
 					parseMap.put("hospitalMedicalItemList", mil);
 				}

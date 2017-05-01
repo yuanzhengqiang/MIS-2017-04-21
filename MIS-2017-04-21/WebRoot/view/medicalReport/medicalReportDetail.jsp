@@ -151,7 +151,7 @@
 								<div class="col-sm-4 col-md-4 col-lg-2">
 									<input type="hidden" id="medicalReportDownloadLink">
 									<form action="document.do?download" id="downloadFile" method="post" style="display:none;">
-								    	<input type="text" style="display:none;" name="medicalReportId" id="medicalReportId" value="">
+								    	<input type="text" style="display:none;" name="medicalReportId" id="medicalReportId" value="<%=request.getAttribute("id")%>">
 								    	<input type="text" style="display:none;" name="filePath" id="filePath" value="">
 								    	<input type="submit" value="Submit"  style="display:none;"/>
 								    </form>

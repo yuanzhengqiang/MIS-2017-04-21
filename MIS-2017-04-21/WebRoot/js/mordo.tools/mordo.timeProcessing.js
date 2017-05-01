@@ -230,6 +230,23 @@ function formateTime6(time) {
 }
 
 /**
+ * 格式化时间
+ * 
+ * @method formateTime7
+ * @param {String}
+ *            time 时间信息(YYYY-MM-DD)
+ * @return 格式化的时间(YYYYMMDD)
+ */
+function formateTime7(time) {
+	var timeFormate = "";
+	if (time != null && time.length == 10) {
+		timeFormate = time.substring(0, 4) + time.substring(5, 7)
+				+ time.substring(8, 10);
+	}
+	return timeFormate;
+}
+
+/**
  * 时间转化成时间戳
  * 
  * @method yyyy-mm-dd hh:mm:ss 例:2014/07/10 10:21:12

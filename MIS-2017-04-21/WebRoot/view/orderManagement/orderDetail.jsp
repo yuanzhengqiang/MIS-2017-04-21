@@ -149,7 +149,6 @@
 											<option value="4">取消</option>
 										</select>
 									</div>
-									<div style="clear:both;"></div>
 									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">报告状态</div>
 									<div class="col-sm-4 col-md-4 col-lg-2">
 										<select class="form-control" id="medicalReportStatus" style="margin-bottom:5px;height: 34px;line-height: 34px;">

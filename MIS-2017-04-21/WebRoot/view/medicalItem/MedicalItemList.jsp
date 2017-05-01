@@ -519,7 +519,7 @@ function changeData(data){
 			htmlcode += "<tr class=\"gradeA odd\">";	
 		    htmlcode += "<td>" + item.itemName + "</td>";				
 		    htmlcode += "<td>" + item.price + "</td>";	
-		    htmlcode += "<td>" + item.category + "</td>";
+		    htmlcode += "<td>" + changeStatus(item.category) + "</td>";
 		    htmlcode += "<td>" + item.testWay + "</td>";	
 		    htmlcode += "<td>" + strBreviary(item.testPurpose) + "</td>";
 		    htmlcode += "<td>" + strBreviary(item.selectDes) + "</td>";
