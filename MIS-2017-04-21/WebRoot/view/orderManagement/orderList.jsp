@@ -93,14 +93,14 @@
 											<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
 												<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
 												<input class="form-control" size="16" value="" readonly="" type="text" id="startTime" placeholder="开始时间">
-												<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+												<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button" style="height: 34px;"><span class="fa fa-times"></span></button></span>
 											</div>
 										</div>
 										<div class="col-sm-5 col-md-5 col-lg-2" style="margin-bottom:10px;">
 											<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
 												<span class="input-group-addon btn btn-primary"><span class="glyphicon glyphicon-th"></span></span>
 												<input class="form-control" size="16" value="" readonly="" type="text" id="endTime" placeholder="结束时间">
-												<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button"><span class="fa fa-times"></span></button></span>
+												<span class="input-group-btn"><button class="btn btn-danger deleteThisTime" type="button" style="height: 34px;"><span class="fa fa-times"></span></button></span>
 											</div>
 										</div>
 									</div>

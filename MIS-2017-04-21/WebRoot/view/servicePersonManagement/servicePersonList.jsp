@@ -603,7 +603,7 @@
 							$("#Bigptphoto1").show();
 							$("#Bigptphoto1").attr("href", data.content.headPortrait);//设置大图
 						}
-						if (data.content.headPortrait != null && data.content.headPortrait != "") {
+						if (data.content.wechatQrCode != null && data.content.wechatQrCode != "") {
 							$("#hide_tupian2").val(data.content.wechatQrCode);
 							$("#ptphoto2").attr("src", data.content.wechatQrCode);  //将当前图片设为上传的图片
 							$("#Bigptphoto2").show();

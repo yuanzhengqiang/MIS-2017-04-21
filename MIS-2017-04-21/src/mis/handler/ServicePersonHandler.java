@@ -97,23 +97,25 @@ public class ServicePersonHandler extends BaseHandler {
 			if ("save".equals(action)) {
 				String headportrait_data = servicePerson.getHeadPortrait();
 				String qr_code_data = servicePerson.getWechatQrCode();
+				/** 提前保存以获取 ID */
+				servicePerson.setHeadPortrait("");
+				servicePerson.setWechatQrCode("");
+				result = servicePersonService.save(servicePerson);
 				String pic_headportrait_path = "";
 				String pic_wechatqrcode_path = "";
-				if (!headportrait_data.matches("(http|https)://.*?")) {
-					servicePerson.setHeadPortrait(pic_headportrait_path);
-					servicePerson.setWechatQrCode(pic_wechatqrcode_path);
-					result = servicePersonService.save(servicePerson);
+				if (!headportrait_data.matches("(http|https)://.*?") && headportrait_data.length() > 0) {
 					String pic_name = "HeadPortrait_" + servicePerson.getId() + ".jpg";
 					pic_headportrait_path = PicUtils.savePhoto(headportrait_data, "headportrait", pic_name);
 					servicePerson.setHeadPortrait(pic_headportrait_path);
+				} else {
+					servicePerson.setHeadPortrait(headportrait_data);
 				}
-				if (!qr_code_data.matches("(http|https)://.*?")) {
-					servicePerson.setHeadPortrait(pic_headportrait_path);
-					servicePerson.setWechatQrCode(pic_wechatqrcode_path);
-					result = servicePersonService.save(servicePerson);
+				if (!qr_code_data.matches("(http|https)://.*?") && qr_code_data.length() > 0) {
 					String pic_name = "WechatQrCode_" + servicePerson.getId() + ".jpg";
 					pic_wechatqrcode_path = PicUtils.savePhoto(qr_code_data, "wechatqrcode", pic_name);
 					servicePerson.setWechatQrCode(pic_wechatqrcode_path);
+				} else {
+					servicePerson.setWechatQrCode(qr_code_data);
 				}
 				result = servicePersonService.save(servicePerson);
 			} else if ("saveList".equals(action)) {
