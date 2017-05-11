@@ -1,8 +1,5 @@
 package weixin.servlet;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.apache.log4j.Logger;
 
 import sbtj.init.SystemInit;
@@ -12,66 +9,54 @@ public class pushMessage {
 	private static Logger logger = Logger.getLogger(pushMessage.class);
 
 	/**
-	 * 设备报警
-	 * @param openid微信openId
-	 * @param nickname微信昵称
-	 * @param olderId老人ID
-	 * @param olderName老人姓名
-	 * @param devNumber设备编号
-	 * @param devType设备类型
-	 * @param alarmContent报警内容
-	 * @param alarmTime报警时间
-	 * @param alarmAddress报警地址
+	 * 体检时间通知
+	 * 
+	 * @param openId
+	 *            微信openId
+	 * @param personName
+	 *            体检人姓名
+	 * @param hospitalName
+	 *            医院名称
+	 * @param time
+	 *            时间，精确到日
 	 * @return
 	 */
-	public static String sendDevAlarm(String openid, String nickname,
-			Integer olderId, String olderName, String devNumber,
-			Integer devType, String alarmContent, String alarmTime,
-			String alarmAddress) {
+	public static String examinationTimeNotice(String openId,
+			String personName, String hospitalName, String time) {
 		String weixinmsgpush = SystemInit.weixinmsgpush;
-		if(!"formal".equals(weixinmsgpush)){
+		if (!"formal".equals(weixinmsgpush)) {
 			return null;
 		}
 		String access_token = SystemInit.access_token;
 		if (!"".equals(access_token) && access_token != null) {
-			String jsonStr = "{\"touser\":\"" + openid + "\",";
+			String jsonStr = "{\"touser\":\"" + openId + "\",";
 			jsonStr += "\"template_id\":\""
-					+ "cTeSt-81c3VRM4VShNglY9QpMjER_FyV4Ps-QK2hWdI" + "\",";
-			if (!"".equals(olderId) && olderId != null) {
-				jsonStr += "\"url\":\"" + "http://" + SignUtil.yumingdizhi
-						+ "/wechatOlder.do?mainXQ&weixin=weixin&olderId="
-						+ olderId + "\",";
-			}
+					+ "jcCp3qguXJEUAAHBnH0T_OstdMCjuxWN4GFac5hJXmI" + "\",";
 			jsonStr += "\"topcolor\":\"" + "#000" + "\",";
 			jsonStr += "\"data\":{";
 			jsonStr += "\"first\":{";
-			jsonStr += "\"value\":\"亲爱的" + nickname + ":您绑定的老人"
-					+ getDevName(devType) + "触发了报警！\\n" + "\",";
+			jsonStr += "\"value\":\"您好，您的体检时间已经预约成功，请准时参与！\\n" + "\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "},";
 			jsonStr += "\"keyword1\":{";
-			jsonStr += "\"value\":\"" + olderName + "\",";
+			jsonStr += "\"value\":\"" + personName + "\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "},";
 			jsonStr += "\"keyword2\":{";
-			jsonStr += "\"value\":\"" + alarmAddress + "\",";
+			jsonStr += "\"value\":\"" + hospitalName + "\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "},";
 			jsonStr += "\"keyword3\":{";
-			jsonStr += "\"value\":\"" + alarmContent + "\",";
-			jsonStr += "\"color\":\"" + "#000" + "\"";
-			jsonStr += "},";
-			jsonStr += "\"keyword4\":{";
-			jsonStr += "\"value\":\"" + devNumber + "\",";
+			jsonStr += "\"value\":\"" + time + "\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "},";
 			jsonStr += "\"remark\":{";
-			jsonStr += "\"value\":\"\\n\\n请立即联系佩戴设备的亲属！\",";
+			jsonStr += "\"value\":\"\\n\\n如有疑问，请拨打客服电话XXXXXX!\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "}";
 			jsonStr += "}";
 			jsonStr += "}";
-			logger.debug("微信报警消息推送   " + jsonStr);
+			logger.debug("体检时间通知  消息推送=   " + jsonStr);
 			return SignUtil.doHttpPost_weixin(
 					"https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="
 							+ access_token, jsonStr);
@@ -81,52 +66,46 @@ public class pushMessage {
 	}
 
 	/**
-	 * 用药提醒
-	 * @param openid微信openId
-	 * @param nickname微信昵称
-	 * @param olderId老人ID
-	 * @param olderName老人姓名
-	 * @param remindContent提醒内容
+	 * 体检完成通知
+	 * 
+	 * @param openId
+	 *            微信openId
+	 * @param personName
+	 *            体检人姓名
 	 * @return
 	 */
-	public static String sendMedicationReminders(String openid,
-			String nickname, Integer olderId, String olderName,
-			String remindContent) {
+	public static String physicalExaminationNotice(String openId,
+			String personName) {
 		String weixinmsgpush = SystemInit.weixinmsgpush;
-		if(!"formal".equals(weixinmsgpush)){
+		if (!"formal".equals(weixinmsgpush)) {
 			return null;
 		}
 		String access_token = SystemInit.access_token;
 		if (!"".equals(access_token) && access_token != null) {
-			String jsonStr = "{\"touser\":\"" + openid + "\",";
+			String jsonStr = "{\"touser\":\"" + openId + "\",";
 			jsonStr += "\"template_id\":\""
-					+ "-4MZYWjY6qkqGgcG73h6I7RMnxUWYn0YP6gjw0I-EMQ" + "\",";
-			if (!"".equals(olderId) && olderId != null) {
-				jsonStr += "\"url\":\"" + "http://" + SignUtil.yumingdizhi
-						+ "/wechatOlder.do?mainXQ&weixin=weixin&olderId="
-						+ olderId + "\",";
-			}
+					+ "soygN8ZXe6Ld-Ul-h5pa5kFgOcrjWsPmhbakoQedXkk" + "\",";
 			jsonStr += "\"topcolor\":\"" + "#000" + "\",";
 			jsonStr += "\"data\":{";
 			jsonStr += "\"first\":{";
-			jsonStr += "\"value\":\"" + olderName + "您好，又到了该吃药的时间了\\n" + "\",";
+			jsonStr += "\"value\":\"您好，您预约" + personName + "的体检订单\\n" + "\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "},";
 			jsonStr += "\"keyword1\":{";
-			jsonStr += "\"value\":\"" + olderName + "\",";
+			jsonStr += "\"value\":\"" + "已完成" + "\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "},";
 			jsonStr += "\"keyword2\":{";
-			jsonStr += "\"value\":\"" + remindContent + "\",";
+			jsonStr += "\"value\":\"" + "XXXXXX" + "\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "},";
 			jsonStr += "\"remark\":{";
-			jsonStr += "\"value\":\"\\n\\n请务必按医嘱用药\",";
+			jsonStr += "\"value\":\"\\n\\n体检报告预计8-10天内可以查阅，如有疑问，请联系客服XXXXXX\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "}";
 			jsonStr += "}";
 			jsonStr += "}";
-			logger.debug("微信用药提醒推送==" + jsonStr);
+			logger.debug("体检完成通知  消息推送=   " + jsonStr);
 			return SignUtil.doHttpPost_weixin(
 					"https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="
 							+ access_token, jsonStr);
@@ -135,107 +114,62 @@ public class pushMessage {
 		}
 	}
 
-	// 健康咨询
-	public static String sendHealthConsultation(String openid, String nickname,
-			Integer olderId, String olderName, Integer speakType,
-			String speakName, String speakContent) {
-		/*
-		 * String weixinmsgpush = SystemInit.weixinmsgpush;
-		 * if(weixinmsgpush != "formal"){
-		 *	return null;
-		 * }
-		 * nickname = URLDecoder.decode(nickname); olderName =
-		 * URLDecoder.decode(olderName); remindContent =
-		 * URLDecoder.decode(remindContent); String access_token =
-		 * SystemInit.access_token; if (!"".equals(access_token) &&
-		 * access_token != null) { String jsonStr = "{\"touser\":\"" + openid +
-		 * "\","; jsonStr += "\"template_id\":\"" + "" + "\","; if
-		 * (!"".equals(olderId) && olderId != null) { jsonStr += "\"url\":\"" +
-		 * "http://" + SignUtil.yumingdizhi +
-		 * "/wechatOlder.do?mainXQ&weixin=weixin&olderId=" + olderId + "\","; }
-		 * jsonStr += "\"topcolor\":\"" + "#000" + "\","; jsonStr +=
-		 * "\"data\":{"; jsonStr += "\"first\":{"; jsonStr += "\"value\":\"亲爱的"
-		 * + nickname + ":您关注的老人" + olderName + "发生报警\\n" + "\","; jsonStr +=
-		 * "\"color\":\"" + "#000" + "\""; jsonStr += "},"; jsonStr +=
-		 * "\"keyword1\":{"; jsonStr += "\"value\":\"" + alarmContent + "\",";
-		 * jsonStr += "\"color\":\"" + "#000" + "\""; jsonStr += "},"; jsonStr
-		 * += "\"keyword2\":{"; jsonStr += "\"value\":\"紧急处理\","; jsonStr +=
-		 * "\"color\":\"" + "#000" + "\""; jsonStr += "},"; jsonStr +=
-		 * "\"remark\":{"; jsonStr += "\"value\":\"\\n\\n如有疑问请拨打热线电话\",";
-		 * jsonStr += "\"color\":\"" + "#000" + "\""; jsonStr += "}"; jsonStr +=
-		 * "}"; jsonStr += "}";
-		 * 
-		 * return SignUtil.doHttpPost_weixin(
-		 * "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="
-		 * + access_token, jsonStr); } else { return null; }
-		 */
-		// 待添加
-		return null;
-	}
-
 	/**
-	 * 工单状态
-	 * @param openid微信openId
-	 * @param nickname微信昵称
-	 * @param olderId老人ID
-	 * @param olderName老人姓名
-	 * @param serviceTaskId工单ID
-	 * @param serviceTaskNumber服务工单编号
-	 * @param serviceProject服务项目
-	 * @param serviceTaskState工单状态
+	 * 体检报告完成通知
+	 * 
+	 * @param openId
+	 *            微信openId
+	 * @param personName
+	 *            体检人姓名
+	 * @param orderNumber
+	 *            订单编号
+	 * @param physicalExaminationDate
+	 *            体检日期
+	 * @param hospitalName
+	 *            医院名称
 	 * @return
 	 */
-	public static String sendSingleState(String openid, String nickname,
-			Integer olderId, String olderName, Integer serviceTaskId,
-			String serviceTaskNumber, String serviceProject,
-			Integer serviceTaskState) {
+	public static String physicalExaminationReport(String openId,
+			String personName, String orderNumber,
+			String physicalExaminationDate, String hospitalName) {
 		String weixinmsgpush = SystemInit.weixinmsgpush;
-		if(!"formal".equals(weixinmsgpush)){
+		if (!"formal".equals(weixinmsgpush)) {
 			return null;
 		}
 		String access_token = SystemInit.access_token;
 		if (!"".equals(access_token) && access_token != null) {
-			String jsonStr = "{\"touser\":\"" + openid + "\",";
+			String jsonStr = "{\"touser\":\"" + openId + "\",";
 			jsonStr += "\"template_id\":\""
-					+ "_Gw-998qvZh9HRNWof-HPw9UN58xQxTUsCGnhMxtXJc" + "\",";
-			if (!"".equals(olderId) && olderId != null) {
-				jsonStr += "\"url\":\"" + "http://" + SignUtil.yumingdizhi
-						+ "/wechatOlder.do?mainXQ&weixin=weixin&olderId="
-						+ olderId + "\",";
-			}
+					+ "uNj2BPc7LhWBUuOoBk5eYkIL1v-QAxDBVjXmRJ-3zmI" + "\",";
 			jsonStr += "\"topcolor\":\"" + "#000" + "\",";
 			jsonStr += "\"data\":{";
 			jsonStr += "\"first\":{";
-			jsonStr += "\"value\":\"您好，您的订单状态发生变化，请持续关注！\\n" + "\",";
+			jsonStr += "\"value\":\"您好，您的体检报告已经可以查阅。\\n" + "\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "},";
 			jsonStr += "\"keyword1\":{";
-			jsonStr += "\"value\":\"" + serviceTaskNumber + "\",";
+			jsonStr += "\"value\":\"" + personName + "\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "},";
 			jsonStr += "\"keyword2\":{";
-			jsonStr += "\"value\":\"" + serviceProject + "\",";
+			jsonStr += "\"value\":\"" + orderNumber + "\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "},";
 			jsonStr += "\"keyword3\":{";
-			jsonStr += "\"value\":\"" + getServiceName(serviceTaskState)+ "\",";
+			jsonStr += "\"value\":\"" + physicalExaminationDate + "\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "},";
-			
-			//下面多出的keyword4只在丽家模板使用，福寿康使用去除
 			jsonStr += "\"keyword4\":{";
-			jsonStr += "\"value\":\"" + NowString() + "\",";
+			jsonStr += "\"value\":\"" + hospitalName + "\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "},";
-			
-			
 			jsonStr += "\"remark\":{";
-			jsonStr += "\"value\":\"\\n\\n如有疑问请拨打热线电话\",";
+			jsonStr += "\"value\":\"\\n\\n点击此处付款并查阅体检报告。\",";
 			jsonStr += "\"color\":\"" + "#000" + "\"";
 			jsonStr += "}";
 			jsonStr += "}";
 			jsonStr += "}";
-
+			logger.debug("体检报告完成通知  消息推送=   " + jsonStr);
 			return SignUtil.doHttpPost_weixin(
 					"https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="
 							+ access_token, jsonStr);
@@ -245,83 +179,56 @@ public class pushMessage {
 	}
 
 	/**
-	 * 获取设备类型
+	 * 体检报告寄出通知
 	 * 
-	 * @return 名称
+	 * @param openId
+	 *            微信openId
+	 * @param personName
+	 *            体检人姓名
+	 * @param express
+	 *            快递公司
+	 * @param courierNumber
+	 *            快递单号
+	 * @return
 	 */
-	public static String getDevName(Integer id) {
-		String name = "未知";
-		if (id == null || id == 0) {
-			return name;
+	public static String medicalReportSentNotice(String openId,
+			String personName, String express, String courierNumber) {
+		String weixinmsgpush = SystemInit.weixinmsgpush;
+		if (!"formal".equals(weixinmsgpush)) {
+			return null;
 		}
-		switch (id) {
-		case 1:
-			name = "老人定位器";
-			break;
-		case 2:
-			name = "安护宝";
-			break;
-		default:
-			name = "未知";
-			break;
+		String access_token = SystemInit.access_token;
+		if (!"".equals(access_token) && access_token != null) {
+			String jsonStr = "{\"touser\":\"" + openId + "\",";
+			jsonStr += "\"template_id\":\""
+					+ "WmXxxUhKhjGLfIsh6akOKm3tlmrjs8LvL0Tn0FlCrnk" + "\",";
+			jsonStr += "\"topcolor\":\"" + "#000" + "\",";
+			jsonStr += "\"data\":{";
+			jsonStr += "\"first\":{";
+			jsonStr += "\"value\":\"您好，" + personName + "的体检报告以及相关资料已经寄出。\\n"
+					+ "\",";
+			jsonStr += "\"color\":\"" + "#000" + "\"";
+			jsonStr += "},";
+			jsonStr += "\"keyword1\":{";
+			jsonStr += "\"value\":\"" + express + "\",";
+			jsonStr += "\"color\":\"" + "#000" + "\"";
+			jsonStr += "},";
+			jsonStr += "\"keyword2\":{";
+			jsonStr += "\"value\":\"" + courierNumber + "\",";
+			jsonStr += "\"color\":\"" + "#000" + "\"";
+			jsonStr += "},";
+			jsonStr += "\"remark\":{";
+			jsonStr += "\"value\":\"\\n\\n如有疑问，请拨打客服电话XXXXX。\",";
+			jsonStr += "\"color\":\"" + "#000" + "\"";
+			jsonStr += "}";
+			jsonStr += "}";
+			jsonStr += "}";
+			logger.debug("体检报告寄出通知  消息推送=   " + jsonStr);
+			return SignUtil.doHttpPost_weixin(
+					"https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="
+							+ access_token, jsonStr);
+		} else {
+			return null;
 		}
-		return name;
 	}
-
-	/**
-	 * 获取设备类型
-	 * 
-	 * @return 名称
-	 */
-	public static String getServiceName(Integer serviceState) {
-		String name = "未知";
-		if (serviceState == null || serviceState == 0) {
-			return name;
-		}
-		switch (serviceState) {
-		case 1:
-			name = "取消";
-			break;
-
-		case 2:
-			name = "待排班";
-			break;
-
-		case 3:
-			name = "待审核";
-			break;
-
-		case 4:
-			name = "审核通过";
-			break;
-
-		case 5:
-			name = "服务开始";
-			break;
-
-		case 6:
-			name = "服务结束";
-			break;
-
-		case 7:
-			name = "回访结束";
-			break;
-
-		case 8:
-			name = "已下单";
-			break;
-
-		default:
-			name = "未知";
-			break;
-		}
-		return name;
-	}
-	
-	//获取当前时间
-	public static String NowString() {
-		SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm");//设置日期格式
-		return df.format(new Date());// new Date()为获取当前系统时间
-	}
-
 }

@@ -43,10 +43,10 @@
 						</div>
 					</div>
 					<div class="col-xs-12 col-sm-8" style="text-align:right;padding-top:10px">
-						<button class="btn btn-primary" onclick="">发送体检时间通知</button>
-						<button class="btn btn-primary" onclick="">发送体检完成通知</button>
-						<button class="btn btn-primary" onclick="">发送体检报告查看通知</button>
-						<button class="btn btn-primary" onclick="">发送体检报告寄出通知</button>
+						<button class="btn btn-primary" onclick="examinationTimeNotice()">发送体检时间通知</button>
+						<button class="btn btn-primary" onclick="physicalExaminationNotice()">发送体检完成通知</button>
+						<button class="btn btn-primary" onclick="physicalExaminationReport()">发送体检报告查看通知</button>
+						<button class="btn btn-primary" onclick="medicalReportSentNotice()">发送体检报告寄出通知</button>
 						<button class="btn btn-primary" onclick="saveOrder()">保存</button>
 					</div>
 				</div>
@@ -125,13 +125,13 @@
 											</span>
 										</div>
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">报告完成时间</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">报告时间</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
 											<span class="input-group-addon btn btn-primary">
 												<span class="glyphicon glyphicon-th"></span>
 											</span>
-											<input class="form-control" size="16" value="" readonly="" type="text" id="expectReportCompleteTime" placeholder="报告完成时间">
+											<input class="form-control" size="16" value="" readonly="" type="text" id="reportCreateTime" placeholder="报告时间">
 											<span class="input-group-btn">
 												<button class="btn btn-danger deleteThisTime" type="button">
 													<span class="fa fa-times"></span>
@@ -181,20 +181,6 @@
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="medicalReportExpressOrderNum">
 									</div>
-									<!-- <div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">预计体检时间</div>
-									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
-										<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
-											<span class="input-group-addon btn btn-primary">
-												<span class="glyphicon glyphicon-th"></span>
-											</span>
-											<input class="form-control" size="16" value="" readonly="" type="text" id="expectMedicalTime" placeholder="预计体检时间">
-											<span class="input-group-btn">
-												<button class="btn btn-danger deleteThisTime" type="button">
-													<span class="fa fa-times"></span>
-												</button>
-											</span>
-										</div>
-									</div> -->
 								</div>
 							</div>
 							<div class="form-group">
@@ -381,10 +367,12 @@
 	        },
 	        success : function(data) {
 	        	if (data.des == "success") {
-	            	if (data.content.servicePersonList != null) {
-						jQuery.each(data.content.servicePersonList,function(i, item) {
-              				html += "<option value='" + item.id + "'>" + item.name + "</option>";
-						});
+	        		if (data.content != null) {
+		            	if (data.content.servicePersonList != null) {
+							jQuery.each(data.content.servicePersonList,function(i, item) {
+	              				html += "<option value='" + item.id + "'>" + item.name + "</option>";
+							});
+	 					}
  					}
 	            } else {
 	            	alert("查询服务人员信息失败");
@@ -440,10 +428,9 @@
               			$("#reportSendPerson").val(data.content.reportSendPerson);
               			$("#reportSendPersonContactWay").val(data.content.reportSendPersonContactWay);
               			$("#medicalReportExpress").val(data.content.medicalReportExpress);
-              			$("#medicalReportExpressOrderNum").val(data.content.medicalReportExpressOrderNum);
-              			//$("#expectMedicalTime").val(formateTime2(data.content.expectMedicalTime));
+              			$("#medicalReportExpressOrderNum").val(data.content.medicalReportExpressOrderNum);             			
               			$("#medicalCompleteTime").val(formateTime2(data.content.medicalCompleteTime));
-              			$("#expectReportCompleteTime").val(formateTime2(data.content.expectReportCompleteTime));
+              			$("#reportCreateTime").val(formateTime2(data.content.reportCreateTime));
               			$("#status").val(data.content.status);
               			if (data.content.servicePersonId != null && data.content.servicePersonId != "") {
               				$("#servicePersonId").val(data.content.servicePersonId);
@@ -486,7 +473,7 @@
 
 	//查询体检项目
 	function queryMedicalItem(id) {
-		var reqmsg = "{'action':'QUERY_ORDER_MEDICAL_ITEM_RELATION_LIST_REQUEST','page':{'pageno':'1','pagesize':'1000000'},'content':{}}";
+		var reqmsg = "{'action':'QUERY_ORDER_MEDICAL_ITEM_RELATION_LIST_REQUEST','page':{'pageno':'1','pagesize':'1000000'},'content':{'orderId':" + id + "}}";
 		var html = "";
 	    jQuery.ajax({
 	          type : "post",
@@ -521,7 +508,7 @@
 	
 	//查询付费列表
 	function queryPayInfo(id) {
-		var reqmsg = "{'action':'QUERY_PAY_INFO_LIST_REQUEST','order':[{'column':'payTime','type':'desc'}],'page':{'pageno':'1','pagesize':'1000000'},'content':{}}";
+		var reqmsg = "{'action':'QUERY_PAY_INFO_LIST_REQUEST','order':[{'column':'payTime','type':'desc'}],'page':{'pageno':'1','pagesize':'1000000'},'content':{'orderId':" + id + "}}";
 		var html = "";
 	    jQuery.ajax({
 	          type : "post",
@@ -599,23 +586,19 @@
 		var reportSendPersonContactWay = $.trim($("#reportSendPersonContactWay").val());
 		var medicalReportExpress = $.trim($("#medicalReportExpress").val());
 		var medicalReportExpressOrderNum = $.trim($("#medicalReportExpressOrderNum").val());
-		//var expectMedicalTime = $("#expectMedicalTime").val();
-		//if (expectMedicalTime != null && expectMedicalTime != "") {
-		//	expectMedicalTime = formateTime7(expectMedicalTime) + "000000";
-		//} else {
-		//	expectMedicalTime = "";
-		//}
+
 		var medicalCompleteTime = $("#medicalCompleteTime").val();
 		if (medicalCompleteTime != null && medicalCompleteTime != "") {
 			medicalCompleteTime = formateTime7(medicalCompleteTime) + "000000";
 		} else {
 			medicalCompleteTime = "";
 		}
-		var expectReportCompleteTime = $("#expectReportCompleteTime").val();
-		if (expectReportCompleteTime != null && expectReportCompleteTime != "") {
-			expectReportCompleteTime = formateTime7(expectReportCompleteTime) + "000000";
+		
+		var reportCreateTime = $("#reportCreateTime").val();
+		if (reportCreateTime != null && reportCreateTime != "") {
+			reportCreateTime = formateTime7(reportCreateTime) + "000000";
 		} else {
-			expectReportCompleteTime = "";
+			reportCreateTime = "";
 		}
 		var status = $("#status").val();
 		
@@ -638,9 +621,8 @@
 		reqmsg += "'reportSendPersonContactWay':'" + reportSendPersonContactWay + "',";
 		reqmsg += "'medicalReportExpress':'" + medicalReportExpress + "',";
 		reqmsg += "'medicalReportExpressOrderNum':'" + medicalReportExpressOrderNum + "',";
-		//reqmsg += "'expectMedicalTime':'" + expectMedicalTime + "',";
 		reqmsg += "'medicalCompleteTime':'" + medicalCompleteTime + "',";
-		reqmsg += "'expectReportCompleteTime':'" + expectReportCompleteTime + "',";
+		reqmsg += "'reportCreateTime':'" + reportCreateTime + "',";
 		reqmsg += "'status':" + status + ",";
 		if (servicePersonId != null && servicePersonId != "") {
 			reqmsg += "'servicePersonId':" + servicePersonId + ",";
@@ -666,6 +648,86 @@
       		},
       		error:function(){
    		    	alert("保存订单失败");
+     		}
+		});
+    }
+    
+    //发送体检时间通知
+    function examinationTimeNotice() {
+    	var id = "<%=request.getAttribute("id")%>";
+    	jQuery.ajax({
+       		type : "post",
+       		async:true,
+       		url : "order.do?timenotice",
+       		dataType : "json",
+       		data: {
+       		     "orderId":id
+       		},
+      		success : function(data) {
+      			alert(data.des);
+      		},
+      		error:function(){
+   		    	alert(data.des);
+     		}
+		});
+    }
+    
+    //发送体检完成通知
+    function physicalExaminationNotice() {
+    	var id = "<%=request.getAttribute("id")%>";
+    	jQuery.ajax({
+       		type : "post",
+       		async:true,
+       		url : "order.do?physicalexaminationnotice",
+       		dataType : "json",
+       		data: {
+       		     "orderId":id
+       		},
+      		success : function(data) {
+      			alert(data.des);
+      		},
+      		error:function(){
+   		    	alert(data.des);
+     		}
+		});
+    }
+    
+    //发送体检报告查看通知
+    function physicalExaminationReport() {
+    	var id = "<%=request.getAttribute("id")%>";
+    	jQuery.ajax({
+       		type : "post",
+       		async:true,
+       		url : "order.do?physicalexaminationreport",
+       		dataType : "json",
+       		data: {
+       		     "orderId":id
+       		},
+      		success : function(data) {
+      			alert(data.des);
+      		},
+      		error:function(){
+   		    	alert(data.des);
+     		}
+		});
+    }
+    
+    //发送体检报告寄出通知
+    function medicalReportSentNotice() {
+    	var id = "<%=request.getAttribute("id")%>";
+    	jQuery.ajax({
+       		type : "post",
+       		async:true,
+       		url : "order.do?medicalreportsentnotice",
+       		dataType : "json",
+       		data: {
+       		     "orderId":id
+       		},
+      		success : function(data) {
+      			alert(data.des);
+      		},
+      		error:function(){
+   		    	alert(data.des);
      		}
 		});
     }

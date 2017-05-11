@@ -1,5 +1,6 @@
 package mis.handler;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,12 +11,16 @@ import mis.entity.WechatCustomerEntity;
 import mis.pack.WechatCustomerPack;
 import mis.parse.WechatCustomerParse;
 import mis.service.WechatCustomerService;
+import mis.utils.RandomNum;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
+import weixin.tools.SignUtil;
+
 import com.framework.system.business.handler.BaseHandler;
 import com.framework.system.db.query.OrderVO;
+import com.framework.system.util.JsonUtil;
 
 /**
  * @Title: Handler
@@ -91,8 +96,47 @@ public class WechatCustomerHandler extends BaseHandler {
 			// 业务处理
 			Object result = null;
 			if ("save".equals(action)) {
-				WechatCustomerEntity temp = wechatCustomerService.getById(wechatCustomer.getId());
-				temp.setNoteName(wechatCustomer.getNoteName());
+				WechatCustomerEntity temp = null;
+				/** 编辑 */
+				if (wechatCustomer.getId() != null) {
+					temp = wechatCustomerService.getById(wechatCustomer.getId());
+					if (wechatCustomer.getCity() != null)
+						temp.setCity(wechatCustomer.getCity());
+					if (wechatCustomer.getCountry() != null)
+						temp.setCountry(wechatCustomer.getCountry());
+					if (wechatCustomer.getGender() != null)
+						temp.setGender(wechatCustomer.getGender());
+					if (wechatCustomer.getNakeName() != null)
+						temp.setNakeName(wechatCustomer.getNakeName());
+					if (wechatCustomer.getNoteName() != null)
+						temp.setNoteName(wechatCustomer.getNoteName());
+					if (wechatCustomer.getProvince() != null)
+						temp.setProvince(wechatCustomer.getProvince());
+					if (wechatCustomer.getUpdateTime() != null)
+						temp.setUpdateTime(wechatCustomer.getUpdateTime());
+					if (wechatCustomer.getIntroduceCode() != null) {
+						/** 判断邀请码是否存在 */
+						Map<String, Object> _querymap_ = new HashMap<String, Object>();
+						_querymap_.put("inviteCode", wechatCustomer.getIntroduceCode());
+						List<WechatCustomerEntity> _list_ = WechatCustomerService.getInstance().getListByCondition(_querymap_);
+						if (_list_ != null && _list_.size() > 0) {
+							temp.setIntroduceCode(wechatCustomer.getIntroduceCode());
+						}
+					}
+				} else {
+					/** 首先判断是否已经关注了 */
+					if (wechatCustomer.getOpenId() != null && wechatCustomer.getOpenId().length() > 0) {
+						Map<String, Object> qmap = new HashMap<String, Object>();
+						qmap.put("openId", wechatCustomer.getOpenId());
+						List<WechatCustomerEntity> _list_ = wechatCustomerService.getListByCondition(qmap);
+						if (_list_ != null && _list_.size() > 0) {
+							temp = _list_.get(0);
+							wechatCustomer.setId(temp.getId());
+						}
+						wechatCustomer.setInviteCode(RandomNum.generate4HexString());
+						temp = wechatCustomer;
+					}
+				}
 				result = wechatCustomerService.save(temp);
 			} else if ("saveList".equals(action)) {
 				result = wechatCustomerService.saveList(wechatCustomerList);
@@ -139,5 +183,14 @@ public class WechatCustomerHandler extends BaseHandler {
 			logger.error(e);
 		}
 		return resultStr;
+	}
+	
+	public static void main(String[] argv) {
+		String reqmsg = "{\"action\":\"ADD_WECHAT_CUSTOMER_INFO_REQUEST\",\"content\":{\"openId\":\"oNSHgwbWIaXnG55G84URbT0sJZqQ\",\"nakeName\":\"张大大大虾\",\"gender\":1,\"country\":\"中国\",\"province\":\"江苏\",\"city\":\"苏州\",\"updateTime\":\"20170503234931\"}}";
+		String ifFinish = SignUtil.doHttpPost("http://localhost:8080/MIS-2017-04-21/wechatCustomer.do?handlercontent",reqmsg);
+//		System.out.println(ifFinish);
+		Map reqParams = JsonUtil.getMap4Json(ifFinish);
+		String result = (String) reqParams.get("result");
+		System.out.println(result);
 	}
 }

@@ -168,25 +168,25 @@
 
 	<!-- Nifty Modal -->
 	<!-- 图片 -->
-	<form style="display:none;" id="image_submit" action="position.do?pic2" method="post"  enctype="multipart/form-data">
-        <input type="hidden" name="srcPath" id="srcPath" value="" />
-        <input type="hidden" name="type" id="type" value="servicePersonPhoto_" />
+	<form style="display:none;" id="image_submit" action="position.do?pic2" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="srcPath" id="srcPath" value="" />
+		<input type="hidden" name="type" id="type" value="servicePersonPhoto_" />
 		<input type="hidden" name="x1" id="x1" value="0" />
 		<input type="hidden" name="y1" id="y1" value="0" />
 		<input type="hidden" name="x2" id="x2" value="0" />
 		<input type="hidden" name="y2" id="y2" value="0" />
-	</form>  
-	<button type="button" class="btn btn-primary btn-flat" style="display:none;" id="sure_SC" onclick="uploadPic_cut()">确定</button>  
+	</form>
+	<button type="button" class="btn btn-primary btn-flat" style="display:none;" id="sure_SC" onclick="uploadPic_cut()">确定</button>
 	<form id="picuploadform1" class="secondcol" action="position.do?pic1" method="post" style="display:none;" enctype="multipart/form-data">
-		<input id="pic4upload1" name="pic4upload" type="file" onchange="uploadPic('1')" accept="image/*">
+		<input id="pic4upload1" name="pic4upload" type="file" onchange="uploadPic('1')" accept="image/jpeg,image/png">
 	</form>
 	<form id="picuploadform2" class="secondcol" action="position.do?pic1" method="post" style="display:none;" enctype="multipart/form-data">
-		<input id="pic4upload2" name="pic4upload" type="file" onchange="uploadPic('2')" accept="image/*">
+		<input id="pic4upload2" name="pic4upload" type="file" onchange="uploadPic('2')" accept="image/jpeg,image/png">
 	</form>
 	<input type="hidden" id="weizhiId" value="" />
 	<input type="hidden" id="hide_tupian1" value="" />
 	<input type="hidden" id="hide_tupian2" value="" />
-	
+
 	<button class="md-trigger" data-modal="editDetail" style="display:none;" id="edit"></button>
 	<div class="md-modal md-effect-1" id="editDetail" style="z-index: 1001;">
 		<div class="row">
@@ -276,7 +276,7 @@
 											</span>
 										</div>
 										<div class="img">
-											<img src="###" id="ptphoto2" style="width: 150px;height: 150px;" class="profile-avatar"/>
+											<img src="###" id="ptphoto2" style="width: 150px;height: 150px;" class="profile-avatar" />
 											<div class="over" style="width: 150px;height: 150px;top:23px;">
 												<div class="func">
 													<a onclick="$('#pic4upload2').click();">
@@ -599,15 +599,15 @@
 						$("#wechatNumPopup").val(data.content.wechatNum);
 						if (data.content.headPortrait != null && data.content.headPortrait != "") {
 							$("#hide_tupian1").val(data.content.headPortrait);
-							$("#ptphoto1").attr("src", data.content.headPortrait);  //将当前图片设为上传的图片
+							$("#ptphoto1").attr("src", data.content.headPortrait + "?random=" + Math.random());  //将当前图片设为上传的图片
 							$("#Bigptphoto1").show();
-							$("#Bigptphoto1").attr("href", data.content.headPortrait);//设置大图
+							$("#Bigptphoto1").attr("href", data.content.headPortrait + "?random=" + Math.random());//设置大图
 						}
 						if (data.content.wechatQrCode != null && data.content.wechatQrCode != "") {
 							$("#hide_tupian2").val(data.content.wechatQrCode);
-							$("#ptphoto2").attr("src", data.content.wechatQrCode);  //将当前图片设为上传的图片
+							$("#ptphoto2").attr("src", data.content.wechatQrCode + "?random=" + Math.random());  //将当前图片设为上传的图片
 							$("#Bigptphoto2").show();
-							$("#Bigptphoto2").attr("href", data.content.wechatQrCode);//设置大图
+							$("#Bigptphoto2").attr("href", data.content.wechatQrCode + "?random=" + Math.random());//设置大图
 						}
 	              	}
 	              } else {
@@ -741,9 +741,9 @@
 				if (data != null && data != "") {
 					var result = JSON.parse(data);
 					$("#hide_tupian" + weizhi).val(result.base64);
-					$("#ptphoto" + weizhi).attr("src", result.url);  //将当前图片设为上传的图片
+					$("#ptphoto" + weizhi).attr("src", result.url + "?random=" + Math.random());  //将当前图片设为上传的图片
 					$("#Bigptphoto" + weizhi).show();
-					$("#Bigptphoto" + weizhi).attr("href", result.url);//设置大图
+					$("#Bigptphoto" + weizhi).attr("href", result.url + "?random=" + Math.random());//设置大图
 				} else {
 					alert("图片上传失败");
 				}
@@ -763,6 +763,7 @@
 		$("#pic4upload" + flag).val("");
 	}
 	</script>
+	
 	<script src="js/behaviour/voice-commands.js"></script>
 	<script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
@@ -770,5 +771,5 @@
 	<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
 	<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
 	<script type="text/javascript" src="js/jquery.form.js"></script>
-	</body>
+</body>
 </html>

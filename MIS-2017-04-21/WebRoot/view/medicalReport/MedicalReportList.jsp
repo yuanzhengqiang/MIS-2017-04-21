@@ -237,6 +237,7 @@
 	
 	<div class="md-overlay"></div> <!-- Nifty Modal的遮罩层-->
 	
+	<script type="text/javascript" src="js/mordo.tools/mordo.timeProcessing.js"></script>
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
 <script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
@@ -371,7 +372,7 @@ function changeData(data){
 		    } else {
 		    	htmlcode += "<td></td>";
 		    }
-		    htmlcode += "<td>" + formateTime(item.medicalReportCreateTime) + "</td>";
+		    htmlcode += "<td>" + formateTime2(item.medicalReportCreateTime) + "</td>";
 			htmlcode += "<td><div class=\"btn-group\">";
 			htmlcode += "<button class=\"btn btn-default btn-xs\" type=\"button\">操作</button>";
 			htmlcode += "<button data-toggle=\"dropdown\" class=\"btn btn-xs btn-primary dropdown-toggle\" type=\"button\">";
@@ -488,15 +489,7 @@ function genaratePaginateHtml(currentpage, totalpage, pagesize) {
 	}
 	$("#paginationArea").html(htmlcode);
 }
- function formateTime(time) {
-		var timeFormate = "未知";
-		if (time != null && time.length == 14) {
-			timeFormate = time.substring(0, 4) + "-" + time.substring(4, 6) + "-"
-					+ time.substring(6, 8) + " " + time.substring(8, 10) + ":"
-					+ time.substring(10, 12) + ":" + time.substring(12, 14);
-		}
-		return timeFormate;
-	}
+
 </script>
   </body>
 </html>

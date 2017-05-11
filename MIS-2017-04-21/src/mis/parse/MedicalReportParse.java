@@ -141,6 +141,12 @@ public class MedicalReportParse {
 						if (hospitalId != null) {
 							medicalReportReturn.setHospitalId(hospitalId);
 						}
+						String medicalReportName = (String) contentreq
+								.get("medicalReportName");
+						if (medicalReportName != null) {
+							medicalReportReturn
+									.setMedicalReportName(medicalReportName);
+						}
 					}
 				}
 				if (true) {

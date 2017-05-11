@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import mis.entity.MedicalReportEntity;
 import mis.entity.OrderEntity;
+import mis.entity.OrderMedicalItemRelationEntity;
 import mis.entity.ServicePersonEntity;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -331,6 +332,27 @@ public class OrderParse {
 							}
 							orderReturn.setServicePerson(entity);
 						}
+					}
+				}
+				/** 这里生成保存到订单和体检项目关系的list */
+				if (true) {
+					ArrayList<OrderMedicalItemRelationEntity> omir = new ArrayList<OrderMedicalItemRelationEntity>();
+					Object medicalItemList = reqParams.get("medicalItemList");
+					if (medicalItemList != null) {
+						String id_str = medicalItemList.toString();
+						if (id_str.length() > 0) {
+							String[] id_arr = id_str.split(",");
+							for (int index = 0; index < id_arr.length; index++) {
+								OrderMedicalItemRelationEntity _temp_ = new OrderMedicalItemRelationEntity();
+								_temp_.setMedicalItemId(Integer.valueOf(id_arr[index]));
+								omir.add(_temp_);
+							}
+							parseMap.put("orderMedicalItemRelationList", omir);
+						} else {
+							parseMap.put("orderMedicalItemRelationList", null);
+						}
+					} else {
+						parseMap.put("orderMedicalItemRelationList", null);
 					}
 				}
 			} else if ("QUERY_ORDER_INFO_REQUEST".equals(command)) {

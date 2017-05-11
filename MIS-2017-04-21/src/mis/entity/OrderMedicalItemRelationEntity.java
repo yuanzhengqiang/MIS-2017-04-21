@@ -19,6 +19,8 @@ public class OrderMedicalItemRelationEntity implements java.io.Serializable {
 	public final static String MEDICAL_ITEM_ID = "MEDICAL_ITEM_ID";
 	public final static String MEDICAL_ITEM_NAME = "MEDICAL_ITEM_NAME";
 	public final static String MEDICAL_ITEM_PRICE = "MEDICAL_ITEM_PRICE";
+	public final static String ICONS = "ICONS";
+	public final static String TEST_PURPOSE = "TEST_PURPOSE";
 
 	/**
 	 * 主键
@@ -45,7 +47,17 @@ public class OrderMedicalItemRelationEntity implements java.io.Serializable {
 	 */
 	@ColumnDescription(name = "MEDICAL_ITEM_PRICE")
 	private Double medicalItemPrice;
-
+	/**
+	 * 体检项目图标
+	 */
+	@ColumnDescription(name = "ICONS")
+	private String icons;
+	/**
+	 * 体检目的
+	 */
+	@ColumnDescription(name = "TEST_PURPOSE")
+	private String testPurpose;
+	
 	public Integer getId() {
 		return id;
 	}
@@ -85,7 +97,21 @@ public class OrderMedicalItemRelationEntity implements java.io.Serializable {
 	public void setMedicalItemPrice(Double medicalItemPrice) {
 		this.medicalItemPrice = medicalItemPrice;
 	}
+	
+	public String getTestPurpose() {
+		return testPurpose;
+	}
 
+	public void setTestPurpose(String testPurpose) {
+		this.testPurpose = testPurpose;
+	}
+	public String getIcons() {
+		return icons;
+	}
+
+	public void setIcons(String icons) {
+		this.icons = icons;
+	}
 	/**
 	 * 关系描述
 	 */

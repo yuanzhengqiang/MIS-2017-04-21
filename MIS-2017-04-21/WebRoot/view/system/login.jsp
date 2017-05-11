@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <link rel="shortcut icon" href="images/logo.png">
-<title>体检后台管理系统</title>
+<title>身边体检管理系统</title>
 <!-- Bootstrap core CSS -->
 <link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
 <link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
@@ -66,7 +66,7 @@
 					<h3 class="title" style="text-align:center;">
 						<img src="" />
 					</h3>
-					<h3 class="title" style="text-align:center;">体检后台管理系统</h3>
+					<h3 class="title" style="text-align:center;">身边体检管理系统</h3>
 					<div class="form-group ">
 						<label for="username" class="col-sm-2 control-label" style="margin-top:20px">用户名</label>
 						<div class="col-sm-10" style="margin-top:20px">

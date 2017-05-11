@@ -175,7 +175,7 @@
 					<div class="header">
 						<h3>医院信息</h3>
 					</div>
-					<div class="content form-horizontal group-border-dashed" style="overflow-y: auto;">
+					<div class="content form-horizontal group-border-dashed" style="height:500px;overflow-y:scroll;">
 						<input type="hidden" name="entityId" id="hospitalId">
 						<div class="form-group">
 							<label class="col-sm-3 control-label">医院名称</label>
@@ -866,7 +866,8 @@
 		if (medicalItemIds != null && medicalItemIds != '') {
 			medicalItemIds = medicalItemIds.substr(0,medicalItemIds.length - 1);
 		}
-		reqmsg += "'medicalItemList':'" + medicalItemIds + "'}";
+		reqmsg += "'medicalItemList':'" + medicalItemIds + "'";
+		reqmsg += "}";
 		
 		jQuery.ajax({
 	          type : "post",

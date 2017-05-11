@@ -145,13 +145,13 @@
 											</span>
 										</div>
 									</div>
-									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">报告完成时间</div>
+									<div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">报告时间</div>
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
 											<span class="input-group-addon btn btn-primary">
 												<span class="glyphicon glyphicon-th"></span>
 											</span>
-											<input class="form-control" size="16" value="" readonly="" type="text" id="expectReportCompleteTime" placeholder="报告完成时间">
+											<input class="form-control" size="16" value="" readonly="" type="text" id="reportCreateTime" placeholder="报告时间">
 											<span class="input-group-btn">
 												<button class="btn btn-danger deleteThisTime" type="button">
 													<span class="fa fa-times"></span>
@@ -202,20 +202,6 @@
 									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
 										<input type="text" class="form-control" id="medicalReportExpressOrderNum">
 									</div>
-									<!-- <div class="col-sm-2 col-md-2 col-lg-1 text-left" style="padding-left: 20px;padding-right: 0px;height: 34px;line-height: 34px;">预计体检时间</div>
-									<div class="col-sm-4 col-md-4 col-lg-2" style="margin-bottom:5px;height: 34px;line-height: 34px;">
-										<div class="input-group date datetime" data-min-view="2" data-date-format="yyyy-mm-dd" style="margin-bottom: 0px;">
-											<span class="input-group-addon btn btn-primary">
-												<span class="glyphicon glyphicon-th"></span>
-											</span>
-											<input class="form-control" size="16" value="" readonly="" type="text" id="expectMedicalTime" placeholder="预计体检时间">
-											<span class="input-group-btn">
-												<button class="btn btn-danger deleteThisTime" type="button">
-													<span class="fa fa-times"></span>
-												</button>
-											</span>
-										</div>
-									</div> -->
 								</div>
 							</div>
 							<div class="form-group">
@@ -429,10 +415,12 @@
 	        },
 	        success : function(data) {
 	        	if (data.des == "success") {
-	            	if (data.content.servicePersonList != null) {
-						jQuery.each(data.content.servicePersonList,function(i, item) {
-              				html += "<option value='" + item.id + "'>" + item.name + "</option>";
-						});
+	        		if (data.content != null) {
+		            	if (data.content.servicePersonList != null) {
+							jQuery.each(data.content.servicePersonList,function(i, item) {
+	              				html += "<option value='" + item.id + "'>" + item.name + "</option>";
+							});
+	 					}
  					}
 	            } else {
 	            	alert("查询服务人员信息失败");
@@ -465,7 +453,7 @@
 		} else {
 			orderTime = "";
 		}
-    	var medicalHospital = $("#medicalPersonName").val();
+    	var medicalHospital = $("#medicalHospital").val();
     	
     	var medicalPersonName = $.trim($("#medicalPersonName").val());
     	if (medicalPersonName == null || medicalPersonName == "") {
@@ -498,23 +486,19 @@
 		var reportSendPersonContactWay = $.trim($("#reportSendPersonContactWay").val());
 		var medicalReportExpress = $.trim($("#medicalReportExpress").val());
 		var medicalReportExpressOrderNum = $.trim($("#medicalReportExpressOrderNum").val());
-		//var expectMedicalTime = $("#expectMedicalTime").val();
-		//if (expectMedicalTime != null && expectMedicalTime != "") {
-		//	expectMedicalTime = formateTime7(expectMedicalTime) + "000000";
-		//} else {
-		//	expectMedicalTime = "";
-		//}
+		
 		var medicalCompleteTime = $("#medicalCompleteTime").val();
 		if (medicalCompleteTime != null && medicalCompleteTime != "") {
 			medicalCompleteTime = formateTime7(medicalCompleteTime) + "000000";
 		} else {
 			medicalCompleteTime = "";
 		}
-		var expectReportCompleteTime = $("#expectReportCompleteTime").val();
-		if (expectReportCompleteTime != null && expectReportCompleteTime != "") {
-			expectReportCompleteTime = formateTime7(expectReportCompleteTime) + "000000";
+		
+		var reportCreateTime = $("#reportCreateTime").val();
+		if (reportCreateTime != null && reportCreateTime != "") {
+			reportCreateTime = formateTime7(reportCreateTime) + "000000";
 		} else {
-			expectReportCompleteTime = "";
+			reportCreateTime = "";
 		}
 		var status = $("#status").val();
 		
@@ -542,9 +526,8 @@
 		reqmsg += "'reportSendPersonContactWay':'" + reportSendPersonContactWay + "',";
 		reqmsg += "'medicalReportExpress':'" + medicalReportExpress + "',";
 		reqmsg += "'medicalReportExpressOrderNum':'" + medicalReportExpressOrderNum + "',";
-		//reqmsg += "'expectMedicalTime':'" + expectMedicalTime + "',";
 		reqmsg += "'medicalCompleteTime':'" + medicalCompleteTime + "',";
-		reqmsg += "'expectReportCompleteTime':'" + expectReportCompleteTime + "',";
+		reqmsg += "'reportCreateTime':'" + reportCreateTime + "',";
 		reqmsg += "'status':" + status + ",";
 		if (servicePersonId != null && servicePersonId != "") {
 			reqmsg += "'servicePersonId':" + servicePersonId + ",";

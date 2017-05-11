@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,44 +9,21 @@
 <meta name="description" content="">
 <meta name="author" content="">
 <link rel="shortcut icon" href="images/favicon.png">
-
 <title>微信菜单管理</title>
-
-<!-- Bootstrap core CSS -->
 <link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
-<link rel="stylesheet"
-	href="fonts/font-awesome-4/css/font-awesome.min.css">
-
-<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-<!--[if lt IE 9]>
-      <script src="js/html5shiv.js"></script>
-    <![endif]-->
-<link rel="stylesheet" type="text/css"
-	href="js/jquery.gritter/css/jquery.gritter.css" />
-
-<link rel="stylesheet" type="text/css"
-	href="js/jquery.nanoscroller/nanoscroller.css" />
-<link rel="stylesheet" type="text/css"
-	href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
-<link rel="stylesheet" type="text/css"
-	href="js/bootstrap.switch/bootstrap-switch.css" />
-<link rel="stylesheet" type="text/css"
-	href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
-<link rel="stylesheet" type="text/css"
-	href="js/jquery.select2/select2.css" />
-<link rel="stylesheet" type="text/css"
-	href="js/bootstrap.slider/css/slider.css" />
+<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+<link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
+<link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+<link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
+<link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+<link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
+<link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
 <link rel="stylesheet" type="text/css" href="js/intro.js/introjs.css" />
-<link rel="stylesheet" type="text/css"
-	href="js/jquery.niftymodals/css/component.css" />
-<!-- Custom styles for this template -->
+<link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
 <link href="css/style.css" rel="stylesheet" />
-<!-- treeTable start-->
-
 <link rel="stylesheet" href="css/jquery.treetable.theme.default.css" />
 <link rel="stylesheet" href="css/jquery.treetable.css" />
-<!-- treeTable end-->
-
 </head>
 <body style="opacity: 1; margin-left: 0px;">
 	<div style="width: 100%; height: 100%;">
@@ -54,7 +32,8 @@
 			<div class="page-head">
 				<h2>微信菜单管理</h2>
 				<ol class="breadcrumb">
-					<li><a href="welcome.do?center">首页</a>
+					<li>
+						<a href="welcome.do?center">首页</a>
 					</li>
 					<li class="active">微信菜单管理</li>
 				</ol>
@@ -77,47 +56,51 @@
 									<div class="row">
 										<div class="col-sm-12">
 											<c:if test="${weChatMenuList_add_btn_control != 'yes' or weChatMenuList_add_btn_show == 'yes'}">
-												<button type="button" class="btn btn-primary btn-flat"
-													style="float: right;" id="addFirstMenuId"
-													onclick="addFirstMenu()">
-													<span><i class="fa fa-plus"
-														style="margin-right:5px;"></i>新增一级菜单</span>
+												<button type="button" class="btn btn-primary btn-flat" style="float: right;" id="addFirstMenuId" onclick="addFirstMenu()">
+													<span>
+														<i class="fa fa-plus" style="margin-right:5px;"></i>新增一级菜单
+													</span>
 												</button>
-												<button type="button" style="display: none"
-													class="md-trigger" id="fake_add" data-modal="md-scale"></button>
+												<button type="button" style="display: none" class="md-trigger" id="fake_add" data-modal="md-scale"></button>
 											</c:if>
 											<button type="button" class="btn btn-primary btn-flat" style="float: right;" onclick="updateWeChatMenu()">
-													<span><i class="fa fa-cloud-upload"
-														style="margin-right:5px;"></i>更新微信菜单</span>
-												</button>
+												<span>
+													<i class="fa fa-cloud-upload" style="margin-right:5px;"></i>更新微信菜单
+												</span>
+											</button>
 										</div>
 									</div>
 									<!-- 操作按钮结束 -->
 									<!-- 数据表格开始 -->
 									<div class="row">
 										<div class="col-sm-12">
-											<table class="table table-bordered dataTable" id="datatable"
-												aria-describedby="datatable_info">
+											<table class="table table-bordered dataTable" id="datatable" aria-describedby="datatable_info">
 												<thead>
 													<tr role="row">
-														<th><strong>菜单名称</strong>
+														<th>
+															<strong>菜单名称</strong>
 														</th>
-														<th><strong>菜单地址</strong>
+														<th>
+															<strong>菜单地址</strong>
 														</th>
-														<th><strong>菜单级别</strong>
+														<th>
+															<strong>菜单级别</strong>
 														</th>
-														<th><strong>编辑时间</strong>
+														<th>
+															<strong>编辑时间</strong>
 														</th>
-														<th><strong>地址类型</strong>
+														<th>
+															<strong>地址类型</strong>
 														</th>
-														<th><strong>菜单顺序</strong>
+														<th>
+															<strong>菜单顺序</strong>
 														</th>
-														<th><strong>操作</strong>
+														<th>
+															<strong>操作</strong>
 														</th>
 													</tr>
 												</thead>
-												<tbody id="datacontainer" role="alert" aria-live="polite"
-													aria-relevant="all">
+												<tbody id="datacontainer" role="alert" aria-live="polite" aria-relevant="all">
 												</tbody>
 
 											</table>
@@ -134,8 +117,7 @@
 	</div>
 
 	<!-- Nifty Modal -->
-	<div class="md-modal md-effect-1" id="md-scale"
-		style="height:650px;background:#fff;">
+	<div class="md-modal md-effect-1" id="md-scale" style="height:650px;background:#fff;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="block-flat">
@@ -143,8 +125,7 @@
 						<h3>菜单信息</h3>
 					</div>
 					<div class="content">
-						<form class="form-horizontal group-border-dashed" action="#"
-							style="border-radius: 0px;">
+						<form class="form-horizontal group-border-dashed" action="#" style="border-radius: 0px;">
 							<input type="hidden" id="menuId">
 							<div class="form-group">
 								<label class="col-sm-3 control-label color-danger">菜单名称</label>
@@ -161,30 +142,22 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label color-danger">菜单级别</label>
 								<div class="col-sm-6">
-									<input id="menulevel" type="text" class="form-control"
-										disabled="disabled">
+									<input id="menulevel" type="text" class="form-control" disabled="disabled">
 								</div>
 							</div>
 							<div class="form-group">
 								<label class="col-sm-3 control-label color-danger">地址类型</label>
 								<div class="col-sm-6">
-									<select class="form-control" type="text" id="menuAddressType"
-										style="width: 100%" onchange="menuAddressTypeChange()">
+									<select class="form-control" type="text" id="menuAddressType" style="width: 100%" onchange="menuAddressTypeChange()">
 										<option value="1">系统</option>
 										<!-- <option value="2">微盟</option> -->
-										<option value="3">跳转链接</option>
-										<option value="4">下发消息</option>
+										<option value="3">素材</option>
+										<!-- <option value="4">下发消息</option> -->
 									</select>
 								</div>
 								<div class="col-sm-3">
-									<button type="button" class="btn btn-primary"
-										id="chooseSourceMaterialId" onclick="chooseSourceMaterial(1);">
-										选择
-									</button>
-									<button type="button" style="display: none"
-										class="btn btn-primary btn-flat btn-rad md-trigger"
-										data-modal="sourceMaterialModal" id="sourceMaterialModalId">
-									</button>
+									<button type="button" class="btn btn-primary" id="chooseSourceMaterialId" onclick="chooseSourceMaterial(1);">选择</button>
+									<button type="button" style="display: none" class="btn btn-primary btn-flat btn-rad md-trigger" data-modal="sourceMaterialModal" id="sourceMaterialModalId"></button>
 								</div>
 							</div>
 							<div class="form-group">
@@ -194,22 +167,25 @@
 								</div>
 							</div>
 							<div class="form-group" style="text-align: center;">
-								<button type="button" class="btn btn-primary btn-rad"
-									id="saveAddFather" onclick="saveWeChatMenu('addFather');">
-									<span><i class="fa fa-check" style="margin-right:5px;"></i>保存</span>
+								<button type="button" class="btn btn-primary btn-rad" id="saveAddFather" onclick="saveWeChatMenu('addFather');">
+									<span>
+										<i class="fa fa-check" style="margin-right:5px;"></i>保存
+									</span>
 								</button>
-								<button type="button" class="btn btn-primary btn-rad"
-									id="saveAddSon" onclick="saveWeChatMenu('addSon');">
-									<span><i class="fa fa-check" style="margin-right:5px;"></i>保存</span>
+								<button type="button" class="btn btn-primary btn-rad" id="saveAddSon" onclick="saveWeChatMenu('addSon');">
+									<span>
+										<i class="fa fa-check" style="margin-right:5px;"></i>保存
+									</span>
 								</button>
-								<button type="button" class="btn btn-primary btn-rad"
-									id="saveEdit" onclick="saveWeChatMenu('editSon');">
-									<span><i class="fa fa-check" style="margin-right:5px;"></i>保存</span>
+								<button type="button" class="btn btn-primary btn-rad" id="saveEdit" onclick="saveWeChatMenu('editSon');">
+									<span>
+										<i class="fa fa-check" style="margin-right:5px;"></i>保存
+									</span>
 								</button>
-								<button type="button" id="closePopup"
-									class="btn btn-primary btn-rad md-close"
-									style="margin-left: 50px;">
-									<span><i class="fa fa-times" style="margin-right:5px;"></i>取消</span>
+								<button type="button" id="closePopup" class="btn btn-primary btn-rad md-close" style="margin-left: 50px;">
+									<span>
+										<i class="fa fa-times" style="margin-right:5px;"></i>取消
+									</span>
 								</button>
 							</div>
 						</form>
@@ -220,32 +196,31 @@
 	</div>
 
 	<!-- 素材列表 -->
-	<div class="md-modal colored-header custom-width md-effect-9"
-		id="sourceMaterialModal">
+	<div class="md-modal colored-header custom-width md-effect-9" id="sourceMaterialModal">
 		<div class="md-content">
 			<div class="modal-header">
 				<h3>素材列表</h3>
-				<button type="button" class="close md-close" data-dismiss="modal"
-					aria-hidden="true">&times;</button>
+				<button type="button" class="close md-close" data-dismiss="modal" aria-hidden="true">&times;</button>
 			</div>
 			<div class="modal-body " id="materialData" style="height:280px;overflow-y:scroll;border:1px solid #ddd;">
 				<!-- 数据表格开始 -->
 				<div class="row">
 					<div class="col-sm-12">
-						<table class="table table-bordered dataTable hover" id="datatableMateria"
-							aria-describedby="datatable_info">
+						<table class="table table-bordered dataTable hover" id="datatableMateria" aria-describedby="datatable_info">
 							<thead>
 								<tr role="row">
-									<th><strong>选择</strong>
+									<th>
+										<strong>选择</strong>
 									</th>
-									<th><strong>标题</strong>
+									<th>
+										<strong>标题</strong>
 									</th>
-									<th><strong>作者</strong>
+									<th>
+										<strong>作者</strong>
 									</th>
 								</tr>
 							</thead>
-							<tbody id="datacontainerMateria" role="alert" aria-live="polite"
-								aria-relevant="all">
+							<tbody id="datacontainerMateria" role="alert" aria-live="polite" aria-relevant="all">
 							</tbody>
 						</table>
 					</div>
@@ -262,9 +237,22 @@
 						<div class="pull-right">
 							<div class="dataTables_paginate paging_bs_normal">
 								<ul id="paginationArea" class="pagination">
-								<li class="prev disabled"><a href="#"><span class="fa fa-angle-left"></span>&nbsp;上一页</a></li>
-								<li class="active"><a href="#">1</a></li>
-								<li class="next"><a href="#">下一页&nbsp;<span class="fa fa-angle-right"></span></a></li></ul>
+									<li class="prev disabled">
+										<a href="#">
+											<span class="fa fa-angle-left"></span>
+											&nbsp;上一页
+										</a>
+									</li>
+									<li class="active">
+										<a href="#">1</a>
+									</li>
+									<li class="next">
+										<a href="#">
+											下一页&nbsp;
+											<span class="fa fa-angle-right"></span>
+										</a>
+									</li>
+								</ul>
 							</div>
 						</div>
 					</div>
@@ -272,8 +260,7 @@
 				<!-- 分页条结束 -->
 			</div>
 			<div class="modal-footer">
-				<button type="button" id="closeMateriaPopup" style="display:none;"
-					class="btn btn-default btn-flat md-close" data-dismiss="modal">取消</button>
+				<button type="button" id="closeMateriaPopup" style="display:none;" class="btn btn-default btn-flat md-close" data-dismiss="modal">取消</button>
 			</div>
 		</div>
 	</div>
@@ -282,43 +269,32 @@
 
 	<div class="md-overlay"></div>
 	<!-- Nifty Modal的遮罩层-->
-	<script type="text/javascript"
-		src="js/mordo.tools/mordo.timeProcessing.js"></script>
+	<script type="text/javascript" src="js/mordo.tools/mordo.timeProcessing.js"></script>
 	<script type="text/javascript" src="js/jquery.js"></script>
-	<script type="text/javascript"
-		src="js/jquery.gritter/js/jquery.gritter.js"></script>
-	<script type="text/javascript"
-		src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+	<script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
 	<script type="text/javascript" src="js/behaviour/general.js"></script>
 	<script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
-	<script type="text/javascript"
-		src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
-	<script type="text/javascript"
-		src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
-	<script type="text/javascript"
-		src="js/jquery.nestable/jquery.nestable.js"></script>
-	<script type="text/javascript"
-		src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
-	<script type="text/javascript"
-		src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	<script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+	<script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
+	<script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
 	<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
 	<script src="js/skycons/skycons.js" type="text/javascript"></script>
-	<script src="js/bootstrap.slider/js/bootstrap-slider.js"
-		type="text/javascript"></script>
+	<script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
 	<script src="js/intro.js/intro.js" type="text/javascript"></script>
 	<script src="js/behaviour/voice-commands.js"></script>
 	<script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
 	<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
-	<script type="text/javascript"
-		src="js/jquery.flot/jquery.flot.resize.js"></script>
-	<script type="text/javascript"
-		src="js/jquery.flot/jquery.flot.labels.js"></script>
-	<script type="text/javascript"
-		src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
+	<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+	<script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>
 	<script src="js/jquery.treetable.js"></script>
+	
 	<script type="text/javascript">
-	$(document).ready(function(){
+		$(document).ready(function(){
     	App.init();
    	    $(".md-trigger").modalEffects();
 		queryWeChatFatherMenuList();//初始化，查询微信菜单父列表
@@ -768,7 +744,7 @@
 	  		break;
 	
 			case 3:
-	  		name="跳转链接";
+	  		name="素材";
 	  		break;
 	  		
 	  		case 4:
@@ -808,7 +784,7 @@
 		});
 	    jQuery('#datatable').treetable('expandAll');
 	}
-	
 	</script>
+	
 </body>
 </html>

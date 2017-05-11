@@ -5,9 +5,11 @@ import java.util.Date;
 import java.util.Random;
 
 public class RandomNum {
-	
+
 	public static final String HEXALLCHAR = "0123456789ABCDEF";
 	
+	public static final String HEXALLCHAR_2 = "01234aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ56789";
+
 	/**
 	 * 返回一个定长的16进制随机字符串(只包含大小写字母、数字)
 	 * 
@@ -38,5 +40,24 @@ public class RandomNum {
 				+ part_two);
 		System.out.println(baseStr);
 		return baseStr;
+	}
+
+	public static String generate4HexString() {
+		Random random_HEXALLCHAR = new Random();
+		int iSub_HEXALLCHAR = 0;
+		String code = "";
+		for (int i = 0; i < 4; i++) {
+			iSub_HEXALLCHAR = random_HEXALLCHAR.nextInt(HEXALLCHAR_2.length());
+			code += HEXALLCHAR_2.charAt(iSub_HEXALLCHAR);
+		}
+		return code;
+	}
+
+	/**
+	 * @param argv
+	 */
+	public static void main(String[] argv) {
+		for (int i = 0; i < 100; i++)
+			System.out.println(RandomNum.generate4HexString());
 	}
 }

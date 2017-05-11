@@ -117,6 +117,11 @@ public class WechatCustomerParse {
 						if (updateTime != null) {
 							wechatCustomerReturn.setUpdateTime(updateTime);
 						}
+						String introduceCode = (String) contentreq
+								.get("introduceCode");
+						if (introduceCode != null) {
+							wechatCustomerReturn.setIntroduceCode(introduceCode);
+						}
 					}
 				}
 			} else if ("QUERY_WECHAT_CUSTOMER_INFO_REQUEST".equals(command)) {

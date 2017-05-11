@@ -11,7 +11,7 @@
 <meta name="description" content="">
 <meta name="author" content="">
 <link rel="shortcut icon" href="images/logo.png">
-<title>体检后台管理系统</title>
+<title>身边体检管理系统</title>
 <link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
 <link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
 <link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
@@ -39,7 +39,7 @@
 					<span class="fa fa-gear"></span>
 				</button>
 				<a class="navbar-brand" href="###" style="width:auto;background: url(images/logo.png) no-repeat 0 10px">
-					<span>体检后台管理系统</span>
+					<span>身边体检管理系统</span>
 				</a>
 			</div>
 			<div class="navbar-collapse collapse">
@@ -153,7 +153,7 @@
 										</a>
 									</li>
 									<li>
-										<a href="#" onclick="changeCenter('wechatMenu.do?wechatMenuManagement')">
+										<a href="#" onclick="changeCenter('menu.do?wechatMenuManagement')">
 											<i class="fa fa-users"></i>微信菜单管理
 										</a>
 									</li>

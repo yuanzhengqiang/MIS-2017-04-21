@@ -427,6 +427,7 @@
     	}
 		var reportGenerateStartTime = $.trim($("#reportGenerateStartTime").val());
 		var reportContent = $("#reportContent").code();
+		var medicalReportDownloadLink = $("#medicalReportDownloadLink").val();
 		var hospitalId = $("#hospital").val();
 		var hospitalName = $("#hospital").find("option:selected").text();
 		if (hospitalId == null || hospitalId == "") {
@@ -581,26 +582,7 @@
 		};
 		$("#file_submit").ajaxSubmit(ajax_option);
 	}
-	
-	//文件下载
-	function downloadFile() {
-		var id = $("#medicalReportId").val();
-		var filePath = $("#filePath").val();
-		jQuery.ajax({
-			type : "post",
-          	async:false,
-          	url : "document.do?download",
-          	dataType : "json",
-			data:{
-				"medicalReportId":id,
-				"filePath":filePath
-			},
-			success:function(data) {
-				alert("111")
-			}
-		});
-	}
-	
+
 	//自动获取文件名
 	function getFileName(value) {
 		document.getElementById('hideFile').value = value;

@@ -1,13 +1,6 @@
 package mis.entity;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-
-
-
 import com.framework.system.db.dao.annotation.ColumnDescription;
-import com.framework.system.db.dao.annotation.RelationlDescription;
 import com.framework.system.db.dao.annotation.TableDescription;
 
 /**   
@@ -29,6 +22,8 @@ public class WechatCustomerEntity implements java.io.Serializable {
     public final static String PROVINCE = "PROVINCE";
     public final static String CITY = "CITY";
     public final static String UPDATE_TIME = "UPDATE_TIME";
+    public final static String INVITE_CODE = "INVITE_CODE";
+    public final static String INTRODUCE_CODE = "INTRODUCE_CODE";
     
     /**
 	 * 主键
@@ -75,7 +70,17 @@ public class WechatCustomerEntity implements java.io.Serializable {
 	 */
 	@ColumnDescription(name = "UPDATE_TIME")
 	private String updateTime;
-        
+   /**
+	 * 介绍码
+	 */
+	@ColumnDescription(name = "INTRODUCE_CODE")
+	private String introduceCode;
+   /**
+	 * 邀请码
+	 */
+	@ColumnDescription(name = "INVITE_CODE")
+	private String inviteCode;
+	
     public Integer getId() {
 		return id;
 	}
@@ -139,6 +144,18 @@ public class WechatCustomerEntity implements java.io.Serializable {
 	public void setUpdateTime(String updateTime) {
 		this.updateTime = updateTime;
 	}
-        
-    	
+	
+	public String getInviteCode() {
+		return inviteCode;
+	}
+	public void setInviteCode(String inviteCode) {
+		this.inviteCode = inviteCode;
+	}
+    
+	public String getIntroduceCode() {
+		return introduceCode;
+	}
+	public void setIntroduceCode(String introduceCode) {
+		this.introduceCode = introduceCode;
+	}
 }

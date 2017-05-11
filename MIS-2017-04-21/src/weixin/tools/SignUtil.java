@@ -2,7 +2,9 @@ package weixin.tools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -33,15 +35,15 @@ public class SignUtil {
 	private static Logger logger = Logger.getLogger(SignUtil.class);
 	
 	// 与接口配置信息中的Token要一致
-	public static String token = "fsktoken";
-	public static String yumingdizhi = "fortune.mordo-care.com";
-	public static String handlerurl = "http://fortune.mordo-care.com";
-	public static String APPID = "wxe4e93c014a627b19";//正式
-	public static String SECRET = "d0b4e7b2a49144525b4d4a40bd52ddfd";//正式
-	public static String PARTNER_KEY = "6706864efed41f45d95ca45082f1a802";//商户号对应的密钥
-	public static String PARTNER = "1403184402";//财付通商户号
-	public static String payNotifyUrl = "http://fortune.mordo-care.com/wechatYuE.do?mpayNotify&weixin=weixin";//支付回调页
-	public static String weChatPhotoUrl = "http://fortune.mordo-care.com/wechatOlder.do?mainAdd&flag=longActingInsuranceAgent&wechatId=";//拍照所需url参数
+	public static String token = "tjptoken";
+	public static String yumingdizhi = "ibyside.mordo-care.com";
+	public static String handlerurl = "http://ibyside.mordo-care.com";
+	public static String APPID = "wxf132c41c6af14e16";//正式
+	public static String SECRET = "bde07ad33f07edd1f3435a8ea199b19a";//正式
+	public static String PARTNER_KEY = "";//商户号对应的密钥6706864efed41f45d95ca45082f1a802
+	public static String PARTNER = "";//财付通商户号1403184402
+	public static String payNotifyUrl = "http://ibyside.mordo-care.com/wechatYuE.do?mpayNotify&weixin=weixin";//支付回调页
+	public static String weChatPhotoUrl = "http://ibyside.mordo-care.com/wechatOlder.do?mainAdd&flag=longActingInsuranceAgent&wechatId=";//拍照所需url参数
 
 	/**
 	 * 验证签名
@@ -51,8 +53,7 @@ public class SignUtil {
 	 * @param nonce
 	 * @return
 	 */
-	public static boolean checkSignature(String signature, String timestamp,
-			String nonce) {
+	public static boolean checkSignature(String signature, String timestamp, String nonce) {
 		String[] arr = new String[] { token, timestamp, nonce };
 		// 将token、timestamp、nonce三个参数进行字典序排序
 		Arrays.sort(arr);
@@ -98,8 +99,7 @@ public class SignUtil {
 	 * @return
 	 */
 	private static String byteToHexStr(byte mByte) {
-		char[] Digit = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A',
-				'B', 'C', 'D', 'E', 'F' };
+		char[] Digit = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 		char[] tempArr = new char[2];
 		tempArr[0] = Digit[(mByte >>> 4) & 0X0F];
 		tempArr[1] = Digit[mByte & 0X0F];
@@ -111,23 +111,20 @@ public class SignUtil {
 	/**
 	 * 获取ACCESS_TOKEN，调用大部分微信接口所需参数，单日请求上限2000次
 	 * 
-	 * @param 
+	 * @param
 	 * @return access_token
 	 */
 	public static String getAccess_token() {
 
-		String url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="
-				+ APPID + "&secret=" + SECRET;
+		String url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + APPID + "&secret=" + SECRET;
 
 		String accessToken = null;
 		try {
 			URL urlGet = new URL(url);
-			HttpURLConnection http = (HttpURLConnection) urlGet
-					.openConnection();
+			HttpURLConnection http = (HttpURLConnection) urlGet.openConnection();
 
 			http.setRequestMethod("GET"); // 必须是get方式请求
-			http.setRequestProperty("Content-Type",
-					"application/x-www-form-urlencoded");
+			http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			http.setDoOutput(true);
 			http.setDoInput(true);
 			System.setProperty("sun.net.client.defaultConnectTimeout", "30000");// 连接超时30秒
@@ -153,23 +150,23 @@ public class SignUtil {
 		}
 		return accessToken;
 	}
-	
+
 	/**
 	 * 获取ACCESS_TOKEN,如果无值则打开线程,并且一直到有值后才跳出方法
 	 * 
-	 * @param 
-	 * @return 
+	 * @param
+	 * @return
 	 * @return access_token
 	 */
 	public static void getAccess_tokenByThread() {
-		if(SystemInit.access_token == null || "".equals(SystemInit.access_token)){
+		if (SystemInit.access_token == null || "".equals(SystemInit.access_token)) {
 			logger.debug("系统重启后首次开启定时获取微信access_token线程.....");
 			GetAccessTokenThread getAccessTokenThread = new GetAccessTokenThread();
 			getAccessTokenThread.start();
-			while(true){
-				if(SystemInit.access_token != null && SystemInit.access_token != ""){
+			while (true) {
+				if (SystemInit.access_token != null && SystemInit.access_token != "") {
 					break;
-				}else{
+				} else {
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {
@@ -179,7 +176,7 @@ public class SignUtil {
 			}
 		}
 	}
-	
+
 	/**
 	 * 获取jsapi_ticket，调用微信接口JS-SDK注入权限验证所需参数,单日请求上限2000
 	 * 
@@ -188,15 +185,12 @@ public class SignUtil {
 	 */
 	public static String getTicket(String access_token) {
 		String ticket = null;
-		String url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token="
-				+ access_token + "&type=jsapi";// 这个url链接和参数不能变
+		String url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=" + access_token + "&type=jsapi";// 这个url链接和参数不能变
 		try {
 			URL urlGet = new URL(url);
-			HttpURLConnection http = (HttpURLConnection) urlGet
-					.openConnection();
+			HttpURLConnection http = (HttpURLConnection) urlGet.openConnection();
 			http.setRequestMethod("GET"); // 必须是get方式请求
-			http.setRequestProperty("Content-Type",
-					"application/x-www-form-urlencoded");
+			http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			http.setDoOutput(true);
 			http.setDoInput(true);
 			System.setProperty("sun.net.client.defaultConnectTimeout", "30000");// 连接超时30秒
@@ -218,7 +212,7 @@ public class SignUtil {
 		}
 		return ticket;
 	}
-	
+
 	/**
 	 * 获取当前登陆微信用户openid
 	 * 
@@ -228,42 +222,29 @@ public class SignUtil {
 	public static String getopenid(String code) {
 		String openid = "";
 		try {
-			String message = SignUtil
-					.getUrl("https://api.weixin.qq.com/sns/oauth2/access_token?appid="
-							+ SignUtil.APPID
-							+ "&secret="
-							+ SignUtil.SECRET
-							+ "&code="
-							+ code
-							+ "&grant_type=authorization_code");
-			if(message != null){
+			String message = SignUtil.getUrl("https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + SignUtil.APPID + "&secret=" + SignUtil.SECRET
+			        + "&code=" + code + "&grant_type=authorization_code");
+			if (message != null) {
 				Map demoJson = JsonUtil.getMap4Json(message);
-				if(demoJson != null){
+				if (demoJson != null) {
 					openid = (String) demoJson.get("openid");
 				}
 			}
 		} catch (Exception e) {
-			 logger.debug("微信-获取当前登陆微信用户openid失败=" + e);
+			logger.debug("微信-获取当前登陆微信用户openid失败=" + e);
 		}
 		return openid;
 	}
- 
-	/**
-	 * get请求通用方法
-	 * 
-	 * @param url
-	 * @return message
-	 */
+
+	// get请求通用方法
 	public static String getUrl(String url) {
 
 		String message = null;
 		try {
 			URL urlGet = new URL(url);
-			HttpURLConnection http = (HttpURLConnection) urlGet
-					.openConnection();
+			HttpURLConnection http = (HttpURLConnection) urlGet.openConnection();
 			http.setRequestMethod("GET"); // 必须是get方式请求
-			http.setRequestProperty("Content-Type",
-					"application/x-www-form-urlencoded");
+			http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			http.setDoOutput(true);
 			http.setDoInput(true);
 			System.setProperty("sun.net.client.defaultConnectTimeout", "30000");// 连接超时30秒
@@ -284,21 +265,14 @@ public class SignUtil {
 		return message;
 	}
 
-	/**
-	 * 将图片数据转为base64编码
-	 * 
-	 * @param url
-	 * @return photo64
-	 */
+	// 将图片数据转为base64编码
 	public static String getPhoto(String url) {
 		String photo64 = null;
 		try {
 			URL urlGet = new URL(url);
-			HttpURLConnection http = (HttpURLConnection) urlGet
-					.openConnection();
+			HttpURLConnection http = (HttpURLConnection) urlGet.openConnection();
 			http.setRequestMethod("GET");
-			http.setRequestProperty("Content-Type",
-					"application/x-www-form-urlencoded");
+			http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			http.setDoOutput(true);
 			http.setDoInput(true);
 			System.setProperty("sun.net.client.defaultConnectTimeout", "30000");
@@ -312,13 +286,7 @@ public class SignUtil {
 		}
 		return photo64;
 	}
-	
-	/**
-	 * 自己服务器post请求
-	 * 
-	 * @param url,reqmsg
-	 * @return result
-	 */
+
 	public static String doHttpPost(String url, String reqmsg) {
 		String result = null;
 		try {
@@ -327,10 +295,8 @@ public class SignUtil {
 			HttpClient client = new HttpClient();
 			PostMethod method = new PostMethod(url);
 			client.getParams().setContentCharset("UTF-8");
-			method.setRequestHeader("ContentType",
-					"application/json;charset=UTF-8");
-			NameValuePair[] param = { new NameValuePair("reqmsg", reqmsg),
-					new NameValuePair("weixin", "weixin") };
+			method.setRequestHeader("ContentType", "application/json;charset=UTF-8");
+			NameValuePair[] param = { new NameValuePair("reqmsg", reqmsg), new NameValuePair("weixin", "weixin") };
 			method.addParameters(param);
 			client.executeMethod(method);
 			result = method.getResponseBodyAsString();
@@ -341,10 +307,7 @@ public class SignUtil {
 		return result;
 	}
 
-	/**
-	 * 转为图片的二进制数据
-	 * 
-	 */
+	// 转为图片的二进制数据
 	public static byte[] readInputStream(InputStream inStream) throws Exception {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];
@@ -356,12 +319,6 @@ public class SignUtil {
 		return outStream.toByteArray();
 	}
 
-	/**
-	 * 微信服务器post请求
-	 * 
-	 * @param url_weixin,reqmsg
-	 * @return result
-	 */
 	public static String doHttpPost_weixin(String url_weixin, String reqmsg) {
 		logger.debug("POST地址：" + url_weixin);
 		logger.debug("POST内容：" + reqmsg);
@@ -375,11 +332,9 @@ public class SignUtil {
 			urlCon.setDoInput(true);
 			urlCon.setUseCaches(false);
 			urlCon.setRequestProperty("Content-Type", "text/xml");
-			urlCon.setRequestProperty("Content-length",
-					String.valueOf(xmlData.length));
+			urlCon.setRequestProperty("Content-length", String.valueOf(xmlData.length));
 			System.out.println(String.valueOf(xmlData.length));
-			DataOutputStream printout = new DataOutputStream(
-					urlCon.getOutputStream());
+			DataOutputStream printout = new DataOutputStream(urlCon.getOutputStream());
 			printout.write(xmlData);
 			printout.flush();
 			printout.close();
@@ -397,5 +352,54 @@ public class SignUtil {
 			return "0";
 		}
 	}
-	
+
+	/**
+	 * 发送HttpPost请求获取微信公众号素材
+	 * 
+	 * @param strURL
+	 *            服务地址
+	 * @param params
+	 *            json字符串,例如: "{ \"id\":\"12345\" }" ;其中属性名必须带双引号<br/>
+	 * @return 成功:返回json字符串<br/>
+	 */
+	public static String postForMaterial(String strURL, String params) {
+		System.out.println(strURL);
+		System.out.println(params);
+		try {
+			URL url = new URL(strURL);// 创建连接
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setDoOutput(true);
+			connection.setDoInput(true);
+			connection.setUseCaches(false);
+			connection.setInstanceFollowRedirects(true);
+			connection.setRequestMethod("POST"); // 设置请求方式
+			connection.setRequestProperty("Accept", "application/json"); // 设置接收数据的格式
+			connection.setRequestProperty("Content-Type", "application/json"); // 设置发送数据的格式
+			connection.connect();
+			OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream(), "UTF-8"); // utf-8编码
+			out.append(params);
+			out.flush();
+			out.close();
+			// 读取响应
+			int length = (int) connection.getContentLength();// 获取长度
+			InputStream is = connection.getInputStream();
+			if (length != -1) {
+				byte[] data = new byte[length];
+				byte[] temp = new byte[512];
+				int readLen = 0;
+				int destPos = 0;
+				while ((readLen = is.read(temp)) > 0) {
+					System.arraycopy(temp, 0, data, destPos, readLen);
+					destPos += readLen;
+				}
+				String result = new String(data, "UTF-8"); // utf-8编码
+				System.out.println(result);
+				return result;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "error"; // 自定义错误信息
+	}
+
 }

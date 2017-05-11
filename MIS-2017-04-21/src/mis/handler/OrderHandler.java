@@ -1,17 +1,25 @@
 package mis.handler;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import mis.entity.MedicalItemEntity;
 import mis.entity.MedicalReportEntity;
 import mis.entity.OrderEntity;
+import mis.entity.OrderMedicalItemRelationEntity;
 import mis.pack.OrderPack;
 import mis.parse.OrderParse;
+import mis.service.MedicalItemService;
+import mis.service.OrderMedicalItemRelationService;
 import mis.service.OrderService;
 import mis.utils.RandomNum;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
@@ -84,6 +92,8 @@ public class OrderHandler extends BaseHandler {
 			Integer pageno = (Integer) parseMap.get("pageno");
 			Integer pagesize = (Integer) parseMap.get("pagesize");
 			List<OrderVO> orderListVO = (List<OrderVO>) parseMap.get("orderList");
+			
+			ArrayList<OrderMedicalItemRelationEntity> orderMedicalItemRelationList = (ArrayList<OrderMedicalItemRelationEntity>) parseMap.get("orderMedicalItemRelationList");
 
 			Boolean medicalReportShow = (Boolean) parseMap
 					.get("medicalReportShow");
@@ -170,6 +180,9 @@ public class OrderHandler extends BaseHandler {
 					}
 				}
 				if (order.getId() == null) {
+					Date date = new Date();
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+					order.setOrderTime(sdf.format(date));
 					String orderNum = RandomNum.generateHexString(16);
 					order.setOrderNum(orderNum);
 					MedicalReportEntity _mre_ = order.getMedicalReport();
@@ -182,6 +195,21 @@ public class OrderHandler extends BaseHandler {
 					}
 				}
 				result = orderService.save(order);
+				/** 这里保存体检订单和体检项目的关联关系 */
+				if (orderMedicalItemRelationList != null && orderMedicalItemRelationList.size() > 0) {
+					for (int index = 0; index < orderMedicalItemRelationList.size(); index++) {
+						/** 填写冗余字段 */
+						MedicalItemEntity medicalitem = MedicalItemService.getInstance().getById(orderMedicalItemRelationList.get(index).getMedicalItemId());
+						if (medicalitem != null) {
+							orderMedicalItemRelationList.get(index).setMedicalItemName(medicalitem.getItemName());
+							orderMedicalItemRelationList.get(index).setMedicalItemPrice(medicalitem.getPrice());
+							orderMedicalItemRelationList.get(index).setIcons(medicalitem.getIcons());
+							orderMedicalItemRelationList.get(index).setTestPurpose(medicalitem.getTestPurpose());
+						}
+						orderMedicalItemRelationList.get(index).setOrderId(order.getId());
+					}
+					OrderMedicalItemRelationService.getInstance().saveList(orderMedicalItemRelationList);
+				}
 			} else if ("saveList".equals(action)) {
 				result = orderService.saveList(orderList);
 			} else if ("getById".equals(action)) {
@@ -234,8 +262,14 @@ public class OrderHandler extends BaseHandler {
 	
 	
 	public static void main (String[] argvs) {
-		String orderNum = RandomNum.generateHexString(16);
-		System.out.println(orderNum);
+		JSONArray arr = new JSONArray();
+		JSONObject jobj1 = new JSONObject();
+		jobj1.put("haha", "哈哈");
+		JSONObject jobj2 = new JSONObject();
+		jobj2.put("hehe", "呵呵");
+		arr.add(jobj1);
+		arr.add(jobj2);
+		System.out.println(arr.toString());
 	}
 	
 }

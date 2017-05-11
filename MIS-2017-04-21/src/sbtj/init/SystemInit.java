@@ -2,12 +2,18 @@ package sbtj.init;
 
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
@@ -87,22 +93,22 @@ public class SystemInit implements ServletContextListener {
 			logger.info("weixinurl:" + weixinurl);
 
 			dataserverurl = (String) localProperties.get("dataserver.url");
-//			appkey = (String) localProperties.get("dataserver.appkey");
-//			version = (String) localProperties.get("dataserver.version");
+			appkey = (String) localProperties.get("dataserver.appkey");
+			version = (String) localProperties.get("dataserver.version");
 			timeout = (String) localProperties.get("dataserver.timeout");
-//			readtime = (String) localProperties.get("dataserver.readtime");
-//			datatcpurl = (String) localProperties.get("dataserver.tcp.url");
-//			medport = (String) localProperties.get("dataserver.med.port");
-//			appid = (String) localProperties.get("dataserver.appid");
+			readtime = (String) localProperties.get("dataserver.readtime");
+			datatcpurl = (String) localProperties.get("dataserver.tcp.url");
+			medport = (String) localProperties.get("dataserver.med.port");
+			appid = (String) localProperties.get("dataserver.appid");
 			smskey = (String) localProperties.get("sms.key");
-//			weixinmsgpush = (String) localProperties.get("weixin.msg.push");
+			weixinmsgpush = (String) localProperties.get("weixin.msg.push");
 			logger.info("dataserver.url:" + dataserverurl);
-//			logger.info("dataserver.appkey:" + appkey);
-//			logger.info("dataserver.version:" + version);
-//			logger.info("dataserver.readtime:" + readtime);
-//			logger.info("dataserver.tcp.url:" + datatcpurl);
-//			logger.info("dataserver.med.port:" + medport);
-//			logger.info("dataserver.appid:" + appid);
+			logger.info("dataserver.appkey:" + appkey);
+			logger.info("dataserver.version:" + version);
+			logger.info("dataserver.readtime:" + readtime);
+			logger.info("dataserver.tcp.url:" + datatcpurl);
+			logger.info("dataserver.med.port:" + medport);
+			logger.info("dataserver.appid:" + appid);
 		} catch (Exception e) {
 			logger.error(e.toString());
 		}

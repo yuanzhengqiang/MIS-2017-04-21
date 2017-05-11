@@ -144,8 +144,5 @@ public class MedicalItemController {
 			logger.error(e.toString());
 		}
 	}
-	
-	
-	
 
 }

@@ -7,114 +7,47 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import mis.entity.MenuEntity;
+import mis.service.MenuService;
 
 import org.apache.log4j.Logger;
 
 import sbtj.init.SystemInit;
 import weixin.tools.SignUtil;
 
-public class createMenu extends HttpServlet {
+import com.framework.system.db.query.OrderVO;
+import com.framework.system.db.query.PageList;
+import com.framework.system.util.JsonUtil;
+
+public class createMenu {
 	private static Logger logger = Logger.getLogger(createMenu.class);
 
 	/**
-	 * 确认请求来自微信服务器
+	 * 服务类
 	 */
-	public void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		createMenu();
-	}
+	private static MenuService menuService = MenuService.getInstance();
 
-	/**
-	 * 处理微信服务器发来的消息
-	 */
-	public void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		createMenu();
-	}
-	
-	//创建目录,单独运行，网页直接调
-	public int createMenu() throws IOException {
-		String user_define_menu = "{\"button\":[";
-		
-		String corporateOfficialWebsite_url = "http://" + SignUtil.yumingdizhi + "/" + "wechatweimob.do?corporateOfficialWebsite&weixin=weixin";
-		corporateOfficialWebsite_url = URLEncoder.encode(corporateOfficialWebsite_url);
-		
-		String oldMall_url = "http://" + SignUtil.yumingdizhi + "/" + "wechatweimob.do?oldMall&weixin=weixin";
-		oldMall_url = URLEncoder.encode(oldMall_url);
-		
-		String historicalInformation_url = "http://" + SignUtil.yumingdizhi + "/" + "wechatweimob.do?historicalInformation&weixin=weixin";
-		historicalInformation_url = URLEncoder.encode(historicalInformation_url);
-		
-		String longActingInsuranceAgent_url = "http://" + SignUtil.yumingdizhi + "/" + "wechatweimob.do?longActingInsuranceAgent&weixin=weixin";
-		longActingInsuranceAgent_url = URLEncoder.encode(longActingInsuranceAgent_url);
-		
-		String myConcern_url = "http://" + SignUtil.yumingdizhi + "/" + "wechatOlder.do?main&weixin=weixin";
-		myConcern_url = URLEncoder.encode(myConcern_url);
-		
-		String reservationService_url = "http://" + SignUtil.yumingdizhi + "/" + "wechatReservationService.do?main&weixin=weixin";
-		reservationService_url = URLEncoder.encode(reservationService_url);
-		
-		String onlineService_url = "http://" + SignUtil.yumingdizhi + "/" + "wechatweimob.do?onlineService&weixin=weixin";
-		onlineService_url = URLEncoder.encode(onlineService_url);
-		
-		
-		//user_define_menu += "{\"type\":\"view\",\"name\":\"用户中心\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + SignUtil.APPID + "&redirect_uri=" + userCenter_url + "&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"},";
-		
-		user_define_menu += "{";
-		user_define_menu += "\"name\":\"用户中心\",";
-		user_define_menu += "\"sub_button\":[";
-		user_define_menu += "{\"type\":\"view\",\"name\":\"企业官网\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + SignUtil.APPID + "&redirect_uri=" + corporateOfficialWebsite_url + "&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"},";
-		user_define_menu += "{\"type\":\"view\",\"name\":\"老年商城\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + SignUtil.APPID + "&redirect_uri=" + oldMall_url + "&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"},";
-		user_define_menu += "{\"type\":\"view\",\"name\":\"历史信息\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + SignUtil.APPID + "&redirect_uri=" + historicalInformation_url + "&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"}";
-		user_define_menu += "]";
-		user_define_menu += "},";
-		
-		user_define_menu += "{";
-		user_define_menu += "\"name\":\"在线服务\",";
-		user_define_menu += "\"sub_button\":[";
-		user_define_menu += "{\"type\":\"view\",\"name\":\"长护险申请\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + SignUtil.APPID + "&redirect_uri=" + longActingInsuranceAgent_url + "&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"},";
-		user_define_menu += "{\"type\":\"view\",\"name\":\"关注老人\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + SignUtil.APPID + "&redirect_uri=" + myConcern_url + "&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"},";
-		user_define_menu += "{\"type\":\"view\",\"name\":\"预约服务\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + SignUtil.APPID + "&redirect_uri=" + reservationService_url + "&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"},";
-		user_define_menu += "{\"type\":\"view\",\"name\":\"在线帮助\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + SignUtil.APPID + "&redirect_uri=" + onlineService_url + "&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"}";
-		user_define_menu += "]";
-		user_define_menu += "}";
-		
-		
-		
-		
-		
-		/*
-		user_define_menu += "{";
-		user_define_menu += "\"name\":\"我的账户\",";
-		user_define_menu += "\"sub_button\":[";
-		user_define_menu += "{\"type\":\"view\",\"name\":\"历史服务\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + SignUtil.APPID + "&redirect_uri=http%3a%2f%2f" + SignUtil.yumingdizhi + "%2fHisService.aspx&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"},";
-		user_define_menu += "{\"type\":\"view\",\"name\":\"账户信息\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + SignUtil.APPID + "&redirect_uri=http%3a%2f%2f" + SignUtil.yumingdizhi + "%2fUserInfo.aspx&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"}";
-		user_define_menu += "]";
-		user_define_menu += "}";*/
-	
-		user_define_menu += "]}";
-		logger.debug("微信服务器       创建菜单" + user_define_menu);
+	// 创建目录,单独运行，网页直接调
+	public static int createMenu() throws IOException {
+		Integer flag = 0;
+		String menus = splicingMenu();
+
+		logger.debug("微信服务器       创建菜单" + menus);
 		// 此处改为自己想要的结构体，替换即可
-		//true则代表正式环境，可以开启获取token线程，获取微信服务器数据
-		if("formal".equals(SystemInit.weixinmsgpush)){
-			SignUtil.getAccess_tokenByThread();
-		}
 		String access_token = SystemInit.access_token;
 
-		String action = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token="
-				+ access_token;
+		String action = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" + access_token;
 		try {
 			URL url = new URL(action);
 			HttpURLConnection http = (HttpURLConnection) url.openConnection();
 
 			http.setRequestMethod("POST");
-			http.setRequestProperty("Content-Type",
-					"application/x-www-form-urlencoded");
+			http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			http.setDoOutput(true);
 			http.setDoInput(true);
 			System.setProperty("sun.net.client.defaultConnectTimeout", "30000");// 连接超时30秒
@@ -122,7 +55,7 @@ public class createMenu extends HttpServlet {
 
 			http.connect();
 			OutputStream os = http.getOutputStream();
-			os.write(user_define_menu.getBytes("UTF-8"));// 传入参数
+			os.write(menus.getBytes("UTF-8"));// 传入参数
 			os.flush();
 			os.close();
 
@@ -131,13 +64,142 @@ public class createMenu extends HttpServlet {
 			byte[] jsonBytes = new byte[size];
 			is.read(jsonBytes);
 			String message = new String(jsonBytes, "UTF-8");
+			Map demoJson = JsonUtil.getMap4Json(message);
+			if (demoJson != null) {
+				String errmsg = (String) demoJson.get("errmsg");
+				if ("ok".equals(errmsg)) {
+					flag = 1;
+				}
+			}
 			System.out.println(message);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return 0;
+		return flag;
 	}
 
+	/**
+	 * 拼接微信菜单 注:最多3*5
+	 * 
+	 * @param
+	 * @return menu
+	 */
+	public static String splicingMenu() {
+		String menus = "{\"button\":[";
+
+		List<MenuEntity> menuListFather = new ArrayList<MenuEntity>();// 父菜单
+		List<MenuEntity> menuListSon = new ArrayList<MenuEntity>();// 子菜单
+		// 获取父菜单列表
+		menuListFather = weChatMenuRequest(3, 0);
+		if (menuListFather != null && menuListFather.size() > 0) {
+			// 循环父菜单列表，根据父菜单id分别获取子菜单列表
+			for (int i = 0; i < menuListFather.size(); i++) {
+				MenuEntity menujson = menuListFather.get(i);
+				Integer id = menujson.getId();
+				menuListSon = weChatMenuRequest(5, id);
+				menus += splicingMenuSon(menujson, menuListSon);
+			}
+			menus = menus.substring(0, menus.length() - 1);
+		}
+		menus += "]}";
+		return menus;
+	}
+
+	/**
+	 * 微信菜单请求
+	 * 
+	 * @param
+	 * @return menu
+	 */
+	public static List<MenuEntity> weChatMenuRequest(Integer pagesize, Integer parentId) {
+		List<MenuEntity> menuList = new ArrayList<MenuEntity>();// 菜单
+
+		Map<String, Object> query = new HashMap<String, Object>();
+		query.put("parentId", parentId);
+		List<OrderVO> orderList = new ArrayList<OrderVO>();
+		OrderVO order = new OrderVO();
+		order.setName("orderColumn");
+		order.setOrderType(OrderVO.asc);
+		orderList.add(order);
+		PageList menuPageList = menuService.getListByCondition(query, orderList, 1, pagesize);
+		if (menuPageList != null && menuPageList.getResultList() != null) {
+			List<Object> objlist = menuPageList.getResultList();
+			if (objlist != null) {
+				for (Object obj : objlist) {
+					MenuEntity menuenty = (MenuEntity) obj;
+					menuList.add(menuenty);// 已根据菜单顺序字段升序排序
+				}
+			}
+		}
+		return menuList;
+	}
+
+	/**
+	 * 拼接微信菜单 每一列
+	 * 
+	 * @param
+	 * @return menu
+	 */
+	public static String splicingMenuSon(MenuEntity menuListFather, List<MenuEntity> menuListSon) {
+		String menus = "";
+		if (menuListFather != null) {
+			Integer id = null;
+			String name = null;
+			String address = null;
+			Integer addressType = null;
+			String redirect_uri = null;
+			if (menuListSon == null || menuListSon.size() == 0) {// 当前菜单列1只有一个父菜单
+				id = menuListFather.getId();
+				name = menuListFather.getName();
+				address = menuListFather.getAddress();
+				addressType = menuListFather.getAddressType();
+				if (addressType == 1) {// 属于自己系统的访问地址，直接跳转
+					redirect_uri = "http://" + SignUtil.yumingdizhi + "/" + address + "&weixin=weixin";
+					redirect_uri = URLEncoder.encode(redirect_uri);
+					menus += "{\"type\":\"view\",\"name\":\"" + name + "\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + SignUtil.APPID
+					        + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"},";
+				} else if (addressType == 2 || addressType == 3) {// 属于微盟或者链接跳转的访问地址，需要先跳转自己地址，再跳转，二次跳转
+					redirect_uri = "http://" + SignUtil.yumingdizhi + "/" + "wechatweimob.do?microJumpModule&menuId=" + id + "&weixin=weixin";
+					redirect_uri = URLEncoder.encode(redirect_uri);
+					menus += "{\"type\":\"view\",\"name\":\"" + name + "\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + SignUtil.APPID
+					        + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"},";
+				}  else if (addressType == 4) {
+					menus += "{\"type\":\"media_id\",\"name\":\"图文消息\",\"media_id\":\"" +  address + "\"},";
+				}
+			} else {// 当前菜单列1包括一个父菜单和子菜单
+				name = menuListFather.getName();
+				menus += "{";
+				menus += "\"name\":\"" + name + "\",";
+				menus += "\"sub_button\":[";
+				// 循环遍历，开始拼接菜单
+				for (int i = 0; i < menuListSon.size(); i++) {
+					MenuEntity menujson = menuListSon.get(i);
+					id = menujson.getId();
+					name = menujson.getName();
+					address = menujson.getAddress();
+					addressType = menujson.getAddressType();
+					if (addressType == 1) {// 属于自己系统的访问地址，直接跳转
+						redirect_uri = "http://" + SignUtil.yumingdizhi + "/" + address + "&weixin=weixin";
+						redirect_uri = URLEncoder.encode(redirect_uri);
+						menus += "{\"type\":\"view\",\"name\":\"" + name + "\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid="
+						        + SignUtil.APPID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"},";
+					} else if (addressType == 2 || addressType == 3) {// 属于微盟或者链接跳转的访问地址，需要先跳转自己地址，再跳转，二次跳转
+						redirect_uri = "http://" + SignUtil.yumingdizhi + "/" + "wechatweimob.do?microJumpModule&menuId=" + id + "&weixin=weixin";
+						redirect_uri = URLEncoder.encode(redirect_uri);
+						menus += "{\"type\":\"view\",\"name\":\"" + name + "\",\"url\":\"https://open.weixin.qq.com/connect/oauth2/authorize?appid="
+						        + SignUtil.APPID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=123#wechat_redirect\"},";
+					}  else if (addressType == 4) {
+						menus += "{\"type\":\"media_id\",\"name\":\"图文消息\",\"media_id\":\"" +  address + "\"},";
+					}
+					
+				}
+				menus = menus.substring(0, menus.length() - 1);
+				menus += "]";
+				menus += "},";
+			}
+		}
+		return menus;
+	}
 }

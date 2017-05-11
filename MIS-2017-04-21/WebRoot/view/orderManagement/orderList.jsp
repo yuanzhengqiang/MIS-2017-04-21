@@ -63,6 +63,12 @@
 											<input id="orderNum" class="form-control" type="text" value="" autocomplete="off" style="width:100%">
 										</div>
 										<div class="col-xs-6 col-sm-2" style="vertical-align: middle; height: 34px; line-height: 34px;margin-bottom:5px;">
+											<label>下单客户</label>
+										</div>
+										<div class="col-xs-6 col-sm-4" style="margin-bottom:5px;">
+											<input id="orderCustomer" class="form-control" type="text" value="" autocomplete="off" style="width:100%">
+										</div>
+										<div class="col-xs-6 col-sm-2" style="vertical-align: middle; height: 34px; line-height: 34px;margin-bottom:5px;">
 											<label>体检人姓名</label>
 										</div>
 										<div class="col-xs-6 col-sm-4" style="margin-bottom:5px;">
@@ -121,6 +127,9 @@
 													<tr role="row">
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'orderNum')">
 															<strong>订单编号</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'orderCustomer')">
+															<strong>下单客户</strong>
 														</th>
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_medicalPersonName')">
 															<strong>体检人姓名</strong>
@@ -270,6 +279,7 @@
 	function go2page(pagenumber) {
 		var pagesize = $("#pageSizeSelector option:selected").val();
 		var orderNum = $.trim($("#orderNum").val());
+		var orderCustomer = $.trim($("#orderCustomer").val());
 		var medicalPersonName = $.trim($("#medicalPersonName").val());
 		var medicalPersonCard = $.trim($("#medicalPersonCard").val());
 		var status = $("#status").val();
@@ -285,6 +295,9 @@
 		reqmsg += "'page':{'pageno':'" + pagenumber + "','pagesize':'" + pagesize + "'},'content':{'areaEntityShow':'true',";
 		if (orderNum != null && orderNum != "") {
 			reqmsg += "'orderNum_like':'" + orderNum + "',";
+		}
+		if (orderCustomer != null && orderCustomer != "") {
+			reqmsg += "'orderCustomer_like':'" + orderCustomer + "',";
 		}
 		if (medicalPersonName != null && medicalPersonName != "") {
 			reqmsg += "'medicalPersonName_like':'" + medicalPersonName + "',";
@@ -339,6 +352,7 @@
 				jQuery.each(data.content.orderList,function(i, item) {
 					htmlcode += "<tr class=\"gradeA odd\">";
 					htmlcode += "<td>" + item.orderNum + "</td>";
+					htmlcode += "<td>" + item.orderCustomer + "</td>";
 					htmlcode += "<td>" + item.medicalPersonName + "</td>";
 					htmlcode += "<td>" + item.medicalPersonCard + "</td>";
 					htmlcode += "<td>" + matchingState(item.status) + "</td>";

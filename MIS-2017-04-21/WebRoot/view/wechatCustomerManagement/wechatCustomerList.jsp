@@ -327,7 +327,7 @@
 					htmlcode += "<td>" + item.openId + "</td>";
 					htmlcode += "<td>" + item.nakeName + "</td>";
 					htmlcode += "<td>" + item.noteName + "</td>";
-					htmlcode += "<td>" + item.gender + "</td>";
+					htmlcode += "<td>" + (item.gender == true ? "男" : "女") + "</td>";
 					htmlcode += "<td>" + item.country + "</td>";
 					htmlcode += "<td>" + item.province + "</td>";
 					htmlcode += "<td>" + item.city + "</td>";

@@ -124,6 +124,12 @@ public class MedicalItemParse {
 							medicalItemReturn
 									.setMattersNeedAttention(mattersNeedAttention);
 						}
+						String icons = (String) contentreq
+								.get("icons");
+						if (icons != null) {
+							medicalItemReturn
+									.setIcons(icons);
+						}
 					}
 				}
 			} else if ("QUERY_MEDICAL_ITEM_INFO_REQUEST".equals(command)) {

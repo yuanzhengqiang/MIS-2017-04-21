@@ -1,6 +1,5 @@
 package mis.controller;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
@@ -10,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import mis.handler.WechatCustomerHandler;
 import mis.service.WechatCustomerService;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -105,27 +103,25 @@ public class WechatCustomerController {
 	 * 
 	 * @param request
 	 * @param response
-	 * @return
+	 * @return 微信处理
 	 */
-	@RequestMapping(params = "handlercontent")
-	public void queryApp(HttpServletRequest request,
-			HttpServletResponse response) {
+	@RequestMapping(params = "handlerWechat", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String queryWechat(HttpServletRequest request, HttpServletResponse response) {
+		String msg = "";
 		try {
-			InputStream is = request.getInputStream();
-			byte[] bis = IOUtils.toByteArray(is);
-			String reqmsg = new String(bis, "UTF-8");
+			String reqmsg = request.getParameter("reqmsg");
+			reqmsg = new String(reqmsg.getBytes("iso-8859-1"), "utf-8");
 			Map reqParams = JsonUtil.getMap4Json(reqmsg);
 			if (reqParams == null) {
-				return;
+				return msg;
 			}
 			String action = (String) reqParams.get("action");
-			String rep = wechatCustomerHandler.doHandler(1, action, reqmsg,
-					request, response);
-			OutputStream os = response.getOutputStream();
-			os.write(rep.toString().getBytes("UTF-8"));
+			msg = wechatCustomerHandler.doHandler(1, action, reqmsg, request, response);
 		} catch (Exception e) {
 			logger.error(e.toString());
 		}
-	}
 
+		return msg;
+	}
 }
