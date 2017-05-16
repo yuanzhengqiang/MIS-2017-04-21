@@ -7,7 +7,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no">
 	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<title>体检项目选择</title>
+	<title>身边·陪检服务</title>
 	<style>
 		/*320px布局*/
         html{font-size: 100px;}
@@ -237,6 +237,7 @@
 		    height: 0.09rem;
 		    position: relative;
 		    top: 0.01rem;
+		    left:0.08rem;
 		}
 		.medicalNameCenterBoxDesText{
 			font-size: 0.09rem;
@@ -296,7 +297,8 @@
 		    overflow: auto;
 		    height: 0.3rem;
 		    width: 0.3rem;
-		    right: 0px;
+		    right: -0.15rem;
+		    top: -0.15rem;
 		}
 		.modelContent1 {
 			background-color: #FFF;
@@ -314,22 +316,25 @@
 		    width: 75vw;
 		    min-width: 2rem;
 		    height: auto;
-		    padding: 0rem 0.2rem;
+		    padding: 0rem 0.15rem;
 		    font-size: 0.16rem;
 		    min-height: 1.5rem;
+		    border-radius: 0rem 0rem 0.1rem 0.1rem;
 		}
 		.modelHeader1{
 			padding: 0.15rem 0rem;
 			color: #FFF;
 			font-size: 0.18rem;
 			min-height: 0.25rem;
+			border-radius: 0.1rem 0.1rem 0px 0px;
 		}
 		.modelHeader2{
-			padding: 0.15rem 0rem;
+			padding: 0.1rem 0rem;
 		    color: #000;
-		    font-size: 0.18rem;
+		    font-size: 0.15rem;
 		    background-color: #FFF;
 		    text-align: center;
+		    border-radius: 0.1rem 0.1rem 0px 0px;
 		}
 		.close1{
 			cursor: pointer;
@@ -372,8 +377,6 @@
 			transform: translateX(-50%) translateY(-50%);
 			background-color: transparent;
 			display: none;
-		    border-radius: 0.1rem;
-			overflow: hidden;
 		}
 		.modelContentInfo1{
 			width: 70vw;
@@ -390,14 +393,14 @@
 			padding: 15px;
 		}
 		.modelContentInfo2{
-			width: 70vw;
 			height: auto;
 			min-height: 0.3rem;
-			margin: 0px auto;
 			padding: 0.15rem 0rem;
 			font-size: 0.12rem;
 			text-align: left;
-			border-top: 1px solid #DDD;
+			position: relative;
+    		left: 0.01rem;
+    		border-top: 1px solid #DDD;
 		}
 		.modelContentBtn{
 			width: 60vw;
@@ -529,15 +532,17 @@
 		    font-weight: 600;
 		    letter-spacing: 0.03rem;
 		    color: #414972;
+		    margin-left: 0.06rem;
 		}
 		.basisContentCenterBoxTopDes{
 			width: 0.125rem;
     		height: 0.125rem;
-    		webkit-transform: translateY(20%);
-			-moz-transform: translateY(20%);
-			-ms-transform: translateY(20%);
-			transform: translateY(20%);
+    		webkit-transform: translateY(15%);
+			-moz-transform: translateY(15%);
+			-ms-transform: translateY(15%);
+			transform: translateY(15%);
 			cursor: pointer;
+			margin-left: 0.05rem;
 		}
 		.basisContentCenterBoxDes{
 			text-align:center;
@@ -618,6 +623,115 @@
 		.hide{
 			display: none;
 		}
+		
+		.serviceContent1 {
+			background-color: #FFF;
+			width: 80vw;
+			min-width: 200px;
+			height: auto;
+			min-height: 50vmin;
+			border-radius: 15px;
+			padding: 2px;
+			font-size: 16px;
+			position: relative;
+		}
+		.serviceBox{
+			width: auto;
+			height:auto;
+			z-index: 100;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			webkit-transform: translateX(-50%) translateY(-50%);
+			-moz-transform: translateX(-50%) translateY(-50%);
+			-ms-transform: translateX(-50%) translateY(-50%);
+			transform: translateX(-50%) translateY(-50%);
+			background-color: transparent;
+			display: none;
+		}
+		.serviceContentInfo1{
+			width: 70vw;
+			height: auto;
+			min-height: 50px;
+			margin: 0px auto;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			webkit-transform: translateX(-50%) translateY(-50%);
+			-moz-transform: translateX(-50%) translateY(-50%);
+			-ms-transform: translateX(-50%) translateY(-50%);
+			transform: translateX(-50%) translateY(-50%);
+			padding: 15px;
+		}
+		.serviceContentBtn{
+			width: 60vw;
+    		height: 30px;
+			position: fixed;
+			top: 75%;
+			left: 50%;
+			webkit-transform: translateX(-50%) translateY(-50%);
+			-moz-transform: translateX(-50%) translateY(-50%);
+			-ms-transform: translateX(-50%) translateY(-50%);
+			transform: translateX(-50%) translateY(-50%);
+			border-radius: 0.05rem;
+		}
+		.serviceBtn{
+			width: 100%;
+		    height: 100%;
+		    border: none;
+		    background-color: #87cd50;
+		    border-radius: 5px;
+		    box-shadow: 2px 2px 5px 1px #ABCD83;
+		    outline: none;
+		    -webkit-appearance : none ;  /*解决iphone safari上的圆角问题*/
+		}
+		.serviceBox{
+			width: auto;
+			height:auto;
+			z-index: 100;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			webkit-transform: translateX(-50%) translateY(-50%);
+			-moz-transform: translateX(-50%) translateY(-50%);
+			-ms-transform: translateX(-50%) translateY(-50%);
+			transform: translateX(-50%) translateY(-50%);
+			background-color: transparent;
+			display: none;
+			border-radius: 0.1rem;
+    		overflow: hidden;
+		}
+		.promptly{
+			padding: 0.05rem 0.3rem;
+		    margin-bottom: 0.1rem;
+		    border: none;
+		    outline: none;
+		    background-color: #92D050;
+		    color: #FFF;
+		}
+		.margin1{
+			margin: 0.1rem auto;
+			font-size: 0.14rem;
+		}
+		.modelContent2 {
+			background-color: #FFF;
+		    width: 75vw;
+		    min-width: 2rem;
+		    height: auto;
+		    padding: 0rem 0.15rem;
+		    font-size: 0.16rem;
+		    border-radius: 0rem 0rem 0.1rem 0.1rem;
+		}
+		.modelContentInfo2{
+			height: auto;
+			min-height: 0.3rem;
+			padding: 0.15rem 0rem 0rem;
+			font-size: 0.13rem;
+			text-align: left;
+			position: relative;
+    		left: 0.01rem;
+    		border-top: 1px solid #DDD;
+		}
 	</style>
 </head>
 <body id="body" class="hide">
@@ -627,12 +741,11 @@
 	            <img src="wechatImg/return.png" class="headerImg left0" onclick="returnPage()">
 	        </span>
 	        <span class="headerItem3 text-center">
-	            <label class="headerName">SHENBIAN</label>
+	            <label class="headerName">项目选择</label>
 	        </span>  
 	        <span class="headerItem1 text-right">
-	            <img src="wechatImg/service.jpg" class = "headerImg right0" onclick="$('#fixedDialingNumbers').click();">
-				<a href="tel:10086" style="display:none;"><span id="fixedDialingNumbers">一键拨号</span></a>
-	        </span>
+	            <img src="wechatImg/service.jpg" class = "headerImg right0" id="service">
+		    </span>
 	    </div>
 
 		<div class="content">
@@ -758,14 +871,27 @@
 
 	<div class="box2">
 		<div class="closeModel2">
-				<img src="wechatImg/x.png" height="30" width="30" alt="&times" class="close2">
-			</div>
+			<img src="wechatImg/x1.jpg" height="30" width="30" alt="&times" class="close2">
+		</div>
 		<div class="modelHeader2">
 			<span style="display:inline-block;" id="box2Header"></span>
 		</div>
     	<div class="modelContent2">
 			<div class="modelContentInfo2 text-center">
 				<span id="ContentInfo2"></span>
+			</div>
+    	</div>
+	</div>
+	
+	<div class="serviceBox">
+    	<div class="modelContent2">
+			<div class="modelContentInfo2 text-center">
+				<div class="text-center margin1">身边 · 24小时服务电话</div>
+				<div class="text-center margin1" style="color: #62698D">1855-0065-068</div>
+				<a href="tel:18550065068" class="hide"><span id="fixedDialingNumbers">一键拨号</span></a>
+			</div>
+			<div class="text-center">
+				<button class="promptly" onclick="$('#fixedDialingNumbers').click();$('.model').css('display','none');$('.serviceBox').css('display','none');">立 即 拨 打</button>
 			</div>
     	</div>
 	</div>
@@ -827,9 +953,9 @@
 		})(document, window); 
 	</script>
 	<script type="text/javascript">
-		$(".basisContentCenterBoxTopDes").click(function(){
-			var title = $(this).attr("title");
-			var header = $(this).siblings('label').text();
+		$(".basisContentCenter").click(function(){
+			var title = $(this).find('img').attr("title");
+			var header = $(this).find('label').text();
 			$("#box2Header").text("关于" + header);
 			$("#ContentInfo2").text(title);
 			$(".model").css("display","block");
@@ -942,8 +1068,8 @@
 									html1 += "<div class='medicalNameCenterBox'>";
 									html1 += "<div class='medicalNameCenterBoxTop'>";
 									
-									if (item.itemName != null && item.itemName != "") {
-										if (item.itemName.length > 10) {
+									if (item.testPurpose != null && item.testPurpose != "") {
+										if (item.testPurpose.length > 10) {
 											html1 += "<label class='medicalNameCenterBoxTopName'>" + item.itemName.substr(0,10) + "...</label>";
 										} else {
 											html1 += "<label class='medicalNameCenterBoxTopName'>" + item.itemName + "</label>";
@@ -952,12 +1078,8 @@
 										html1 += "<label class='medicalNameCenterBoxTopName'>无</label>";
 									}
 									
-									if (item.selectDes != null && item.selectDes != "") {
-										html1 += "<img src='wechatImg/explain.png' class='medicalNameCenterBoxTopDes' title='" + item.selectDes + "'>";
-									} else {
-										html1 += "<img src='wechatImg/explain.png' class='medicalNameCenterBoxTopDes' title='无'>";
-									}
-									
+									html1 += "<input style='display:none;' value='" + item.itemDes + "'>";
+									html1 += "<img src='wechatImg/explain.png' class='medicalNameCenterBoxTopDes'>";
 									html1 += "</div>";
 									
 									if (item.selectDes != null && item.selectDes != "") {
@@ -998,8 +1120,8 @@
 									html2 += "<div class='medicalNameCenterBox'>";
 									html2 += "<div class='medicalNameCenterBoxTop'>";
 									
-									if (item.itemName != null && item.itemName != "") {
-										if (item.itemName.length > 10) {
+									if (item.testPurpose != null && item.testPurpose != "") {
+										if (item.testPurpose.length > 10) {
 											html2 += "<label class='medicalNameCenterBoxTopName'>" + item.itemName.substr(0,10) + "...</label>";
 										} else {
 											html2 += "<label class='medicalNameCenterBoxTopName'>" + item.itemName + "</label>";
@@ -1008,12 +1130,8 @@
 										html2 += "<label class='medicalNameCenterBoxTopName'>无</label>";
 									}
 									
-									if (item.selectDes != null && item.selectDes != "") {
-										html2 += "<img src='wechatImg/explain.png' class='medicalNameCenterBoxTopDes' title='" + item.selectDes + "'>";
-									} else {
-										html2 += "<img src='wechatImg/explain.png' class='medicalNameCenterBoxTopDes' title='无'>";
-									}
-									
+									html2 += "<input style='display:none;' value='" + item.itemDes + "'>";
+									html2 += "<img src='wechatImg/explain.png' class='medicalNameCenterBoxTopDes'>";
 									html2 += "</div>";
 									
 									if (item.selectDes != null && item.selectDes != "") {
@@ -1045,11 +1163,11 @@
 							
 							$("#cancerProject").html(html1);
 							$("#cardioCerebrovascular").html(html2);
-							$(".medicalNameCenterBox").click(function(){
-								var title = $(this).find('img').attr("title");
-								var header = $(this).find('label').text();
-								$("#box2Header").text("关于" + header);
-								$("#ContentInfo2").text(title);
+							$(".medicalNameCenter").click(function(){
+								var ContentInfo2 = $(this).find('input').val();
+								var header = $(this).siblings(".medicalNameLeft").find('label').text();
+								$("#box2Header").text(header + "早期筛查");
+								$("#ContentInfo2").html(ContentInfo2);
 								$(".model").css("display","block");
 								$(".box2").css("display","block");
 								return false;
@@ -1110,6 +1228,16 @@
 			var hospitalId = "<%=request.getAttribute("hospitalId")%>";
 			window.location.replace("<%=request.getContextPath()%>/" + "weixinReservationService.do?confirmOrder&hospitalId=" + hospitalId + "&itemList=" + itemList + "&weixin=weixin");
 		}
+		
+		$("#service").on("click", function() {
+			$(".model").css("display","block");
+			$(".serviceBox").css("display","block");
+		});
+		$(".model").on("click", function() {
+			$(".model").css("display","none");
+			$(".serviceBox").css("display","none");
+			$(".box2").css("display","none");
+		});
 	</script>
 </body>
 </html>

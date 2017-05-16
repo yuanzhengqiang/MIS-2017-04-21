@@ -88,8 +88,34 @@ public class MedicalReportHandler extends BaseHandler{
 			Object result=null;
 			if ("save".equals(action)) {
 				if (medicalReport.getId() == null) {
-					String oederNum = RandomNum.generateHexString(32);
+					String oederNum = RandomNum.generateHexString(2);
 					medicalReport.setMedicalReportNum(oederNum);
+				} else {
+					MedicalReportEntity _temp_ = MedicalReportService.getInstance().getById(medicalReport.getId());
+					if (medicalReport.getHospital() == null)
+						medicalReport.setHospital(_temp_.getHospital());
+					if (medicalReport.getHospitalId() == null)
+						medicalReport.setHospitalId(_temp_.getHospitalId());
+					if (medicalReport.getMedicalHospital() == null)
+						medicalReport.setMedicalHospital(_temp_.getMedicalHospital());
+					if (medicalReport.getMedicalPersonAge() == null)
+						medicalReport.setMedicalPersonAge(_temp_.getMedicalPersonAge());
+					if (medicalReport.getMedicalPersonCardNum() == null)
+						medicalReport.setMedicalPersonCardNum(_temp_.getMedicalPersonCardNum());
+					if (medicalReport.getMedicalPersonGender() == null)
+						medicalReport.setMedicalPersonGender(_temp_.getMedicalPersonGender());
+					if (medicalReport.getMedicalPersonName() == null)
+						medicalReport.setMedicalPersonName(_temp_.getMedicalPersonName());
+					if (medicalReport.getMedicalReportContent() == null)
+						medicalReport.setMedicalReportContent(_temp_.getMedicalReportContent());
+					if (medicalReport.getMedicalReportCreateTime() == null)
+						medicalReport.setMedicalReportCreateTime(_temp_.getMedicalReportCreateTime());
+					if (medicalReport.getMedicalReportDownloadLink() == null)
+						medicalReport.setMedicalReportDownloadLink(_temp_.getMedicalReportDownloadLink());
+					if (medicalReport.getMedicalReportName() == null)
+						medicalReport.setMedicalReportName(_temp_.getMedicalReportName());
+					if (medicalReport.getMedicalReportNum() == null)
+						medicalReport.setMedicalReportNum(_temp_.getMedicalReportNum());
 				}
 				result = medicalReportService.save(medicalReport);
 			} else if ("saveList".equals(action)) {

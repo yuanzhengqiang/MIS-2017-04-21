@@ -7,7 +7,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<title>订单确认</title>
+	<title>身边·陪检服务</title>
 	<style>
 		html{font-size: 100px;}
         body{
@@ -341,18 +341,6 @@
 			background-color: #000;
 			display: none;
 		}
-		.closeModel1{
-			display: inline-block;
-		    float: right;
-		    height: 0.3rem;
-		    width: 0.3rem;
-		}
-		.closeModel2{
-			display: inline-block;
-		    float: right;
-		    height: 0.3rem;
-		    width: 0.3rem;
-		}
 		.closeModel3{
 			display: inline-block;
 		    float: right;
@@ -395,12 +383,13 @@
 		    background-color: #FFF;
 		}
 		.modelHeader2{
-			padding: 0.15rem 0rem;
 		    color: #000;
-		    font-size: 0.18rem;
-		    min-height: 0.25rem;
-		    text-align: center;
+		    font-size: 0.15rem;
 		    background-color: #FFF;
+		    text-align: center;
+		    border-radius: 0.1rem 0.1rem 0px 0px;
+		    height: 0.2rem;
+		    line-height: 0.2rem;
 		}
 		.modelHeader3{
 			padding: 0.15rem 0rem;
@@ -431,52 +420,7 @@
 		    height: 0.2rem;
 		    display: inline-block;
 		}
-		.box1{
-			width: auto;
-			height:auto;
-			z-index: 100;
-			position: fixed;
-			top: 50%;
-			left: 50%;
-			webkit-transform: translateX(-50%) translateY(-50%);
-			-moz-transform: translateX(-50%) translateY(-50%);
-			-ms-transform: translateX(-50%) translateY(-50%);
-			transform: translateX(-50%) translateY(-50%);
-			background-color: transparent;
-			display: none;
-			border-radius: 0.1rem;
-    		overflow: hidden;
-		}
-		.box2{
-			width: auto;
-			height:auto;
-			z-index: 100;
-			position: fixed;
-			top: 50%;
-			left: 50%;
-			webkit-transform: translateX(-50%) translateY(-50%);
-			-moz-transform: translateX(-50%) translateY(-50%);
-			-ms-transform: translateX(-50%) translateY(-50%);
-			transform: translateX(-50%) translateY(-50%);
-			background-color: transparent;
-			display: none;
-			border-radius: 0.1rem;
-    		overflow: hidden;
-		}
-		.box3{
-			width: auto;
-			height:auto;
-			z-index: 100;
-			position: fixed;
-			top: 50%;
-			left: 50%;
-			webkit-transform: translateX(-50%) translateY(-50%);
-			-moz-transform: translateX(-50%) translateY(-50%);
-			-ms-transform: translateX(-50%) translateY(-50%);
-			transform: translateX(-50%) translateY(-50%);
-			background-color: transparent;
-			display: none;
-		}
+		
 		.modelContentInfo1{
 			width: 70vw;
 			height: auto;
@@ -490,15 +434,6 @@
 			-ms-transform: translateX(-50%) translateY(-50%);
 			transform: translateX(-50%) translateY(-50%);
 			padding: 0.15rem;
-		}
-		.modelContentInfo2{
-			width: 70vw;
-			height: auto;
-			min-height: 0.3rem;
-			border-bottom: 0.01rem solid #BAB9BE;
-			margin: 0px auto;
-			padding: 0.15rem;
-			font-size: 0.12rem;
 		}
 		.modelContentInfo3{
 			width: 70vw;
@@ -589,6 +524,230 @@
 		.hide{
 			display: none;
 		}
+		.box2{
+			width: auto;
+			height:auto;
+			z-index: 100;
+			position: fixed;
+			top: 20%;
+			left: 50%;
+			webkit-transform: translateX(-50%);
+			-moz-transform: translateX(-50%);
+			-ms-transform: translateX(-50%);
+			transform: translateX(-50%);
+			background-color: transparent;
+			display: none;
+			border-radius: 0.1rem;
+    		overflow: hidden;
+		}
+		.box1{
+			width: auto;
+			height:auto;
+			z-index: 100;
+			position: fixed;
+			top: 10%;
+			left: 50%;
+			webkit-transform: translateX(-50%);
+			-moz-transform: translateX(-50%);
+			-ms-transform: translateX(-50%);
+			transform: translateX(-50%);
+			background-color: transparent;
+			display: none;
+			border-radius: 0.1rem;
+    		overflow: hidden;
+		}
+		.modelHeader2{
+			padding: 0.1rem 0rem;
+		    color: #000;
+		    font-size: 0.15rem;
+		    background-color: #FFF;
+		    text-align: center;
+		    border-radius: 0.1rem 0.1rem 0px 0px;
+		}
+		.modelContent2 {
+			background-color: #FFF;
+		    width: 75vw;
+		    min-width: 2rem;
+		    height: auto;
+		    padding: 0rem 0.15rem;
+		    font-size: 0.16rem;
+		    border-radius: 0rem 0rem 0.1rem 0.1rem;
+		}
+		ul{
+			padding-left: 0.12rem;
+			margin-top: 0.1rem;
+		}
+		li{
+			font-size: 0.1rem;
+		    
+		    color: #777777;
+    		font-family: SimHei;
+    		line-height: 0.18rem;
+		}
+		.sure{
+			padding: 0.05rem 0.5rem;
+		    margin-bottom: 0.2rem;
+		    border: none;
+		    outline: none;
+		    background-color: #92D050;
+		    color: #FFF;
+		}
+		.borderTopNone{
+			border-top: none;
+		}
+		.btnDiv{
+			text-align: center;
+			
+		}
+		.paddingTop0{
+			padding-top: 0rem;
+		}
+		
+		.serviceContent1 {
+			background-color: #FFF;
+			width: 80vw;
+			min-width: 200px;
+			height: auto;
+			min-height: 50vmin;
+			border-radius: 15px;
+			padding: 2px;
+			font-size: 16px;
+			position: relative;
+		}
+		.serviceBox{
+			width: auto;
+			height:auto;
+			z-index: 100;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			webkit-transform: translateX(-50%) translateY(-50%);
+			-moz-transform: translateX(-50%) translateY(-50%);
+			-ms-transform: translateX(-50%) translateY(-50%);
+			transform: translateX(-50%) translateY(-50%);
+			background-color: transparent;
+			display: none;
+		}
+		.serviceContentInfo1{
+			width: 70vw;
+			height: auto;
+			min-height: 50px;
+			margin: 0px auto;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			webkit-transform: translateX(-50%) translateY(-50%);
+			-moz-transform: translateX(-50%) translateY(-50%);
+			-ms-transform: translateX(-50%) translateY(-50%);
+			transform: translateX(-50%) translateY(-50%);
+			padding: 15px;
+		}
+		.serviceContentBtn{
+			width: 60vw;
+    		height: 30px;
+			position: fixed;
+			top: 75%;
+			left: 50%;
+			webkit-transform: translateX(-50%) translateY(-50%);
+			-moz-transform: translateX(-50%) translateY(-50%);
+			-ms-transform: translateX(-50%) translateY(-50%);
+			transform: translateX(-50%) translateY(-50%);
+			border-radius: 0.05rem;
+		}
+		.serviceBtn{
+			width: 100%;
+		    height: 100%;
+		    border: none;
+		    background-color: #87cd50;
+		    border-radius: 5px;
+		    box-shadow: 2px 2px 5px 1px #ABCD83;
+		    outline: none;
+		    -webkit-appearance : none ;  /*解决iphone safari上的圆角问题*/
+		}
+		.box4{
+			width: auto;
+			height:auto;
+			z-index: 100;
+			position: fixed;
+			top: 20%;
+			left: 50%;
+			webkit-transform: translateX(-50%);
+			-moz-transform: translateX(-50%);
+			-ms-transform: translateX(-50%);
+			transform: translateX(-50%);
+			background-color: transparent;
+			display: none;
+			border-radius: 0.1rem;
+    		overflow: hidden;
+		}
+		.serviceBox{
+			width: auto;
+			height:auto;
+			z-index: 100;
+			position: fixed;
+			top: 20%;
+			left: 50%;
+			webkit-transform: translateX(-50%);
+			-moz-transform: translateX(-50%);
+			-ms-transform: translateX(-50%);
+			transform: translateX(-50%);
+			background-color: transparent;
+			display: none;
+			border-radius: 0.1rem;
+    		overflow: hidden;
+		}
+		.promptly{
+			padding: 0.05rem 0.5rem;
+		    margin-bottom: 0.2rem;
+		    border: none;
+		    outline: none;
+		    background-color: #92D050;
+		    color: #FFF;
+		}
+		.modelContent2 {
+			background-color: #FFF;
+		    width: 75vw;
+		    min-width: 2rem;
+		    height: auto;
+		    padding: 0rem 0.15rem;
+		    font-size: 0.16rem;
+		    border-radius: 0rem 0rem 0.1rem 0.1rem;
+		}
+		.modelContentInfo2{
+			height: auto;
+			min-height: 0.3rem;
+			padding: 0.1rem 0rem 0rem;
+			font-size: 0.13rem;
+			text-align: left;
+			position: relative;
+    		left: 0.01rem;
+    		border-top: 1px solid #DDD;
+		}
+		.absolute{
+			background-color: #fcfcfc;
+		    z-index: 500;
+		    position: absolute;
+		    height: 0.6rem;
+		    line-height: 0.3rem;
+		    font-size: 0.12rem;
+		    text-align: right;
+		    border-radius: 0.08rem;
+		    right: -0.1rem;
+		    width: 80%;
+		    top: 0.5rem;
+		    color: #7cbb44;
+		    padding: 0rem 0.2rem 0rem 0.1rem;
+		}
+		.borderBottom{
+			border-bottom:1px solid #7cbb44;
+		}
+		.margin1{
+			margin: 0.1rem auto;
+			font-size: 0.14rem;
+		}
+		.show{
+        	display: block;
+        }
 	</style>
 </head>
 <body id="body" class="hide">
@@ -598,12 +757,11 @@
 	            <img src="wechatImg/return.png" class="headerImg left0" onclick="returnPage()">
 	        </span>
 	        <span class="headerItem3 text-center">
-	            <label class="headerName">SHENBIAN</label>
+	            <label class="headerName">确认订单</label>
 	        </span>  
 	        <span class="headerItem1 text-right">
-	        	<img src="wechatImg/service.jpg" class = "headerImg right0" onclick="$('#fixedDialingNumbers').click();">
-				<a href="tel:10086" style="display:none;"><span id="fixedDialingNumbers">一键拨号</span></a>
-	        </span>
+	        	<img src="wechatImg/service.jpg" class = "headerImg right0" id="service">
+		    </span>
 	    </div>
 
 		<div class="content">
@@ -622,8 +780,12 @@
 						<img src="wechatImg/gender.png" class="inlineBlock personalNameLeftImg">
 						<label class="inlineBlock personalNameLeftText">体检人性别</label>
 					</div>
-					<div class="personalNameRight inlineBlock">
+					<div class="personalNameRight inlineBlock" style="position: relative;">
 						<input type="text" placeholder="未填写" id="medicalPersonGender" class="personalNameRightInput" readonly="readonly">
+						<div class="absolute hide">
+							<div class="borderBottom"><span class="liText">男</span></div>
+							<div><span class="liText">女</span></div>
+						</div>
 					</div>
 				</div>
 				<div class="personalName borderBottomNone">
@@ -648,7 +810,7 @@
 				<div class="medicalName">
 					<div class="medicalNameLeft">
 						<img src="wechatImg/serviceCharge.png" class="hospitalNameLeftImg">
-						<label class="inlineBlock medicalNameLeftText">服务费</label>
+						<label class="inlineBlock medicalNameLeftText" onclick="seviceCostImg()">服务费</label>
 						<img src="wechatImg/question.png" class="seviceCostImg">
 					</div>
 					<div class="medicalNameRight">
@@ -696,50 +858,79 @@
 	</div>
 	
 	<div class="box1">
-		<div class="modelHeader1">
-			<div class="closeModel1">
-				<img src="wechatImg/close.png" height="30" width="30" alt="&times" class="close1">
-			</div>
+		<div class="modelHeader2">
+			<span style="display:inline-block;">身边 · 先体验后付款</span>
 		</div>
-    	<div class="modelContent1">
-			<div class="modelContentInfo1 text-center">
-				<span>支付时间及方式、订单取消、价格以及免责声明。</span>
+    	<div class="modelContent2">
+			<div class="modelContentInfo2 text-center">
+				<span>如何支付？</span>
+				<ul>
+					<li>为了您能放心享受陪检服务，我们采用了“先检查后付款”的支付模式，您可以在父母检查结束后，登入微信公众号的订单查询页面进行付款。</li>
+				</ul>
 			</div>
-			<div class="modelContentBtn">
-				<button class="orderBtn" onclick="confirmOrder()">确 定</button>
+			<div class="modelContentInfo2 text-center borderTopNone paddingTop0" style="border-top: none;padding-top:0rem">
+				<span>关于价格</span>
+				<ul>
+					<li>所有筛查项目的价格明细均与医院官方检查费用严格一致，我们希望您和家人通过最合理的价格得到权威医院的专业检查，同时享受到用心细致的线上和线下服务。</li>
+					<li>如果您对价格有疑问，可查看医院官方网站或当地卫生厅(局)的《医疗服务项目价格公示》，或者直接拨打我们的24小时服务电话1855-0065-068。</li>
+				</ul>
+			</div>
+			<div class="btnDiv">
+				<button class="sure">确 定</button>
 			</div>
     	</div>
 	</div>
 
 	<div class="box2">
 		<div class="modelHeader2">
-			<span style="display:inline-block;">关于服务费</span>
-			<div class="closeModel2">
-				<img src="wechatImg/close.png" height="30" width="30" alt="&times" class="close2">
-			</div>
+			<span style="display:inline-block;">身边 · 关于服务费用</span>
 		</div>
     	<div class="modelContent2">
-			<div class="modelContentInfo2 text-left">
-				<span>服务费100元，单笔订单满<span style="color: #5F9C35">1000</span>元免除服务费</span>
+			<div class="modelContentInfo2 text-center" style="padding-top: 0rem">
+				<ul>
+					<li>我们将每单收取89元服务费。单笔检查总额满1000元，免收服务费。</li>
+					<li>如果有任何疑问，欢迎您随时拨打身边·24小时服务电话1855-0065-068。</li>
+				</ul>
 			</div>
-			<div class="modelContentInfo2 text-left borderBottomNone">
-				<label class="block">陪检服务内容：</label>
-				<span>陪检、电话通知、快递体检材料。</span>
+			<div class="btnDiv">
+				<button class="sure">确 定</button>
 			</div>
     	</div>
 	</div>
-	<div class="box3" id="genderBox">
+	
+	<div class="box4">
 		<div class="modelHeader2">
-			<span style="display:inline-block;">选择性别</span>
-			<div class="closeModel3">
-				<img src="wechatImg/close.png" height="30" width="30" alt="&times" class="close3">
-			</div>
+			<span style="display:inline-block;">身边 ·后续服务流程</span>
 		</div>
-    	<div class="modelContentInfo3" id="genderContent">
-			<label class="labelInfo"><input type="radio" name="gender" class="gender" value="男"><span>男</span></label>
-			<label class="labelInfo"><input type="radio" name="gender" class="gender" value="女"><span>女</span></label>
+    	<div class="modelContent2">
+			<div class="modelContentInfo2 text-center" style="padding-top: 0rem">
+				<ul>
+					<li>我们将在下单2小时后联系您的父母，约定检查日期，并发送体检地点、路线及检查注意事项。</li>
+					<li>体检当天，我们会在医院内全程陪同父母，整个过程无需排队和办理其他手续。</li>
+					<li>报告会在检查结束后5-7天内生成，您可在此期间完成支付并第一时间查看筛查结果。</li>
+					<li>登录公众号可以随时查看进度。如有需要，我们将寄送全部检查材料（报告及发票等）供您查验。</li>
+					<li>如有任何疑问，欢迎您随时拨打身边·24小时服务电话1855-0065-068。</li>
+				</ul>
+			</div>
+			<div class="btnDiv">
+				<button class="sure" onclick="confirmOrder()">确 定</button>
+			</div>
     	</div>
 	</div>
+	
+	<div class="serviceBox">
+    	<div class="modelContent2">
+			<div class="modelContentInfo2 text-center" style="padding-top: 0rem">
+				<div class="text-center margin1" style="margin-top: 0.2rem;">身边 · 24小时服务电话</div>
+				<div class="text-center margin1" style="color: #62698D">1855-0065-068</div>
+				<a href="tel:18550065068" class="hide"><span id="fixedDialingNumbers">一键拨号</span></a>
+			</div>
+			<div class="text-center">
+				<button class="promptly" onclick="$('.model').css('display','none');$('.serviceBox').css('display','none');$('#fixedDialingNumbers').click();">立 即 拨 打</button>
+			</div>
+    	</div>
+	</div>
+	
 	<div class="model"></div>
 	<script type="text/javascript" src="js/jquery-3.0.0.min.js"></script>
 	<script type="text/javascript">
@@ -796,39 +987,41 @@
 		})(document, window); 
 	</script>
 	<script type="text/javascript">
-		$(".desRightImg").click(function(){
+		$(".des").click(function(){
 			$(".model").css("display","block");
 			$(".box1").css("display","block");
+			$(".absolute").addClass('hide').removeClass('show');
 			return false;
 		});
+		
 		$(".btn").click(function(){
 			$(".model").css("display","block");
-			$(".box1").css("display","block");
+			$(".box4").css("display","block");
+			$(".absolute").addClass('hide').removeClass('show');
 			return false;
 		});
+		
 		$(".model").click(function(){
 			$(".model").css("display","none");
 			$(".box1").css("display","none");
 			$(".box2").css("display","none");
-			$(".box3").css("display","none");
+			$(".box4").css("display","none");
+			$(".serviceBox").css("display","none");
 			return false;
 		});
-		$(".closeModel1").click(function(){
-			$(".model").css("display","none");
-			$(".box1").css("display","none");
-			return false;
-		});
-
+		
 		$(".seviceCostImg").click(function(){
 			$(".model").css("display","block");
 			$(".box2").css("display","block");
+			$(".absolute").addClass('hide').removeClass('show');
 			return false;
 		});
-		$(".closeModel2").click(function(){
-			$(".model").css("display","none");
-			$(".box2").css("display","none");
+		function seviceCostImg() {
+			$(".model").css("display","block");
+			$(".box2").css("display","block");
+			$(".absolute").addClass('hide').removeClass('show');
 			return false;
-		});
+		}
 		
 		//返回前一页
 		function returnPage(){
@@ -837,7 +1030,7 @@
 		}
 
 		//性别
-		$("#medicalPersonGender").click(function(){
+		/*$("#medicalPersonGender").click(function(){
 			$(".model").css("display","block");
 			$(".box3").css("display","block");
 			return false;
@@ -852,7 +1045,7 @@
 			$("#medicalPersonGender").val(gender);
 			$(".closeModel3").click();
 			return false;
-		});
+		});*/
 		
 		
 		$(document).ready(function() {
@@ -891,7 +1084,7 @@
 									html += "<img src='" + item.icons + "' class='hospitalNameLeftImg'>";
 									
 									if (item.testPurpose != null && item.testPurpose != "") {
-										if (item.testPurpose.length > 3) {
+										if (item.testPurpose.length > 4) {
 											html += "<label class='inlineBlock medicalNameLeftText'>" + item.testPurpose.substr(0,3) + "...</label>";
 										} else {
 											html += "<label class='inlineBlock medicalNameLeftText'>" + item.testPurpose + "</label>";
@@ -925,9 +1118,9 @@
 							});
 							$("#medicalInfo").append(html);
 							//计算是否有服务费
-							if (totalPrice < 1000) {//有服务费，目前为100
-								totalPrice += 100;
-								$("#selectItemPrice").html("100");
+							if (totalPrice < 1000) {//有服务费，目前为89
+								totalPrice += 89;
+								$("#selectItemPrice").html("89");
 							}
 							$("#totalPrice").html(totalPrice);
 						}
@@ -1008,6 +1201,41 @@
 			});
 		}
 		
+		$(".sure").click(function(){
+			$(".model").css("display","none");
+			$(".box1").css("display","none");
+			$(".box2").css("display","none");
+			$(".box3").css("display","none");
+			$(".box4").css("display","none");
+			return false;
+		});
+		
+		$("#service").on("click", function() {
+			$(".model").css("display","block");
+			$(".serviceBox").css("display","block");
+			$(".absolute").addClass('hide').removeClass('show');
+		});
+		
+		$("body:not('.absolute')").click(function(event) {
+			$(".absolute").addClass('hide').removeClass('show');
+			/* Act on the event */
+		});
+
+		$("#medicalPersonGender").click(function(event) {
+			$(this).next().addClass("show").removeClass("hide");
+			event.stopPropagation();
+			return false;
+		});
+
+		$(".absolute").on("click", "div", function(event){
+			var name = $(this).text();
+			$(this).addClass('weight700').removeClass('weight100');
+			$(this).siblings().addClass('weight100').removeClass('weight700');
+			$(".absolute").addClass('hide').removeClass('show');
+			$("#medicalPersonGender").val(name);
+			event.stopPropagation();
+			return false;
+		});
 	</script>
 </body>
 </html>

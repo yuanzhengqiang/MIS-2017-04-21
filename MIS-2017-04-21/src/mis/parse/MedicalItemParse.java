@@ -114,7 +114,8 @@ public class MedicalItemParse {
 						if (des != null) {
 							medicalItemReturn.setDes(des);
 						}
-						String instructions = (String) contentreq.get("instructions");
+						String instructions = (String) contentreq
+								.get("instructions");
 						if (instructions != null) {
 							medicalItemReturn.setInstructions(instructions);
 						}
@@ -124,11 +125,13 @@ public class MedicalItemParse {
 							medicalItemReturn
 									.setMattersNeedAttention(mattersNeedAttention);
 						}
-						String icons = (String) contentreq
-								.get("icons");
+						String icons = (String) contentreq.get("icons");
 						if (icons != null) {
-							medicalItemReturn
-									.setIcons(icons);
+							medicalItemReturn.setIcons(icons);
+						}
+						String itemDes = (String) contentreq.get("itemDes");
+						if (itemDes != null) {
+							medicalItemReturn.setItemDes(itemDes);
 						}
 					}
 				}

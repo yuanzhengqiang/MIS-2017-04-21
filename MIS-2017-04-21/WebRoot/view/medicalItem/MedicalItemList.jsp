@@ -10,28 +10,33 @@
 <link rel="shortcut icon" href="images/logo.png">
 
 <title>体检项目管理</title>
-
 <!-- Bootstrap core CSS -->
-<link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
-<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
+	<link href="js/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
 
-<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-<!--[if lt IE 9]>
-      <script src="js/html5shiv.js"></script>
-    <![endif]-->
-<link rel="stylesheet" type="text/css" href="js/jquery.gritter/css/jquery.gritter.css" />
+	<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">
 
-<link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
-<link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
-<link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
-<link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
-<link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
-<link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
-<link rel="stylesheet" type="text/css" href="js/intro.js/introjs.css" />
-<link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
-<!-- Custom styles for this template -->
-<link href="css/style.css" rel="stylesheet" />
-<link rel="stylesheet" type="text/css" href="js/jquery.datatables/bootstrap-adapter/css/datatables.css" />
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+	  <script src="../../assets/js/html5shiv.js"></script>
+	  <script src="../../assets/js/respond.min.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" href="js/jquery.nanoscroller/nanoscroller.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.easypiechart/jquery.easy-pie-chart.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.switch/bootstrap-switch.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.datetimepicker/css/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" type="text/css" href="js/jquery.select2/select2.css" />
+	<link rel="stylesheet" type="text/css" href="js/bootstrap.slider/css/slider.css" />
+  <link rel="stylesheet" type="text/css" href="js/jquery.niftymodals/css/component.css" />
+  <link href="js/jquery.icheck/skins/square/blue.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="js/dropzone/css/dropzone.css" />
+<link rel="stylesheet" type="text/css" href="js/bootstrap.summernote/dist/summernote.css" />
+
+  <link rel="stylesheet" href="js/jquery.crop/css/jquery.Jcrop.css" type="text/css" />
+  
+    <link rel="stylesheet" type="text/css" href="js/jquery.magnific-popup/dist/magnific-popup.css" />
+    
+	<link href="css/style.css" rel="stylesheet" />	
 <script type="text/javascript" src="js/sortListTool.js"></script>
 <style type="text/css">
 .red {
@@ -269,6 +274,16 @@
 									<textarea class="form-control" id="mattersNeedAttention"></textarea>
 								</div>
 							</div>
+							<div class="form-group">
+								<label class="col-sm-12 control-label" style="text-align: center;">项目说明</label>
+								<div class="col-sm-12">
+									<div class="content">
+										<div class="form-group" style="padding-top:0;">
+											<div id="reportContent"></div>
+										</div>
+									</div>
+								</div>
+							</div>
 						</form>
 					</div>
 					<div class="footer">
@@ -327,31 +342,38 @@
 	<!-- Nifty Modal的遮罩层-->
 
 	<script type="text/javascript" src="js/mordo.tools/mordo.selectionBoxProcessing.js"></script>
-	<script type="text/javascript" src="js/jquery.js"></script>
-	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+	<script src="js/jquery.js"></script>
 	<script type="text/javascript" src="js/jquery.nanoscroller/jquery.nanoscroller.js"></script>
-	<script type="text/javascript" src="js/behaviour/general.js"></script>
-	<script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript" src="js/jquery.sparkline/jquery.sparkline.min.js"></script>
 	<script type="text/javascript" src="js/jquery.easypiechart/jquery.easy-pie-chart.js"></script>
+  <script src="js/jquery.ui/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript" src="js/jquery.nestable/jquery.nestable.js"></script>
 	<script type="text/javascript" src="js/bootstrap.switch/bootstrap-switch.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
 	<script src="js/jquery.select2/select2.min.js" type="text/javascript"></script>
-	<script src="js/skycons/skycons.js" type="text/javascript"></script>
 	<script src="js/bootstrap.slider/js/bootstrap-slider.js" type="text/javascript"></script>
-	<script src="js/intro.js/intro.js" type="text/javascript"></script>
-	<script src="js/behaviour/voice-commands.js"></script>
-	<script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
-	<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
-	<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
-	<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
-	<script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>
-	<script type="text/javascript" src="js/jquery.md5.js"></script>
-	<script type="text/javascript" src="js/jquery.datatables/jquery.datatables.min.js"></script>
-	<script type="text/javascript" src="js/jquery.datatables/bootstrap-adapter/js/datatables.js"></script>
-	
+	<script type="text/javascript" src="js/jquery.gritter/js/jquery.gritter.js"></script>
+  <script type="text/javascript" src="js/jquery.niftymodals/js/jquery.modalEffects.js"></script>   
+  
+  <script type="text/javascript" src="js/masonry.js"></script>
+  
+  <script type="text/javascript" src="js/jquery.crop/js/jquery.Jcrop.js"></script>
+<script src="js/ckeditor/ckeditor.js"></script>
+	<script src="js/ckeditor/adapters/jquery.js"></script>
+  <script type="text/javascript" src="js/bootstrap.summernote/dist/summernote.min.js"></script>
+  <script type="text/javascript" src="js/bootstrap.wysihtml5/lib/js/wysihtml5-0.3.0.js"></script>
+  <script type="text/javascript" src="js/bootstrap.wysihtml5/src/bootstrap-wysihtml5.js"></script>
+
+  <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+  <script src="js/jquery.upload/js/jquery.iframe-transport.js"></script>
+  <!-- The basic File Upload plugin -->
+  <script src="js/jquery.upload/js/jquery.fileupload.js"></script>
+	<script type="text/javascript" src="js/behaviour/general.js"></script>
+	<script type="text/javascript" src="js/jquery.icheck/icheck.min.js"></script>
+<script type="text/javascript" src="js/dropzone/dropzone.js"></script>
+
+<script type="text/javascript" src="js/jquery.magnific-popup/dist/jquery.magnific-popup.min.js"></script>
+
 	<script type="text/javascript">
 	//根据排序规则重新查询
 	function queryBySort(par,column){
@@ -371,6 +393,13 @@
 	
 	$(document).ready(function(){
 	    App.init();
+	    App.textEditor();
+	    $(".btn-toolbar").css("margin", "0px auto");	  
+	    $(".note-codable").css("min-width", "730");  
+	    // $('#some-textarea').wysihtml5();
+        $('#reportContent').summernote({
+        	height:300
+        });
 	    var windowHeight=$(window).height();
 	   	$("#editDetail").css("height", (windowHeight) + "px");
 	   	$("#editDetail").find(".modal-body").css("height", (windowHeight - 50) + "px");
@@ -401,12 +430,13 @@
 		$("#testPurpose").val("");
 		$("#selectDes").val("");
 		$("#mattersNeedAttention").val("");
+		$("#reportContent").code("");
 		$("#des").val("");
 		$("#editDes").click();
 	}
 	
 	//编辑显示详情
-	function editInfo(id, itemName,iconImage, price, category, testWay, testPurpose, selectDes, des, mattersNeedAttention) {
+	function editInfo(id, itemName,iconImage, price, category, testWay, testPurpose, selectDes, des, mattersNeedAttention,par) {
 		$("#medicalItemInfoId").val(id);
 		$("#itemName").val(itemName);
 		$("#iconImage").val(iconImage);
@@ -417,6 +447,7 @@
 		$("#testPurpose").val(testPurpose);
 		$("#selectDes").val(selectDes);
 		$("#mattersNeedAttention").val(mattersNeedAttention);
+		$("#reportContent").code($(par).find("input").val());
 		$("#des").val(des);
 		$("#editDes").click();
 	}
@@ -464,6 +495,7 @@
 		var testPurpose = $.trim($("#testPurpose").val());//检测目的
 		var selectDes = $.trim($("#selectDes").val());//选择说明
 		var mattersNeedAttention = $.trim($("#mattersNeedAttention").val());//注意事项
+		var reportContent = $("#reportContent").code();
 		var des = $.trim($("#des").val());//备注
 		
 		var reqmsg="{'action':'ADD_MEDICAL_ITEM_INFO_REQUEST','content':{";
@@ -520,6 +552,16 @@
 	        reqmsg += "\"mattersNeedAttention\":\"" + mattersNeedAttention + "\",";
 		} else {
 			reqmsg += "\"mattersNeedAttention\":\"\",";
+		}
+		if (reportContent != null && reportContent != "") {
+			reportContent = JSON.stringify(reportContent);
+			/*if(reportContent.length > 1000){
+				alert("字数过长，请重新输入");
+				return;
+			}*/
+			reqmsg += "'itemDes':" + reportContent + ",";
+		} else {
+			reqmsg += "'itemDes':'',";
 		}
 		if (des != null && des != "") {
 	        reqmsg += "\"des\":\"" + des + "\",";
@@ -642,7 +684,7 @@
 				htmlcode += "<span class=\"sr-only\">Toggle Dropdown</span>";
 				htmlcode += "</button>";
 				htmlcode += "<ul role=\"menu\" class=\"dropdown-menu pull-right\">";
-				htmlcode += "<li onclick=\"editInfo('"+item.id+"','"+ item.itemName+"','"+item.icons+"','"+ item.price+"','"+ item.category+"','"+ item.testWay+"','"+ item.testPurpose+"','"+ item.selectDes+"','"+ item.des+"','"+ item.mattersNeedAttention+"')\"><a href=\"###\">编辑</a></li>";
+				htmlcode += "<li onclick=\"editInfo('"+item.id+"','"+ item.itemName+"','"+item.icons+"','"+ item.price+"','"+ item.category+"','"+ item.testWay+"','"+ item.testPurpose+"','"+ item.selectDes+"','"+ item.des+"','"+ item.mattersNeedAttention+"',this)\"><input type='hidden' value='" + item.itemDes + "'><a href=\"###\">编辑</a></li>";
 				htmlcode += "<li onclick=\"del('"+item.id+"')\"><a href=\"###\">删除</a></li>";
 				htmlcode += "</ul></div></td>";
 				htmlcode += "</tr>";
@@ -780,6 +822,12 @@
 	   $("#closeIconChoose").click();
 	}	
 	</script>
-	
+	  <script src="js/behaviour/voice-commands.js"></script>
+  <script src="js/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.pie.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.resize.js"></script>
+<script type="text/javascript" src="js/jquery.flot/jquery.flot.labels.js"></script>
+<script type="text/javascript" src="js/jquery.form.js"></script>
 </body>
 </html>

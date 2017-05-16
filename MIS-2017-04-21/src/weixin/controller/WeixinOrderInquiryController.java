@@ -168,7 +168,7 @@ public class WeixinOrderInquiryController {
 	        	
 	        	//生成获取预支付签名  
 	        	SortedMap<Object,Object> parameters = new TreeMap<Object,Object>(); 
-	        	parameters.put("body", "身边检服务-订单付款"); //商品描述 
+	        	parameters.put("body", "身边体检服务-订单付款"); //商品描述 
 	            parameters.put("appid", SignUtil.APPID);  
 	            parameters.put("mch_id", SignUtil.PARTNER); //商户号      
 	            parameters.put("nonce_str", noncestr); 
@@ -187,7 +187,7 @@ public class WeixinOrderInquiryController {
 	                    "<mch_id>"+ SignUtil.PARTNER+"</mch_id>"+
 	                    "<nonce_str>"+noncestr+"</nonce_str>"+
 	                    "<sign>"+mySign+"</sign>"+
-	                    "<body><![CDATA[身边检服务-订单付款]]></body>"+
+	                    "<body><![CDATA[身边体检服务-订单付款]]></body>"+
 	                    "<out_trade_no>"+out_trade_no+"</out_trade_no>"+
 	                    "<total_fee>"+total_fee+"</total_fee>"+
 	                    "<spbill_create_ip>"+request.getRemoteAddr()+"</spbill_create_ip>"+

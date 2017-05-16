@@ -24,6 +24,8 @@ public class MedicalItemEntity implements java.io.Serializable {
     public final static String MATTERS_NEED_ATTENTION = "MATTERS_NEED_ATTENTION";
     public final static String INSTRUCTIONS = "INSTRUCTIONS";
     public final static String ICONS = "ICONS";
+    public final static String ITEM_DES = "ITEM_DES";
+    
     /**
 	 * 主键
 	 */
@@ -79,6 +81,11 @@ public class MedicalItemEntity implements java.io.Serializable {
 	 */
 	@ColumnDescription(name = "ICONS")
 	private String icons;
+	/**
+	 * 项目说明
+	 */
+	@ColumnDescription(name = "ITEM_DES")
+	private String itemDes;
 	
     public Integer getId() {
 		return id;
@@ -156,5 +163,11 @@ public class MedicalItemEntity implements java.io.Serializable {
 	}
 	public void setIcons(String icons) {
 		this.icons = icons;
+	}
+	public String getItemDes() {
+		return itemDes;
+	}
+	public void setItemDes(String itemDes) {
+		this.itemDes = itemDes;
 	}
 }

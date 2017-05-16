@@ -362,10 +362,10 @@
     	}
     	if (reportContent != null && reportContent != "") {
 			reportContent = JSON.stringify(reportContent);
-			if(reportContent.length > 500){
+			/*if(reportContent.length > 500){
 				alert("字数过长，请重新输入");
 				return;
-			}
+			}*/
 			reqmsg += "'medicalReportContent':" + reportContent + ",";
 		} else {
 			reqmsg += "'medicalReportContent':'',";

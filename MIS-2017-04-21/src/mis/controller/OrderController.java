@@ -178,9 +178,9 @@ public class OrderController {
 					String month = time.substring(4, 6);
 					String day = time.substring(6, 8);
 					time = year + "年" + month + "月" + day + "日";
-					if (_temp_.getServicePersonName() != null && _temp_.getServicePersonName().trim().length() > 0) {
+					if (_temp_.getMedicalPersonName() != null && _temp_.getMedicalPersonName().trim().length() > 0) {
 						if (_temp_.getMedicalHospital() != null && _temp_.getMedicalHospital().trim().length() > 0) {
-							pushMessage.examinationTimeNotice(_temp_.getOrderCustomer(), _temp_.getServicePersonName(), _temp_.getMedicalHospital(), time);
+							pushMessage.examinationTimeNotice(_temp_.getOrderCustomer(), _temp_.getMedicalPersonName(), _temp_.getMedicalHospital(), time);
 							jobj.put("result", 100);
 							jobj.put("des", "已发送");
 						} else {
@@ -189,7 +189,7 @@ public class OrderController {
 						}
 					} else {
 						jobj.put("result", 200);
-						jobj.put("des", "服务人员未填写");
+						jobj.put("des", "体检人姓名未填写");
 					}
 				}
 			} catch (Exception e) {
@@ -223,10 +223,10 @@ public class OrderController {
 			try {
 				int orderid = Integer.parseInt(orderId);
 				OrderEntity _temp_ = OrderService.getInstance().getById(orderid);
-				if (_temp_.getServicePersonName() != null && _temp_.getServicePersonName().trim().length() > 0) {
+				if (_temp_.getMedicalPersonName() != null && _temp_.getMedicalPersonName().trim().length() > 0) {
 					if (_temp_.getMedicalReportExpress() != null && _temp_.getMedicalReportExpress().trim().length() > 0) {
 						if (_temp_.getMedicalReportExpressOrderNum() != null && _temp_.getMedicalReportExpressOrderNum().trim().length() > 0) {
-							pushMessage.medicalReportSentNotice(_temp_.getOrderCustomer(), _temp_.getServicePersonName(), _temp_.getMedicalReportExpress(), _temp_.getMedicalReportExpressOrderNum());
+							pushMessage.medicalReportSentNotice(_temp_.getOrderCustomer(), _temp_.getMedicalPersonName(), _temp_.getMedicalReportExpress(), _temp_.getMedicalReportExpressOrderNum());
 							jobj.put("result", 100);
 							jobj.put("des", "已发送");
 						} else {
@@ -239,7 +239,7 @@ public class OrderController {
 					}
 				} else {
 					jobj.put("result", 200);
-					jobj.put("des", "服务人员未填写");
+					jobj.put("des", "体检人姓名未填写");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -272,9 +272,9 @@ public class OrderController {
 			try {
 				int orderid = Integer.parseInt(orderId);
 				OrderEntity _temp_ = OrderService.getInstance().getById(orderid);
-				if (_temp_.getServicePersonName() != null && _temp_.getServicePersonName().trim().length() > 0) {
+				if (_temp_.getMedicalPersonName() != null && _temp_.getMedicalPersonName().trim().length() > 0) {
 					if (_temp_.getStatus() == 2 || _temp_.getStatus() == 3) {
-						pushMessage.physicalExaminationNotice(_temp_.getOrderCustomer(),  _temp_.getServicePersonName());
+						pushMessage.physicalExaminationNotice(_temp_.getOrderCustomer(),  _temp_.getMedicalPersonName());
 						jobj.put("result", 100);
 						jobj.put("des", "已发送");
 					} else if (_temp_.getStatus() == 4) {
@@ -289,7 +289,7 @@ public class OrderController {
 					}
 				} else {
 					jobj.put("result", 200);
-					jobj.put("des", "服务人员未填写");
+					jobj.put("des", "体检人姓名未填写");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -335,9 +335,9 @@ public class OrderController {
 					String month = time.substring(4, 6);
 					String day = time.substring(6, 8);
 					time = year + "年" + month + "月" + day + "日";
-					if (_temp_.getServicePersonName() != null && _temp_.getServicePersonName().trim().length() > 0) {
+					if (_temp_.getMedicalPersonName() != null && _temp_.getMedicalPersonName().trim().length() > 0) {
 						if (_temp_.getMedicalHospital() != null && _temp_.getMedicalHospital().trim().length() > 0) {
-							pushMessage.physicalExaminationReport(_temp_.getOrderCustomer(), _temp_.getServicePersonName(), _temp_.getOrderNum(), time, _temp_.getMedicalHospital());
+							pushMessage.physicalExaminationReport(_temp_.getOrderCustomer(), _temp_.getMedicalPersonName(), _temp_.getOrderNum(), time, _temp_.getMedicalHospital());
 							jobj.put("result", 100);
 							jobj.put("des", "已发送");
 						} else {
@@ -346,7 +346,7 @@ public class OrderController {
 						}
 					} else {
 						jobj.put("result", 200);
-						jobj.put("des", "服务人员未填写");
+						jobj.put("des", "体检人姓名未填写");
 					}
 				}
 			} catch (Exception e) {

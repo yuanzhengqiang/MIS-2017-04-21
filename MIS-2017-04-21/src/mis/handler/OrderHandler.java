@@ -121,7 +121,7 @@ public class OrderHandler extends BaseHandler {
 								MedicalReportEntity _mre_ = order.getMedicalReport();
 								if (_mre_ != null) {
 									if (_mre_.getMedicalReportNum() == null || _mre_.getMedicalReportNum().length() == 0) {
-										String _orderNum_ = RandomNum.generateHexString(32);
+										String _orderNum_ = RandomNum.generateHexString(2);
 										_mre_.setMedicalReportNum(_orderNum_);
 										order.setMedicalReport(_mre_);
 									}
@@ -183,12 +183,12 @@ public class OrderHandler extends BaseHandler {
 					Date date = new Date();
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 					order.setOrderTime(sdf.format(date));
-					String orderNum = RandomNum.generateHexString(16);
+					String orderNum = RandomNum.generateHexString(2);
 					order.setOrderNum(orderNum);
 					MedicalReportEntity _mre_ = order.getMedicalReport();
 					if (_mre_ != null) {
 						if (_mre_.getMedicalReportNum() == null) {
-							String _orderNum_ = RandomNum.generateHexString(32);
+							String _orderNum_ = RandomNum.generateHexString(2);
 							_mre_.setMedicalReportNum(_orderNum_);
 							order.setMedicalReport(_mre_);
 						}

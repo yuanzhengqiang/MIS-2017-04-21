@@ -7,7 +7,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<title>支付失败</title>
+	<title>身边·陪检服务</title>
 	<style>
 		html{font-size: 100px;}
         body{
@@ -142,6 +142,128 @@
 		.hide{
 			display: none;
 		}
+		.model{
+			width: 100%;
+			height:100%;
+			z-index: 99;
+			position: fixed;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			opacity: 0.6;
+			background-color: #333;
+			display: none;
+		}
+		
+		.serviceContent1 {
+			background-color: #FFF;
+			width: 80vw;
+			min-width: 200px;
+			height: auto;
+			min-height: 50vmin;
+			border-radius: 15px;
+			padding: 2px;
+			font-size: 16px;
+			position: relative;
+		}
+		.serviceBox{
+			width: auto;
+			height:auto;
+			z-index: 100;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			webkit-transform: translateX(-50%) translateY(-50%);
+			-moz-transform: translateX(-50%) translateY(-50%);
+			-ms-transform: translateX(-50%) translateY(-50%);
+			transform: translateX(-50%) translateY(-50%);
+			background-color: transparent;
+			display: none;
+		}
+		.serviceContentInfo1{
+			width: 70vw;
+			height: auto;
+			min-height: 50px;
+			margin: 0px auto;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			webkit-transform: translateX(-50%) translateY(-50%);
+			-moz-transform: translateX(-50%) translateY(-50%);
+			-ms-transform: translateX(-50%) translateY(-50%);
+			transform: translateX(-50%) translateY(-50%);
+			padding: 15px;
+		}
+		.serviceContentBtn{
+			width: 60vw;
+    		height: 30px;
+			position: fixed;
+			top: 75%;
+			left: 50%;
+			webkit-transform: translateX(-50%) translateY(-50%);
+			-moz-transform: translateX(-50%) translateY(-50%);
+			-ms-transform: translateX(-50%) translateY(-50%);
+			transform: translateX(-50%) translateY(-50%);
+			border-radius: 0.05rem;
+		}
+		.serviceBtn{
+			width: 100%;
+		    height: 100%;
+		    border: none;
+		    background-color: #87cd50;
+		    border-radius: 5px;
+		    box-shadow: 2px 2px 5px 1px #ABCD83;
+		    outline: none;
+		    -webkit-appearance : none ;  /*解决iphone safari上的圆角问题*/
+		}
+		.serviceBox{
+			width: auto;
+			height:auto;
+			z-index: 100;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			webkit-transform: translateX(-50%) translateY(-50%);
+			-moz-transform: translateX(-50%) translateY(-50%);
+			-ms-transform: translateX(-50%) translateY(-50%);
+			transform: translateX(-50%) translateY(-50%);
+			background-color: transparent;
+			display: none;
+			border-radius: 0.1rem;
+    		overflow: hidden;
+		}
+		.promptly{
+			padding: 0.05rem 0.3rem;
+		    margin-bottom: 0.1rem;
+		    border: none;
+		    outline: none;
+		    background-color: #92D050;
+		    color: #FFF;
+		}
+		.margin1{
+			margin: 0.1rem auto;
+			font-size: 0.14rem;
+		}
+		.modelContent2 {
+			background-color: #FFF;
+		    width: 75vw;
+		    min-width: 2rem;
+		    height: auto;
+		    padding: 0rem 0.15rem;
+		    font-size: 0.16rem;
+		    border-radius: 0rem 0rem 0.1rem 0.1rem;
+		}
+		.modelContentInfo2{
+			height: auto;
+			min-height: 0.3rem;
+			padding: 0.15rem 0rem 0rem;
+			font-size: 0.13rem;
+			text-align: left;
+			position: relative;
+    		left: 0.01rem;
+    		border-top: 1px solid #DDD;
+		}
 	</style>
 </head>
 <body id="body" class="hide">
@@ -151,18 +273,17 @@
 	            <img src="wechatImg/return.png" class="headerImg left0" onclick="returnPage()" style="visibility: hidden;">
 	        </span>
 	        <span class="headerItem3 text-center">
-	            <label class="headerName">支付失败</label>
+	            <label class="headerName">下单失败</label>
 	        </span>  
 	        <span class="headerItem1 text-right">
-	        	<img src="wechatImg/service.jpg" class = "headerImg right0" onclick="$('#fixedDialingNumbers').click();">
-				<a href="tel:10086" style="display:none;"><span id="fixedDialingNumbers">一键拨号</span></a>
-	        </span>
+	        	<img src="wechatImg/service.jpg" class = "headerImg right0" id="service">
+			</span>
 	    </div>
 
 		<div class="content">
 			<div class="payInfo">
 				<img src="wechatImg/failure.png" class="payImg">
-				<label class="payStatus">支付失败</label>
+				<label class="payStatus">下单失败</label>
 			</div>
 			<div class="btnGroup">
 		    	<div class="btn">
@@ -172,6 +293,20 @@
 		</div>
 	</div>
 	
+	<div class="serviceBox">
+    	<div class="modelContent2">
+			<div class="modelContentInfo2 text-center">
+				<div class="text-center margin1">身边 · 24小时服务电话</div>
+				<div class="text-center margin1" style="color: #62698D">1855-0065-068</div>
+				<a href="tel:18550065068" class="hide"><span id="fixedDialingNumbers">一键拨号</span></a>
+			</div>
+			<div class="text-center">
+				<button class="promptly" onclick="$('#fixedDialingNumbers').click();$('.model').css('display','none');$('.serviceBox').css('display','none');">立 即 拨 打</button>
+			</div>
+    	</div>
+	</div>
+	
+	<div class="model"></div>
 	<script type="text/javascript" src="js/jquery-3.0.0.min.js"></script>
 	<script type="text/javascript">
 		(function (doc, win) {
@@ -234,8 +369,14 @@
 			window.location.replace("<%=request.getContextPath()%>/" + "weixinReservationService.do?chooseAreaAndHospital&weixin=weixin");
 		}
 
-		
+		$("#service").on("click", function() {
+			$(".model").css("display","block");
+			$(".serviceBox").css("display","block");
+		});
+		$(".model").on("click", function() {
+			$(".model").css("display","none");
+			$(".serviceBox").css("display","none");
+		});
 	</script>
-	
 </body>
 </html>

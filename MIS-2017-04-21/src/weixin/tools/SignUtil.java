@@ -36,14 +36,14 @@ public class SignUtil {
 	
 	// 与接口配置信息中的Token要一致
 	public static String token = "tjptoken";
-	public static String yumingdizhi = "ibyside.mordo-care.com";
-	public static String handlerurl = "http://ibyside.mordo-care.com";
+	public static String yumingdizhi = "wxt.ibyside.com";
+	public static String handlerurl = "http://wxt.ibyside.com";
 	public static String APPID = "wxf132c41c6af14e16";//正式
 	public static String SECRET = "bde07ad33f07edd1f3435a8ea199b19a";//正式
-	public static String PARTNER_KEY = "";//商户号对应的密钥6706864efed41f45d95ca45082f1a802
-	public static String PARTNER = "";//财付通商户号1403184402
-	public static String payNotifyUrl = "http://ibyside.mordo-care.com/wechatYuE.do?mpayNotify&weixin=weixin";//支付回调页
-	public static String weChatPhotoUrl = "http://ibyside.mordo-care.com/wechatOlder.do?mainAdd&flag=longActingInsuranceAgent&wechatId=";//拍照所需url参数
+	public static String PARTNER_KEY = "0213dc10d71111c90ef816e630d9afe8";//商户号对应的密钥
+	public static String PARTNER = "1468642902";//财付通商户号
+	public static String payNotifyUrl = "http://wxt.ibyside.com/wechatYuE.do?mpayNotify&weixin=weixin";//支付回调页
+	//public static String weChatPhotoUrl = "http://wxt.ibyside.com/wechatOlder.do?mainAdd&flag=longActingInsuranceAgent&wechatId=";//拍照所需url参数
 
 	/**
 	 * 验证签名

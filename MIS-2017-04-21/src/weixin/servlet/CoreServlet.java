@@ -224,7 +224,7 @@ public class CoreServlet extends HttpServlet {
 									}
 								}
 							}
-							huifuString = XMLUtil.formatXmlAnswer(FromUserName,ToUserName,"感谢关注！【" + nickname + "】,您已成为我们的会员。您的邀请码是：" + inviteCode + "。活动链接地址" + SignUtil.handlerurl + "/weixinactivity.do?weixinEventDetails&weixin=weixin&invitationCode=" + inviteCode);
+							huifuString = XMLUtil.formatXmlAnswer(FromUserName,ToUserName,"感谢关注！【" + nickname + "】,您已成为我们的会员。您的邀请码是：" + inviteCode + "。<a href=\"" + SignUtil.handlerurl + "/weixinactivity.do?weixinEventDetails&weixin=weixin&invitationCode=" + inviteCode + "\">活动链接地址</a>");
 							logger.debug(nickname + "   " + FromUserName +"   微信注册成功");
 							OutputStream os = response.getOutputStream();
 							os.write(huifuString.getBytes("UTF-8"));

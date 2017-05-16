@@ -104,6 +104,12 @@
 														<th name="needSort" class="sorting" onclick="queryBySort(this,'chinese_city')">
 															<strong>市</strong>
 														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'inviteCode')">
+															<strong>邀请码</strong>
+														</th>
+														<th name="needSort" class="sorting" onclick="queryBySort(this,'introduceCode')">
+															<strong>介绍码</strong>
+														</th>
 														<th>
 															<strong>操作<strong>
 														</th>
@@ -331,6 +337,8 @@
 					htmlcode += "<td>" + item.country + "</td>";
 					htmlcode += "<td>" + item.province + "</td>";
 					htmlcode += "<td>" + item.city + "</td>";
+					htmlcode += "<td>" + item.inviteCode + "</td>";
+					htmlcode += "<td>" + item.introduceCode + "</td>";
 					
 					htmlcode += "<td><div class=\"btn-group\">";
 					htmlcode += "<button class=\"btn btn-default btn-xs\" type=\"button\">操作</button>";

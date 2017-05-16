@@ -20,7 +20,7 @@ public class RandomNum {
 	public static String generateHexString(int length) {
 		Random random_HEXALLCHAR = new Random();
 		Random random_BASESTR = new Random();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		Date date = new Date();
 		String baseStr = sdf.format(date);
 		int iSub_BASESTR = 0;
@@ -57,7 +57,8 @@ public class RandomNum {
 	 * @param argv
 	 */
 	public static void main(String[] argv) {
-		for (int i = 0; i < 100; i++)
-			System.out.println(RandomNum.generate4HexString());
+		System.out.println(generateHexString(2));
+//		for (int i = 0; i < 100; i++)
+//			System.out.println(RandomNum.generate4HexString());
 	}
 }
